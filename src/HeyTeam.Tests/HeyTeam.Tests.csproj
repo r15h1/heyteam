@@ -12,4 +12,13 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\HeyTeam.Core\HeyTeam.Core.csproj" />
+    <ProjectReference Include="..\HeyTeam.Lib\HeyTeam.Lib.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <DotNetCliToolReference Include="Microsoft.DotNet.Watcher.Tools" Version="2.0.0" />
+  </ItemGroup> 
+
 </Project>
