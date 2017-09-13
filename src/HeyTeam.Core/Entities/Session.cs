@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using HeyTeam.Core.Exceptions;
+using System.Linq;
 
 namespace HeyTeam.Core.Entities {
     public class Session {
@@ -12,6 +13,13 @@ namespace HeyTeam.Core.Entities {
 
         internal void AddEvaluation(Evaluation evaluation) {
             Validate(evaluation);
+            if(evaluation.Id.HasValue) {
+                var existing = evaluations.FirstOrDefault(e => e.Evaluator.Id == evaluation.Evaluator.Id);
+                if(existing != null) {
+                    evaluation.Id = existing.Id;
+                    evaluations.Remove(existing);                
+                }
+            }
             evaluations.Add(evaluation);
         }
 

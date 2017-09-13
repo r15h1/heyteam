@@ -53,5 +53,32 @@ namespace HeyTeam.Tests {
             var session = new Session() { Id = 1 };
             Assert.Throws<IllegalOperationException>(() => player.EvaluateSession(session, evaluation));
         }   
+
+        [Fact]
+        public void EvaluationsCountIsValid() {            
+            var player = new Player(){ Id = 1 };
+            var evaluation = new Evaluation(player) { Comments = "This is an evaluation" };
+            var session = new Session() { Id = 1 };
+            player.EvaluateSession(session, evaluation);
+            Assert.True(session.evaluations.Count == 1);
+        }   
+
+        [Fact]
+
+        public void APlayerCanGiveMoreThanOneEvaluationPerSession() {            
+            var player = new Player(){ Id = 1 };
+            var session = new Session() { Id = 1 };
+            var firstevaluation = new Evaluation(player) { Comments = "This is my first evaluation" };
+            var secondevaluation = new Evaluation(player) { Comments = "This is my second evaluation" };
+            
+            player.EvaluateSession(session, firstevaluation);
+            player.EvaluateSession(session, secondevaluation);
+            Assert.True(session.evaluations.Count == 2);
+        }   
+
+        //Existing evaluation can be updated - keep history
+        //Point in time evaluations - deletions, modifications - keep history
+        //Set state modified, deleted, new???
+        //Session can be closed for evaluations
     }
 }
