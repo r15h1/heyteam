@@ -1,14 +1,13 @@
 using System;
 using Xunit;
 using HeyTeam.Core.Entities;
+using HeyTeam.Core.Exceptions;
 
 namespace HeyTeam.Tests
 {
-    public class PlayerTests
-    {
+    public class PlayerTests {
         [Fact]
-        public void DescribePlayer()
-        {
+        public void DescribePlayer() {
             Player player = new Player();
             player.Id = 5;
             player.FirstName = "John";
@@ -24,8 +23,5 @@ namespace HeyTeam.Tests
             Assert.Same(player.SquadNumber, "35");
             Assert.Equal(player.DominantFoot, Player.Foot.LEFT);             
         }
-
-        /*[Fact]
-        public void PlayerCanEvaluate*/
     }
 }
