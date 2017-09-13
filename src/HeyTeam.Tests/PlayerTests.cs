@@ -3,8 +3,7 @@ using Xunit;
 using HeyTeam.Core.Entities;
 using HeyTeam.Core.Exceptions;
 
-namespace HeyTeam.Tests
-{
+namespace HeyTeam.Tests {
     public class PlayerTests {
         [Fact]
         public void DescribePlayer() {

@@ -3,8 +3,7 @@ using Xunit;
 using HeyTeam.Core.Entities;
 using HeyTeam.Core.Exceptions;
 
-namespace HeyTeam.Tests
-{
+namespace HeyTeam.Tests {
     public class EvaluationTests {
         [Fact]
         public void NullCannotBeSetAsEvaluator() {            
@@ -13,46 +12,46 @@ namespace HeyTeam.Tests
 
         [Fact]
         public void UnRegisteredPlayerCannotBeSetAsEvaluator() {            
-            ISessionEvaluator evaluator = new Player();
-            Assert.Throws<ArgumentNullException>(() => new Evaluation(evaluator) { Comments = "This is my evaluation" });
+            var player = new Player();
+            Assert.Throws<ArgumentNullException>(() => new Evaluation(player) { Comments = "This is my evaluation" });
         }
 
         [Fact]
         public void NullSessionCannotBeEvaluated() {            
-            ISessionEvaluator evaluator = new Player(){ Id = 1 };
-            var evaluation = new Evaluation(evaluator) { Comments = "This is an evaluation" };            
-            Assert.Throws<ArgumentNullException>(() => evaluator.EvaluateSession(null, evaluation));
+            var player = new Player(){ Id = 1 };
+            var evaluation = new Evaluation(player) { Comments = "This is an evaluation" };            
+            Assert.Throws<ArgumentNullException>(() => player.EvaluateSession(null, evaluation));
         }       
 
         [Fact]
         public void NullEvaluationIsNotValid() {            
-            ISessionEvaluator evaluator = new Player(){ Id = 1 };
+            var player = new Player(){ Id = 1 };
             var session = new Session { Id = 1 };
-            Assert.Throws<ArgumentNullException>(() => evaluator.EvaluateSession(session, null));
+            Assert.Throws<ArgumentNullException>(() => player.EvaluateSession(session, null));
         }       
 
         [Fact]
         public void UnRegisteredSessionsCannotBeEvaluated() {            
-            ISessionEvaluator evaluator = new Player(){ Id = 1 };
-            var evaluation = new Evaluation(evaluator) { Comments = "This is an evaluation" };
+            var player = new Player(){ Id = 1 };
+            var evaluation = new Evaluation(player) { Comments = "This is an evaluation" };
             var session = new Session();
-            Assert.Throws<IllegalOperationException>(() => evaluator.EvaluateSession(session, evaluation));
+            Assert.Throws<IllegalOperationException>(() => player.EvaluateSession(session, evaluation));
         } 
 
         [Fact]
         public void EvaluationsMustHaveAValidComment() {            
-            ISessionEvaluator evaluator = new Player(){ Id = 1 };
-            var evaluation = new Evaluation(evaluator);
+            var player = new Player(){ Id = 1 };
+            var evaluation = new Evaluation(player);
             var session = new Session() { Id = 1 };
-            Assert.Throws<IllegalOperationException>(() => evaluator.EvaluateSession(session, evaluation));
+            Assert.Throws<IllegalOperationException>(() => player.EvaluateSession(session, evaluation));
         }    
 
         [Fact]
         public void EvaluationsCommentsCannotBeWhiteSpace() {            
-            ISessionEvaluator evaluator = new Player(){ Id = 1 };
-            var evaluation = new Evaluation(evaluator) { Comments = " " };
+            var player = new Player(){ Id = 1 };
+            var evaluation = new Evaluation(player) { Comments = " " };
             var session = new Session() { Id = 1 };
-            Assert.Throws<IllegalOperationException>(() => evaluator.EvaluateSession(session, evaluation));
+            Assert.Throws<IllegalOperationException>(() => player.EvaluateSession(session, evaluation));
         }   
     }
 }

@@ -2,10 +2,8 @@ using System;
 using System.Collections.Generic;
 using HeyTeam.Core.Exceptions;
 
-namespace HeyTeam.Core.Entities
-{
-    public class Session
-    {
+namespace HeyTeam.Core.Entities {
+    public class Session {
         public int? Id { get; set; }
         public string Title { get; set; }
         public DateTime StartDate { get; set; }
@@ -17,8 +15,7 @@ namespace HeyTeam.Core.Entities
             evaluations.Add(evaluation);
         }
 
-        private void Validate(Evaluation evaluation)
-        {
+        private void Validate(Evaluation evaluation) {
             if(evaluation == null) throw new ArgumentNullException();            
             if (!Id.HasValue) throw new IllegalOperationException ("Evaluations can be added to registered sessions only (sessions that have a valid id)");
             if (!evaluation.Evaluator.Id.HasValue) throw new IllegalOperationException ("Evaluations can be added by registered evaluators only (must have a valid id)");
