@@ -80,7 +80,7 @@ namespace HeyTeam.Tests {
         public void ClosedSessionsCannotBeEvaluated() {            
             var player = new Player(){ Id = 1 };
             var evaluation = new Evaluation(player);
-            var session = new Session() { Id = 1, IsClosed = true };
+            var session = new Session() { Id = 1, ClosingDateForEvaluations = DateTime.Now.AddDays(-2) };
             Assert.Throws<IllegalOperationException>(() => player.EvaluateSession(session, evaluation));
         }    
         
