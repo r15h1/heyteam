@@ -1,7 +1,7 @@
 using System;
 
 namespace HeyTeam.Core.Entities {
-    public class Coach : TeamMember {
+    public class Coach : SquadMember {
 
     }
 }

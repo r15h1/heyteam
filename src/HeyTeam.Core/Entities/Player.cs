@@ -2,7 +2,7 @@ using System;
 using HeyTeam.Core.Exceptions;
 
 namespace HeyTeam.Core.Entities {
-    public class Player : TeamMember, ISessionEvaluator {
+    public class Player : SquadMember, ISessionEvaluator {
         public enum Foot {
             RIGHT,
             LEFT

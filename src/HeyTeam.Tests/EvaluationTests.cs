@@ -60,7 +60,7 @@ namespace HeyTeam.Tests {
             var evaluation = new Evaluation(player) { Comments = "This is an evaluation" };
             var session = new Session() { Id = 1 };
             player.EvaluateSession(session, evaluation);
-            Assert.True(session.evaluations.Count == 1);
+            Assert.True(session.Evaluations.Count == 1);
         }   
 
         [Fact]
@@ -73,7 +73,7 @@ namespace HeyTeam.Tests {
             
             player.EvaluateSession(session, firstevaluation);
             player.EvaluateSession(session, secondevaluation);
-            Assert.True(session.evaluations.Count == 2);
+            Assert.True(session.Evaluations.Count == 2);
         }   
 
         [Fact]
