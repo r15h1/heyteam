@@ -76,9 +76,13 @@ namespace HeyTeam.Tests {
             Assert.True(session.evaluations.Count == 2);
         }   
 
-        //Existing evaluation can be updated - keep history
-        //Point in time evaluations - deletions, modifications - keep history
-        //Set state modified, deleted, new???
-        //Session can be closed for evaluations
+        [Fact]
+        public void ClosedSessionsCannotBeEvaluated() {            
+            var player = new Player(){ Id = 1 };
+            var evaluation = new Evaluation(player);
+            var session = new Session() { Id = 1, IsClosed = true };
+            Assert.Throws<IllegalOperationException>(() => player.EvaluateSession(session, evaluation));
+        }    
+        
     }
 }
