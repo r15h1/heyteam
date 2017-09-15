@@ -7,7 +7,7 @@ namespace HeyTeam.Core.Interactors {
         private ISquadValidator validator;
         public SquadChief (ISquadRepository repository, ISquadValidator validator) {
             this.repository = repository;
-            this.validator = validator;
+            this.validator = validator ;
         }
     }
 
