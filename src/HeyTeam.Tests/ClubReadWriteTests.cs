@@ -12,7 +12,7 @@ namespace HeyTeam.Tests {
         private readonly ClubReadWriteInteractor interactor;
 
         public ClubReadWriteTests() {
-            var validator = new ClubReadWriteValidator();
+            var validator = new SaveClubRequestValidator();
             var repository = new MockClubRepository();
             this.interactor = new ClubReadWriteInteractor(repository, validator);
         }
