@@ -5,40 +5,45 @@ using HeyTeam.Core.Exceptions;
 
 namespace HeyTeam.Tests {
     public class ClubTests {
+
+        private Club GetClub() {
+            return new Club(1);
+        }
+
         [Fact]
         public void NullSquadCannotBeAdded() {
-            var club = new Club();
+            var club = GetClub();
             Assert.Throws<ArgumentNullException>(() => club.AddSquad(null));
         }
 
         [Fact]
         public void SquadNameCannotBeNull() {
-            var club = new Club();
+            var club = GetClub();
             Assert.Throws<IllegalOperationException>(() => club.AddSquad(
-                new Squad { Name = null }
+                new Squad(club) { Name = null }
             ));
         }
 
         [Fact]
         public void SquadNameCannotBeEmpty() {
-            var club = new Club();
+            var club = GetClub();
             Assert.Throws<IllegalOperationException>(() => club.AddSquad(
-                new Squad { Name = "" }
+                new Squad(club) { Name = "" }
             ));
         }
 
         [Fact]
         public void SquadNameCannotBeWhitespace() {
-            var club = new Club();
+            var club = GetClub();
             Assert.Throws<IllegalOperationException>(() => club.AddSquad(
-                new Squad { Name = " " }
+                new Squad(club) { Name = " " }
             ));
         }
 
         [Fact]
         public void SquadNameWithValidNameCanBeAdded() {
-            var club = new Club();
-            club.AddSquad(new Squad { Name = "Bro Squad"});
+            var club = GetClub();
+            club.AddSquad(new Squad(club) { Name = "Bro Squad"});
             Assert.True(club.Squads.Count == 1);
         }
     }
