@@ -2,7 +2,7 @@ using HeyTeam.Core.Interactors;
 using HeyTeam.Core.Validation;
 
 namespace HeyTeam.Lib.Validation {
-    public class ClubEntityValidator : IValidator<SaveClubRequest>
+    public class ClubReadWriteValidator : IValidator<SaveClubRequest>
     {
         public ValidationResult<SaveClubRequest> Validate(SaveClubRequest request)
         {
