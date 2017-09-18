@@ -4,13 +4,13 @@ using HeyTeam.Core.Entities;
 using HeyTeam.Core.Exceptions;
 
 namespace HeyTeam.Tests {
-    public class ClubTests {
+    public class ClubSquadTests {
 
         private Club GetClub() {
             return new Club(1);
         }
 
-        [Fact]
+        /*[Fact]
         public void NullSquadCannotBeAdded() {
             var club = GetClub();
             Assert.Throws<ArgumentNullException>(() => club.AddSquad(null));
@@ -45,6 +45,6 @@ namespace HeyTeam.Tests {
             var club = GetClub();
             club.AddSquad(new Squad(club) { Name = "Bro Squad"});
             Assert.True(club.Squads.Count == 1);
-        }
+        }*/
     }
 }

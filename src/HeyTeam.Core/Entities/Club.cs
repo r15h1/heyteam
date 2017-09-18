@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using HeyTeam.Core.Exceptions;
 
 namespace HeyTeam.Core.Entities {
@@ -12,14 +14,22 @@ namespace HeyTeam.Core.Entities {
 
         public List<Squad> Squads { get; private set; } = new List<Squad>();
         public void AddSquad(Squad squad) {
-            Validate(squad);
+            CheckPolicies(squad);
             Squads.Add(squad);
         }
-        private void Validate(Squad squad)
+        private void CheckPolicies(Squad squad)
         {
-            if (!Id.HasValue) throw new IllegalOperationException("Squads cannot be added to unregistered clubs");
-            if (squad == null) throw new ArgumentNullException();
-            if (string.IsNullOrWhiteSpace(squad.Name)) throw new IllegalOperationException ("Squad name cannot be empty"); 
+            var policyViolations = new StringBuilder();
+
+            if (!Id.HasValue) policyViolations.AppendLine("Squads cannot be added to unregistered clubs");
+            if (squad.Club.Id != Id) policyViolations.AppendLine("Squad must belong to the same club");
+            if(!squad.Id.HasValue)                        
+            {
+                bool sameNameExists = Squads.FirstOrDefault(s => s.Name.ToLowerInvariant().Trim().Equals(squad.Name.ToLowerInvariant().Trim())) != null;
+                if(sameNameExists) policyViolations.AppendLine("A squad with the same name exists already");
+            }
+
+            if (policyViolations.Length > 0) throw new PolicyViolationException(policyViolations.ToString());
         }
     }
 }

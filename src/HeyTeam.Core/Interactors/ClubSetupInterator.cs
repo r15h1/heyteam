@@ -5,8 +5,8 @@ using HeyTeam.Core.Validation;
 
 namespace HeyTeam.Core.Interactors {
     public class ClubSetupInteractor {
-        private IClubRepository repository;
-        private IValidator<ClubSetupRequest> validator;
+        private readonly IClubRepository repository;
+        private readonly IValidator<ClubSetupRequest> validator;
         public ClubSetupInteractor (IClubRepository repository, IValidator<ClubSetupRequest> validator){
             if(repository ==null || validator == null) throw new ArgumentNullException();
             this.repository = repository;
