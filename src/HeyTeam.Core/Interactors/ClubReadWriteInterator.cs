@@ -6,15 +6,15 @@ using HeyTeam.Core.Validation;
 namespace HeyTeam.Core.Interactors {
     public class ClubReadWriteInteractor {
         private readonly IClubRepository repository;
-        private readonly IValidator<SaveClubRequest> validator;
-        public ClubReadWriteInteractor (IClubRepository repository, IValidator<SaveClubRequest> validator){
-            if(repository ==null || validator == null) throw new ArgumentNullException();
+        private readonly IValidator<SaveClubRequest> saveClubValidator;
+        public ClubReadWriteInteractor (IClubRepository repository, IValidator<SaveClubRequest> saveClubValidator){
+            if(repository ==null || saveClubValidator == null) throw new ArgumentNullException();
             this.repository = repository;
-            this.validator = validator;
+            this.saveClubValidator = saveClubValidator;
         }
 
         public SaveClubResponse Handle(SaveClubRequest request) {
-            var validationResult = validator.Validate(request);
+            var validationResult = saveClubValidator.Validate(request);
             if(!validationResult.IsValid) 
                 return new SaveClubResponse(validationResult);
 
@@ -23,6 +23,9 @@ namespace HeyTeam.Core.Interactors {
             return new SaveClubResponse (validationResult, savedClub.Id);
         }
 
-        
+        public GetClubResponse Handle(GetClubRequest request) {
+            var clubs = request.ClubId.HasValue ? repository.Get(request.ClubId.Value) : repository.Get(request.NameStartsWith);
+            return new GetClubResponse(new ValidationResult<GetClubRequest>(request), clubs);
+        }
     }
 }

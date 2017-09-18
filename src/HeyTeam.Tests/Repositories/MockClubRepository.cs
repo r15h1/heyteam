@@ -13,11 +13,6 @@ namespace HeyTeam.Tests.Repositories {
             clubs = new List<Club>();
         }
         
-        public Club Get(long id)
-        {
-            return clubs.FirstOrDefault(c => c.Id == id);
-        }
-
         public Club Save(Club club)
         {            
             if(!club.Id.HasValue) 
@@ -37,6 +32,16 @@ namespace HeyTeam.Tests.Repositories {
             var newClub = new Club(newId) { Name = club.Name };
             clubs.Add(newClub);
             return newClub;
+        }
+
+        IList<Club> IClubRepository.Get(long clubId)
+        {
+            return clubs.Where(c => c.Id == clubId).ToList();
+        }
+
+        public IList<Club> Get(string nameStartsWith)
+        {
+            return string.IsNullOrWhiteSpace(nameStartsWith) ? clubs : clubs.Where(c => c.Name.StartsWith(nameStartsWith)).ToList();
         }
     }
 }

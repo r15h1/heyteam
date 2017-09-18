@@ -14,7 +14,7 @@ namespace HeyTeam.Core.Interactors {
             this.validator = validator;
         }
 
-        public ClubSquadResponse SetupSquad(ClubSquadRequest request) {
+        /*public ClubSquadResponse SetupSquad(ClubSquadRequest request) {
             var validationResult = validator.Validate(request);
             if(!validationResult.IsValid) 
                 return new ClubSquadResponse(validationResult);
@@ -30,6 +30,6 @@ namespace HeyTeam.Core.Interactors {
             
             Squad savedSquad = squadRepository.Save(squad);
             return new ClubSquadResponse(validationResult, savedSquad.Id);
-        }
+        }*/
     }
 }
