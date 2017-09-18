@@ -4,23 +4,25 @@ using HeyTeam.Core.Repositories;
 using HeyTeam.Core.Validation;
 
 namespace HeyTeam.Core.Interactors {
-    public class ClubSetupInteractor {
+    public class ClubReadWriteInteractor {
         private readonly IClubRepository repository;
-        private readonly IValidator<ClubSetupRequest> validator;
-        public ClubSetupInteractor (IClubRepository repository, IValidator<ClubSetupRequest> validator){
+        private readonly IValidator<SaveClubRequest> validator;
+        public ClubReadWriteInteractor (IClubRepository repository, IValidator<SaveClubRequest> validator){
             if(repository ==null || validator == null) throw new ArgumentNullException();
             this.repository = repository;
             this.validator = validator;
         }
 
-        public ClubSetupResponse SetupClub(ClubSetupRequest request) {
+        public SaveClubResponse Handle(SaveClubRequest request) {
             var validationResult = validator.Validate(request);
             if(!validationResult.IsValid) 
-                return new ClubSetupResponse(validationResult);
+                return new SaveClubResponse(validationResult);
 
             var club = new Club(request.ClubId) { Name = request.ClubName };
             var savedClub = repository.Save(club);
-            return new ClubSetupResponse (validationResult, savedClub.Id);
+            return new SaveClubResponse (validationResult, savedClub.Id);
         }
+
+        
     }
 }
