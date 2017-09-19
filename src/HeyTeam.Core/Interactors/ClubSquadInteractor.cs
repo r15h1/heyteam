@@ -1,6 +1,7 @@
 using HeyTeam.Core.Entities;
 using HeyTeam.Core.Exceptions;
 using HeyTeam.Core.Repositories;
+using HeyTeam.Core.Requests;
 using HeyTeam.Core.Validation;
 
 namespace HeyTeam.Core.Interactors {

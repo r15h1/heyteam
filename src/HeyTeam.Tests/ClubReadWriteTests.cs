@@ -6,6 +6,7 @@ using HeyTeam.Lib.Validation;
 using HeyTeam.Core.Interactors;
 using HeyTeam.Core.Validation;
 using HeyTeam.Tests.Repositories;
+using HeyTeam.Core.Requests;
 
 namespace HeyTeam.Tests {
     public class ClubReadWriteTests {
