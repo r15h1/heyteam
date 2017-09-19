@@ -9,50 +9,50 @@ using HeyTeam.Tests.Repositories;
 using HeyTeam.Core.Requests;
 
 namespace HeyTeam.Tests {
-    public class ClubReadWriteTests {
-        private readonly ClubReadWriteInteractor interactor;
+    public class ClubInteractorTests {
+        private readonly ClubInteractor interactor;
 
-        public ClubReadWriteTests() {
-            var validator = new SaveClubRequestValidator();
+        public ClubInteractorTests() {
+            var validator = new ClubSaveRequestValidator();
             var repository = new MockClubRepository();
-            this.interactor = new ClubReadWriteInteractor(repository, validator);
+            this.interactor = new ClubInteractor(repository, validator);
         }
 
         [Fact]
         public void ClubNameCannotBeNull() {
-            SaveClubRequest request = new SaveClubRequest { ClubName = null };
+            ClubSaveRequest request = new ClubSaveRequest { ClubName = null };
             var response = interactor.Handle(request);            
             Assert.True(!response.ValidationResult.IsValid);
         }
 
         [Fact]
         public void ClubNameCannotBeEmpty() {
-            SaveClubRequest request = new SaveClubRequest { ClubName = string.Empty };
+            ClubSaveRequest request = new ClubSaveRequest { ClubName = string.Empty };
             var response = interactor.Handle(request);            
             Assert.True(!response.ValidationResult.IsValid);
         }
 
         [Fact]
         public void ClubNameCannotBeWhiteSpace() {
-            SaveClubRequest request = new SaveClubRequest { ClubName = "  " };
+            ClubSaveRequest request = new ClubSaveRequest { ClubName = "  " };
             var response = interactor.Handle(request);            
             Assert.True(!response.ValidationResult.IsValid);
         }
 
         [Fact]
         public void ClubWithValidNameIsSaved() {
-            SaveClubRequest request = new SaveClubRequest { ClubName = "Manchester United" };
+            ClubSaveRequest request = new ClubSaveRequest { ClubName = "Manchester United" };
             var response = interactor.Handle(request);            
             Assert.True(response.ValidationResult.IsValid && response.ClubId.HasValue);
         }
 
         [Fact]
         public void ClubWithValidNamesAreSaved() {
-            SaveClubRequest request1 = new SaveClubRequest { ClubName = "Manchester United" };
+            ClubSaveRequest request1 = new ClubSaveRequest { ClubName = "Manchester United" };
             var response1 = interactor.Handle(request1);            
             Assert.True(response1.ValidationResult.IsValid && response1.ClubId.HasValue);
 
-            SaveClubRequest request2 = new SaveClubRequest { ClubName = "FC Barcelona" };
+            ClubSaveRequest request2 = new ClubSaveRequest { ClubName = "FC Barcelona" };
             var response2 = interactor.Handle(request2);            
             Assert.True(response2.ValidationResult.IsValid && response2.ClubId.HasValue);
             Assert.True(response1.ClubId.Value != response2.ClubId.Value);
