@@ -7,50 +7,50 @@ using HeyTeam.Tests.Repositories;
 using HeyTeam.Core.UseCases.Club;
 
 namespace HeyTeam.UsesCases.Tests {
-    public class SaveClubTests {
-        private readonly SaveClubUseCase useCase;
+    public class RegisterClubTests {
+        private readonly RegisterClubUseCase useCase;
 
-        public SaveClubTests() {
-            var validator = new SaveClubRequestValidator();
+        public RegisterClubTests() {
+            var validator = new RegisterClubRequestValidator();
             var repository = new MockClubRepository();
-            this.useCase = new SaveClubUseCase(repository, validator);
+            this.useCase = new RegisterClubUseCase(repository, validator);
         }
 
         [Fact]
         public void ClubNameCannotBeNull() {
-            SaveClubRequest request = new SaveClubRequest { ClubName = null };
+            RegisterClubRequest request = new RegisterClubRequest { ClubName = null };
             var response = useCase.Execute(request);            
             Assert.True(!response.ValidationResult.IsValid);
         }
 
         [Fact]
         public void ClubNameCannotBeEmpty() {
-            SaveClubRequest request = new SaveClubRequest { ClubName = string.Empty };
+            RegisterClubRequest request = new RegisterClubRequest { ClubName = string.Empty };
             var response = useCase.Execute(request);            
             Assert.True(!response.ValidationResult.IsValid);
         }
 
         [Fact]
         public void ClubNameCannotBeWhiteSpace() {
-            SaveClubRequest request = new SaveClubRequest { ClubName = "  " };
+            RegisterClubRequest request = new RegisterClubRequest { ClubName = "  " };
             var response = useCase.Execute(request);            
             Assert.True(!response.ValidationResult.IsValid);
         }
 
         [Fact]
         public void ClubWithValidNameIsSaved() {
-            SaveClubRequest request = new SaveClubRequest { ClubName = "Manchester United" };
+            RegisterClubRequest request = new RegisterClubRequest { ClubName = "Manchester United" };
             var response = useCase.Execute(request);            
             Assert.True(response.ValidationResult.IsValid && response.ClubId.HasValue);
         }
 
         [Fact]
         public void ClubWithValidNamesAreSaved() {
-            SaveClubRequest request1 = new SaveClubRequest { ClubName = "Manchester United" };
+            RegisterClubRequest request1 = new RegisterClubRequest { ClubName = "Manchester United" };
             var response1 = useCase.Execute(request1);            
             Assert.True(response1.ValidationResult.IsValid && response1.ClubId.HasValue);
 
-            SaveClubRequest request2 = new SaveClubRequest { ClubName = "FC Barcelona" };
+            RegisterClubRequest request2 = new RegisterClubRequest { ClubName = "FC Barcelona" };
             var response2 = useCase.Execute(request2);            
             Assert.True(response2.ValidationResult.IsValid && response2.ClubId.HasValue);
             Assert.True(response1.ClubId.Value != response2.ClubId.Value);

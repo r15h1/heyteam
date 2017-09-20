@@ -3,28 +3,29 @@ using HeyTeam.Core.Repositories;
 using HeyTeam.Core.Validation;
 
 namespace HeyTeam.Core.UseCases.Club {
-    public class SaveClubUseCase : IUseCase<SaveClubRequest, SaveClubResponse>
+    public class RegisterClubUseCase : IUseCase<RegisterClubRequest, RegisterClubResponse>
     {
         private readonly IClubRepository repository;
-        private readonly IValidator<SaveClubRequest> validator;
+        private readonly IValidator<RegisterClubRequest> validator;
 
-        public SaveClubUseCase (IClubRepository repository, IValidator<SaveClubRequest> validator) {
+        public RegisterClubUseCase (IClubRepository repository, IValidator<RegisterClubRequest> validator) {
             if(repository ==null || validator == null) throw new ArgumentNullException();
             this.repository = repository;
             this.validator = validator;
         }
-        public SaveClubResponse Execute(SaveClubRequest request)
+        
+        public RegisterClubResponse Execute(RegisterClubRequest request)
         {
             var validationResult = validator.Validate(request);
             if(!validationResult.IsValid)
-                return new SaveClubResponse(validationResult);
+                return new RegisterClubResponse(validationResult);
             
             Entities.Club club = MapClub(request);
-            var savedClub = repository.Save(club);
-            return new SaveClubResponse (validationResult, savedClub.Id);
+            var RegisterdClub = repository.Save(club);
+            return new RegisterClubResponse (validationResult, RegisterdClub.Id);
         }
 
-        private Entities.Club MapClub(SaveClubRequest request) 
+        private Entities.Club MapClub(RegisterClubRequest request) 
             => new Entities.Club(request.ClubId) { 
                 Name = request.ClubName, LogoUrl = request.ClubLogoUrl 
             };
