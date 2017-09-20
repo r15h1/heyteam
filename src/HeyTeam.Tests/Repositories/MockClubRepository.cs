@@ -15,26 +15,22 @@ namespace HeyTeam.Tests.Repositories {
         
         public Club Save(Club club)
         {            
-            if(!club.Id.HasValue) 
-                return AddNew(club);
+            if(clubs.Any(c => c.Id == club.Id))
+                return Update(club);            
             
-            return Update(club);
+            clubs.Add(club);
+            return club;
         }
 
         private Club Update(Club club)
         {
-            throw new NotImplementedException();
+            var existingClub = clubs.FirstOrDefault(c => c.Id == club.Id);
+            existingClub.LogoUrl = club.LogoUrl;
+            existingClub.Name = club.Name;
+            return existingClub;
         }
 
-        private Club AddNew(Club club)
-        {
-            var newId = (clubs.Max(c => c.Id) ?? 0) + 1;
-            var newClub = new Club(newId) { Name = club.Name };
-            clubs.Add(newClub);
-            return newClub;
-        }
-
-        IList<Club> IClubRepository.Get(long clubId)
+        IList<Club> IClubRepository.Get(Guid clubId)
         {
             return clubs.Where(c => c.Id == clubId).ToList();
         }
