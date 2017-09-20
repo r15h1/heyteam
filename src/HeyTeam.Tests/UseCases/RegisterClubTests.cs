@@ -45,7 +45,7 @@ namespace HeyTeam.UsesCases.Tests {
         }
 
         [Fact]
-        public void ClubWithValidNamesAreSaved() {
+        public void TwoClubWithValidNameshaveDifferentIds() {
             RegisterClubRequest request1 = new RegisterClubRequest { ClubName = "Manchester United" };
             var response1 = useCase.Execute(request1);            
             Assert.True(response1.ValidationResult.IsValid && response1.ClubId.HasValue);

@@ -26,9 +26,7 @@ namespace HeyTeam.Core.UseCases.Club {
         }
 
         private Entities.Club MapClub(RegisterClubRequest request) 
-            => new Entities.Club(request.ClubId) { 
-                Name = request.ClubName, LogoUrl = request.ClubLogoUrl 
-            };
+            => new Entities.Club() { Name = request.ClubName, LogoUrl = request.ClubLogoUrl };
     
     }
 }
