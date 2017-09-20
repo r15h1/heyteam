@@ -13,26 +13,21 @@ namespace HeyTeam.Tests.Repositories {
             clubs = new List<Club>();
         }
         
-        public Club Save(Club club)
+        public void Add(Club club)
         {            
-            if(clubs.Any(c => c.Id == club.Id))
-                return Update(club);            
-            
             clubs.Add(club);
-            return club;
         }
 
-        private Club Update(Club club)
+        public void Update(Club club)
         {
             var existingClub = clubs.FirstOrDefault(c => c.Id == club.Id);
             existingClub.LogoUrl = club.LogoUrl;
             existingClub.Name = club.Name;
-            return existingClub;
         }
 
-        IList<Club> IClubRepository.Get(Guid clubId)
+        public Club Get(Guid clubId)
         {
-            return clubs.Where(c => c.Id == clubId).ToList();
+            return clubs.FirstOrDefault(c => c.Id == clubId);
         }
 
         public IList<Club> Get(string nameStartsWith)

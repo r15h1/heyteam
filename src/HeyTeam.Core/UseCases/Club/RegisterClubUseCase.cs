@@ -21,8 +21,8 @@ namespace HeyTeam.Core.UseCases.Club {
                 return new RegisterClubResponse(validationResult);
             
             Entities.Club club = MapClub(request);
-            var RegisterdClub = repository.Save(club);
-            return new RegisterClubResponse (validationResult, RegisterdClub.Id);
+            repository.Add(club);
+            return new RegisterClubResponse (validationResult, club.Id);
         }
 
         private Entities.Club MapClub(RegisterClubRequest request) 

@@ -8,7 +8,7 @@ namespace HeyTeam.Lib.Validation {
         {
             var result = new ValidationResult<RegisterClubRequest>(request);
             if(request == null) result.AddMessage("Request cannot be null");
-            if(string.IsNullOrWhiteSpace(request.ClubName)) result.AddMessage("Club's name cannot be empty");
+            if(string.IsNullOrWhiteSpace(request.ClubName)) result.AddMessage("Club name cannot be empty");
             return result;
         }
     }

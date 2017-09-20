@@ -6,7 +6,7 @@ using HeyTeam.Core.Validation;
 using HeyTeam.Tests.Repositories;
 using HeyTeam.Core.UseCases.Club;
 
-namespace HeyTeam.UsesCases.Tests {
+namespace HeyTeam.Tests.UsesCases {
     public class RegisterClubTests {
         private readonly RegisterClubUseCase useCase;
 
