@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using HeyTeam.Core.Entities;
+using HeyTeam.Core.Exceptions;
 using HeyTeam.Core.Repositories;
 using HeyTeam.Core.UseCases;
 using HeyTeam.Core.UseCases.Squad;
@@ -32,6 +33,13 @@ namespace HeyTeam.Tests.UseCases {
             var request = new AddSquadRequest{ ClubId = Guid.Empty, SquadName = "U10" };
             var response = useCase.Execute(request);
             Assert.True(!response.ValidationResult.IsValid && response.ValidationResult.Messages.Count == 1);
+        }
+
+        [Fact]
+        public void SquadsCannotBeAddedToInexistentClubs()
+        {
+            var request = new AddSquadRequest{ ClubId = Guid.NewGuid(), SquadName = "U10" };            
+            Assert.Throws<ClubNotFoundException>(() =>  useCase.Execute(request));
         }
 
         [Fact]
