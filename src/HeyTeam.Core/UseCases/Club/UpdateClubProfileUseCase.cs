@@ -26,7 +26,7 @@ namespace HeyTeam.Core.UseCases.Club {
             if (club == null) 
                 throw new ClubNotFoundException();
 
-            club.LogoUrl = request.LogoUrl;
+            club.LogoUrl = request.ClubLogoUrl;
             club.Name = request.ClubName;
             repository.Update(club);
 

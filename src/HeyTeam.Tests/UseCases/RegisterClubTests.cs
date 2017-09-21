@@ -55,5 +55,26 @@ namespace HeyTeam.Tests.UsesCases {
             Assert.True(response2.ValidationResult.IsValid && response2.ClubId.HasValue);
             Assert.True(response1.ClubId.Value != response2.ClubId.Value);
         }
+
+        [Fact]
+        public void LogoUrlRequiresScheme() {
+            RegisterClubRequest request1 = new RegisterClubRequest { ClubName = "Manchester United" , ClubLogoUrl = "google.com"};
+            var response = useCase.Execute(request1);            
+            Assert.True(!response.ValidationResult.IsValid);
+        }
+        
+        [Fact]
+        public void HttpLogoUrlIsSaved() {
+            RegisterClubRequest request1 = new RegisterClubRequest { ClubName = "Manchester United" , ClubLogoUrl = "http://google.com"};
+            var response = useCase.Execute(request1);            
+            Assert.True(response.ValidationResult.IsValid && response.ClubId.HasValue);
+        }
+
+        [Fact]
+        public void HttpsLogoUrlIsSaved() {
+            RegisterClubRequest request1 = new RegisterClubRequest { ClubName = "Manchester United" , ClubLogoUrl = "https://google.com"};
+            var response = useCase.Execute(request1);            
+            Assert.True(response.ValidationResult.IsValid && response.ClubId.HasValue);
+        }
     }
 }

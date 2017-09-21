@@ -1,6 +1,7 @@
 using System;
 using HeyTeam.Core.UseCases.Club;
 using HeyTeam.Core.Validation;
+using HeyTeam.Lib.Util;
 
 namespace HeyTeam.Lib.Validation {
     public class UpdateClubProfileRequestValidator : IValidator<UpdateClubProfileRequest>
@@ -11,6 +12,7 @@ namespace HeyTeam.Lib.Validation {
             if (request == null) validationResult.AddMessage("Request cannot be null");
             if (request.ClubId == null) validationResult.AddMessage("Club Id must be provided");
             if (string.IsNullOrWhiteSpace(request.ClubName)) validationResult.AddMessage("Club name cannot be empty");
+            if(!string.IsNullOrWhiteSpace(request.ClubLogoUrl) && !request.ClubLogoUrl.IsValidUrl()) validationResult.AddMessage("The logo url is not valid");
             return validationResult;
         }
     }
