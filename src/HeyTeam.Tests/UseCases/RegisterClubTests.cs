@@ -5,14 +5,16 @@ using HeyTeam.Lib.Validation;
 using HeyTeam.Core.Validation;
 using HeyTeam.Tests.Repositories;
 using HeyTeam.Core.UseCases.Club;
+using HeyTeam.Core.UseCases;
+using HeyTeam.Core.Repositories;
 
-namespace HeyTeam.Tests.UsesCases {
+namespace HeyTeam.Tests.UseCases {
     public class RegisterClubTests {
-        private readonly RegisterClubUseCase useCase;
+        private readonly IUseCase<RegisterClubRequest, RegisterClubResponse> useCase;
 
         public RegisterClubTests() {
-            var validator = new RegisterClubRequestValidator();
-            var repository = new MockClubRepository();
+            IValidator<RegisterClubRequest> validator = new RegisterClubRequestValidator();
+            IClubRepository repository = new MockClubRepository();
             this.useCase = new RegisterClubUseCase(repository, validator);
         }
 
@@ -20,21 +22,21 @@ namespace HeyTeam.Tests.UsesCases {
         public void ClubNameCannotBeNull() {
             RegisterClubRequest request = new RegisterClubRequest { ClubName = null };
             var response = useCase.Execute(request);            
-            Assert.False(response.ValidationResult.IsValid);
+            Assert.True(!response.ValidationResult.IsValid && response.ValidationResult.Messages.Count == 1);
         }
 
         [Fact]
         public void ClubNameCannotBeEmpty() {
             RegisterClubRequest request = new RegisterClubRequest { ClubName = string.Empty };
             var response = useCase.Execute(request);            
-            Assert.False(response.ValidationResult.IsValid);
+            Assert.True(!response.ValidationResult.IsValid && response.ValidationResult.Messages.Count == 1);
         }
 
         [Fact]
         public void ClubNameCannotBeWhiteSpace() {
             RegisterClubRequest request = new RegisterClubRequest { ClubName = "  " };
             var response = useCase.Execute(request);            
-            Assert.False(response.ValidationResult.IsValid);
+            Assert.True(!response.ValidationResult.IsValid && response.ValidationResult.Messages.Count == 1);
         }
 
         [Fact]

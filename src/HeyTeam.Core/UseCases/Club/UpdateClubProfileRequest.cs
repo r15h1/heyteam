@@ -13,6 +13,6 @@ namespace HeyTeam.Core.UseCases.Club {
             this.ValidationResult = validationResult;
         }
 
-        public ValidationResult<UpdateClubProfileRequest> ValidationResult { get; private set; }
+        public ValidationResult<UpdateClubProfileRequest> ValidationResult { get; }
     }
 }

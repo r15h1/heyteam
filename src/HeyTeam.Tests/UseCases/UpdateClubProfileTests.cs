@@ -1,19 +1,21 @@
 using System;
 using HeyTeam.Core.Exceptions;
+using HeyTeam.Core.Repositories;
+using HeyTeam.Core.UseCases;
 using HeyTeam.Core.UseCases.Club;
+using HeyTeam.Core.Validation;
 using HeyTeam.Lib.Validation;
 using HeyTeam.Tests.Repositories;
 using Xunit;
 
 namespace HeyTeam.Tests.UseCases {
     public class UpdateClubProfileTests {
-        private readonly MockClubRepository repository;
-        private readonly UpdateClubProfileUseCase updateProfileUseCase;
+        private readonly IClubRepository repository;
+        private readonly IUseCase<UpdateClubProfileRequest, UpdateClubProfileResponse> updateProfileUseCase;
         private readonly Guid clubId;
 
         public UpdateClubProfileTests() {
-            Console.WriteLine("in constructor");
-            var validator = new UpdateClubProfileRequestValidator();
+            IValidator<UpdateClubProfileRequest> validator = new UpdateClubProfileRequestValidator();
             this.repository = new MockClubRepository();
             this.updateProfileUseCase = new UpdateClubProfileUseCase(repository, validator);
             this.clubId = SetupClub();
@@ -30,7 +32,7 @@ namespace HeyTeam.Tests.UseCases {
         public void ClubIdMustBeAssigned() {
             UpdateClubProfileRequest request = new UpdateClubProfileRequest { ClubName = "Valid name" };
             var response = updateProfileUseCase.Execute(request);            
-            Assert.False(response.ValidationResult.IsValid);
+            Assert.True(!response.ValidationResult.IsValid && response.ValidationResult.Messages.Count == 1);
         }
 
         [Fact]
@@ -45,28 +47,28 @@ namespace HeyTeam.Tests.UseCases {
         public void ClubNameCannotBeNull() {
             UpdateClubProfileRequest request = new UpdateClubProfileRequest { ClubId = clubId, ClubName = null };
             var response = updateProfileUseCase.Execute(request);            
-            Assert.False(response.ValidationResult.IsValid);
+            Assert.True(!response.ValidationResult.IsValid && response.ValidationResult.Messages.Count == 1);
         }
 
         [Fact]
         public void ClubNameCannotBeEmpty() {
             UpdateClubProfileRequest request = new UpdateClubProfileRequest { ClubId = clubId, ClubName = string.Empty };
             var response = updateProfileUseCase.Execute(request);            
-            Assert.False(response.ValidationResult.IsValid);
+            Assert.True(!response.ValidationResult.IsValid && response.ValidationResult.Messages.Count == 1);
         }
 
         [Fact]
         public void ClubNameCannotBeWhiteSpace() {
             UpdateClubProfileRequest request = new UpdateClubProfileRequest { ClubId = clubId, ClubName = "  " };
             var response = updateProfileUseCase.Execute(request);            
-            Assert.False(response.ValidationResult.IsValid);
+            Assert.True(!response.ValidationResult.IsValid && response.ValidationResult.Messages.Count == 1);
         }
 
         [Fact]
         public void LogoUrlRequiresScheme() {
             UpdateClubProfileRequest updateRequest = new UpdateClubProfileRequest { ClubId = clubId,  ClubName = "Manchester United" , ClubLogoUrl = "google.com"};
             var response = updateProfileUseCase.Execute(updateRequest);            
-            Assert.False(response.ValidationResult.IsValid);
+            Assert.True(!response.ValidationResult.IsValid && response.ValidationResult.Messages.Count == 1);
         }
         
         [Fact]

@@ -14,7 +14,7 @@ namespace HeyTeam.Core.UseCases.Club {
             ValidationResult = validationResult;
         }
         
-        public Guid? ClubId { get; private set; }        
-        public ValidationResult<RegisterClubRequest> ValidationResult { get; private set; }
+        public Guid? ClubId { get; }        
+        public ValidationResult<RegisterClubRequest> ValidationResult { get; }
     }
 }
