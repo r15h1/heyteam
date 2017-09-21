@@ -20,21 +20,21 @@ namespace HeyTeam.Tests.UsesCases {
         public void ClubNameCannotBeNull() {
             RegisterClubRequest request = new RegisterClubRequest { ClubName = null };
             var response = useCase.Execute(request);            
-            Assert.True(!response.ValidationResult.IsValid);
+            Assert.False(response.ValidationResult.IsValid);
         }
 
         [Fact]
         public void ClubNameCannotBeEmpty() {
             RegisterClubRequest request = new RegisterClubRequest { ClubName = string.Empty };
             var response = useCase.Execute(request);            
-            Assert.True(!response.ValidationResult.IsValid);
+            Assert.False(response.ValidationResult.IsValid);
         }
 
         [Fact]
         public void ClubNameCannotBeWhiteSpace() {
             RegisterClubRequest request = new RegisterClubRequest { ClubName = "  " };
             var response = useCase.Execute(request);            
-            Assert.True(!response.ValidationResult.IsValid);
+            Assert.False(response.ValidationResult.IsValid);
         }
 
         [Fact]
@@ -60,7 +60,7 @@ namespace HeyTeam.Tests.UsesCases {
         public void LogoUrlRequiresScheme() {
             RegisterClubRequest request1 = new RegisterClubRequest { ClubName = "Manchester United" , ClubLogoUrl = "google.com"};
             var response = useCase.Execute(request1);            
-            Assert.True(!response.ValidationResult.IsValid);
+            Assert.False(response.ValidationResult.IsValid);
         }
         
         [Fact]
