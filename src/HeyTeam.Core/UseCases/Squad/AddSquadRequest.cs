@@ -10,8 +10,11 @@ namespace HeyTeam.Core.UseCases.Squad {
 
     public class AddSquadResponse
     {
-        public AddSquadResponse(ValidationResult<AddSquadRequest> result) {
+        public Guid? SquadId {get;}
+
+        public AddSquadResponse(ValidationResult<AddSquadRequest> result, Guid? squadId = null) {
             this.ValidationResult = result;
+            this.SquadId = squadId;
         }
 
         public ValidationResult<AddSquadRequest> ValidationResult { get; }

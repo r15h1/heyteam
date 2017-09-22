@@ -49,5 +49,17 @@ namespace HeyTeam.Tests.UseCases {
             var response = useCase.Execute(request);
             Assert.True(!response.ValidationResult.IsValid && response.ValidationResult.Messages.Count == 1);
         }
+
+        [Fact]
+        public void SquadNameInSameClubCannotBeDuplicate()
+        {
+            var request = new AddSquadRequest{ ClubId = clubs.FirstOrDefault().Id, SquadName = "U10" };
+            var response = useCase.Execute(request);
+            Assert.True(response.ValidationResult.IsValid);
+            Assert.True(response.SquadId.HasValue && response.SquadId.Value != Guid.Empty);
+
+            request = new AddSquadRequest{ ClubId = clubs.FirstOrDefault().Id, SquadName = "U10" };
+            Assert.Throws<DuplicateEntryException>(() => useCase.Execute(request));
+        }
     }
 }
