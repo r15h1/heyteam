@@ -9,8 +9,9 @@ namespace HeyTeam.Lib.Data {
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Data.Club>().HasKey(f => f.Id);                
-            modelBuilder.Entity<Data.Club>().Property(f => f.Id).ValueGeneratedOnAdd();
+            modelBuilder.Entity<Data.Club>().HasKey(f => f.Id);                            
+            modelBuilder.Entity<Data.Club>().Property(f => f.Id).ValueGeneratedOnAdd();            
+            modelBuilder.Entity<Data.Club>().HasAlternateKey(f => f.Guid);
         }
     }
 }
