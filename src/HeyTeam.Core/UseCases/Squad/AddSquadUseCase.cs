@@ -30,7 +30,7 @@ namespace HeyTeam.Core.UseCases.Squad {
             club.AddSquad(squad);
             squadRepository.Add(squad);
 
-            return new AddSquadResponse(validationResult, squad.Id);
+            return new AddSquadResponse(validationResult, squad.Guid);
         }
     }
 }

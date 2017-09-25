@@ -22,7 +22,7 @@ namespace HeyTeam.Core.UseCases.Club {
             
             Entities.Club club = MapClub(request);
             repository.Add(club);
-            return new RegisterClubResponse (validationResult, club.Id);
+            return new RegisterClubResponse (validationResult, club.Guid);
         }
 
         private Entities.Club MapClub(RegisterClubRequest request) 
