@@ -6,23 +6,19 @@ using HeyTeam.Core.UseCases.Club;
 using HeyTeam.Core.UseCases;
 using HeyTeam.Core.Repositories;
 using HeyTeam.Lib.Repositories;
-using HeyTeam.Tests.DataContext;
-using Microsoft.EntityFrameworkCore;
 using HeyTeam.Lib.Validation;
 using HeyTeam.Lib.Data;
+using HeyTeam.Tests.Data;
 
 namespace HeyTeam.Tests.UseCases {
     public class RegisterClubTests {
         private readonly IUseCase<RegisterClubRequest, RegisterClubResponse> useCase;
 
-        public RegisterClubTests() {
-            var builder = new ClubContextOptionsBuilder();
-            using(ClubContext context = new ClubContext(builder.Options))
-            {
-                context.Database.EnsureCreated();
-            }
+        public RegisterClubTests() {   
+            string connectionString = $"Data Source=file:{Guid.NewGuid().ToString()}.sqlite";
+            Database.Create(connectionString);         
             IValidator<RegisterClubRequest> validator = new RegisterClubRequestValidator();
-            IClubRepository repository = new ClubRepository(builder);
+            IClubRepository repository = new ClubRepository(new ConnectionFactory(connectionString));
             this.useCase = new RegisterClubUseCase(repository, validator);
         }
 
