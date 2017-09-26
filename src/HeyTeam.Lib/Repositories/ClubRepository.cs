@@ -47,16 +47,34 @@ namespace HeyTeam.Lib.Repositories {
         {     
             using (var connection = connectionFactory.Connect())
             {
-                string sql = "SELECT Guid, Name, LogoUrl FROM Clubs WHERE Guid = @Guid";  
+                string sql = "SELECT Guid, Name, LogoUrl FROM Clubs WHERE Guid = @Guid; SELECT S.Guid, S.Name FROM Squads S INNER JOIN Clubs C ON S.ClubId = C.ClubId WHERE C.Guid = @Guid;";  
                 var p = new DynamicParameters();
                 p.Add("@Guid", clubId.ToString());
                 connection.Open();
-                var results = connection.Query(sql, p).Cast<IDictionary<string, object>>();
-                return results.Select(row => 
+
+                using (var multi = connection.QueryMultiple(sql, p)) {
+                    var club = multi.Read().Cast<IDictionary<string, object>>().Select(row => 
                         new Club(Guid.Parse(row["Guid"].ToString())){ 
                             Name = (string)row["Name"], 
                             LogoUrl = (string)row["LogoUrl"]}
                         ).FirstOrDefault();
+                    
+                    var squads = multi.Read().Cast<IDictionary<string, object>>().Select(row => new Squad(club, Guid.Parse(row["Guid"].ToString())) {
+                        Name = (string)row["Name"]
+                    }).ToList();
+
+                    if(squads != null && squads.Count > 0)
+                        squads.ForEach((s) => club.AddSquad(s));
+
+                    return club;
+                }
+
+                // var results = connection.Query(sql, p).Cast<IDictionary<string, object>>();
+                // return results.Select(row => 
+                //         new Club(Guid.Parse(row["Guid"].ToString())){ 
+                //             Name = (string)row["Name"], 
+                //             LogoUrl = (string)row["LogoUrl"]}
+                //         ).FirstOrDefault();
             }
         }
 
