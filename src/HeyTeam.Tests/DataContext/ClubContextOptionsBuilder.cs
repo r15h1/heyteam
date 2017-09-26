@@ -9,6 +9,7 @@ namespace HeyTeam.Tests.DataContext {
         public ClubContextOptionsBuilder(){
             var builder = new DbContextOptionsBuilder<ClubContext>();
             this.builder = builder.UseSqlite($"Data Source=file: {Guid.NewGuid().ToString()}.sqlite");
+            this.builder.EnableSensitiveDataLogging(true);
         }
 
         public override DbContextOptions<ClubContext> Options => builder.Options;

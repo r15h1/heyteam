@@ -8,80 +8,74 @@ using HeyTeam.Core.UseCases;
 using HeyTeam.Core.UseCases.Club;
 using HeyTeam.Core.UseCases.Squad;
 using HeyTeam.Core.Validation;
+using HeyTeam.Lib.Data;
 using HeyTeam.Lib.Repositories;
 using HeyTeam.Lib.Validation;
+using HeyTeam.Tests.DataContext;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace HeyTeam.Tests.UseCases {
     public class AddSquadTests {
-        // private IUseCase<AddSquadRequest, AddSquadResponse> useCase;
-        // private IValidator<AddSquadRequest> validator;
-        // public AddSquadTests() {                    
-        //     validator = new AddSquadRequestValidator();
-        //     //useCase = new AddSquadUseCase(fixture.ClubRepository, squadRepository, validator);
-        // }
+        private IUseCase<AddSquadRequest, AddSquadResponse> useCase;
+        private readonly Guid clubId;
 
-        // [Fact]
-        // public void ClubIdCannotBeEmpty()
-        // {
-        //     var options = GetContextOptions("ClubIdCannotBeEmpty");
-        //     var request = new AddSquadRequest{ ClubId = Guid.Empty, SquadName = "U10" };
-        //     using (var context = new ClubContext(options))
-        //     {
-        //         IClubRepository clubRepository = new ClubRepository(context);
-        //         ISquadRepository squadRepository = new SquadRepository(context);
-        //         useCase = new AddSquadUseCase(clubRepository, squadRepository, validator);
-        //         var response = useCase.Execute(request);
-        //         Assert.True(!response.ValidationResult.IsValid && response.ValidationResult.Messages.Count == 1);
-        //     }
-        // }
+        public AddSquadTests() {    
+            var builder = new ClubContextOptionsBuilder();
+            using(ClubContext context = new ClubContext(builder.Options))
+            {
+                context.Database.EnsureCreated();
+            }
+            IValidator<AddSquadRequest> validator = new AddSquadRequestValidator();
+            IClubRepository clubRepository = new ClubRepository(builder);
+            ISquadRepository squadRepository = new SquadRepository(builder);
+            this.useCase = new AddSquadUseCase(clubRepository, squadRepository, validator);
 
-        // [Fact]
-        // public void SquadsCannotBeAddedToInexistentClubs()
-        // {
-        //     var options = GetContextOptions("SquadsCannotBeAddedToInexistentClubs");
-        //     var request = new AddSquadRequest{ ClubId = Guid.NewGuid(), SquadName = "U10" };  
-        //     using (var context = new ClubContext(options))
-        //     {
-        //         IClubRepository clubRepository = new ClubRepository(context);
-        //         ISquadRepository squadRepository = new SquadRepository(context);
-        //         useCase = new AddSquadUseCase(clubRepository, squadRepository, validator);          
-        //         Assert.Throws<ClubNotFoundException>(() =>  useCase.Execute(request));
-        //     }
-        // }
-
-        // [Fact]
-        // public void SquadNameCannotBeNull()
-        // {
-        //     var options = GetContextOptions("SquadNameCannotBeNull");
-        //     var request = new AddSquadRequest{ ClubId = Guid.NewGuid(), SquadName = null };
-        //     using (var context = new ClubContext(options))
-        //     {
-        //         IClubRepository clubRepository = new ClubRepository(context);
-        //         ISquadRepository squadRepository = new SquadRepository(context);
-        //         useCase = new AddSquadUseCase(clubRepository, squadRepository, validator);
-        //         useCase.Execute(request);
-        //     }
+            var registerUseCase = new RegisterClubUseCase(clubRepository, new RegisterClubRequestValidator());
+            RegisterClubRequest registerRequest = new RegisterClubRequest { ClubName = "Manchester United" , ClubLogoUrl = "http://manutd.com"};
+            var registerResponse = registerUseCase.Execute(registerRequest);  
+            this.clubId = registerResponse.ClubId.Value;
+        }
 
 
 
-        //     // var request = new AddSquadRequest{ ClubId = fixture.Manutd.Id, SquadName = null };
-        //     // var response = useCase.Execute(request);
-        //     // Assert.True(!response.ValidationResult.IsValid && response.ValidationResult.Messages.Count == 1);
-        // }
+        [Fact]
+        public void ClubIdCannotBeEmpty()
+        {            
+            var request = new AddSquadRequest{ ClubId = Guid.Empty, SquadName = "U10" };
+            var response = useCase.Execute(request);
+            Assert.True(!response.ValidationResult.IsValid && response.ValidationResult.Messages.Count == 1);            
+        }
 
-        // // [Fact]
-        // // public void SquadNameInSameClubCannotBeDuplicate()
-        // // {
-        // //     var request = new AddSquadRequest{ ClubId = fixture.Manutd.Id, SquadName = "U10" };
-        // //     var response = useCase.Execute(request);
-        // //     Assert.True(response.ValidationResult.IsValid);
-        // //     Assert.True(response.SquadId.HasValue && response.SquadId.Value != Guid.Empty);
+        [Fact]
+        public void SquadsCannotBeAddedToInexistentClubs()
+        {            
+            var request = new AddSquadRequest{ ClubId = Guid.NewGuid(), SquadName = "U10" };              
+            Assert.Throws<ClubNotFoundException>(() =>  useCase.Execute(request));
+        }
 
-        // //     request = new AddSquadRequest{ ClubId = fixture.Manutd.Id, SquadName = "U10" };
-        // //     Assert.Throws<DuplicateEntryException>(() => useCase.Execute(request));
-        // // }
+        [Fact]
+        public void SquadNameCannotBeNull()
+        {            
+            var request = new AddSquadRequest{ ClubId = Guid.NewGuid(), SquadName = null };            
+            var response = useCase.Execute(request);
+            Assert.True(!response.ValidationResult.IsValid && response.ValidationResult.Messages.Count == 1);  
+        }
+
+
+
+        
+        [Fact]
+        public void SquadNameInSameClubCannotBeDuplicate()
+        {
+            var request = new AddSquadRequest{ ClubId = clubId, SquadName = "U10" };
+            var response = useCase.Execute(request);
+            Assert.True(response.ValidationResult.IsValid);
+            Assert.True(response.SquadId.HasValue && response.SquadId.Value != Guid.Empty);
+
+            request = new AddSquadRequest{ ClubId = clubId, SquadName = "U10" };
+            Assert.Throws<DuplicateEntryException>(() => useCase.Execute(request));
+        }
 
         // // [Fact]
         // // public void CanAddMultipleSquadsWithDifferentNamesToSameClub()

@@ -14,6 +14,7 @@ namespace HeyTeam.Lib.Data {
                 return new MapperConfiguration(cfg =>
                 {
                     cfg.CreateMap<Core.Entities.Club, Data.Club>().ReverseMap();
+                    cfg.CreateMap<Core.Entities.Squad, Data.Squad>().ReverseMap();
                 });
             }
         }

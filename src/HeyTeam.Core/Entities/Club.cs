@@ -8,7 +8,7 @@ namespace HeyTeam.Core.Entities {
         public Club (Guid? guid = null) {
             Guid = guid.HasValue ? guid.Value : System.Guid.NewGuid();
         }
-        
+        public long? ClubId { get; set; }
         public Guid Guid { get; private set; }        
         public string Name { get; set; }
         public string LogoUrl { get; set; }

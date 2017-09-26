@@ -1,11 +1,12 @@
 using System;
+using System.Collections.Generic;
 
 namespace HeyTeam.Lib.Data {
     public class Club {
-        public long? Id{ get; set; }
-        public Guid Guid { get; private set; }        
+        public long? ClubId{ get; set; }
+        public Guid Guid { get; set; }        
         public string Name { get; set; }
         public string LogoUrl { get; set; }
-        //public List<Squad> Squads { get; private set; } = new List<Squad>();
+        public ICollection<Squad> Squads { get; set; }
     }
 }

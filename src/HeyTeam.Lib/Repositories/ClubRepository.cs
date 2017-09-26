@@ -41,7 +41,7 @@ namespace HeyTeam.Lib.Repositories {
         public Core.Entities.Club Get(Guid clubId)
         {     
             using(var context = new ClubContext(options)) {          
-                var club = context.Clubs.FirstOrDefault(c => c.Guid == clubId);
+                var club = context.Clubs.Include(c => c.Squads).FirstOrDefault(c => c.Guid == clubId);
                 return mapper.Map<Core.Entities.Club>(club);            
             }
         }
