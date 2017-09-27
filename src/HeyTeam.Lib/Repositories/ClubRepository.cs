@@ -13,6 +13,9 @@ namespace HeyTeam.Lib.Repositories {
         private readonly IDbConnectionFactory connectionFactory;
 
         public ClubRepository(IDbConnectionFactory factory) {
+            if (factory == null)
+                throw new ArgumentNullException();
+
             this.connectionFactory = factory;
         }
         public void Add(Core.Entities.Club club)
@@ -68,13 +71,6 @@ namespace HeyTeam.Lib.Repositories {
 
                     return club;
                 }
-
-                // var results = connection.Query(sql, p).Cast<IDictionary<string, object>>();
-                // return results.Select(row => 
-                //         new Club(Guid.Parse(row["Guid"].ToString())){ 
-                //             Name = (string)row["Name"], 
-                //             LogoUrl = (string)row["LogoUrl"]}
-                //         ).FirstOrDefault();
             }
         }
 

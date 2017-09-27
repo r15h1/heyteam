@@ -4,6 +4,8 @@ using System;
 using System.Linq;
 using HeyTeam.Lib.Repositories;
 using HeyTeam.Lib.Data;
+using HeyTeam.Core.Entities;
+using Dapper;
 
 namespace HeyTeam.Lib.Repositories {
     public class SquadRepository : ISquadRepository
@@ -11,12 +13,24 @@ namespace HeyTeam.Lib.Repositories {
         private readonly IDbConnectionFactory connectionFactory;
 
         public SquadRepository(IDbConnectionFactory factory) {
+            if (factory == null)
+                throw new ArgumentNullException();
             this.connectionFactory = factory;
         }
 
-        public void Add(Core.Entities.Squad squad)
+        public void Add(Squad squad)
         {
-            throw new NotImplementedException();
+            using(var connection = connectionFactory.Connect()) {
+            string sql =    @"INSERT INTO SQUADS(ClubId, Guid, Name) 
+                                SELECT C.ClubId, @SquadGuid, @Name FROM CLUBS C  WHERE C.Guid = @ClubGuid";  
+                                
+                var p = new DynamicParameters();
+                p.Add("@SquadGuid", squad.Guid.ToString());
+                p.Add("@Name", squad.Name);
+                p.Add("@ClubGuid", squad.Club.Guid.ToString());
+                connection.Open();
+                connection.Execute(sql, p);
+            }
         }
     }
 }
