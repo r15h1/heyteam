@@ -15,14 +15,21 @@ namespace HeyTeam.Core.UseCases.Club {
         }
         
         public RegisterClubResponse Execute(RegisterClubRequest request)
-        {
+        {            
             var validationResult = validator.Validate(request);
             if(!validationResult.IsValid)
-                return new RegisterClubResponse(validationResult);
+                return CreateResponse(validationResult);
             
             Entities.Club club = MapClub(request);
             repository.Add(club);
-            return new RegisterClubResponse (validationResult, club.Guid);
+            return new RegisterClubResponse (club.Guid);            
+        }
+
+        private RegisterClubResponse CreateResponse(ValidationResult<RegisterClubRequest> validationResult)
+        {
+            var response = new RegisterClubResponse();
+            validationResult.Messages.ForEach((m) => response.AddMessage(m));
+            return response;
         }
 
         private Entities.Club MapClub(RegisterClubRequest request) 

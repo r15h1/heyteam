@@ -7,14 +7,11 @@ namespace HeyTeam.Core.UseCases.Club {
         public string ClubLogoUrl { get; set; }
     }
 
-    public class RegisterClubResponse {
-        public RegisterClubResponse(ValidationResult<RegisterClubRequest> validationResult, Guid? clubId = null) {
-            if (validationResult == null) throw new ArgumentNullException();
-            ClubId = clubId;
-            ValidationResult = validationResult;
+    public class RegisterClubResponse : Response {                
+        public RegisterClubResponse(Guid? guid = null):base() {
+            this.ClubId = guid;
         }
-        
-        public Guid? ClubId { get; }        
-        public ValidationResult<RegisterClubRequest> ValidationResult { get; }
+
+        public Guid? ClubId { get; }                
     }
 }
