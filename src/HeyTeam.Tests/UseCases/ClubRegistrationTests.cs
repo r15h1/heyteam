@@ -11,10 +11,10 @@ using HeyTeam.Lib.Data;
 using HeyTeam.Tests.Data;
 
 namespace HeyTeam.Tests.UseCases {
-    public class RegisterClubTests {
+    public class ClubRegistrationTests {
         private readonly IUseCase<RegisterClubRequest, RegisterClubResponse> useCase;
 
-        public RegisterClubTests() {   
+        public ClubRegistrationTests() {   
             string connectionString = $"Data Source=file:{Guid.NewGuid().ToString()}.sqlite";
             Database.Create(connectionString);         
             IValidator<RegisterClubRequest> validator = new RegisterClubRequestValidator();

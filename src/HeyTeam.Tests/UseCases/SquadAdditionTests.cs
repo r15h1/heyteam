@@ -15,11 +15,11 @@ using HeyTeam.Tests.Data;
 using Xunit;
 
 namespace HeyTeam.Tests.UseCases {
-    public class AddSquadTests {
+    public class SquadAdditionTests {
         private IUseCase<AddSquadRequest, AddSquadResponse> useCase;
         private readonly Guid manUtdClubId, barcaClubId;
 
-        public AddSquadTests() {    
+        public SquadAdditionTests() {    
             string connectionString = $"Data Source=file:{Guid.NewGuid().ToString()}.sqlite";
             Database.Create(connectionString);         
                         

@@ -22,7 +22,10 @@ namespace HeyTeam.Lib.Repositories {
         {    
             using (var connection = connectionFactory.Connect())
             {
-                string sql = "INSERT INTO CLUBS(Guid, Name, LogoUrl) SELECT @Guid, @Name, @LogoUrl WHERE NOT EXISTS (SELECT 1 FROM CLUBS WHERE Guid = @Guid)";  
+                string sql = @"INSERT INTO CLUBS(Guid, Name, LogoUrl) 
+                                SELECT @Guid, @Name, @LogoUrl 
+                                WHERE NOT EXISTS (SELECT 1 FROM CLUBS WHERE Guid = @Guid)"; 
+                                 
                 var p = new DynamicParameters();
                 p.Add("@Guid", club.Guid.ToString());
                 p.Add("@Name", club.Name);
@@ -50,7 +53,11 @@ namespace HeyTeam.Lib.Repositories {
         {     
             using (var connection = connectionFactory.Connect())
             {
-                string sql = "SELECT Guid, Name, LogoUrl FROM Clubs WHERE Guid = @Guid; SELECT S.Guid, S.Name FROM Squads S INNER JOIN Clubs C ON S.ClubId = C.ClubId WHERE C.Guid = @Guid;";  
+                string sql = @"SELECT Guid, Name, LogoUrl FROM Clubs WHERE Guid = @Guid; 
+                                    SELECT S.Guid, S.Name FROM Squads S 
+                                        INNER JOIN Clubs C ON S.ClubId = C.ClubId 
+                                        WHERE C.Guid = @Guid;";  
+
                 var p = new DynamicParameters();
                 p.Add("@Guid", clubId.ToString());
                 connection.Open();

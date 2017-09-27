@@ -11,12 +11,12 @@ using HeyTeam.Tests.Data;
 using Xunit;
 
 namespace HeyTeam.Tests.UseCases {
-    public class UpdateClubProfileTests {
+    public class ClubProfileUpdateTests {
         private readonly IClubRepository repository;
         private readonly IUseCase<UpdateClubProfileRequest, UpdateClubProfileResponse> updateProfileUseCase;
         private readonly Guid clubId;
 
-        public UpdateClubProfileTests() {
+        public ClubProfileUpdateTests() {
             string connectionString = $"Data Source=file:{Guid.NewGuid().ToString()}.sqlite";
             Database.Create(connectionString);                     
             IValidator<UpdateClubProfileRequest> validator = new UpdateClubProfileRequestValidator();

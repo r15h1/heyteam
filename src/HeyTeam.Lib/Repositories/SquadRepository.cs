@@ -22,7 +22,8 @@ namespace HeyTeam.Lib.Repositories {
         {
             using(var connection = connectionFactory.Connect()) {
             string sql =    @"INSERT INTO SQUADS(ClubId, Guid, Name) 
-                                SELECT C.ClubId, @SquadGuid, @Name FROM CLUBS C  WHERE C.Guid = @ClubGuid";  
+                                SELECT C.ClubId, @SquadGuid, @Name FROM CLUBS C  
+                                    WHERE C.Guid = @ClubGuid";  
                                 
                 var p = new DynamicParameters();
                 p.Add("@SquadGuid", squad.Guid.ToString());
