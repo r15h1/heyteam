@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <ProjectReference Include="..\HeyTeam.Core\HeyTeam.Core.csproj" />
+    <ProjectReference Include="..\HeyTeam.Util\HeyTeam.Util.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Dapper" Version="1.50.2" />

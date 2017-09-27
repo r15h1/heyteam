@@ -1,7 +1,7 @@
 using System;
 using HeyTeam.Core.UseCases.Club;
 using HeyTeam.Core.Validation;
-using HeyTeam.Lib.Util;
+using HeyTeam.Util;
 
 namespace HeyTeam.Lib.Validation {
     public class UpdateClubProfileRequestValidator : IValidator<UpdateClubProfileRequest>

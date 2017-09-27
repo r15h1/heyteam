@@ -25,7 +25,7 @@ namespace HeyTeam.Lib.Repositories {
                 string sql = @"INSERT INTO CLUBS(Guid, Name, LogoUrl) 
                                 SELECT @Guid, @Name, @LogoUrl 
                                 WHERE NOT EXISTS (SELECT 1 FROM CLUBS WHERE Guid = @Guid)"; 
-                                 
+
                 var p = new DynamicParameters();
                 p.Add("@Guid", club.Guid.ToString());
                 p.Add("@Name", club.Name);
@@ -69,7 +69,8 @@ namespace HeyTeam.Lib.Repositories {
                             LogoUrl = (string)row["LogoUrl"]}
                         ).FirstOrDefault();
                     
-                    var squads = multi.Read().Cast<IDictionary<string, object>>().Select(row => new Squad(club, Guid.Parse(row["Guid"].ToString())) {
+                    var squads = multi.Read().Cast<IDictionary<string, object>>().Select(row => 
+                        new Squad(club, Guid.Parse(row["Guid"].ToString())) {
                         Name = (string)row["Name"]
                     }).ToList();
 
