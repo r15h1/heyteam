@@ -5,7 +5,7 @@ using HeyTeam.Core.UseCases;
 using HeyTeam.Core.Validation;
 
 namespace HeyTeam.Core.UseCases.Club {
-    public class UpdateClubProfileUseCase : IUseCase<UpdateClubProfileRequest, UpdateClubProfileResponse>
+    public class UpdateClubProfileUseCase : IUseCase<UpdateClubProfileRequest, Response<Guid>>
     {
         private readonly IClubRepository repository;
         private readonly IValidator<UpdateClubProfileRequest> validator;
@@ -16,21 +16,35 @@ namespace HeyTeam.Core.UseCases.Club {
             this.validator = validator;
         }
 
-        public UpdateClubProfileResponse Execute(UpdateClubProfileRequest request)
+        public Response<Guid> Execute(UpdateClubProfileRequest request)
         {
-            var result = validator.Validate(request);
-            if(!result.IsValid) 
-                return new UpdateClubProfileResponse(result);
+            var validationResult = validator.Validate(request);
+            if(!validationResult.IsValid) 
+                return CreateResponse(validationResult);
 
             var club = repository.Get(request.ClubId);
             if (club == null) 
-                throw new ClubNotFoundException();
+                return CreateResponse(new ClubNotFoundException(), "The specified club does not exist");
 
             club.LogoUrl = request.ClubLogoUrl;
             club.Name = request.ClubName;
             repository.Update(club);
 
-            return new UpdateClubProfileResponse(result); 
+            return new Response<Guid>(); 
+        }
+
+        private Response<Guid> CreateResponse(Exception exception, string message)
+        {
+            var response = new Response<Guid>(exception);
+            response.AddError(message);
+            return response; 
+        }
+
+        private Response<Guid> CreateResponse(ValidationResult<UpdateClubProfileRequest> validationResult)
+        {
+            var response = new Response<Guid>();
+            validationResult.Messages.ForEach((m) => response.AddError(m));
+            return response;
         }
     }
 }

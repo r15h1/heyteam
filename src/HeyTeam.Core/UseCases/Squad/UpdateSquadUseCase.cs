@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using HeyTeam.Core.Exceptions;
 using HeyTeam.Core.Repositories;
@@ -5,8 +6,7 @@ using HeyTeam.Core.Validation;
 using HeyTeam.Util;
 
 namespace HeyTeam.Core.UseCases.Squad {
-    public class UpdateSquadUseCase : IUseCase<UpdateSquadRequest, UpdateSquadResponse>
-    {
+    public class UpdateSquadUseCase : IUseCase<UpdateSquadRequest, Response<Guid?>> {
         private IClubRepository clubRepository;
         private ISquadRepository squadRepository;
         private IValidator<UpdateSquadRequest> validator;
@@ -17,18 +17,19 @@ namespace HeyTeam.Core.UseCases.Squad {
             this.validator = validator;
         }
 
-        public UpdateSquadResponse Execute(UpdateSquadRequest request) {
+        public Response<Guid?> Execute(UpdateSquadRequest request) {
             var validationResult = validator.Validate(request);
             if (!validationResult.IsValid)
-                return new UpdateSquadResponse(validationResult);
+                return Response<Guid?>.CreateResponse(validationResult.Messages);
 
             var club = clubRepository.Get(request.ClubId);
-            Ensure.NotNull<Entities.Club, ClubNotFoundException>(club);
+            if(club == null)
+                return Response<Guid?>.CreateResponse( new ClubNotFoundException());
 
             var squad = new Entities.Squad(club, request.SquadId) { Name = request.SquadName };            
             club.UpdateSquad(squad);
             squadRepository.Update(squad);
-            return new UpdateSquadResponse(validationResult);
-        }        
+            return new Response<Guid?>(squad.Guid);
+        }
     }
 }

@@ -16,7 +16,7 @@ using Xunit;
 
 namespace HeyTeam.Tests.UseCases {
     public class SquadAdditionTests {
-        private IUseCase<AddSquadRequest, AddSquadResponse> useCase;
+        private IUseCase<AddSquadRequest, Response<Guid?>> useCase;
         private readonly Guid manUtdClubId, barcaClubId;
 
         public SquadAdditionTests() {    
@@ -31,11 +31,11 @@ namespace HeyTeam.Tests.UseCases {
             var registerUseCase = new RegisterClubUseCase(clubRepository, new RegisterClubRequestValidator());
             RegisterClubRequest registerRequest = new RegisterClubRequest { ClubName = "Manchester United" , ClubLogoUrl = "http://manutd.com"};
             var registerResponse = registerUseCase.Execute(registerRequest);  
-            this.manUtdClubId = registerResponse.ClubId.Value;
+            this.manUtdClubId = registerResponse.Result.Value;
             
              registerRequest = new RegisterClubRequest { ClubName = "Barcelona" , ClubLogoUrl = "http://barca.com"};
             registerResponse = registerUseCase.Execute(registerRequest);  
-            this.barcaClubId = registerResponse.ClubId.Value;
+            this.barcaClubId = registerResponse.Result.Value;
         }
 
         [Fact]
@@ -43,14 +43,15 @@ namespace HeyTeam.Tests.UseCases {
         {            
             var request = new AddSquadRequest{ ClubId = Guid.Empty, SquadName = "U10" };
             var response = useCase.Execute(request);
-            Assert.True(!response.ValidationResult.IsValid && response.ValidationResult.Messages.Count == 1);            
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);            
         }
 
         [Fact]
         public void SquadsCannotBeAddedToInexistentClubs()
         {            
-            var request = new AddSquadRequest{ ClubId = Guid.NewGuid(), SquadName = "U10" };              
-            Assert.Throws<ClubNotFoundException>(() =>  useCase.Execute(request));
+            var request = new AddSquadRequest{ ClubId = Guid.NewGuid(), SquadName = "U10" };    
+            var response = useCase.Execute(request);            
+            Assert.True(!response.WasRequestFulfilled && response.Exception.GetType() == typeof(ClubNotFoundException));
         }
 
         [Fact]
@@ -58,7 +59,7 @@ namespace HeyTeam.Tests.UseCases {
         {            
             var request = new AddSquadRequest{ ClubId = Guid.NewGuid(), SquadName = null };            
             var response = useCase.Execute(request);
-            Assert.True(!response.ValidationResult.IsValid && response.ValidationResult.Messages.Count == 1);  
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);  
         }
 
         
@@ -67,11 +68,12 @@ namespace HeyTeam.Tests.UseCases {
         {
             var request = new AddSquadRequest{ ClubId = manUtdClubId, SquadName = "U10" };
             var response = useCase.Execute(request);
-            Assert.True(response.ValidationResult.IsValid);
-            Assert.True(response.SquadId.HasValue && response.SquadId.Value != Guid.Empty);
+            Assert.True(response.WasRequestFulfilled);
+            Assert.True(response.Result.HasValue && response.Result.Value != Guid.Empty);
 
             request = new AddSquadRequest{ ClubId = manUtdClubId, SquadName = "U10" };
-            Assert.Throws<DuplicateEntryException>(() => useCase.Execute(request));
+            response = useCase.Execute(request);
+            Assert.True(!response.WasRequestFulfilled && response.Exception.GetType() == typeof(DuplicateEntryException));
         }
 
         [Fact]
@@ -79,20 +81,20 @@ namespace HeyTeam.Tests.UseCases {
         {
             var request = new AddSquadRequest{ ClubId = manUtdClubId, SquadName = "U10" };
             var response1 = useCase.Execute(request);
-            Assert.True(response1.ValidationResult.IsValid);
-            Assert.True(response1.SquadId.HasValue && response1.SquadId.Value != Guid.Empty);
+            Assert.True(response1.WasRequestFulfilled);
+            Assert.True(response1.Result.HasValue && response1.Result.Value != Guid.Empty);
             
             request = new AddSquadRequest{ ClubId = manUtdClubId, SquadName = "U11" };
             var response2 = useCase.Execute(request);
-            Assert.True(response2.ValidationResult.IsValid);
-            Assert.True(response2.SquadId.HasValue && response2.SquadId.Value != Guid.Empty);;
+            Assert.True(response2.WasRequestFulfilled);
+            Assert.True(response2.Result.HasValue && response2.Result.Value != Guid.Empty);;
 
             request = new AddSquadRequest{ ClubId = manUtdClubId, SquadName = "U12" };
             var response3 = useCase.Execute(request);
-            Assert.True(response3.ValidationResult.IsValid);
-            Assert.True(response3.SquadId.HasValue && response3.SquadId.Value != Guid.Empty);
+            Assert.True(response3.WasRequestFulfilled);
+            Assert.True(response3.Result.HasValue && response3.Result.Value != Guid.Empty);
 
-            Assert.True(response1.SquadId != response2.SquadId && response1.SquadId != response3.SquadId && response2.SquadId != response3.SquadId);
+            Assert.True(response1.Result != response2.Result && response1.Result != response3.Result && response2.Result != response3.Result);
         }
 
         [Fact]
@@ -100,15 +102,15 @@ namespace HeyTeam.Tests.UseCases {
         {
             var request = new AddSquadRequest{ ClubId = manUtdClubId, SquadName = "U10" };
             var response1 = useCase.Execute(request);
-            Assert.True(response1.ValidationResult.IsValid);
-            Assert.True(response1.SquadId.HasValue && response1.SquadId.Value != Guid.Empty);
+            Assert.True(response1.WasRequestFulfilled);
+            Assert.True(response1.Result.HasValue && response1.Result.Value != Guid.Empty);
 
             request = new AddSquadRequest{ ClubId = barcaClubId, SquadName = "U10" };
             var response2 = useCase.Execute(request);
-            Assert.True(response2.ValidationResult.IsValid);
-            Assert.True(response2.SquadId.HasValue && response2.SquadId.Value != Guid.Empty);
+            Assert.True(response2.WasRequestFulfilled);
+            Assert.True(response2.Result.HasValue && response2.Result.Value != Guid.Empty);
 
-            Assert.True(response1.SquadId != response2.SquadId);
+            Assert.True(response1.Result != response2.Result);
         }        
     }
 }

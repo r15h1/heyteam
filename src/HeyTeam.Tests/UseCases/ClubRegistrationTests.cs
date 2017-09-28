@@ -12,7 +12,7 @@ using HeyTeam.Tests.Data;
 
 namespace HeyTeam.Tests.UseCases {
     public class ClubRegistrationTests {
-        private readonly IUseCase<RegisterClubRequest, RegisterClubResponse> useCase;
+        private readonly IUseCase<RegisterClubRequest, Response<Guid?>> useCase;
 
         public ClubRegistrationTests() {   
             string connectionString = $"Data Source=file:{Guid.NewGuid().ToString()}.sqlite";
@@ -26,40 +26,40 @@ namespace HeyTeam.Tests.UseCases {
         public void ClubNameCannotBeNull() {
             RegisterClubRequest request = new RegisterClubRequest { ClubName = null };
             var response = useCase.Execute(request);            
-            Assert.True(!response.WasRequestFulfilled && response.Messages.Count == 1);
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);
         }
 
         [Fact]
         public void ClubNameCannotBeEmpty() {
             RegisterClubRequest request = new RegisterClubRequest { ClubName = string.Empty };
             var response = useCase.Execute(request);            
-            Assert.True(!response.WasRequestFulfilled && response.Messages.Count == 1);
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);
         }
 
         [Fact]
         public void ClubNameCannotBeWhiteSpace() {
             RegisterClubRequest request = new RegisterClubRequest { ClubName = "  " };
             var response = useCase.Execute(request);            
-            Assert.True(!response.WasRequestFulfilled && response.Messages.Count == 1);
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);
         }
 
         [Fact]
         public void ClubWithValidNameIsSaved() {
             RegisterClubRequest request = new RegisterClubRequest { ClubName = "Manchester United" };
             var response = useCase.Execute(request);            
-            Assert.True(response.WasRequestFulfilled && response.ClubId.HasValue);
+            Assert.True(response.WasRequestFulfilled && response.Result.HasValue);
         }
 
         [Fact]
         public void TwoClubWithValidNameshaveDifferentIds() {
             RegisterClubRequest request1 = new RegisterClubRequest { ClubName = "Manchester United" };
             var response1 = useCase.Execute(request1);            
-            Assert.True(response1.WasRequestFulfilled && response1.ClubId.HasValue);
+            Assert.True(response1.WasRequestFulfilled && response1.Result.HasValue);
 
             RegisterClubRequest request2 = new RegisterClubRequest { ClubName = "FC Barcelona" };
             var response2 = useCase.Execute(request2);            
-            Assert.True(response2.WasRequestFulfilled && response2.ClubId.HasValue);
-            Assert.True(response1.ClubId.Value != response2.ClubId.Value);
+            Assert.True(response2.WasRequestFulfilled && response2.Result.HasValue);
+            Assert.True(response1.Result.Value != response2.Result.Value);
         }
 
         [Fact]
@@ -73,14 +73,14 @@ namespace HeyTeam.Tests.UseCases {
         public void HttpLogoUrlIsSaved() {
             RegisterClubRequest request1 = new RegisterClubRequest { ClubName = "Manchester United" , ClubLogoUrl = "http://google.com"};
             var response = useCase.Execute(request1);            
-            Assert.True(response.WasRequestFulfilled && response.ClubId.HasValue);
+            Assert.True(response.WasRequestFulfilled && response.Result.HasValue);
         }
 
         [Fact]
         public void HttpsLogoUrlIsSaved() {
             RegisterClubRequest request1 = new RegisterClubRequest { ClubName = "Manchester United" , ClubLogoUrl = "https://google.com"};
             var response = useCase.Execute(request1);            
-            Assert.True(response.WasRequestFulfilled && response.ClubId.HasValue);
+            Assert.True(response.WasRequestFulfilled && response.Result.HasValue);
         }
     }
 }

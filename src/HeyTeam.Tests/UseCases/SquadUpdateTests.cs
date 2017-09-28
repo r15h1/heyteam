@@ -10,7 +10,7 @@ using Xunit;
 
 namespace HeyTeam.Tests.UseCases {
     public class SquadUpdateTests {        
-        private IUseCase<UpdateSquadRequest, UpdateSquadResponse> useCase;
+        private IUseCase<UpdateSquadRequest, Response<Guid?>> useCase;
         private readonly Guid manUtdClubId, barcaClubId;
 
         public SquadUpdateTests() {
@@ -27,35 +27,35 @@ namespace HeyTeam.Tests.UseCases {
         public void ClubIdCannotBeEmpty() {            
             var request = new UpdateSquadRequest{ ClubId = Guid.Empty, SquadId = Guid.NewGuid(), SquadName = "U10" };
             var response = useCase.Execute(request);
-            Assert.True(!response.ValidationResult.IsValid && response.ValidationResult.Messages.Count == 1);            
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);            
         }
 
         [Fact]
         public void SquadIdCannotBeEmpty() {            
             var request = new UpdateSquadRequest{ ClubId = Guid.NewGuid(), SquadId = Guid.Empty, SquadName = "U10" };
             var response = useCase.Execute(request);
-            Assert.True(!response.ValidationResult.IsValid && response.ValidationResult.Messages.Count == 1);            
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);            
         }
 
         [Fact]
         public void SquadNameCannotBeNull() {            
             var request = new UpdateSquadRequest{ ClubId = Guid.NewGuid(), SquadId = Guid.NewGuid(), SquadName = null };
             var response = useCase.Execute(request);
-            Assert.True(!response.ValidationResult.IsValid && response.ValidationResult.Messages.Count == 1);            
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);            
         }
 
         [Fact]
         public void SquadNameCannotBeEmpty() {            
             var request = new UpdateSquadRequest{ ClubId = Guid.NewGuid(), SquadId = Guid.NewGuid(), SquadName = "" };
             var response = useCase.Execute(request);
-            Assert.True(!response.ValidationResult.IsValid && response.ValidationResult.Messages.Count == 1);            
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);            
         }
 
         [Fact]
         public void SquadNameCannotBeWhitespace() {            
             var request = new UpdateSquadRequest{ ClubId = Guid.NewGuid(), SquadId = Guid.NewGuid(), SquadName = " " };
             var response = useCase.Execute(request);
-            Assert.True(!response.ValidationResult.IsValid && response.ValidationResult.Messages.Count == 1);            
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);            
         }
     }
 }

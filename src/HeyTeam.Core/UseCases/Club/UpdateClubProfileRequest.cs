@@ -7,12 +7,4 @@ namespace HeyTeam.Core.UseCases.Club {
         public string ClubName { get; set; }
         public string ClubLogoUrl { get; set; }
     }
-
-    public class UpdateClubProfileResponse {
-        public UpdateClubProfileResponse (ValidationResult<UpdateClubProfileRequest> validationResult) {
-            this.ValidationResult = validationResult;
-        }
-
-        public ValidationResult<UpdateClubProfileRequest> ValidationResult { get; }
-    }
 }

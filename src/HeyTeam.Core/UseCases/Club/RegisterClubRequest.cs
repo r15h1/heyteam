@@ -6,12 +6,4 @@ namespace HeyTeam.Core.UseCases.Club {
         public string ClubName { get; set; }
         public string ClubLogoUrl { get; set; }
     }
-
-    public class RegisterClubResponse : Response {                
-        public RegisterClubResponse(Guid? guid = null):base() {
-            this.ClubId = guid;
-        }
-
-        public Guid? ClubId { get; }                
-    }
 }

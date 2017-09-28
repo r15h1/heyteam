@@ -13,7 +13,7 @@ using Xunit;
 namespace HeyTeam.Tests.UseCases {
     public class ClubProfileUpdateTests {
         private readonly IClubRepository repository;
-        private readonly IUseCase<UpdateClubProfileRequest, UpdateClubProfileResponse> updateProfileUseCase;
+        private readonly IUseCase<UpdateClubProfileRequest, Response<Guid>> updateProfileUseCase;
         private readonly Guid clubId;
 
         public ClubProfileUpdateTests() {
@@ -29,50 +29,49 @@ namespace HeyTeam.Tests.UseCases {
             var registerUseCase = new RegisterClubUseCase(repository, new RegisterClubRequestValidator());
             RegisterClubRequest registerRequest = new RegisterClubRequest { ClubName = "Manchester United" , ClubLogoUrl = "http://manutd.com"};
             var registerResponse = registerUseCase.Execute(registerRequest);  
-            return registerResponse.ClubId.Value;
+            return registerResponse.Result.Value;
         }
 
         [Fact]
         public void ClubIdMustBeAssigned() {
             UpdateClubProfileRequest request = new UpdateClubProfileRequest { ClubName = "Valid name" };
             var response = updateProfileUseCase.Execute(request);            
-            Assert.True(!response.ValidationResult.IsValid && response.ValidationResult.Messages.Count == 1);
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);
         }
 
         [Fact]
         public void InexistentClubUpdateThrowsClubNotFoundException() {
             UpdateClubProfileRequest request = new UpdateClubProfileRequest { ClubId = Guid.NewGuid(), ClubName = "Manchester United" , ClubLogoUrl = "https://google.com"};            
-            Assert.Throws<ClubNotFoundException>(
-                () => updateProfileUseCase.Execute(request)
-            );
+            var response = updateProfileUseCase.Execute(request);
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1 && typeof(ClubNotFoundException) == response.Exception.GetType());
         }
 
         [Fact]
         public void ClubNameCannotBeNull() {
             UpdateClubProfileRequest request = new UpdateClubProfileRequest { ClubId = clubId, ClubName = null };
             var response = updateProfileUseCase.Execute(request);            
-            Assert.True(!response.ValidationResult.IsValid && response.ValidationResult.Messages.Count == 1);
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);
         }
 
         [Fact]
         public void ClubNameCannotBeEmpty() {
             UpdateClubProfileRequest request = new UpdateClubProfileRequest { ClubId = clubId, ClubName = string.Empty };
             var response = updateProfileUseCase.Execute(request);            
-            Assert.True(!response.ValidationResult.IsValid && response.ValidationResult.Messages.Count == 1);
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);
         }
 
         [Fact]
         public void ClubNameCannotBeWhiteSpace() {
             UpdateClubProfileRequest request = new UpdateClubProfileRequest { ClubId = clubId, ClubName = "  " };
             var response = updateProfileUseCase.Execute(request);            
-            Assert.True(!response.ValidationResult.IsValid && response.ValidationResult.Messages.Count == 1);
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);
         }
 
         [Fact]
         public void LogoUrlRequiresScheme() {
             UpdateClubProfileRequest updateRequest = new UpdateClubProfileRequest { ClubId = clubId,  ClubName = "Manchester United" , ClubLogoUrl = "google.com"};
             var response = updateProfileUseCase.Execute(updateRequest);            
-            Assert.True(!response.ValidationResult.IsValid && response.ValidationResult.Messages.Count == 1);
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);
         }
         
         [Fact]
@@ -81,7 +80,7 @@ namespace HeyTeam.Tests.UseCases {
             UpdateClubProfileRequest request = new UpdateClubProfileRequest { ClubId = clubId, ClubName = "Barcelona", ClubLogoUrl = "http://manutd.com" };
             var response = updateProfileUseCase.Execute(request);
             var club = repository.Get(clubId);
-            Assert.True(response.ValidationResult.IsValid);
+            Assert.True(response.WasRequestFulfilled);
             CheckNameAndLogo(club, "Barcelona", "http://manutd.com");
         }
 
@@ -91,7 +90,7 @@ namespace HeyTeam.Tests.UseCases {
             UpdateClubProfileRequest request = new UpdateClubProfileRequest { ClubId = clubId, ClubName = "Manchester United", ClubLogoUrl = "http://google.com" };
             var response = updateProfileUseCase.Execute(request);
             var club = repository.Get(clubId);
-            Assert.True(response.ValidationResult.IsValid);
+            Assert.True(response.WasRequestFulfilled);
             CheckNameAndLogo(club, "Manchester United", "http://google.com");
         }
 
@@ -100,7 +99,7 @@ namespace HeyTeam.Tests.UseCases {
             UpdateClubProfileRequest request = new UpdateClubProfileRequest { ClubId = clubId, ClubName = "Manchester United" , ClubLogoUrl = "https://google.com"};
             var response = updateProfileUseCase.Execute(request);  
             var club = repository.Get(clubId);          
-            Assert.True(response.ValidationResult.IsValid);
+            Assert.True(response.WasRequestFulfilled);
             CheckNameAndLogo(club, "Manchester United", "https://google.com");
         }
 
@@ -109,7 +108,7 @@ namespace HeyTeam.Tests.UseCases {
             UpdateClubProfileRequest request = new UpdateClubProfileRequest { ClubId = clubId, ClubName = "Barcelona" , ClubLogoUrl = "https://www.fcbarcelona.com"};
             var response = updateProfileUseCase.Execute(request);  
             var club = repository.Get(clubId);          
-            Assert.True(response.ValidationResult.IsValid);
+            Assert.True(response.WasRequestFulfilled);
             CheckNameAndLogo(club, "Barcelona", "https://www.fcbarcelona.com");
         }
 
