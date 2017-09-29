@@ -41,12 +41,12 @@ namespace HeyTeam.Lib.Repositories {
                                 WHERE S.Guid = @SquadGuid";  
 
                 var p = new DynamicParameters();
-                p.Add("@SquadGuid", squadId);
+                p.Add("@SquadGuid", squadId.ToString());
                 connection.Open();
 
                 var reader = connection.Query(sql, p).Cast<IDictionary<string, object>>();
                 var squad = reader.Select<dynamic, Squad>(
-                        row => new Squad(Guid.Parse(row.ClubGuid.ToString), Guid.Parse(row.SquadGuid.ToString)) {
+                        row => new Squad(Guid.Parse(row.ClubGuid.ToString()), Guid.Parse(row.SquadGuid.ToString())) {
                             Name = row.Name
                         }).FirstOrDefault();
 

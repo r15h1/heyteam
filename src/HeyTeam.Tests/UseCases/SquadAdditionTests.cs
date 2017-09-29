@@ -18,14 +18,16 @@ namespace HeyTeam.Tests.UseCases {
     public class SquadAdditionTests {
         private IUseCase<AddSquadRequest, Response<Guid?>> useCase;
         private readonly Guid manUtdClubId, barcaClubId;
+        private readonly IClubRepository clubRepository;
+        private readonly ISquadRepository squadRepository;
 
         public SquadAdditionTests() {    
             string connectionString = $"Data Source=file:{Guid.NewGuid().ToString()}.sqlite";
             Database.Create(connectionString);         
                         
             IValidator<AddSquadRequest> validator = new AddSquadRequestValidator();
-            IClubRepository clubRepository = new ClubRepository(new ConnectionFactory(connectionString));
-            ISquadRepository squadRepository = new SquadRepository(new ConnectionFactory(connectionString));
+            clubRepository = new ClubRepository(new ConnectionFactory(connectionString));
+            squadRepository = new SquadRepository(new ConnectionFactory(connectionString));
             this.useCase = new AddSquadUseCase(clubRepository, squadRepository, validator);
 
             var registerUseCase = new RegisterClubUseCase(clubRepository, new RegisterClubRequestValidator());
@@ -90,10 +92,17 @@ namespace HeyTeam.Tests.UseCases {
             Assert.True(response3.Result.HasValue && response3.Result.Value != Guid.Empty);
 
             Assert.True(response1.Result != response2.Result && response1.Result != response3.Result && response2.Result != response3.Result);
+
+            var clubs = clubRepository.Get(manUtdClubId);
+            Assert.True(clubs.Squads.Count == 3);
         }
 
         [Fact]
         public void CanAddSquadWithSameNameToDifferentClub() {
+            var manutd = clubRepository.Get(manUtdClubId);
+            var barca = clubRepository.Get(barcaClubId);
+            Assert.True(manutd.Squads.Count == 0 && barca.Squads.Count == 0);
+
             var request = new AddSquadRequest{ ClubId = manUtdClubId, SquadName = "U10" };
             var response1 = useCase.Execute(request);
             Assert.True(response1.WasRequestFulfilled);
@@ -105,6 +114,11 @@ namespace HeyTeam.Tests.UseCases {
             Assert.True(response2.Result.HasValue && response2.Result.Value != Guid.Empty);
 
             Assert.True(response1.Result != response2.Result);
+
+            manutd = clubRepository.Get(manUtdClubId);
+            barca = clubRepository.Get(barcaClubId);
+
+            Assert.True(manutd.Squads.Count == 1 && barca.Squads.Count == 1);
         }        
     }
 }

@@ -118,9 +118,15 @@ namespace HeyTeam.Tests.UseCases {
             Assert.True(addResponse.WasRequestFulfilled);
             Assert.True(addResponse.Result.HasValue && addResponse.Result.Value != Guid.Empty);
 
+            var u10 = squadRepository.Get(u10id);
+            Assert.True(u10.Name.Equals("U10"));
+
             var updateRequest = new UpdateSquadRequest{ ClubId = manUtdClubId, SquadId = u10id, SquadName = "U12" };
             var response = updateSquadUseCase.Execute(updateRequest);            
             Assert.True(response.WasRequestFulfilled);
+
+            u10 = squadRepository.Get(u10id);
+            Assert.True(u10.Name.Equals("U12"));
         }
     }
 }
