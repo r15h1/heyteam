@@ -24,11 +24,17 @@ namespace HeyTeam.Core.UseCases.Squad {
 
             var club = clubRepository.Get(request.ClubId);
             if(club == null)
-                return Response<Guid?>.CreateResponse( new ClubNotFoundException());
+                return Response<Guid?>.CreateResponse(new ClubNotFoundException());
 
-            var squad = new Entities.Squad(club, request.SquadId) { Name = request.SquadName };            
-            club.UpdateSquad(squad);
-            squadRepository.Update(squad);
+            var squad = new Entities.Squad(club, request.SquadId) { Name = request.SquadName };       
+
+            try {
+                club.UpdateSquad(squad);
+                squadRepository.Update(squad);
+            } catch (Exception ex) { 
+                return Response<Guid?>.CreateResponse(ex); 
+            }    
+
             return new Response<Guid?>(squad.Guid);
         }
     }

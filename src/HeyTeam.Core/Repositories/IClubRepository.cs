@@ -7,6 +7,5 @@ namespace HeyTeam.Core.Repositories {
         void Add(Club club);
         void Update(Club club);
         Club Get(Guid clubId);
-        IList<Club> Get(string nameStartsWith);
     }
 }

@@ -75,8 +75,7 @@ namespace HeyTeam.Tests.UseCases {
         }
         
         [Fact]
-        public void NameUpdateIsSaved()
-        {
+        public void NameUpdateIsSaved() {
             UpdateClubProfileRequest request = new UpdateClubProfileRequest { ClubId = clubId, ClubName = "Barcelona", ClubLogoUrl = "http://manutd.com" };
             var response = updateProfileUseCase.Execute(request);
             var club = repository.Get(clubId);
@@ -85,8 +84,7 @@ namespace HeyTeam.Tests.UseCases {
         }
 
         [Fact]
-        public void HttpLogoUrlUpdateIsSaved()
-        {
+        public void HttpLogoUrlUpdateIsSaved() {
             UpdateClubProfileRequest request = new UpdateClubProfileRequest { ClubId = clubId, ClubName = "Manchester United", ClubLogoUrl = "http://google.com" };
             var response = updateProfileUseCase.Execute(request);
             var club = repository.Get(clubId);
@@ -112,8 +110,7 @@ namespace HeyTeam.Tests.UseCases {
             CheckNameAndLogo(club, "Barcelona", "https://www.fcbarcelona.com");
         }
 
-        private void CheckNameAndLogo(Core.Entities.Club club, string name, string logoUrl)
-        {
+        private void CheckNameAndLogo(Core.Entities.Club club, string name, string logoUrl) {
             Assert.True(club.LogoUrl.Equals(logoUrl));
             Assert.True(club.Name.Equals(name));
         }

@@ -33,30 +33,27 @@ namespace HeyTeam.Tests.UseCases {
             var registerResponse = registerUseCase.Execute(registerRequest);  
             this.manUtdClubId = registerResponse.Result.Value;
             
-             registerRequest = new RegisterClubRequest { ClubName = "Barcelona" , ClubLogoUrl = "http://barca.com"};
+            registerRequest = new RegisterClubRequest { ClubName = "Barcelona" , ClubLogoUrl = "http://barca.com"};
             registerResponse = registerUseCase.Execute(registerRequest);  
             this.barcaClubId = registerResponse.Result.Value;
         }
 
         [Fact]
-        public void ClubIdCannotBeEmpty()
-        {            
+        public void ClubIdCannotBeEmpty() {            
             var request = new AddSquadRequest{ ClubId = Guid.Empty, SquadName = "U10" };
             var response = useCase.Execute(request);
             Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);            
         }
 
         [Fact]
-        public void SquadsCannotBeAddedToInexistentClubs()
-        {            
+        public void ClubMustExist() {            
             var request = new AddSquadRequest{ ClubId = Guid.NewGuid(), SquadName = "U10" };    
             var response = useCase.Execute(request);            
             Assert.True(!response.WasRequestFulfilled && response.Exception.GetType() == typeof(ClubNotFoundException));
         }
 
         [Fact]
-        public void SquadNameCannotBeNull()
-        {            
+        public void SquadNameCannotBeNull() {            
             var request = new AddSquadRequest{ ClubId = Guid.NewGuid(), SquadName = null };            
             var response = useCase.Execute(request);
             Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);  
@@ -64,8 +61,7 @@ namespace HeyTeam.Tests.UseCases {
 
         
         [Fact]
-        public void SquadNameInSameClubCannotBeDuplicate()
-        {
+        public void SquadNameInSameClubCannotBeDuplicate() {
             var request = new AddSquadRequest{ ClubId = manUtdClubId, SquadName = "U10" };
             var response = useCase.Execute(request);
             Assert.True(response.WasRequestFulfilled);
@@ -77,8 +73,7 @@ namespace HeyTeam.Tests.UseCases {
         }
 
         [Fact]
-        public void CanAddMultipleSquadsWithDifferentNamesToSameClub()
-        {
+        public void CanAddMultipleSquadsWithDifferentNamesToSameClub() {
             var request = new AddSquadRequest{ ClubId = manUtdClubId, SquadName = "U10" };
             var response1 = useCase.Execute(request);
             Assert.True(response1.WasRequestFulfilled);
@@ -98,8 +93,7 @@ namespace HeyTeam.Tests.UseCases {
         }
 
         [Fact]
-        public void CanAddSquadWithSameNameToDifferentClub()
-        {
+        public void CanAddSquadWithSameNameToDifferentClub() {
             var request = new AddSquadRequest{ ClubId = manUtdClubId, SquadName = "U10" };
             var response1 = useCase.Execute(request);
             Assert.True(response1.WasRequestFulfilled);
