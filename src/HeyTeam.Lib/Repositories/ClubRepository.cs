@@ -63,7 +63,7 @@ namespace HeyTeam.Lib.Repositories {
                         ).FirstOrDefault();
                     
                     var squads = multi.Read().Cast<IDictionary<string, object>>().Select(row => 
-                        new Squad(club, Guid.Parse(row["Guid"].ToString())) {
+                        new Squad(club.Guid, Guid.Parse(row["Guid"].ToString())) {
                         Name = (string)row["Name"]
                     }).ToList();
 

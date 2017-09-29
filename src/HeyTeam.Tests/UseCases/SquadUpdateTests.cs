@@ -121,8 +121,6 @@ namespace HeyTeam.Tests.UseCases {
             var updateRequest = new UpdateSquadRequest{ ClubId = manUtdClubId, SquadId = u10id, SquadName = "U12" };
             var response = updateSquadUseCase.Execute(updateRequest);            
             Assert.True(response.WasRequestFulfilled);
-            var squad = squadRepository.Get(u10id);
-
         }
     }
 }

@@ -27,7 +27,7 @@ namespace HeyTeam.Core.UseCases.Squad {
             if (club == null)
                 return Response<Guid?>.CreateResponse(new ClubNotFoundException());
 
-            var squad = new Entities.Squad(club) { Name = request.SquadName };
+            var squad = new Entities.Squad(club.Guid) { Name = request.SquadName };
             
             try {
                 club.AddSquad(squad);

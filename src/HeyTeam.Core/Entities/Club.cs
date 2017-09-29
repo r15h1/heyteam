@@ -23,7 +23,7 @@ namespace HeyTeam.Core.Entities {
 
         public void UpdateSquad(Squad squad) {
             Ensure.ArgumentNotNull(squad);
-            if(squad.Club.Guid != Guid) 
+            if(squad.ClubId != Guid) 
                 throw new InvalidOperationException("Target squad belongs to a different club");
 
             if(!Squads.Any(s => s.Guid == squad.Guid))

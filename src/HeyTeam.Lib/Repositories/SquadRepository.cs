@@ -27,7 +27,7 @@ namespace HeyTeam.Lib.Repositories {
                 var p = new DynamicParameters();
                 p.Add("@SquadGuid", squad.Guid.ToString());
                 p.Add("@Name", squad.Name);
-                p.Add("@ClubGuid", squad.Club.Guid.ToString());
+                p.Add("@ClubGuid", squad.ClubId.ToString());
                 connection.Open();
                 connection.Execute(sql, p);
             }
@@ -35,38 +35,28 @@ namespace HeyTeam.Lib.Repositories {
 
         public Squad Get(Guid squadId) {
             using (var connection = connectionFactory.Connect()) {
-                string sql = @"SELECT Guid, Name FROM Squads WHERE Guid = @Guid; 
-                                    SELECT S.Guid, S.Name FROM Squads S 
-                                        INNER JOIN Clubs C ON S.ClubId = C.ClubId 
-                                        WHERE C.Guid = @Guid;";  
+                string sql = @"SELECT C.Guid AS ClubGuid, S.Guid AS SquadGuid, S.Name 
+                                FROM Squads S 
+                                INNER JOIN Clubs C ON C.ClubId = S.ClubId
+                                WHERE S.Guid = @SquadGuid";  
 
                 var p = new DynamicParameters();
-                p.Add("@Guid", squadId);
+                p.Add("@SquadGuid", squadId);
                 connection.Open();
 
-                using (var multi = connection.QueryMultiple(sql, p)) {
-                    var club = multi.Read().Cast<IDictionary<string, object>>().Select(row => 
-                        new Club(Guid.Parse(row["Guid"].ToString())){ 
-                            Name = (string)row["Name"], 
-                            LogoUrl = (string)row["LogoUrl"]}
-                        ).FirstOrDefault();
-                    
-                    var squads = multi.Read().Cast<IDictionary<string, object>>().Select(row => 
-                        new Squad(club, Guid.Parse(row["Guid"].ToString())) {
-                        Name = (string)row["Name"]
-                    }).ToList();
+                var reader = connection.Query(sql, p).Cast<IDictionary<string, object>>();
+                var squad = reader.Select<dynamic, Squad>(
+                        row => new Squad(Guid.Parse(row.ClubGuid.ToString), Guid.Parse(row.SquadGuid.ToString)) {
+                            Name = row.Name
+                        }).FirstOrDefault();
 
-                    if(squads != null && squads.Count > 0)
-                        squads.ForEach((s) => club.AddSquad(s));
-
-                    return club;
-                }
+                return squad;                
             }
         }
 
         public void Update(Squad squad) {
             using(var connection = connectionFactory.Connect()) {
-                string sql =    @"UDPATE SQUADS SET Name = @Name WHERE Guid = @Guid";  
+                string sql = @"UPDATE Squads SET Name = @Name WHERE Guid = @Guid";  
                                 
                 var p = new DynamicParameters();
                 p.Add("@Guid", squad.Guid.ToString());

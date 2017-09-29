@@ -1,14 +1,15 @@
 using System;
+using HeyTeam.Util;
 
 namespace HeyTeam.Core.Entities {
     public class Squad {
-        public Squad(Club club, Guid? guid = null) {
-            if(club == null) throw new ArgumentNullException();
-            Club = club;
-            Guid = guid.HasValue && guid.Value != Guid.Empty ? guid.Value : Guid.NewGuid();
+        public Squad(Guid clubId, Guid? squadId = null) {
+            if(clubId.IsEmpty()) throw new ArgumentNullException();
+            ClubId = clubId;
+            Guid = squadId.HasValue && squadId.Value != Guid.Empty ? squadId.Value : Guid.NewGuid();
         }
-        public Club Club { get; private set; }
-        public Guid Guid { get; private set; }
+        public Guid ClubId { get; }
+        public Guid Guid { get; }
         public string Name { get; set; }
     }
 }
