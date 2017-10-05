@@ -15,7 +15,13 @@ namespace HeyTeam.Lib.Validation {
                 result.AddMessage("First Name cannot be empty");
 
             if (request.LastName.IsEmpty()) 
-                result.AddMessage("First Name cannot be empty");
+                result.AddMessage("Last Name cannot be empty");
+
+            if (request.DominantFoot.IsEmpty()) 
+                result.AddMessage("Dominant foot cannot be empty");
+
+            if (request.Nationality.IsEmpty()) 
+                result.AddMessage("Nationality cannot be empty");
             
             return result;
         }
