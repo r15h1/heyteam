@@ -103,22 +103,21 @@ namespace HeyTeam.Tests.UseCases {
 
         [Fact]
         public void PlayerDominantFootCanBeRightOrLeftOnly() {            
+            var testFoot = " abcdefghijkmnopqstuvwxyzABCDEFGHIJKMNOPQSTUVWXYZ&^%$#@&*()&12345678900/*-+|\\][";
             var request = new AddPlayerRequest() { 
                 FirstName = "John", LastName = "Smith", 
-                SquadId = squadId, Nationality = "Canada", DominantFoot = 'C' 
+                SquadId = squadId, Nationality = "Canada"
             };
 
-            var response = useCase.Execute(request);
-            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);   
-
-            request.DominantFoot = 'L';
-            response = useCase.Execute(request);
-            Assert.True(response.WasRequestFulfilled);
-
-            request.DominantFoot = 'R';
-            response = useCase.Execute(request);
-            Assert.True(response.WasRequestFulfilled);
-
+            Response<Guid?> response = null;
+            foreach(var c in testFoot) {
+                request.DominantFoot = c;
+                response = useCase.Execute(request);
+                if (!response.WasRequestFulfilled && response.Errors.Count != 1) {
+                    Assert.True(false);
+                    break;
+                }                
+            }
         }
     }
 }
