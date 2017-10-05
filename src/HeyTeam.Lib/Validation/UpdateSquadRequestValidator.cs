@@ -14,7 +14,7 @@ namespace HeyTeam.Lib.Validation {
             if (request.SquadId.IsEmpty()) 
                 result.AddMessage("Squad Id cannot be empty");
 
-            if (string.IsNullOrWhiteSpace(request.SquadName)) 
+            if (request.SquadName.IsEmpty()) 
                 result.AddMessage("Squad name cannot be empty");
 
             return result;

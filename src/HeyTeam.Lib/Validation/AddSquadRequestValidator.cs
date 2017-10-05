@@ -11,7 +11,7 @@ namespace HeyTeam.Lib.Validation {
             if (request.ClubId.IsEmpty()) 
                 result.AddMessage("Club Id cannot be empty");
 
-            if (string.IsNullOrWhiteSpace(request.SquadName)) 
+            if (request.SquadName.IsEmpty()) 
                 result.AddMessage("Squad name cannot be empty");
 
             return result;

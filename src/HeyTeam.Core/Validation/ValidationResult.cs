@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using HeyTeam.Util;
 
 namespace HeyTeam.Core.Validation {
     public class ValidationResult<T> {
@@ -14,7 +15,7 @@ namespace HeyTeam.Core.Validation {
         public List<string> Messages { get; private set; } = new List<string>();
 
         public void AddMessage(string message) {
-            if (!string.IsNullOrWhiteSpace(message)) Messages.Add(message);
+            if (!message.IsEmpty()) Messages.Add(message);
         }        
     }
 }

@@ -9,5 +9,9 @@ namespace HeyTeam.Util {
         public static bool IsEmpty(this Guid guid) {
             return guid == Guid.Empty;
         }
+
+        public static bool IsEmpty(this string value) {
+            return string.IsNullOrWhiteSpace(value);
+        }
     }
 }

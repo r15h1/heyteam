@@ -10,6 +10,12 @@ namespace HeyTeam.Lib.Validation {
             var result = new ValidationResult<AddPlayerRequest>(request);
             if (request.SquadId.IsEmpty()) 
                 result.AddMessage("Squad Id cannot be empty");
+
+            if (request.FirstName.IsEmpty()) 
+                result.AddMessage("First Name cannot be empty");
+
+            if (request.LastName.IsEmpty()) 
+                result.AddMessage("First Name cannot be empty");
             
             return result;
         }
