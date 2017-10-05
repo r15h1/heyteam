@@ -13,5 +13,9 @@ namespace HeyTeam.Util {
         public static bool IsEmpty(this string value) {
             return string.IsNullOrWhiteSpace(value);
         }
+
+        public static bool IsEmpty(this char value) {
+            return value == char.MinValue || char.IsWhiteSpace(value);
+        }
     }
 }

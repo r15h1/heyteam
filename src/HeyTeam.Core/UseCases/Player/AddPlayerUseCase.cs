@@ -1,4 +1,5 @@
 using System;
+using HeyTeam.Core.Exceptions;
 using HeyTeam.Core.Repositories;
 using HeyTeam.Core.Validation;
 
@@ -22,7 +23,11 @@ namespace HeyTeam.Core.UseCases.Player {
                 return Response<Guid?>.CreateResponse(validationResult.Messages);
 
             var squad = squadRepository.Get(request.SquadId);
-            return null;
+            if (squad == null)
+                return Response<Guid?>.CreateResponse(new SquadNotFoundException());
+
+            var player = new Entities.Player(squad.Guid) {  };
+            return new Response<Guid?>(player.Guid);;
         }
     }
 }
