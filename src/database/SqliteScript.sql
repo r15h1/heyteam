@@ -12,3 +12,15 @@ CREATE TABLE Squads(
 	Name varchar(100) NOT NULL,
 	FOREIGN KEY(ClubId) REFERENCES Clubs (ClubId)
 );
+
+CREATE TABLE Players(
+	SquadId INTEGER NOT NULL,
+	PlayerId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+	Guid uniqueidentifier NOT NULL,
+	DateOfBirth date NOT NULL,
+	DominantFoot char(1) NOT NULL,
+	FirstName varchar(100) NOT NULL,
+	LastName varchar(100) NOT NULL,
+	Nationality varchar(50) NOT NULL,
+	FOREIGN KEY(SquadId) REFERENCES Squads (SquadId)
+);

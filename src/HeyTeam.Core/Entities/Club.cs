@@ -12,7 +12,7 @@ namespace HeyTeam.Core.Entities {
         public Guid Guid { get; private set; }        
         public string Name { get; set; }
         public string LogoUrl { get; set; }
-        public List<Squad> Squads { get; private set; } = new List<Squad>();
+        public List<Squad> Squads { get; } = new List<Squad>();
         public void AddSquad(Squad squad) {
             Ensure.ArgumentNotNull(squad);
             if(Squads.Any(s => s.Guid == squad.Guid)) throw new DuplicateEntryException("A squad with this id exists already");

@@ -16,7 +16,7 @@ namespace HeyTeam.Core.UseCases.Player {
             this.validator = validator;
         }
 
-        Response<Guid?> IUseCase<AddPlayerRequest, Response<Guid?>>.Execute(AddPlayerRequest request)
+        public Response<Guid?> Execute(AddPlayerRequest request)
         {
             var validationResult = validator.Validate(request);
             if (!validationResult.IsValid)
@@ -26,8 +26,26 @@ namespace HeyTeam.Core.UseCases.Player {
             if (squad == null)
                 return Response<Guid?>.CreateResponse(new SquadNotFoundException());
 
-            var player = new Entities.Player(squad.Guid) {  };
+            var player = MapPlayer(request);
+            try {
+                squad.AddPlayer(player);
+                playerRepository.Add(player);
+            } catch (Exception ex) {
+                return Response<Guid?>.CreateResponse(ex);
+            }        
             return new Response<Guid?>(player.Guid);;
+        
         }
+
+        private Entities.Player MapPlayer(AddPlayerRequest request) =>
+        new Entities.Player(request.SquadId) {  
+            DateOfBirth = request.DateOfBirth.Value,
+            DominantFoot = request.DominantFoot,
+            FirstName = request.FirstName,
+            LastName = request.LastName,
+            Nationality = request.Nationality,
+            Positions = request.Positions,
+            SquadNumber = request.SquadNumber
+        };        
     }
 }

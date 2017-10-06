@@ -6,15 +6,14 @@ using HeyTeam.Lib.Repositories;
 using HeyTeam.Lib.Data;
 using HeyTeam.Core.Entities;
 using Dapper;
+using HeyTeam.Util;
 
 namespace HeyTeam.Lib.Repositories {
     public class SquadRepository : ISquadRepository {
         private readonly IDbConnectionFactory connectionFactory;
 
         public SquadRepository(IDbConnectionFactory factory) {
-            if (factory == null)
-                throw new ArgumentNullException();
-
+            Ensure.ArgumentNotNull(factory);
             this.connectionFactory = factory;
         }
 

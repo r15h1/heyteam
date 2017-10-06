@@ -3,6 +3,7 @@ using HeyTeam.Core.Exceptions;
 using HeyTeam.Core.Repositories;
 using HeyTeam.Core.UseCases;
 using HeyTeam.Core.Validation;
+using HeyTeam.Util;
 
 namespace HeyTeam.Core.UseCases.Club {
     public class UpdateClubProfileUseCase : IUseCase<UpdateClubProfileRequest, Response<Guid>>
@@ -11,7 +12,8 @@ namespace HeyTeam.Core.UseCases.Club {
         private readonly IValidator<UpdateClubProfileRequest> validator;
 
         public UpdateClubProfileUseCase(IClubRepository repository, IValidator<UpdateClubProfileRequest> validator) {
-            if(repository ==null || validator == null) throw new ArgumentNullException();
+            Ensure.ArgumentNotNull(repository);
+            Ensure.ArgumentNotNull(validator);
             this.repository = repository;
             this.validator = validator;
         }

@@ -1,4 +1,5 @@
 using System;
+using HeyTeam.Core.Exceptions;
 using HeyTeam.Core.Repositories;
 using HeyTeam.Core.UseCases;
 using HeyTeam.Core.UseCases.Club;
@@ -8,6 +9,7 @@ using HeyTeam.Core.Validation;
 using HeyTeam.Lib.Repositories;
 using HeyTeam.Lib.Validation;
 using HeyTeam.Tests.Data;
+using HeyTeam.Util;
 using Xunit;
 
 namespace HeyTeam.Tests.UseCases {
@@ -183,6 +185,21 @@ namespace HeyTeam.Tests.UseCases {
             request.DateOfBirth = DateTime.Now.AddDays(1);
             var response = useCase.Execute(request);
             Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);   
+        }
+
+        [Fact]
+        public void PlayerCannotBeAddedToInexistentSquad() {
+            var request = BuildAddRequest();
+            request.SquadId = Guid.NewGuid();
+            var response = useCase.Execute(request);
+            Assert.True(!response.WasRequestFulfilled && response.Exception.GetType() == typeof(SquadNotFoundException));   
+        }
+
+        [Fact]
+        public void PlayerCanBeAddedToValidSquad() {
+            var request = BuildAddRequest();
+            var response = useCase.Execute(request);
+            Assert.True(response.WasRequestFulfilled && !response.Result.Value.IsEmpty());   
         }
     }
 }

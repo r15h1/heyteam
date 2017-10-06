@@ -1,6 +1,7 @@
 using System;
 using HeyTeam.Core.Repositories;
 using HeyTeam.Core.Validation;
+using HeyTeam.Util;
 
 namespace HeyTeam.Core.UseCases.Club {
     public class RegisterClubUseCase : IUseCase<RegisterClubRequest, Response<Guid?>>
@@ -9,7 +10,8 @@ namespace HeyTeam.Core.UseCases.Club {
         private readonly IValidator<RegisterClubRequest> validator;
 
         public RegisterClubUseCase (IClubRepository repository, IValidator<RegisterClubRequest> validator) {
-            if(repository ==null || validator == null) throw new ArgumentNullException();
+            Ensure.ArgumentNotNull(repository);
+            Ensure.ArgumentNotNull(validator);
             this.repository = repository;
             this.validator = validator;
         }
