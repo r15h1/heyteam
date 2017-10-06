@@ -1,3 +1,4 @@
+using System;
 using HeyTeam.Core.UseCases.Player;
 using HeyTeam.Core.Validation;
 using HeyTeam.Util;
@@ -24,7 +25,12 @@ namespace HeyTeam.Lib.Validation {
 
             if (request.Nationality.IsEmpty()) 
                 result.AddMessage("Nationality cannot be empty");
-            
+
+            if (!request.DateOfBirth.HasValue) 
+                result.AddMessage("Date of Birth cannot be empty");
+            else if (request.DateOfBirth.Value > DateTime.Now) 
+                result.AddMessage("Date of Birth cannot be in the future");
+                        
             return result;
         }
     }

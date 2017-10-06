@@ -39,85 +39,150 @@ namespace HeyTeam.Tests.UseCases {
             return addSquadResponse.Result.Value;
         }
 
+        private AddPlayerRequest BuildAddRequest()
+        {
+            return new AddPlayerRequest()
+            {
+                FirstName = "John",
+                LastName = "Smith",
+                SquadId = squadId,
+                DominantFoot = 'R',
+                Nationality = "Canada",
+                DateOfBirth = DateTime.Now.AddYears(-13)
+            };
+        }
+
         [Fact]
         public void EmptyPlayerHas5ErrorMessages() {            
             var request = new AddPlayerRequest();
             var response = useCase.Execute(request);
-            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 5);   
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 6);   
         }
 
         [Fact]
         public void PlayerSquadIdCannotBeEmpty() {            
-            var request = new AddPlayerRequest() {
-                FirstName = "John", LastName = "Smith", 
-                DominantFoot = 'R', Nationality = "Canada" 
-            };
-
+            var request = BuildAddRequest();
+            request.SquadId = Guid.Empty;
             var response = useCase.Execute(request);
             Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);   
         }
 
         [Fact]
-        public void PlayerFirstNameCannotBeEmpty() {            
-            var request = new AddPlayerRequest() { 
-                LastName = "Smith", SquadId = squadId, 
-                DominantFoot = 'R', Nationality = "Canada"
-            };
+        public void PlayerFirstNameCannotBeNull()
+        {
+            var request = BuildAddRequest();
+            request.FirstName = null;
+            var response = useCase.Execute(request);
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);
+        }
 
+        [Fact]
+        public void PlayerFirstNameCannotBeEmpty()
+        {
+            var request = BuildAddRequest();
+            request.FirstName = string.Empty;
+            var response = useCase.Execute(request);
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);
+        }
+
+        [Fact]
+        public void PlayerFirstNameCannotBeWhiteSpace()
+        {
+            var request = BuildAddRequest();
+            request.FirstName = "  ";
+            var response = useCase.Execute(request);
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);
+        }
+
+        [Fact]
+        public void PlayerLastNameCannotBeNull() {            
+            var request = BuildAddRequest();
+            request.LastName = null;
             var response = useCase.Execute(request);
             Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);   
         }
 
         [Fact]
         public void PlayerLastNameCannotBeEmpty() {            
-            var request = new AddPlayerRequest() { 
-                FirstName = "John", SquadId = squadId, 
-                DominantFoot = 'R', Nationality = "Canada" 
-            };
+            var request = BuildAddRequest();
+            request.LastName = string.Empty;
+            var response = useCase.Execute(request);
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);   
+        }
 
+        [Fact]
+        public void PlayerLastNameCannotBeWhiteSpace() {            
+            var request = BuildAddRequest();
+            request.LastName = "  ";
             var response = useCase.Execute(request);
             Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);   
         }
 
         [Fact]
         public void PlayerDominantFootCannotBeEmpty() {            
-            var request = new AddPlayerRequest() { 
-                SquadId = squadId, FirstName = "John", 
-                LastName = "Smith", Nationality = "Canada" 
-            };
+            var request = BuildAddRequest();
+            request.DominantFoot = char.MinValue;
+            var response = useCase.Execute(request);
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);   
+        }
 
+        [Fact]
+        public void PlayerNationalityCannotBeNull() {            
+            var request = BuildAddRequest();
+            request.Nationality = null;
             var response = useCase.Execute(request);
             Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);   
         }
 
         [Fact]
         public void PlayerNationalityCannotBeEmpty() {            
-            var request = new AddPlayerRequest() { 
-                FirstName = "John", LastName = "Smith", 
-                SquadId = squadId, DominantFoot = 'L'
-            };
+            var request = BuildAddRequest();
+            request.Nationality = string.Empty;
+            var response = useCase.Execute(request);
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);   
+        }
 
+        [Fact]
+        public void PlayerNationalityCannotBeWhiteSpace() {            
+            var request = BuildAddRequest();
+            request.Nationality = "  ";
             var response = useCase.Execute(request);
             Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);   
         }
 
         [Fact]
         public void PlayerDominantFootCanBeRightOrLeftOnly() {            
+            //no 'R' or 'L' in this string
             var testFoot = " abcdefghijkmnopqstuvwxyzABCDEFGHIJKMNOPQSTUVWXYZ&^%$#@&*()&12345678900/*-+|\\][";
-            var request = new AddPlayerRequest() { 
-                FirstName = "John", LastName = "Smith", 
-                SquadId = squadId, Nationality = "Canada"
-            };
-
+            var request = BuildAddRequest();
+            var success = true;
             Response<Guid?> response = null;
             foreach(var c in testFoot) {
                 request.DominantFoot = c;
                 response = useCase.Execute(request);
-                if (!response.WasRequestFulfilled && response.Errors.Count != 1) {
-                    Assert.True(false);
+                if (response.WasRequestFulfilled || response.Errors.Count == 0) {
+                    success = false;
                     break;
                 }                
             }
+
+            Assert.True(success);
+        }
+
+        [Fact]
+        public void PlayerDateOfBirthCannotBeEmpty() {
+            var request = BuildAddRequest();
+            request.DateOfBirth = null;
+            var response = useCase.Execute(request);
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);   
+        }
+
+        [Fact]
+        public void PlayerDateOfBirthCannotBeInTheFuture() {
+            var request = BuildAddRequest();
+            request.DateOfBirth = DateTime.Now.AddDays(1);
+            var response = useCase.Execute(request);
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);   
         }
     }
 }
