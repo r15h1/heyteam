@@ -15,6 +15,7 @@ using Xunit;
 namespace HeyTeam.Tests.UseCases {
     public class PlayerAdditionTests {
         private readonly IUseCase<AddPlayerRequest, Response<Guid?>> useCase;
+        private readonly IPlayerRepository playerRepository;
         private readonly Guid squadId;
 
         public PlayerAdditionTests() {
@@ -22,7 +23,7 @@ namespace HeyTeam.Tests.UseCases {
             Database.Create(connectionString);   
             IValidator<AddPlayerRequest> validator = new AddPlayerRequestValidator();
             var squadRepository = new SquadRepository(new ConnectionFactory(connectionString));
-            var playerRepository = new PlayerRepository(new ConnectionFactory(connectionString));
+            playerRepository = new PlayerRepository(new ConnectionFactory(connectionString));
             useCase = new AddPlayerUseCase(squadRepository, playerRepository, validator);
             squadId = SetupSquad(squadRepository, connectionString);
         }
@@ -200,6 +201,23 @@ namespace HeyTeam.Tests.UseCases {
             var request = BuildAddRequest();
             var response = useCase.Execute(request);
             Assert.True(response.WasRequestFulfilled && !response.Result.Value.IsEmpty());   
+        }
+
+        [Fact]
+        public void CheckingNelwPlayerValues() {
+            var request = BuildAddRequest();
+            var response = useCase.Execute(request);
+            var player = playerRepository.Get(response.Result.Value);
+
+            Assert.True(player.DateOfBirth == request.DateOfBirth.Value);
+            Assert.True(player.DominantFoot == request.DominantFoot);
+            Assert.True(player.FirstName.Equals(request.FirstName));
+            Assert.True(player.LastName.Equals(request.LastName));
+            Assert.True(player.Nationality.Equals(request.Nationality));
+            Assert.True(player.SquadId == request.SquadId);
+            Assert.True(player.SquadNumber == request.SquadNumber);
+            
+            //missing positions
         }
     }
 }

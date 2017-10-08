@@ -18,7 +18,7 @@ CREATE TABLE Players(
 	PlayerId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 	Guid uniqueidentifier NOT NULL,
 	DateOfBirth date NOT NULL,
-	DominantFoot char(1) NOT NULL,
+	DominantFoot varchar(1) NOT NULL,
 	FirstName varchar(100) NOT NULL,
 	LastName varchar(100) NOT NULL,
 	Nationality varchar(50) NOT NULL,
