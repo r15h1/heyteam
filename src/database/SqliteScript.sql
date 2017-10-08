@@ -22,5 +22,6 @@ CREATE TABLE Players(
 	FirstName varchar(100) NOT NULL,
 	LastName varchar(100) NOT NULL,
 	Nationality varchar(50) NOT NULL,
+	SquadNumber SMALLINT NULL,
 	FOREIGN KEY(SquadId) REFERENCES Squads (SquadId)
 );

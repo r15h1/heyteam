@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Dapper;
 using HeyTeam.Core.Entities;
 using HeyTeam.Core.Repositories;
@@ -22,6 +24,31 @@ namespace HeyTeam.Lib.Repositories {
                 DynamicParameters p = SetupInsertParameters(player);
                 connection.Open();
                 connection.Execute(sql, p);                
+            }
+        }
+
+        public Player Get(Guid guid)
+        {
+            if (guid.IsEmpty())
+                return null;
+
+            using(var connection = connectionFactory.Connect())
+            {
+                string sql = @"SELECT S.Guid AS SquadGuid, P.Guid AS PlayerGuid, 
+                                    DateOfBirth, FirstName, LastName, Nationality, SquadNumber
+                                FROM Players P
+                                INNER JOIN Squads S ON P.SquadId = S.SquadId
+                                WHERE P.Guid = @Guid";
+                DynamicParameters p = new DynamicParameters();
+                p.Add("@Guid", guid.ToString());
+                connection.Open();
+                var reader = connection.Query(sql, p).Cast<IDictionary<string, object>>();
+                var player = reader.Select<dynamic, Player>(
+                        row => new Player(Guid.Parse(row.SquadGuid.ToString()), Guid.Parse(row.PlayerGuid.ToString())) {
+                            FirstName = row.FirstName, LastName = row.LastName, 
+                            Nationality = row.Nationality, SquadNumber = row.SquadNumber
+                        }).FirstOrDefault();
+                return player;
             }
         }
 

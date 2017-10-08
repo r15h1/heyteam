@@ -24,17 +24,20 @@ namespace HeyTeam.Core.UseCases.Player {
 
             var squad = squadRepository.Get(request.SquadId);
             if (squad == null)
-                return Response<Guid?>.CreateResponse(new SquadNotFoundException());
+                return Response<Guid?>.CreateResponse(new SquadNotFoundException());            
 
             var player = MapPlayer(request);
-            try {
+            var playerWithSameId = playerRepository.Get(player.Guid);
+            if(playerWithSameId != null)
+                return Response<Guid?>.CreateResponse(new DuplicateEntryException("A player with this id exists already"));
+
+            try {   
                 squad.AddPlayer(player);
                 playerRepository.Add(player);
             } catch (Exception ex) {
                 return Response<Guid?>.CreateResponse(ex);
             }        
-            return new Response<Guid?>(player.Guid);;
-        
+            return new Response<Guid?>(player.Guid);        
         }
 
         private Entities.Player MapPlayer(AddPlayerRequest request) =>
