@@ -1,4 +1,7 @@
-﻿@using HeyTeam.Web.Views.Manage
+﻿@using HeyTeam.Identity
+@using HeyTeam.Web.Views.Manage
+@using HeyTeam.Identity
+
 @inject SignInManager<ApplicationUser> SignInManager
 @{
     var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
