@@ -54,7 +54,7 @@ namespace HeyTeam.Web.Controllers
             // Clear the existing external cookie to ensure a clean login process
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
-            ViewData["ReturnUrl"] = returnUrl;
+            ViewData["ReturnUrl"] = returnUrl ?? "/";
             return View();
         }
 
@@ -72,7 +72,7 @@ namespace HeyTeam.Web.Controllers
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
-                    return RedirectToLocal(returnUrl);
+                    return RedirectToLocal(returnUrl ?? "/");
                 }
                 if (result.RequiresTwoFactor)
                 {

@@ -13,9 +13,21 @@ namespace HeyTeam.Web
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        // public Startup(IConfiguration configuration)
+        // {
+        //     Configuration = configuration;
+        // }
+
+        public Startup(IHostingEnvironment env)
         {
-            Configuration = configuration;
+            var builder = new ConfigurationBuilder();
+
+            if (env.IsDevelopment())
+            {
+                builder.AddUserSecrets<Startup>();
+            }
+
+            Configuration = builder.Build();
         }
 
         public IConfiguration Configuration { get; }
@@ -25,7 +37,7 @@ namespace HeyTeam.Web
         {
             services.AddDbContext<ApplicationDbContext>(options =>
                 //options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(Configuration["DefaultConnection"]));
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -59,7 +71,7 @@ namespace HeyTeam.Web
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Account}/{action=Login}/{id?}");
+                    template: "{controller=DashBoard}/{action=Index}/{id?}");
             });
         }
     }
