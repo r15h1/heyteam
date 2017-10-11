@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using HeyTeam.Web.Models.AccountViewModels;
 using HeyTeam.Web.Services;
 using HeyTeam.Identity;
+using HeyTeam.Identity.Seeding;
 
 namespace HeyTeam.Web.Controllers
 {
@@ -20,21 +21,31 @@ namespace HeyTeam.Web.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IEmailSender _emailSender;
         private readonly ILogger _logger;
+        private readonly IIdentityInitializer initializer;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IEmailSender emailSender,
-            ILogger<AccountController> logger)
+            ILogger<AccountController> logger,
+            IIdentityInitializer initializer)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
             _logger = logger;
+            this.initializer = initializer;
         }
 
         [TempData]
         public string ErrorMessage { get; set; }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> Seed() {
+            await initializer.Initialize();
+            return new JsonResult("seeded");
+        }
 
         [HttpGet]
         [AllowAnonymous]

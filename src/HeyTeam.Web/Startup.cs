@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using HeyTeam.Web.Services;
 using HeyTeam.Identity;
 using HeyTeam.Identity.Data;
+using HeyTeam.Identity.Seeding;
 
 namespace HeyTeam.Web
 {
@@ -34,10 +35,11 @@ namespace HeyTeam.Web
             services.AddTransient<IEmailSender, EmailSender>();
 
             services.AddMvc();
+            services.AddScoped<IIdentityInitializer, IdentityInitializer>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public  void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -51,7 +53,7 @@ namespace HeyTeam.Web
 
             app.UseStaticFiles();
 
-            app.UseAuthentication();
+            app.UseAuthentication();            
 
             app.UseMvc(routes =>
             {
