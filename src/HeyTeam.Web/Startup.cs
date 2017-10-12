@@ -71,7 +71,7 @@ namespace HeyTeam.Web
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=DashBoard}/{action=Index}/{id?}");
+                    template: "{controller=Dashboard}/{action=Index}/{id?}");
             });
         }
     }

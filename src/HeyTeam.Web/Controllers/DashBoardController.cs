@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HeyTeam.Web.Controllers {
 
     [Authorize]
-    public class DashBoardController : Controller {
+    public class DashboardController : Controller {
 
         [HttpGet]
         public IActionResult Index() {
