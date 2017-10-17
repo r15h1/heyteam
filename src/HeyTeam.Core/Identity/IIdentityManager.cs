@@ -1,10 +1,11 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace HeyTeam.Core.Identity {
     public interface IIdentityManager
     {
-        void CreateUser(string user, string password);
-        void AddUserToRole(string user, string role);
-        IEnumerable<string> GetRoles(string user);
+        Task<IdentityOperationResult> CreateUser(string email, string password);
+        IdentityOperationResult AddUserToRole(string email, string role);
+        IEnumerable<string> GetRoles(string email);
     }
 }
