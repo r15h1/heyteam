@@ -2,20 +2,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using HeyTeam.Core.Dashboard;
+using HeyTeam.Core.Identity;
 using HeyTeam.Core.Repositories;
 using HeyTeam.Identity;
 
 namespace HeyTeam.Lib.Dashboard {
     public class DashboardBuilder : AbstractDashboardBuilder
     {
-        public DashboardBuilder(IDashboardRepository dashboardRepository, IUserRepository userRepository) : base(dashboardRepository, userRepository)
+        public DashboardBuilder(IDashboardRepository dashboardRepository, IIdentityManager identityManager) : base(dashboardRepository, identityManager)
         {
         }
 
         public override List<Group> Build()
         {       
             List<Group> dashboard = new List<Group>();     
-            var roles = userRepository.GetRoles(base.UserEmail);
+            var roles = identityManager.GetRoles(base.UserEmail);
             if(roles == null || roles.Count() == 0) return dashboard;
 
             if(roles.Contains(Roles.Administrator.ToString()) || roles.Contains(Roles.Coach.ToString()))

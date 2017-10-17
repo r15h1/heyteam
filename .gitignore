@@ -287,6 +287,7 @@ __pycache__/
 *.odx.cs
 *.xsd.cs
 
+!src/HeyTeam.Lib/Dashboard/*
 !src/HeyTeam.Lib/Validation/*
 !src/HeyTeam.Lib/Repositories/*
 !src/HeyTeam.Lib/HeyTeam.Lib.csproj

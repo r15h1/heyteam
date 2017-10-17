@@ -1,16 +1,17 @@
 using System;
 using System.Collections.Generic;
+using HeyTeam.Core.Identity;
 using HeyTeam.Core.Repositories;
 
 namespace HeyTeam.Core.Dashboard {
     public abstract class AbstractDashboardBuilder
     {
         protected readonly IDashboardRepository dashboardRepository;
-        protected readonly IUserRepository userRepository;
+        protected readonly IIdentityManager identityManager;
 
-        public AbstractDashboardBuilder(IDashboardRepository dashboardRepository, IUserRepository userRepository) {
+        public AbstractDashboardBuilder(IDashboardRepository dashboardRepository, IIdentityManager identityManager) {
             this.dashboardRepository = dashboardRepository;
-            this.userRepository = userRepository;
+            this.identityManager = identityManager;
         }
 
         public string UserEmail { get; internal set; }
