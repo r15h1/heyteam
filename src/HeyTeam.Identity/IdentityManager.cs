@@ -7,12 +7,16 @@ using System.Threading.Tasks;
 namespace HeyTeam.Identity {
     public class IdentityManager : IIdentityManager {
         private readonly UserManager<ApplicationUser> userManager;
-        private readonly ApplicationDbContext context;
+
+        public IdentityManager(UserManager<ApplicationUser> userManager) {
+            this.userManager = userManager;
+        }
 
         public async Task<IdentityOperationResult> CreateUser(string email, string password) {            
             var newUser = new ApplicationUser { UserName = email, Email = email };
             var result = await userManager.CreateAsync(newUser, password);
             var operationResult = new IdentityOperationResult(result.Succeeded);
+            foreach(var e in result.Errors) operationResult.AddError(e.Description);
             return operationResult;
         }
 
