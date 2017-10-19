@@ -204,7 +204,7 @@ namespace HeyTeam.Tests.UseCases {
         }
 
         [Fact]
-        public void CheckingNelwPlayerValues() {
+        public void CheckingNewPlayerValues() {
             var request = BuildAddRequest();
             var response = useCase.Execute(request);
             var player = playerRepository.Get(response.Result.Value);
@@ -218,6 +218,25 @@ namespace HeyTeam.Tests.UseCases {
             Assert.True(player.SquadNumber == request.SquadNumber);
             
             //missing positions
+        }
+
+        [Fact]
+        public void CreatingNewPlayerSetsUpUserAccount() {
+            Assert.True(false);
+            //check that user exists and belongs to players roles
+        }
+
+        [Fact]
+        public void CreatingMultiplePlayersWithSameEMailSetsUpASingleUserAccount() {
+            Assert.True(false);
+             //check that user exists and belongs to players roles
+        }
+
+        [Fact]
+        public void UpdatingPlayerEmailAddressSetsUpNewAccount() {
+            Assert.True(false);
+            //check that user exists and belongs to players roles
+            //if previous user account is orphaned, remove it
         }
     }
 }
