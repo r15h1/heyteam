@@ -12,9 +12,9 @@ namespace HeyTeam.Identity {
             this.userManager = userManager;
         }
 
-        public async Task<IdentityOperationResult> CreateUser(string email, string password) {            
-            var newUser = new ApplicationUser { UserName = email, Email = email };
-            var result = await userManager.CreateAsync(newUser, password);
+        public async Task<IdentityOperationResult> SetupUser(Credential credential) {            
+            var newUser = new ApplicationUser { UserName = credential.Email, Email = credential.Email };
+            var result = await userManager.CreateAsync(newUser, credential.Password);
             var operationResult = new IdentityOperationResult(result.Succeeded);
             foreach(var e in result.Errors) operationResult.AddError(e.Description);
             return operationResult;
