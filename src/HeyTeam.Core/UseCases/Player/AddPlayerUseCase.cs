@@ -1,5 +1,6 @@
 using System;
 using HeyTeam.Core.Exceptions;
+using HeyTeam.Core.Identity;
 using HeyTeam.Core.Repositories;
 using HeyTeam.Core.Validation;
 
@@ -7,12 +8,14 @@ namespace HeyTeam.Core.UseCases.Player {
     public class AddPlayerUseCase : IUseCase<AddPlayerRequest, Response<Guid?>>
     {   
         private readonly IPlayerRepository playerRepository;
+        private readonly IIdentityManager identityManager;
         private readonly ISquadRepository squadRepository;
         private readonly IValidator<AddPlayerRequest> validator;
 
-        public AddPlayerUseCase(ISquadRepository squadRepository, IPlayerRepository playerRepository, IValidator<AddPlayerRequest> validator) {
+        public AddPlayerUseCase(ISquadRepository squadRepository, IPlayerRepository playerRepository, IIdentityManager identityManager, IValidator<AddPlayerRequest> validator) {
             this.squadRepository = squadRepository;
             this.playerRepository = playerRepository;
+            this.identityManager = identityManager;
             this.validator = validator;
         }
 
@@ -46,6 +49,7 @@ namespace HeyTeam.Core.UseCases.Player {
             DominantFoot = request.DominantFoot,
             FirstName = request.FirstName,
             LastName = request.LastName,
+            Email = request.Email,
             Nationality = request.Nationality,
             Positions = request.Positions,
             SquadNumber = request.SquadNumber

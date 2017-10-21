@@ -21,6 +21,7 @@ CREATE TABLE Players(
 	DominantFoot varchar(1) NOT NULL,
 	FirstName varchar(100) NOT NULL,
 	LastName varchar(100) NOT NULL,
+	Email varchar(320) NOT NULL,
 	Nationality varchar(50) NOT NULL,
 	SquadNumber SMALLINT NULL,
 	FOREIGN KEY(SquadId) REFERENCES Squads (SquadId)

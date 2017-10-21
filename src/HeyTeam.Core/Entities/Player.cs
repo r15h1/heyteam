@@ -19,5 +19,6 @@ namespace HeyTeam.Core.Entities {
         public string Nationality { get; set; }
         public List<string> Positions { get; set; }
         public short? SquadNumber { get; set; }
+        public string Email { get; set; }
     }
 }

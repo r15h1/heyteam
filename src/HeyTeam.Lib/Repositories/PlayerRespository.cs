@@ -35,7 +35,8 @@ namespace HeyTeam.Lib.Repositories {
             using(var connection = connectionFactory.Connect())
             {
                 string sql = @"SELECT S.Guid AS SquadGuid, P.Guid AS PlayerGuid, 
-                                    DateOfBirth, DominantFoot, FirstName, LastName, Nationality, SquadNumber
+                                    DateOfBirth, DominantFoot, FirstName, LastName, 
+                                    Email, Nationality, SquadNumber
                                 FROM Players P
                                 INNER JOIN Squads S ON P.SquadId = S.SquadId
                                 WHERE P.Guid = @Guid";
@@ -46,7 +47,7 @@ namespace HeyTeam.Lib.Repositories {
                 var player = reader.Select<dynamic, Player>(
                         row => new Player(Guid.Parse(row.SquadGuid.ToString()), Guid.Parse(row.PlayerGuid.ToString())) {
                             DateOfBirth = DateTime.Parse(row.DateOfBirth), DominantFoot = char.Parse(row.DominantFoot),
-                            FirstName = row.FirstName, LastName = row.LastName, 
+                            FirstName = row.FirstName, LastName = row.LastName, Email = row.Email,
                             Nationality = row.Nationality, SquadNumber = row.SquadNumber
                         }).FirstOrDefault();
                 return player;
@@ -56,10 +57,10 @@ namespace HeyTeam.Lib.Repositories {
         private string GetInsertStatement() {
             return @"INSERT INTO PLAYERS (
                 SquadId, Guid, DateOfBirth, 
-                DominantFoot, FirstName, LastName, Nationality
+                DominantFoot, FirstName, LastName, Email, Nationality
             ) 
             SELECT S.SquadId, @PlayerGuid, @DateOfBirth, 
-                @DominantFoot, @FirstName, @LastName, @Nationality
+                @DominantFoot, @FirstName, @LastName, @Email, @Nationality
             FROM SQUADS S
             WHERE S.Guid = @SquadGuid";
 
@@ -74,6 +75,7 @@ namespace HeyTeam.Lib.Repositories {
             p.Add("@DominantFoot", player.DominantFoot.ToString());
             p.Add("@FirstName", player.FirstName);
             p.Add("@LastName", player.LastName);
+            p.Add("@Email", player.Email);
             p.Add("@Nationality", player.Nationality);
             return p;
         }

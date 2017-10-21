@@ -25,7 +25,9 @@ namespace HeyTeam.Identity {
         }
 
         public IEnumerable<string> GetRoles(string email) {
-            throw new System.NotImplementedException();
+            var user = new ApplicationUser { UserName = email, Email = email };
+            var roles = userManager.GetRolesAsync(user).Result;
+            return roles;
         }
     }
 }

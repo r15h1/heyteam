@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using HeyTeam.Core.Exceptions;
 using HeyTeam.Core.Repositories;
 using HeyTeam.Core.UseCases;
@@ -17,14 +18,15 @@ namespace HeyTeam.Tests.UseCases {
         private readonly IUseCase<AddPlayerRequest, Response<Guid?>> useCase;
         private readonly IPlayerRepository playerRepository;
         private readonly Guid squadId;
+        private readonly string connectionString;
 
         public PlayerAdditionTests() {
-            string connectionString = $"Data Source=file:{Guid.NewGuid().ToString()}.sqlite";
+            connectionString = $"Data Source=file:{Guid.NewGuid().ToString()}.sqlite";
             Database.Create(connectionString);   
             IValidator<AddPlayerRequest> validator = new AddPlayerRequestValidator();
             var squadRepository = new SquadRepository(new ConnectionFactory(connectionString));
             playerRepository = new PlayerRepository(new ConnectionFactory(connectionString));
-            useCase = new AddPlayerUseCase(squadRepository, playerRepository, validator);
+            useCase = new AddPlayerUseCase(squadRepository, playerRepository, Util.GetIdentityInstance(connectionString), validator);
             squadId = SetupSquad(squadRepository, connectionString);
         }
 
@@ -51,15 +53,16 @@ namespace HeyTeam.Tests.UseCases {
                 SquadId = squadId,
                 DominantFoot = 'R',
                 Nationality = "Canada",
-                DateOfBirth = DateTime.Now.AddYears(-13)
+                DateOfBirth = DateTime.Now.AddYears(-13),
+                Email = "john.smith@bigmail.com"
             };
         }
 
         [Fact]
-        public void EmptyPlayerHas5ErrorMessages() {            
+        public void EmptyPlayerHas6ErrorMessages() {            
             var request = new AddPlayerRequest();
             var response = useCase.Execute(request);
-            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 6);   
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 7);   
         }
 
         [Fact]
@@ -120,6 +123,38 @@ namespace HeyTeam.Tests.UseCases {
             var response = useCase.Execute(request);
             Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);   
         }
+
+        [Fact]
+        public void PlayerEmailCannotBeNull() {            
+            var request = BuildAddRequest();
+            request.LastName = null;
+            var response = useCase.Execute(request);
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);   
+        }
+
+        [Fact]
+        public void PlayerEmailCannotBeEmpty() {            
+            var request = BuildAddRequest();
+            request.LastName = "";
+            var response = useCase.Execute(request);
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);   
+        }
+
+        [Fact]
+        public void PlayerEmailCannotBeWhitespace() {            
+            var request = BuildAddRequest();
+            request.LastName = "  ";
+            var response = useCase.Execute(request);
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);   
+        }
+
+        [Fact]
+        public void PlayerEmailCannotBeInvalid() {            
+            var request = BuildAddRequest();
+            request.Email = "joe@";
+            var response = useCase.Execute(request);
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);   
+        }        
 
         [Fact]
         public void PlayerDominantFootCannotBeEmpty() {            
@@ -216,27 +251,8 @@ namespace HeyTeam.Tests.UseCases {
             Assert.True(player.Nationality.Equals(request.Nationality));
             Assert.True(player.SquadId == request.SquadId);
             Assert.True(player.SquadNumber == request.SquadNumber);
-            
+            Assert.True(player.Email.Equals(request.Email));            
             //missing positions
-        }
-
-        [Fact]
-        public void CreatingNewPlayerSetsUpUserAccount() {
-            Assert.True(false);
-            //check that user exists and belongs to players roles
-        }
-
-        [Fact]
-        public void CreatingMultiplePlayersWithSameEMailSetsUpASingleUserAccount() {
-            Assert.True(false);
-             //check that user exists and belongs to players roles
-        }
-
-        [Fact]
-        public void UpdatingPlayerEmailAddressSetsUpNewAccount() {
-            Assert.True(false);
-            //check that user exists and belongs to players roles
-            //if previous user account is orphaned, remove it
-        }
+        }        
     }
 }

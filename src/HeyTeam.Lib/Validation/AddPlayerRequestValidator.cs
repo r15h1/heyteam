@@ -16,6 +16,9 @@ namespace HeyTeam.Lib.Validation {
             if (request.LastName.IsEmpty()) 
                 result.AddMessage("Last Name cannot be empty");
 
+            if (request.Email.IsEmpty() || !request.Email.IsValidEmail()) 
+                result.AddMessage("Email is not valid");
+
             if (request.DominantFoot.IsEmpty()) {
                 result.AddMessage("Dominant foot cannot be empty");
             } else if (!char.ToUpperInvariant(request.DominantFoot).Equals('R') && 

@@ -12,5 +12,6 @@ namespace HeyTeam.Core.UseCases.Player {
         public short? SquadNumber { get; set; }
         public List<string> Positions { get; set; } = new List<string>();
         public DateTime? DateOfBirth { get; set; }
+        public string Email { get; set; }
     }
 }

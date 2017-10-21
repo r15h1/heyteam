@@ -13,22 +13,23 @@ namespace HeyTeam.Lib.Dashboard {
         {
         }
 
-        public override List<Group> Build()
+        public override List<Group> Build()        
         {       
-            List<Group> dashboard = new List<Group>();     
-            var roles = identityManager.GetRoles(base.UserEmail);
-            if(roles == null || roles.Count() == 0) return dashboard;
+            throw new NotImplementedException();
+            // List<Group> dashboard = new List<Group>();     
+            // var roles = await identityManager.GetRoles(base.UserEmail);
+            // if(roles == null || roles.Count() == 0) return dashboard;
 
-            if(roles.Contains(Roles.Administrator.ToString()) || roles.Contains(Roles.Coach.ToString()))
-                dashboard.Add(GetSquadSummary(UserEmail));
+            // if(roles.Contains(Roles.Administrator.ToString()) || roles.Contains(Roles.Coach.ToString()))
+            //     dashboard.Add(GetSquadSummary(UserEmail));
 
-            if(roles.Contains(Roles.Player.ToString()) || roles.Contains(Roles.Coach.ToString()))
-                dashboard.Add(GetActionItems(UserEmail));
+            // if(roles.Contains(Roles.Player.ToString()) || roles.Contains(Roles.Coach.ToString()))
+            //     dashboard.Add(GetActionItems(UserEmail));
 
-            dashboard.Add(GetUpcomingEvents(UserEmail));
-            dashboard.Add(GetActivityLog(UserEmail));
+            // dashboard.Add(GetUpcomingEvents(UserEmail));
+            // dashboard.Add(GetActivityLog(UserEmail));
             
-            return dashboard;
+            // return dashboard;
         }
 
         private Group GetSquadSummary(string userEmail)
