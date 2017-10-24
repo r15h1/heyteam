@@ -1,16 +1,15 @@
 using System;
 using Xunit;
-using HeyTeam.Core.Entities;
 using HeyTeam.Core.Validation;
 using HeyTeam.Core.UseCases.Club;
 using HeyTeam.Core.UseCases;
 using HeyTeam.Core.Repositories;
 using HeyTeam.Lib.Repositories;
 using HeyTeam.Lib.Validation;
-using HeyTeam.Lib.Data;
 using HeyTeam.Tests.Data;
 
-namespace HeyTeam.Tests.UseCases {
+namespace HeyTeam.Tests.UseCases
+{
     public class ClubRegistrationTests {
         private readonly IUseCase<RegisterClubRequest, Response<Guid?>> useCase;
 

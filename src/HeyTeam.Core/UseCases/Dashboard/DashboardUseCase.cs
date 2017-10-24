@@ -27,7 +27,7 @@ namespace HeyTeam.Core.UseCases
             if (club == null)
                 return Response<List<Dashboard.Group>>.CreateResponse(new ClubNotFoundException());
 
-            dashboardBuilder.UserEmail = request.UserEmail;
+            dashboardBuilder.UserEmail = request.Email;
             dashboardBuilder.ClubId = request.ClubId;
             var dashboard = dashboardBuilder.Build();
             return new Response<List<Dashboard.Group>>(dashboard);

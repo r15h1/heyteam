@@ -8,7 +8,7 @@ namespace HeyTeam.Lib.Validation {
         public ValidationResult<DashboardRequest> Validate(DashboardRequest request)
         {
             var result = new ValidationResult<DashboardRequest>(request);
-            if (request.UserEmail.IsEmpty() || !request.UserEmail.IsValidEmail())
+            if (request.Email.IsEmpty() || !request.Email.IsValidEmail())
                 result.AddMessage("User's email is not valid");
 
             if (request.ClubId.IsEmpty())
