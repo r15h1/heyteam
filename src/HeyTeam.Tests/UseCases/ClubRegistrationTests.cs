@@ -7,6 +7,7 @@ using HeyTeam.Core.Repositories;
 using HeyTeam.Lib.Repositories;
 using HeyTeam.Lib.Validation;
 using HeyTeam.Tests.Data;
+using HeyTeam.Lib.Data;
 
 namespace HeyTeam.Tests.UseCases
 {
@@ -17,7 +18,7 @@ namespace HeyTeam.Tests.UseCases
             string connectionString = $"Data Source=file:{Guid.NewGuid().ToString()}.sqlite";
             Database.Create(connectionString);         
             IValidator<RegisterClubRequest> validator = new RegisterClubRequestValidator();
-            IClubRepository repository = new ClubRepository(new ConnectionFactory(connectionString));
+            IClubRepository repository = new ClubRepository(new Data.ConnectionFactory(new DatabaseSettings { ConnectionString = connectionString } ));
             this.useCase = new RegisterClubUseCase(repository, validator);
         }
 

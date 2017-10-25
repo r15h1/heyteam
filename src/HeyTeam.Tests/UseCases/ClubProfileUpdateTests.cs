@@ -20,7 +20,7 @@ namespace HeyTeam.Tests.UseCases {
             string connectionString = $"Data Source=file:{Guid.NewGuid().ToString()}.sqlite";
             Database.Create(connectionString);                     
             IValidator<UpdateClubProfileRequest> validator = new UpdateClubProfileRequestValidator();
-            this.repository = new ClubRepository(new ConnectionFactory(connectionString));
+            this.repository = new ClubRepository(new Data.ConnectionFactory(new DatabaseSettings { ConnectionString = connectionString } ));
             this.updateProfileUseCase = new UpdateClubProfileUseCase(repository, validator);
             this.clubId = SetupClub();
         }

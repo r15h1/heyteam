@@ -11,6 +11,7 @@ using HeyTeam.Core.UseCases.Club;
 using HeyTeam.Core.UseCases.Player;
 using HeyTeam.Core.UseCases.Squad;
 using HeyTeam.Core.Validation;
+using HeyTeam.Lib.Data;
 using HeyTeam.Lib.Repositories;
 using HeyTeam.Lib.Validation;
 using HeyTeam.Tests.Data;
@@ -34,9 +35,9 @@ namespace HeyTeam.Tests.UseCases
             this.connectionString = $"Data Source=file:{Guid.NewGuid().ToString()}.sqlite";
             Database.Create(connectionString); 
             IValidator<DashboardRequest> validator = new DashboardRequestValidator();
-            this.clubRepository = new ClubRepository(new ConnectionFactory(connectionString));   
-            this.squadRepository = new SquadRepository(new ConnectionFactory(connectionString));  
-            this.dashboardRepository = new DashboardRepository(new ConnectionFactory(connectionString));
+            this.clubRepository = new ClubRepository(new Data.ConnectionFactory(new DatabaseSettings { ConnectionString = connectionString } ));   
+            this.squadRepository = new SquadRepository(new Data.ConnectionFactory(new DatabaseSettings { ConnectionString = connectionString } ));  
+            this.dashboardRepository = new DashboardRepository(new Data.ConnectionFactory(new DatabaseSettings { ConnectionString = connectionString } ));
 
             identityManager = Util.GetIdentityInstance(connectionString);
             roleManager = Util.GetRoleInstance(connectionString);          
@@ -120,7 +121,7 @@ namespace HeyTeam.Tests.UseCases
                 Email = $"email{playerNumber}@heyteam.com"
             };
 
-            var playerUseCase = new AddPlayerUseCase(squadRepository, new PlayerRepository(new ConnectionFactory(connectionString)), new AddPlayerRequestValidator());
+            var playerUseCase = new AddPlayerUseCase(squadRepository, new PlayerRepository(new Data.ConnectionFactory(new DatabaseSettings { ConnectionString = connectionString } )), new AddPlayerRequestValidator());
             playerUseCase.Execute(request);
         }
 

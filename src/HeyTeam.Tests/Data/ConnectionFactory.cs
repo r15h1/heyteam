@@ -7,13 +7,13 @@ namespace HeyTeam.Tests.Data
 {
     public class ConnectionFactory : IDbConnectionFactory
     {
-        public ConnectionFactory(string connectionString) => ConnectionString = connectionString;
+        public ConnectionFactory(DatabaseSettings settings) => Settings = settings;
 
-        public string ConnectionString{ get; }
+        public DatabaseSettings Settings{ get; }
 
         public IDbConnection Connect()
         {
-            return new SqliteConnection(ConnectionString);
+            return new SqliteConnection(Settings.ConnectionString);
         }
     }
 }

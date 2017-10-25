@@ -7,6 +7,7 @@ using HeyTeam.Core.UseCases.Club;
 using HeyTeam.Core.UseCases.Player;
 using HeyTeam.Core.UseCases.Squad;
 using HeyTeam.Core.Validation;
+using HeyTeam.Lib.Data;
 using HeyTeam.Lib.Repositories;
 using HeyTeam.Lib.Validation;
 using HeyTeam.Tests.Data;
@@ -24,15 +25,15 @@ namespace HeyTeam.Tests.UseCases {
             connectionString = $"Data Source=file:{Guid.NewGuid().ToString()}.sqlite";
             Database.Create(connectionString);   
             IValidator<AddPlayerRequest> validator = new AddPlayerRequestValidator();
-            var squadRepository = new SquadRepository(new ConnectionFactory(connectionString));
-            playerRepository = new PlayerRepository(new ConnectionFactory(connectionString));
+            var squadRepository = new SquadRepository(new Data.ConnectionFactory(new DatabaseSettings { ConnectionString = connectionString } ));
+            playerRepository = new PlayerRepository(new Data.ConnectionFactory(new DatabaseSettings { ConnectionString = connectionString } ));
             useCase = new AddPlayerUseCase(squadRepository, playerRepository, validator);
             squadId = SetupSquad(squadRepository, connectionString);
         }
 
         private Guid SetupSquad(ISquadRepository squadRepository, string connectionString)
         {
-            var clubRepository = new ClubRepository(new ConnectionFactory(connectionString));
+            var clubRepository = new ClubRepository(new Data.ConnectionFactory(new DatabaseSettings { ConnectionString = connectionString } ));
             var registerUseCase = new RegisterClubUseCase(clubRepository, new RegisterClubRequestValidator());
             RegisterClubRequest registerRequest = new RegisterClubRequest { ClubName = "Manchester United" , ClubLogoUrl = "http://manutd.com"};
             var registerResponse = registerUseCase.Execute(registerRequest);  

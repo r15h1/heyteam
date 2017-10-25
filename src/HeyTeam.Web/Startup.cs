@@ -8,6 +8,16 @@ using HeyTeam.Web.Services;
 using HeyTeam.Identity;
 using HeyTeam.Identity.Data;
 using HeyTeam.Identity.Seeding;
+using HeyTeam.Core.UseCases;
+using System.Collections.Generic;
+using HeyTeam.Core.Dashboard;
+using HeyTeam.Core.Repositories;
+using HeyTeam.Lib.Repositories;
+using HeyTeam.Lib.Data;
+using HeyTeam.Core.Identity;
+using HeyTeam.Core.Validation;
+using HeyTeam.Lib.Validation;
+using System;
 
 namespace HeyTeam.Web
 {
@@ -35,9 +45,11 @@ namespace HeyTeam.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<DatabaseSettings>(Configuration);
+            Console.WriteLine("connection => " + Configuration.GetSection("ConnectionString").Value);
             services.AddDbContext<ApplicationDbContext>(options =>
-                //options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
-                options.UseSqlServer(Configuration["DefaultConnection"]));
+                //options.UseSqlite(Configuration.GetConnectionString("ConnectionString")));
+                options.UseSqlServer(Configuration["ConnectionString"]));
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -46,8 +58,14 @@ namespace HeyTeam.Web
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
 
-            services.AddMvc();
+            services.AddMvc();            
             services.AddScoped<IIdentityInitializer, IdentityInitializer>();
+            services.AddScoped<IDbConnectionFactory, ConnectionFactory>();
+            services.AddScoped<IClubRepository, ClubRepository>();
+            services.AddScoped<IDashboardRepository, DashboardRepository>();
+            services.AddScoped<IIdentityManager, IdentityManager>();
+            services.AddScoped<IValidator<DashboardRequest>, DashboardRequestValidator>();             
+            services.AddScoped<IUseCase<DashboardRequest, Response<List<Group>>>, DashboardUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

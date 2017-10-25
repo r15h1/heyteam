@@ -5,6 +5,7 @@ using HeyTeam.Core.UseCases;
 using HeyTeam.Core.UseCases.Club;
 using HeyTeam.Core.UseCases.Squad;
 using HeyTeam.Core.Validation;
+using HeyTeam.Lib.Data;
 using HeyTeam.Lib.Repositories;
 using HeyTeam.Lib.Validation;
 using HeyTeam.Tests.Data;
@@ -22,8 +23,8 @@ namespace HeyTeam.Tests.UseCases {
             Database.Create(connectionString);
 
             IValidator<UpdateSquadRequest> validator = new UpdateSquadRequestValidator();
-            IClubRepository clubRepository = new ClubRepository(new ConnectionFactory(connectionString));
-            this.squadRepository = new SquadRepository(new ConnectionFactory(connectionString));
+            IClubRepository clubRepository = new ClubRepository(new Data.ConnectionFactory(new DatabaseSettings { ConnectionString = connectionString } ));
+            this.squadRepository = new SquadRepository(new Data.ConnectionFactory(new DatabaseSettings { ConnectionString = connectionString } ));
             this.updateSquadUseCase = new UpdateSquadUseCase(clubRepository, squadRepository, validator);
 
             this.addSquadUseCase = new AddSquadUseCase(clubRepository, squadRepository, new AddSquadRequestValidator());

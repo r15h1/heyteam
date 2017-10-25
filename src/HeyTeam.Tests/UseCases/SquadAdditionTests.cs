@@ -26,8 +26,8 @@ namespace HeyTeam.Tests.UseCases {
             Database.Create(connectionString);         
                         
             IValidator<AddSquadRequest> validator = new AddSquadRequestValidator();
-            clubRepository = new ClubRepository(new ConnectionFactory(connectionString));
-            squadRepository = new SquadRepository(new ConnectionFactory(connectionString));
+            clubRepository = new ClubRepository(new Data.ConnectionFactory(new DatabaseSettings { ConnectionString = connectionString } ));
+            squadRepository = new SquadRepository(new Data.ConnectionFactory(new DatabaseSettings { ConnectionString = connectionString } ));
             this.useCase = new AddSquadUseCase(clubRepository, squadRepository, validator);
 
             var registerUseCase = new RegisterClubUseCase(clubRepository, new RegisterClubRequestValidator());
