@@ -127,8 +127,24 @@ namespace HeyTeam.Tests.UseCases
         [Fact]
         public void AdminDashboardMustContainSquadSummary() {
             var dashboard = useCase.Execute(new DashboardRequest { Email = adminUser, ClubId = club.Guid }).Result;
-            Assert.True(dashboard.Select(i => i.Name.ToLowerInvariant().Equals("squads")).Count() == 1);
-            Assert.True(dashboard.FirstOrDefault(s => s.Name.ToLowerInvariant().Equals("squads")).Items.Count() == 2);
+            var squadGroup = dashboard.Where(i => i.Name.ToLowerInvariant().Equals("squads")).ToList();
+            Assert.True(squadGroup.Count() == 1);
+            var squads = squadGroup.FirstOrDefault().Items;
+            Assert.True(squads.Count == 2);
+        }
+
+        [Fact]
+        public void CoachDashboardMustNotContainSquadSummary() {
+            var dashboard = useCase.Execute(new DashboardRequest { Email = coachUser, ClubId = club.Guid }).Result;
+            var squadGroup = dashboard.Where(i => i.Name.ToLowerInvariant().Equals("squads")).ToList();
+            Assert.True(squadGroup.Count() == 0);            
+        }
+
+        [Fact]
+        public void PlayerDashboardMustNotContainSquadSummary() {
+            var dashboard = useCase.Execute(new DashboardRequest { Email = playerUser, ClubId = club.Guid }).Result;
+            var squadGroup = dashboard.Where(i => i.Name.ToLowerInvariant().Equals("squads")).ToList();
+            Assert.True(squadGroup.Count() == 0);
         }
     }
 }
