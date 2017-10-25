@@ -26,7 +26,7 @@ namespace HeyTeam.Tests.UseCases {
             IValidator<AddPlayerRequest> validator = new AddPlayerRequestValidator();
             var squadRepository = new SquadRepository(new ConnectionFactory(connectionString));
             playerRepository = new PlayerRepository(new ConnectionFactory(connectionString));
-            useCase = new AddPlayerUseCase(squadRepository, playerRepository, Util.GetIdentityInstance(connectionString), validator);
+            useCase = new AddPlayerUseCase(squadRepository, playerRepository, validator);
             squadId = SetupSquad(squadRepository, connectionString);
         }
 

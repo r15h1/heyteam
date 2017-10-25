@@ -8,14 +8,12 @@ namespace HeyTeam.Core.UseCases.Player {
     public class AddPlayerUseCase : IUseCase<AddPlayerRequest, Response<Guid?>>
     {   
         private readonly IPlayerRepository playerRepository;
-        private readonly IIdentityManager identityManager;
         private readonly ISquadRepository squadRepository;
         private readonly IValidator<AddPlayerRequest> validator;
 
-        public AddPlayerUseCase(ISquadRepository squadRepository, IPlayerRepository playerRepository, IIdentityManager identityManager, IValidator<AddPlayerRequest> validator) {
+        public AddPlayerUseCase(ISquadRepository squadRepository, IPlayerRepository playerRepository, IValidator<AddPlayerRequest> validator) {
             this.squadRepository = squadRepository;
             this.playerRepository = playerRepository;
-            this.identityManager = identityManager;
             this.validator = validator;
         }
 

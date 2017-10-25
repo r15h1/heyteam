@@ -3,6 +3,7 @@ using HeyTeam.Core.Identity;
 using HeyTeam.Identity.Data;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
+using System.Security.Claims;
 
 namespace HeyTeam.Identity {
     public class IdentityManager : IIdentityManager {
@@ -16,7 +17,12 @@ namespace HeyTeam.Identity {
             var newUser = new ApplicationUser { UserName = credential.Email, Email = credential.Email };
             var result = await userManager.CreateAsync(newUser, credential.Password);
             var operationResult = new IdentityOperationResult(result.Succeeded);
+            if(result.Succeeded)
+                foreach(var role in credential.Roles)
+                    await userManager.AddToRoleAsync(newUser, role.ToString().ToLowerInvariant());
+            
             foreach(var e in result.Errors) operationResult.AddError(e.Description);
+
             return operationResult;
         }
 
@@ -25,7 +31,7 @@ namespace HeyTeam.Identity {
         }
 
         public IEnumerable<string> GetRoles(string email) {
-            var user = new ApplicationUser { UserName = email, Email = email };
+            var user = userManager.FindByEmailAsync(email).Result;
             var roles = userManager.GetRolesAsync(user).Result;
             return roles;
         }
