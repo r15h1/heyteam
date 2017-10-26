@@ -1,1 +1,35 @@
-﻿<h2>Dashboard</h2>
+﻿@model HeyTeam.Web.Models.DashboardViewModels.IndexViewModel
+<h2>Dashboard</h2>
+@if(Model.Squads != null && Model.Squads.Count > 0)
+{    
+    <h3>Squads</h3>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Squad Name</th>
+                    <th>Coach</th>
+                    <th>#Players</th>
+                    <th>#Missing Evaluations</th>
+                    <th>Next Session</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(var squad in Model.Squads)
+                {
+                    <tr>
+                        <td><a href='/squads/@squad.Cells["squadid"]'>@squad.Cells["squadname"]</a></td>
+                        <td></td>
+                        <td><a href='/squads/@squad.Cells["squadid"]/players'>@squad.Cells["numberofplayers"]</a></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<h3>My Action Items</h3>
+<h3>Upcoming Events</h3>
+<h3>Recent Activity</h3>

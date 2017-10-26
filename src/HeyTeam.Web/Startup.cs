@@ -46,7 +46,6 @@ namespace HeyTeam.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<DatabaseSettings>(Configuration);
-            Console.WriteLine("connection => " + Configuration.GetSection("ConnectionString").Value);
             services.AddDbContext<ApplicationDbContext>(options =>
                 //options.UseSqlite(Configuration.GetConnectionString("ConnectionString")));
                 options.UseSqlServer(Configuration["ConnectionString"]));

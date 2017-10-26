@@ -20,6 +20,7 @@ namespace HeyTeam.Lib.Repositories {
         {
             using(var connection = connectionFactory.Connect()) {
                 string sql = @"SELECT S.Name,
+                                S.Guid,
                                 (SELECT COUNT(1) FROM Players P WHERE P.SquadId = S.SquadId) AS NumberOfPlayers
                             FROM Clubs C
                             INNER JOIN Squads S ON S.ClubId = C.ClubId
@@ -36,6 +37,7 @@ namespace HeyTeam.Lib.Repositories {
         {
             var item = new Item();            
             item.Cells.Add("squadname", row.Name);
+            item.Cells.Add("squadid", row.Guid.ToString());
             item.Cells.Add("numberofplayers", row.NumberOfPlayers.ToString());
             return item;
         }
