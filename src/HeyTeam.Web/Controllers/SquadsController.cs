@@ -16,17 +16,28 @@ namespace HeyTeam.Web.Controllers {
             this.addUseCase = addUseCase;
         }
 
+        // [HttpGet()]
+        // public IActionResult Details(string returnUrl) {
+        //     ViewData["Title"] = "Add New Squad";
+        //     ViewData["ReturnUrl"] = returnUrl ?? "/";
+        //     return View("EditSquad");
+        // }
+
         [HttpGet]
         public IActionResult New(string returnUrl) {
             ViewData["Title"] = "Add New Squad";
             ViewData["ReturnUrl"] = returnUrl ?? "/";
-            return View("SquadDetail");
+            return View("EditSquad");
         }
 
         [HttpPost]
         public IActionResult New([FromForm]SquadViewModel squad, [FromQuery]string returnUrl) {
-            if (!ModelState.IsValid) 
-                return View(squad);
+            ViewData["Title"] = "Add New Squad";
+            ViewData["ReturnUrl"] = returnUrl ?? "/";
+
+            if (!ModelState.IsValid)
+                return View("EditSquad", squad);
+            
 
             var result = addUseCase.Execute(new AddSquadRequest{
                 SquadName = squad.SquadName,
@@ -38,11 +49,9 @@ namespace HeyTeam.Web.Controllers {
                 return RedirectToLocal(returnUrl);
             } else {
                 foreach(var error in result.Errors)
-                    ModelState.AddModelError("", error);
+                    ModelState.AddModelError("", error);                
                 
-                ViewData["Title"] = "Add New Squad";
-                ViewData["ReturnUrl"] = returnUrl ?? "/";
-                return View("SquadDetail", squad);
+                return View("EditSquad", squad);
             }            
         }
 
