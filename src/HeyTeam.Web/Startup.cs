@@ -18,6 +18,7 @@ using HeyTeam.Core.Identity;
 using HeyTeam.Core.Validation;
 using HeyTeam.Lib.Validation;
 using System;
+using HeyTeam.Core.UseCases.Squad;
 
 namespace HeyTeam.Web
 {
@@ -61,10 +62,13 @@ namespace HeyTeam.Web
             services.AddScoped<IIdentityInitializer, IdentityInitializer>();
             services.AddScoped<IDbConnectionFactory, ConnectionFactory>();
             services.AddScoped<IClubRepository, ClubRepository>();
+            services.AddScoped<ISquadRepository, SquadRepository>();
             services.AddScoped<IDashboardRepository, DashboardRepository>();
             services.AddScoped<IIdentityManager, IdentityManager>();
             services.AddScoped<IValidator<DashboardRequest>, DashboardRequestValidator>();             
-            services.AddScoped<IUseCase<DashboardRequest, Response<List<Group>>>, DashboardUseCase>();
+            services.AddScoped<IUseCase<DashboardRequest, Response<List<Group>>>, DashboardUseCase>();            
+            services.AddScoped<IValidator<AddSquadRequest>, AddSquadRequestValidator>(); 
+            services.AddScoped<IUseCase<AddSquadRequest, Response<Guid?>>, AddSquadUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

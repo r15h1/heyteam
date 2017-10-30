@@ -1,8 +1,13 @@
 ﻿@model HeyTeam.Web.Models.DashboardViewModels.IndexViewModel
-<h2>Dashboard</h2>
+<h1>Dashboard</h1>
 @if(Model.Squads != null && Model.Squads.Count > 0)
 {    
     <h3>Squads</h3>
+    <div>
+    <div class="btn-group" role="group" aria-label="...">
+        <a type="button" class="btn btn-primary" id="AddSquadButton" data-toggle="modal" href="~/squads/new?returnurl=/">Add New Squad</a>
+    </div>
+    </div>
     <div class="table-responsive">
         <table class="table table-bordered table-hover">
             <thead>
