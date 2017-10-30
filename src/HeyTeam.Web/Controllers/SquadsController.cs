@@ -32,6 +32,7 @@ namespace HeyTeam.Web.Controllers {
                 SquadName = squad.SquadName,
                 ClubId = System.Guid.Parse("b58795e7-99f8-4b0a-8292-a05ed533556c")
             });
+            
             if(result.WasRequestFulfilled) {
                 returnUrl = returnUrl ?? "/";
                 return RedirectToLocal(returnUrl);
@@ -40,6 +41,7 @@ namespace HeyTeam.Web.Controllers {
                     ModelState.AddModelError("", error);
                 
                 ViewData["Title"] = "Add New Squad";
+                ViewData["ReturnUrl"] = returnUrl ?? "/";
                 return View("SquadDetail", squad);
             }            
         }
