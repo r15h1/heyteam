@@ -35,7 +35,7 @@ namespace HeyTeam.Tests.UseCases {
         {
             var clubRepository = new ClubRepository(new Data.ConnectionFactory(new DatabaseSettings { ConnectionString = connectionString } ));
             var registerUseCase = new RegisterClubUseCase(clubRepository, new RegisterClubRequestValidator());
-            RegisterClubRequest registerRequest = new RegisterClubRequest { ClubName = "Manchester United" , ClubLogoUrl = "http://manutd.com"};
+            RegisterClubRequest registerRequest = new RegisterClubRequest { Name = "Manchester United" , Url = "http://manutd.com"};
             var registerResponse = registerUseCase.Execute(registerRequest);  
             
             var addSquadRequest = new AddSquadRequest{ ClubId = registerResponse.Result.Value, SquadName = "U10" };

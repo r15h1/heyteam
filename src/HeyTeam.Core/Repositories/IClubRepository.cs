@@ -7,5 +7,6 @@ namespace HeyTeam.Core.Repositories {
         void Add(Club club);
         void Update(Club club);
         Club Get(Guid clubId);
+        bool UrlIsAlreadyAssigned(string url, Guid? clubId = null);
     }
 }

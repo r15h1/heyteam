@@ -18,14 +18,14 @@ namespace HeyTeam.Lib.Repositories {
         }
         public void Add(Core.Entities.Club club) {    
             using (var connection = connectionFactory.Connect()) {
-                string sql = @"INSERT INTO CLUBS(Guid, Name, LogoUrl) 
-                                SELECT @Guid, @Name, @LogoUrl 
+                string sql = @"INSERT INTO CLUBS(Guid, Name, Url) 
+                                SELECT @Guid, @Name, @Url 
                                 WHERE NOT EXISTS (SELECT 1 FROM CLUBS WHERE Guid = @Guid)"; 
 
                 var p = new DynamicParameters();
                 p.Add("@Guid", club.Guid.ToString());
                 p.Add("@Name", club.Name);
-                p.Add("@LogoUrl", club.LogoUrl);
+                p.Add("@Url", club.Url);
                 connection.Open();
                 connection.Execute(sql, p);
             }
@@ -33,11 +33,11 @@ namespace HeyTeam.Lib.Repositories {
 
         public void Update(Core.Entities.Club club) {
             using (var connection = connectionFactory.Connect()) {
-                string sql = "UPDATE CLUBS SET Name = @Name, LogoUrl = @LogoUrl WHERE Guid = @Guid";  
+                string sql = "UPDATE CLUBS SET Name = @Name, Url = @Url WHERE Guid = @Guid";  
                 var p = new DynamicParameters();
                 p.Add("@Guid", club.Guid.ToString());
                 p.Add("@Name", club.Name);
-                p.Add("@LogoUrl", club.LogoUrl);
+                p.Add("@Url", club.Url);
                 connection.Open();
                 connection.Execute(sql, p);
             }
@@ -45,7 +45,7 @@ namespace HeyTeam.Lib.Repositories {
 
         public Club Get(Guid clubId) {     
             using (var connection = connectionFactory.Connect()) {
-                string sql = @"SELECT Guid, Name, LogoUrl FROM Clubs WHERE Guid = @Guid; 
+                string sql = @"SELECT Guid, Name, Url FROM Clubs WHERE Guid = @Guid; 
                                     SELECT S.Guid, S.Name FROM Squads S 
                                         INNER JOIN Clubs C ON S.ClubId = C.ClubId 
                                         WHERE C.Guid = @Guid;";  
@@ -58,7 +58,7 @@ namespace HeyTeam.Lib.Repositories {
                     var club = multi.Read().Cast<IDictionary<string, object>>().Select(row => 
                         new Club(Guid.Parse(row["Guid"].ToString())){ 
                             Name = (string)row["Name"], 
-                            LogoUrl = (string)row["LogoUrl"]}
+                            Url = (string)row["Url"]}
                         ).FirstOrDefault();
                     
                     var squads = multi.Read().Cast<IDictionary<string, object>>().Select(row => 
@@ -71,6 +71,21 @@ namespace HeyTeam.Lib.Repositories {
 
                     return club;
                 }
+            }
+        }
+
+        public bool UrlIsAlreadyAssigned(string url, Guid? clubId = null) {
+            using (var connection = connectionFactory.Connect()) {
+                string sql = "SELECT COUNT(1) FROM CLUBS WHERE Url = @Url" + (clubId.IsEmpty() ? "" : $" AND Guid != @Guid" );  
+                var p = new DynamicParameters();
+                p.Add("@Url", url);
+                
+                if(!clubId.IsEmpty())
+                    p.Add("@Guid", clubId.Value.ToString());
+
+                connection.Open();
+                long count = (long)connection.ExecuteScalar(sql, p);
+                return count > 0;
             }
         }
     }

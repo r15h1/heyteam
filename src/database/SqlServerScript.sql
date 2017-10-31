@@ -2,7 +2,7 @@ CREATE TABLE Clubs(
 	ClubId bigint IDENTITY(1,1) PRIMARY KEY NOT NULL,
 	Guid uniqueidentifier NOT NULL,
 	Name varchar(250) NOT NULL,
-	LogoUrl varchar(250) NULL
+	Url varchar(250) NULL
 );
 
 CREATE TABLE Squads(

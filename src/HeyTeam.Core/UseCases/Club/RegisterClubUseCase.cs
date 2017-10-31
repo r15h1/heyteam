@@ -1,4 +1,5 @@
 using System;
+using HeyTeam.Core.Exceptions;
 using HeyTeam.Core.Repositories;
 using HeyTeam.Core.Validation;
 using HeyTeam.Util;
@@ -22,6 +23,9 @@ namespace HeyTeam.Core.UseCases.Club {
             if(!validationResult.IsValid)
                 return CreateResponse(validationResult);
             
+            if(repository.UrlIsAlreadyAssigned(request.Url))
+                return Response<Guid?>.CreateResponse(new DuplicateEntryException("This url has already been used."));
+
             Entities.Club club = MapClub(request);
             repository.Add(club);
             return new Response<Guid?> (club.Guid);            
@@ -35,7 +39,7 @@ namespace HeyTeam.Core.UseCases.Club {
         }
 
         private Entities.Club MapClub(RegisterClubRequest request) 
-            => new Entities.Club() { Name = request.ClubName, LogoUrl = request.ClubLogoUrl };
+            => new Entities.Club() { Name = request.Name, Url = request.Url };
     
     }
 }

@@ -9,8 +9,8 @@ namespace HeyTeam.Lib.Validation {
         {
             var result = new ValidationResult<RegisterClubRequest>(request);
             if(request == null) result.AddMessage("Request cannot be null");
-            if(request.ClubName.IsEmpty()) result.AddMessage("Club name cannot be empty");
-            if(!request.ClubLogoUrl.IsEmpty() && !request.ClubLogoUrl.IsValidUrl()) result.AddMessage("The logo url is not valid");
+            if(request.Name.IsEmpty()) result.AddMessage("Club name cannot be empty");
+            if(request.Url.IsEmpty() || !request.Url.IsValidUrl()) result.AddMessage("Club url is not valid");
 
             return result;
         }

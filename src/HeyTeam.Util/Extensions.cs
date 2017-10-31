@@ -7,8 +7,12 @@ namespace HeyTeam.Util {
             return Uri.IsWellFormedUriString(url, UriKind.Absolute);
         }
 
-        public static bool IsEmpty(this Guid guid) {
+        public static bool IsEmpty(this Guid guid) {            
             return guid == Guid.Empty;
+        }
+
+        public static bool IsEmpty(this Guid? guid) {            
+            return !guid.HasValue || guid == Guid.Empty;
         }
 
         public static bool IsEmpty(this string value) {

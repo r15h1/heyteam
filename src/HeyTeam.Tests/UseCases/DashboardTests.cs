@@ -53,7 +53,7 @@ namespace HeyTeam.Tests.UseCases
         private Guid SetupClub() {
             var validator = new RegisterClubRequestValidator();
             var clubUseCase = new RegisterClubUseCase(clubRepository, validator);
-            var clubRequest = new RegisterClubRequest { ClubName = "Lions FC", ClubLogoUrl = "http://lionsfc.com/logo.jpg" };
+            var clubRequest = new RegisterClubRequest { Name = "Lions FC", Url = "http://lionsfc.com/logo.jpg" };
             var clubResponse = clubUseCase.Execute(clubRequest);
             return clubResponse.Result.Value;
         }

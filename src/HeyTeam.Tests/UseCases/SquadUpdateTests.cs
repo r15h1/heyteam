@@ -30,11 +30,11 @@ namespace HeyTeam.Tests.UseCases {
             this.addSquadUseCase = new AddSquadUseCase(clubRepository, squadRepository, new AddSquadRequestValidator());
 
             var registerUseCase = new RegisterClubUseCase(clubRepository, new RegisterClubRequestValidator());
-            RegisterClubRequest registerRequest = new RegisterClubRequest { ClubName = "Manchester United" , ClubLogoUrl = "http://manutd.com"};
+            RegisterClubRequest registerRequest = new RegisterClubRequest { Name = "Manchester United" , Url = "http://manutd.com"};
             var registerResponse = registerUseCase.Execute(registerRequest);  
             this.manUtdClubId = registerResponse.Result.Value;
             
-            registerRequest = new RegisterClubRequest { ClubName = "Barcelona" , ClubLogoUrl = "http://barca.com"};
+            registerRequest = new RegisterClubRequest { Name = "Barcelona" , Url = "http://barca.com"};
             registerResponse = registerUseCase.Execute(registerRequest);  
             this.barcaClubId = registerResponse.Result.Value;
         }

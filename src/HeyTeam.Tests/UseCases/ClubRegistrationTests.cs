@@ -8,6 +8,7 @@ using HeyTeam.Lib.Repositories;
 using HeyTeam.Lib.Validation;
 using HeyTeam.Tests.Data;
 using HeyTeam.Lib.Data;
+using HeyTeam.Core.Exceptions;
 
 namespace HeyTeam.Tests.UseCases
 {
@@ -23,64 +24,98 @@ namespace HeyTeam.Tests.UseCases
         }
 
         [Fact]
-        public void ClubNameCannotBeNull() {
-            RegisterClubRequest request = new RegisterClubRequest { ClubName = null };
+        public void ClubNameAndUrlCannotBeNull() {
+            RegisterClubRequest request = BuildRequest();
             var response = useCase.Execute(request);            
-            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 2);
         }
 
         [Fact]
         public void ClubNameCannotBeEmpty() {
-            RegisterClubRequest request = new RegisterClubRequest { ClubName = string.Empty };
+            RegisterClubRequest request = BuildRequest(string.Empty, "http://manutd.com");
             var response = useCase.Execute(request);            
             Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);
         }
 
         [Fact]
         public void ClubNameCannotBeWhiteSpace() {
-            RegisterClubRequest request = new RegisterClubRequest { ClubName = "  " };
+            RegisterClubRequest request = BuildRequest("  ", "http://manutd.com");
             var response = useCase.Execute(request);            
             Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);
         }
 
         [Fact]
-        public void ClubWithValidNameIsSaved() {
-            RegisterClubRequest request = new RegisterClubRequest { ClubName = "Manchester United" };
+        public void UrlCannotBeNull() {
+            RegisterClubRequest request = BuildRequest("Manchester United", null);
             var response = useCase.Execute(request);            
-            Assert.True(response.WasRequestFulfilled && response.Result.HasValue);
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);
+        }
+
+        [Fact]
+        public void UrlCannotBeEmpty() {
+            RegisterClubRequest request = BuildRequest("Manchester United", string.Empty);
+            var response = useCase.Execute(request);            
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);
+        }
+
+        [Fact]
+        public void UrlCannotBeWhiteSpace() {
+            RegisterClubRequest request = BuildRequest("Manchester United", "  ");
+            var response = useCase.Execute(request);            
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);
+        }
+
+        [Fact]
+        public void UrlCannotBeInvalid() {
+            RegisterClubRequest request = BuildRequest("Manchester United", "abc");
+            var response = useCase.Execute(request);            
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1);
+        }
+
+        [Fact]
+        public void UrlRequiresScheme() {
+            RegisterClubRequest request1 = BuildRequest("Manchester United", "manutd.com");
+            var response = useCase.Execute(request1);            
+            Assert.False(response.WasRequestFulfilled);
+        }
+
+        [Fact]
+        public void UrlMustBeUnique() {
+            RegisterClubRequest request1 = BuildRequest("Manchester United", "http://manutd.com");
+            var response1 = useCase.Execute(request1);            
+            Assert.True(response1.WasRequestFulfilled && response1.Result.HasValue);
+
+            RegisterClubRequest request2 = BuildRequest("FC Barcelona", "http://manutd.com");
+            var response2 = useCase.Execute(request2);            
+            Assert.True(!response2.WasRequestFulfilled && response2.Exception.GetType() == typeof(DuplicateEntryException));
         }
 
         [Fact]
         public void TwoClubWithValidNameshaveDifferentIds() {
-            RegisterClubRequest request1 = new RegisterClubRequest { ClubName = "Manchester United" };
+            RegisterClubRequest request1 = BuildRequest("Manchester United", "http://manutd.com");
             var response1 = useCase.Execute(request1);            
             Assert.True(response1.WasRequestFulfilled && response1.Result.HasValue);
 
-            RegisterClubRequest request2 = new RegisterClubRequest { ClubName = "FC Barcelona" };
+            RegisterClubRequest request2 = BuildRequest("FC Barcelona", "http://barca.com");
             var response2 = useCase.Execute(request2);            
             Assert.True(response2.WasRequestFulfilled && response2.Result.HasValue);
             Assert.True(response1.Result.Value != response2.Result.Value);
         }
-
-        [Fact]
-        public void LogoUrlRequiresScheme() {
-            RegisterClubRequest request1 = new RegisterClubRequest { ClubName = "Manchester United" , ClubLogoUrl = "google.com"};
-            var response = useCase.Execute(request1);            
-            Assert.False(response.WasRequestFulfilled);
-        }
         
         [Fact]
-        public void HttpLogoUrlIsSaved() {
-            RegisterClubRequest request1 = new RegisterClubRequest { ClubName = "Manchester United" , ClubLogoUrl = "http://google.com"};
+        public void ValidNameAndHttpUrlIsSaved() {
+            RegisterClubRequest request1 = BuildRequest("Manchester United", "http://google.com");
             var response = useCase.Execute(request1);            
             Assert.True(response.WasRequestFulfilled && response.Result.HasValue);
         }
 
         [Fact]
-        public void HttpsLogoUrlIsSaved() {
-            RegisterClubRequest request1 = new RegisterClubRequest { ClubName = "Manchester United" , ClubLogoUrl = "https://google.com"};
+        public void ValidNameAndHttpsUrlIsSaved() {
+            var request1 = BuildRequest("Manchester United" , "https://manutd.com");
             var response = useCase.Execute(request1);            
             Assert.True(response.WasRequestFulfilled && response.Result.HasValue);
         }
+
+        private RegisterClubRequest BuildRequest(string name = null, string url = null) => new RegisterClubRequest { Name = name , Url = url};
     }
 }
