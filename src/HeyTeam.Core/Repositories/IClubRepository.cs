@@ -8,5 +8,6 @@ namespace HeyTeam.Core.Repositories {
         void Update(Club club);
         Club Get(Guid clubId);
         bool UrlIsAlreadyAssigned(string url, Guid? clubId = null);
+        IEnumerable<Club> Get();
     }
 }

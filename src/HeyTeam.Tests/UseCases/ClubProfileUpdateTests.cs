@@ -148,16 +148,5 @@ namespace HeyTeam.Tests.UseCases {
             Assert.True(club.Url.Equals(logoUrl));
             Assert.True(club.Name.Equals(name));
         }
-
-        // private UpdateClubProfileRequest BuildRequest(Guid clubId, string name = "Manchester United", string url = "http://manutd.com") {
-        //     var request = new UpdateClubProfileRequest { ClubId = clubId };
-        //     if(!name.IsEmpty()) 
-        //         request.SetFieldValue(UpdatableFields.NAME, name);
-
-        //     if(!url.IsEmpty())
-        //         request.SetFieldValue(UpdatableFields.URL, url);            
-
-        //     return request;
-        // }
     }    
 }

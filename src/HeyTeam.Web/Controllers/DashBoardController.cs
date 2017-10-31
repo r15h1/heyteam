@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HeyTeam.Core.Dashboard;
+using HeyTeam.Core.Entities;
 using HeyTeam.Core.UseCases;
 using HeyTeam.Identity;
 using HeyTeam.Web.Models.DashboardViewModels;
@@ -14,10 +15,12 @@ namespace HeyTeam.Web.Controllers {
 
     [Authorize]
     public class DashboardController : Controller {
+        private readonly Club club;
         private readonly IUseCase<DashboardRequest, Response<List<Group>>> useCase;
         private readonly UserManager<ApplicationUser> userManager;
 
-        public DashboardController(IUseCase<DashboardRequest, Response<List<Group>>> useCase, UserManager<ApplicationUser> userManager) {
+        public DashboardController(Club club, IUseCase<DashboardRequest, Response<List<Group>>> useCase, UserManager<ApplicationUser> userManager) {
+            this.club = club;
             this.useCase = useCase;
             this.userManager = userManager;
         }
@@ -27,7 +30,7 @@ namespace HeyTeam.Web.Controllers {
             var user = userManager.GetUserAsync(User).Result;
             var request = new DashboardRequest {
                 Email = user.Email,
-                ClubId = System.Guid.Parse("b58795e7-99f8-4b0a-8292-a05ed533556c")
+                ClubId = club.Guid
             };
             var response = useCase.Execute(request);
             IndexViewModel viewModel = CreateViewModel(response.Result);

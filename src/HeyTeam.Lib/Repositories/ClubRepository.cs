@@ -88,5 +88,22 @@ namespace HeyTeam.Lib.Repositories {
                 return count > 0;
             }
         }
+
+        public IEnumerable<Club> Get()
+        {
+            using (var connection = connectionFactory.Connect()) {
+                string sql = @"SELECT Guid, Name, Url FROM Clubs";  
+                connection.Open();
+                var reader = connection.Query(sql).Cast<IDictionary<string, object>>();
+                var clubs = reader.Select(row => 
+                        new Club(Guid.Parse(row["Guid"].ToString())){ 
+                            Name = (string)row["Name"], 
+                            Url = (string)row["Url"]}
+                        ).ToList();
+                    
+                return clubs;    
+            }
+        }
+        
     }
 }

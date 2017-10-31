@@ -4,15 +4,18 @@ using HeyTeam.Web.Models.SquadViewModels;
 using Microsoft.AspNetCore.Authorization;
 using HeyTeam.Core.UseCases.Squad;
 using HeyTeam.Core.UseCases;
+using HeyTeam.Core.Entities;
 
 namespace HeyTeam.Web.Controllers {
     
     [Authorize]
     [Route("[controller]")]
     public class SquadsController : Controller {
+        private readonly Club club;
         private readonly IUseCase<AddSquadRequest, Response<Guid?>> addUseCase;
 
-        public SquadsController(IUseCase<AddSquadRequest, Response<Guid?>> addUseCase) {
+        public SquadsController(Club club, IUseCase<AddSquadRequest, Response<Guid?>> addUseCase) {
+            this.club = club;
             this.addUseCase = addUseCase;
         }
 
@@ -41,7 +44,7 @@ namespace HeyTeam.Web.Controllers {
 
             var result = addUseCase.Execute(new AddSquadRequest{
                 SquadName = squad.SquadName,
-                ClubId = System.Guid.Parse("b58795e7-99f8-4b0a-8292-a05ed533556c")
+                ClubId = club.Guid
             });
             
             if(result.WasRequestFulfilled) {

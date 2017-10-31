@@ -19,6 +19,7 @@ using HeyTeam.Core.Validation;
 using HeyTeam.Lib.Validation;
 using System;
 using HeyTeam.Core.UseCases.Squad;
+using HeyTeam.Core.Entities;
 
 namespace HeyTeam.Web
 {
@@ -57,6 +58,7 @@ namespace HeyTeam.Web
 
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
+            services.AddMultitenancy<Club, TenantResolver>();
 
             services.AddMvc();            
             services.AddScoped<IIdentityInitializer, IdentityInitializer>();
@@ -85,8 +87,8 @@ namespace HeyTeam.Web
             }
 
             app.UseStaticFiles();
-
             app.UseAuthentication();            
+            app.UseMultitenancy<Club>();
 
             app.UseMvc(routes =>
             {
