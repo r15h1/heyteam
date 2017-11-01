@@ -21,7 +21,8 @@
                     <th>DoB</th>
                     <th>Dominant Foot</th>
                     <th>Email</th>
-                    <th>Nationality</th>                    
+                    <th>Nationality</th>   
+                    <th>#Sessions Missed</th>                 
                     <th>#Missing Evaluations</th>
                     <th>Last Login</th>
                 </tr>
@@ -30,13 +31,14 @@
                 @foreach(var player in Model.Players)
                 {
                     <tr>
-                        <td>@player.SquadNumber</td>
+                        <td><a href='/squads/@Model.SquadId/players/@player.Guid'>@player.SquadNumber</a></td>
                         <td>@player.FirstName</td>
                         <td>@player.LastName</td>
                         <td>@player.DateOfBirth.ToString("dd-MMM-yyyy")</td>
                         <td>@player.DominantFoot</td>
                         <td>@player.Email</td>
                         <td>@player.Nationality</td>
+                        <td></td>
                         <td></td>
                         <td></td>
                     </tr>

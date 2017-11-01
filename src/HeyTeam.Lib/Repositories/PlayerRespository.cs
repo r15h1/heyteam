@@ -46,7 +46,7 @@ namespace HeyTeam.Lib.Repositories {
                 var reader = connection.Query(sql, p).Cast<IDictionary<string, object>>();
                 var player = reader.Select<dynamic, Player>(
                         row => new Player(Guid.Parse(row.SquadGuid.ToString()), Guid.Parse(row.PlayerGuid.ToString())) {
-                            DateOfBirth = DateTime.Parse(row.DateOfBirth), DominantFoot = char.Parse(row.DominantFoot),
+                            DateOfBirth = DateTime.Parse(row.DateOfBirth.ToString()), DominantFoot = char.Parse(row.DominantFoot),
                             FirstName = row.FirstName, LastName = row.LastName, Email = row.Email,
                             Nationality = row.Nationality, SquadNumber = row.SquadNumber
                         }).FirstOrDefault();
