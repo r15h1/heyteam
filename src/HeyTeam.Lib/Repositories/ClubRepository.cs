@@ -16,7 +16,7 @@ namespace HeyTeam.Lib.Repositories {
             Ensure.ArgumentNotNull(factory);
             this.connectionFactory = factory;
         }
-        public void Add(Core.Entities.Club club) {    
+        public void AddClub(Core.Entities.Club club) {    
             using (var connection = connectionFactory.Connect()) {
                 string sql = @"INSERT INTO CLUBS(Guid, Name, Url) 
                                 SELECT @Guid, @Name, @Url 
@@ -31,7 +31,7 @@ namespace HeyTeam.Lib.Repositories {
             }
         }
 
-        public void Update(Core.Entities.Club club) {
+        public void UpdateClub(Core.Entities.Club club) {
             using (var connection = connectionFactory.Connect()) {
                 string sql = "UPDATE CLUBS SET Name = @Name, Url = @Url WHERE Guid = @Guid";  
                 var p = new DynamicParameters();
@@ -43,7 +43,7 @@ namespace HeyTeam.Lib.Repositories {
             }
         }
 
-        public Club Get(Guid clubId) {     
+        public Club GetClub(Guid clubId) {     
             using (var connection = connectionFactory.Connect()) {
                 string sql = @"SELECT Guid, Name, Url FROM Clubs WHERE Guid = @Guid; 
                                     SELECT S.Guid, S.Name FROM Squads S 
@@ -74,7 +74,7 @@ namespace HeyTeam.Lib.Repositories {
             }
         }
 
-        public bool UrlIsAlreadyAssigned(string url, Guid? clubId = null) {
+        public bool IsUrlAlreadyAssigned(string url, Guid? clubId = null) {
             using (var connection = connectionFactory.Connect()) {
                 string sql = "SELECT COUNT(1) FROM CLUBS WHERE Url = @Url" + (clubId.IsEmpty() ? "" : $" AND Guid != @Guid" );  
                 var p = new DynamicParameters();
@@ -89,7 +89,7 @@ namespace HeyTeam.Lib.Repositories {
             }
         }
 
-        public IEnumerable<Club> Get()
+        public IEnumerable<Club> GetClubs()
         {
             using (var connection = connectionFactory.Connect()) {
                 string sql = @"SELECT Guid, Name, Url FROM Clubs";  

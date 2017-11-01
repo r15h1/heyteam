@@ -243,7 +243,7 @@ namespace HeyTeam.Tests.UseCases {
         public void CheckingNewPlayerValues() {
             var request = BuildAddRequest();
             var response = useCase.Execute(request);
-            var player = playerRepository.Get(response.Result.Value);
+            var player = playerRepository.GetPlayer(response.Result.Value);
 
             Assert.True(player.DateOfBirth == request.DateOfBirth.Value);
             Assert.True(player.DominantFoot == request.DominantFoot);

@@ -23,11 +23,11 @@ namespace HeyTeam.Core.UseCases.Club {
             if(!validationResult.IsValid)
                 return CreateResponse(validationResult);
             
-            if(repository.UrlIsAlreadyAssigned(request.Url))
+            if(repository.IsUrlAlreadyAssigned(request.Url))
                 return Response<Guid?>.CreateResponse(new DuplicateEntryException("This url has already been used."));
 
             Entities.Club club = MapClub(request);
-            repository.Add(club);
+            repository.AddClub(club);
             return new Response<Guid?> (club.Guid);            
         }
 

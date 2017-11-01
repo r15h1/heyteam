@@ -14,7 +14,7 @@ namespace HeyTeam.Core.Entities {
         public Guid ClubId { get; }
         public Guid Guid { get; }
         public string Name { get; set; }
-        public List<Player> Players {get;} = new List<Player>();
+        public List<Player> Players { get; } = new List<Player>();
         public void AddPlayer(Player player)
         {
             Ensure.ArgumentNotNull(player);

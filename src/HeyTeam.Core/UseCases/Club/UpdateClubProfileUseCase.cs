@@ -25,17 +25,17 @@ namespace HeyTeam.Core.UseCases.Club {
             if(!validationResult.IsValid) 
                 return CreateResponse(validationResult);
 
-            var club = repository.Get(request.ClubId);
+            var club = repository.GetClub(request.ClubId);
             if (club == null) 
                 return CreateResponse(new ClubNotFoundException(), "The specified club does not exist");
 
             if(request.Fields.ContainsKey(UpdatableFields.URL))
-                if (repository.UrlIsAlreadyAssigned(request.Fields[UpdatableFields.URL], request.ClubId))
+                if (repository.IsUrlAlreadyAssigned(request.Fields[UpdatableFields.URL], request.ClubId))
                     return Response<Guid>.CreateResponse(new DuplicateEntryException("This url has already been used."));
 
             club.Url = request.Fields.ContainsKey(UpdatableFields.URL) ? request.Fields[UpdatableFields.URL] : club.Url;
             club.Name = request.Fields.ContainsKey(UpdatableFields.NAME) ? request.Fields[UpdatableFields.NAME] : club.Name;
-            repository.Update(club);
+            repository.UpdateClub(club);
 
             return new Response<Guid>(); 
         }

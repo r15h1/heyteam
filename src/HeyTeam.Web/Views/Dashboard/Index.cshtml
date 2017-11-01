@@ -1,11 +1,14 @@
 ﻿@model HeyTeam.Web.Models.DashboardViewModels.IndexViewModel
+@{
+    string @returnUrl = "returnurl=/";
+}
 <h1>Dashboard</h1>
 @if(Model.Squads != null && Model.Squads.Count > 0)
 {    
     <h3>Squads</h3>
     <div>
     <div class="btn-group" role="group" aria-label="...">
-        <a type="button" class="btn btn-primary" id="AddSquadButton" data-toggle="modal" href="~/squads/new?returnurl=/">Add New Squad</a>
+        <a type="button" class="btn btn-primary" id="AddSquadButton" data-toggle="modal" href="~/squads/new?@returnUrl">Add New Squad</a>
     </div>
     </div>
     <div class="table-responsive">
@@ -23,9 +26,9 @@
                 @foreach(var squad in Model.Squads)
                 {
                     <tr>
-                        <td><a href='/squads/@squad.Cells["squadid"]'>@squad.Cells["squadname"]</a></td>
+                        <td><a href='/squads/@squad.Cells["squadid"]?@returnUrl'>@squad.Cells["squadname"]</a></td>
                         <td></td>
-                        <td><a href='/squads/@squad.Cells["squadid"]/players'>@squad.Cells["numberofplayers"]</a></td>
+                        <td><a href='/squads/@squad.Cells["squadid"]/players?@returnUrl'>@squad.Cells["numberofplayers"]</a></td>
                         <td></td>
                         <td></td>
                     </tr>

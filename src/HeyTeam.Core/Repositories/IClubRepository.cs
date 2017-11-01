@@ -4,10 +4,10 @@ using HeyTeam.Core.Entities;
 
 namespace HeyTeam.Core.Repositories {
     public interface IClubRepository {
-        void Add(Club club);
-        void Update(Club club);
-        Club Get(Guid clubId);
-        bool UrlIsAlreadyAssigned(string url, Guid? clubId = null);
-        IEnumerable<Club> Get();
+        void AddClub(Club club);
+        void UpdateClub(Club club);
+        Club GetClub(Guid clubId);
+        bool IsUrlAlreadyAssigned(string url, Guid? clubId = null);
+        IEnumerable<Club> GetClubs();
     }
 }

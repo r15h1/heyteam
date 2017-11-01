@@ -93,14 +93,14 @@ namespace HeyTeam.Tests.UseCases {
 
             Assert.True(response1.Result != response2.Result && response1.Result != response3.Result && response2.Result != response3.Result);
 
-            var clubs = clubRepository.Get(manUtdClubId);
+            var clubs = clubRepository.GetClub(manUtdClubId);
             Assert.True(clubs.Squads.Count == 3);
         }
 
         [Fact]
         public void CanAddSquadWithSameNameToDifferentClub() {
-            var manutd = clubRepository.Get(manUtdClubId);
-            var barca = clubRepository.Get(barcaClubId);
+            var manutd = clubRepository.GetClub(manUtdClubId);
+            var barca = clubRepository.GetClub(barcaClubId);
             Assert.True(manutd.Squads.Count == 0 && barca.Squads.Count == 0);
 
             var request = new AddSquadRequest{ ClubId = manUtdClubId, SquadName = "U10" };
@@ -115,8 +115,8 @@ namespace HeyTeam.Tests.UseCases {
 
             Assert.True(response1.Result != response2.Result);
 
-            manutd = clubRepository.Get(manUtdClubId);
-            barca = clubRepository.Get(barcaClubId);
+            manutd = clubRepository.GetClub(manUtdClubId);
+            barca = clubRepository.GetClub(barcaClubId);
 
             Assert.True(manutd.Squads.Count == 1 && barca.Squads.Count == 1);
         }        

@@ -22,7 +22,7 @@ namespace HeyTeam.Core.UseCases.Squad {
             if (!validationResult.IsValid)
                 return Response<Guid?>.CreateResponse(validationResult.Messages);
 
-            var club = clubRepository.Get(request.ClubId);
+            var club = clubRepository.GetClub(request.ClubId);
             if(club == null)
                 return Response<Guid?>.CreateResponse(new ClubNotFoundException());
 
@@ -30,7 +30,7 @@ namespace HeyTeam.Core.UseCases.Squad {
 
             try {
                 club.UpdateSquad(squad);
-                squadRepository.Update(squad);
+                squadRepository.UpdateSquad(squad);
             } catch (Exception ex) { 
                 return Response<Guid?>.CreateResponse(ex); 
             }    

@@ -1,2 +1,46 @@
-@model HeyTeam.Web.Models.SquadViewModels.SquadViewModel
-<h1>View this awesome squad</h1>
+@model HeyTeam.Web.Models.SquadViewModels.SquadDetailsViewModel
+@{
+    ViewData["Title"] = $"{Model.SquadName} Squad";
+}
+<h1>@ViewData["Title"]</h1>
+<h3>Players</h3>
+<div>
+    <div class="btn-group" role="group" aria-label="...">
+        <a type="button" class="btn btn-primary" id="AddPlayerButton" data-toggle="modal" href='~/squads/@Model.SquadId/players/new'>Add New Player</a>
+    </div>
+</div>
+@if(Model.Players != null && Model.Players.Count() > 0)
+{  
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Squad#</th>
+                    <th>FirstName</th>
+                    <th>LastName</th>
+                    <th>DoB</th>
+                    <th>Dominant Foot</th>
+                    <th>Email</th>
+                    <th>Nationality</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(var player in Model.Players)
+                {
+                    <tr>
+                        <td>@player.SquadNumber</td>
+                        <td>@player.FirstName</td>
+                        <td>@player.LastName</td>
+                        <td>@player.DateOfBirth.ToString("dd-MMM-yyyy")</td>
+                        <td>@player.DominantFoot</td>
+                        <td>@player.Email</td>
+                        <td>@player.Nationality</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else {
+    <div>No players registered yet</div>
+}

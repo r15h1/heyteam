@@ -96,7 +96,7 @@ namespace HeyTeam.Tests.UseCases {
             UpdateClubProfileRequest request = new UpdateClubProfileRequest { ClubId = clubId };
             request.SetFieldValue(UpdatableFields.NAME, "Barcelona");
             var response = updateProfileUseCase.Execute(request);
-            var club = repository.Get(clubId);
+            var club = repository.GetClub(clubId);
             Assert.True(response.WasRequestFulfilled);
             CheckNameAndLogo(club, "Barcelona", "http://manutd.com");
         }
@@ -106,7 +106,7 @@ namespace HeyTeam.Tests.UseCases {
             UpdateClubProfileRequest request = new UpdateClubProfileRequest { ClubId = clubId };
             request.SetFieldValue(UpdatableFields.URL, "http://barca.com");
             var response = updateProfileUseCase.Execute(request);
-            var club = repository.Get(clubId);
+            var club = repository.GetClub(clubId);
             Assert.True(response.WasRequestFulfilled);
             CheckNameAndLogo(club, "Manchester United", "http://barca.com");
         }
@@ -116,7 +116,7 @@ namespace HeyTeam.Tests.UseCases {
             UpdateClubProfileRequest request = new UpdateClubProfileRequest { ClubId = clubId };
             request.SetFieldValue(UpdatableFields.URL, "https://barca.com");
             var response = updateProfileUseCase.Execute(request);  
-            var club = repository.Get(clubId);          
+            var club = repository.GetClub(clubId);          
             Assert.True(response.WasRequestFulfilled);
             CheckNameAndLogo(club, "Manchester United", "https://barca.com");
         }
@@ -128,7 +128,7 @@ namespace HeyTeam.Tests.UseCases {
             request.SetFieldValue(UpdatableFields.NAME, "Barcelona");
 
             var response = updateProfileUseCase.Execute(request);  
-            var club = repository.Get(clubId);          
+            var club = repository.GetClub(clubId);          
             Assert.True(response.WasRequestFulfilled);
             CheckNameAndLogo(club, "Barcelona", "https://www.fcbarcelona.com");
         }

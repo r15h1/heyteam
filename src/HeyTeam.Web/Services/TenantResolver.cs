@@ -16,7 +16,7 @@ namespace HeyTeam.Web.Services {
 
         public TenantResolver(IClubRepository repository, IMemoryCache cache) {
             if (!cache.TryGetValue(Tenant_List_Cache_Key, out clubs)) {
-                clubs = repository.Get();
+                clubs = repository.GetClubs();
                 cache.Set(Tenant_List_Cache_Key, clubs, new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromHours(2)));
             }                
         }

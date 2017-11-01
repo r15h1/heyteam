@@ -23,18 +23,18 @@ namespace HeyTeam.Core.UseCases.Player {
             if (!validationResult.IsValid)
                 return Response<Guid?>.CreateResponse(validationResult.Messages);
 
-            var squad = squadRepository.Get(request.SquadId);
+            var squad = squadRepository.GetSquad(request.SquadId);
             if (squad == null)
                 return Response<Guid?>.CreateResponse(new SquadNotFoundException());            
 
             var player = MapPlayer(request);
-            var playerWithSameId = playerRepository.Get(player.Guid);
+            var playerWithSameId = playerRepository.GetPlayer(player.Guid);
             if(playerWithSameId != null)
                 return Response<Guid?>.CreateResponse(new DuplicateEntryException("A player with this id exists already"));
 
             try {   
                 squad.AddPlayer(player);
-                playerRepository.Add(player);
+                playerRepository.AddPlayer(player);
             } catch (Exception ex) {
                 return Response<Guid?>.CreateResponse(ex);
             }        

@@ -17,7 +17,7 @@ namespace HeyTeam.Lib.Repositories {
             this.connectionFactory = factory;
         }
 
-        public void Add(Squad squad) {
+        public void AddSquad(Squad squad) {
             using(var connection = connectionFactory.Connect()) {
             string sql =    @"INSERT INTO SQUADS(ClubId, Guid, Name) 
                                 SELECT C.ClubId, @SquadGuid, @Name FROM CLUBS C  
@@ -32,7 +32,7 @@ namespace HeyTeam.Lib.Repositories {
             }
         }
 
-        public Squad Get(Guid squadId) {
+        public Squad GetSquad(Guid squadId) {
             using (var connection = connectionFactory.Connect()) {
                 string sql = @"SELECT C.Guid AS ClubGuid, S.Guid AS SquadGuid, S.Name 
                                 FROM Squads S 
@@ -53,7 +53,7 @@ namespace HeyTeam.Lib.Repositories {
             }
         }
 
-        public void Update(Squad squad) {
+        public void UpdateSquad(Squad squad) {
             using(var connection = connectionFactory.Connect()) {
                 string sql = @"UPDATE Squads SET Name = @Name WHERE Guid = @Guid";  
                                 

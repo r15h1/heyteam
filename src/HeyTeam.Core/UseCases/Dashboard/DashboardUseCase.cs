@@ -27,7 +27,7 @@ namespace HeyTeam.Core.UseCases
             if (!validationResult.IsValid)
                 return Response<List<Dashboard.Group>>.CreateResponse(validationResult.Messages);
             
-            var club = clubRepository.Get(request.ClubId);
+            var club = clubRepository.GetClub(request.ClubId);
             if (club == null)
                 return Response<List<Dashboard.Group>>.CreateResponse(new ClubNotFoundException());
 

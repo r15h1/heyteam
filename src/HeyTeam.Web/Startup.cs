@@ -65,12 +65,15 @@ namespace HeyTeam.Web
             services.AddScoped<IDbConnectionFactory, ConnectionFactory>();
             services.AddScoped<IClubRepository, ClubRepository>();
             services.AddScoped<ISquadRepository, SquadRepository>();
+            services.AddScoped<IPlayerRepository, PlayerRepository>();
             services.AddScoped<IDashboardRepository, DashboardRepository>();
             services.AddScoped<IIdentityManager, IdentityManager>();
             services.AddScoped<IValidator<DashboardRequest>, DashboardRequestValidator>();             
             services.AddScoped<IUseCase<DashboardRequest, Response<List<Group>>>, DashboardUseCase>();            
             services.AddScoped<IValidator<AddSquadRequest>, AddSquadRequestValidator>(); 
             services.AddScoped<IUseCase<AddSquadRequest, Response<Guid?>>, AddSquadUseCase>();
+            services.AddScoped<IUseCase<GetSquadRequest, Response<System.ValueTuple<Core.Entities.Squad, IEnumerable<Core.Entities.Player>>>>, GetSquadUseCase>();
+            services.AddScoped<IValidator<GetSquadRequest>, GetSquadRequestValidator>(); 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
