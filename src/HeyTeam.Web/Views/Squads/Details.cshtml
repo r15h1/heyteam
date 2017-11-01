@@ -31,7 +31,7 @@
                 @foreach(var player in Model.Players)
                 {
                     <tr>
-                        <td><a href='/squads/@Model.SquadId/players/@player.Guid'>@player.SquadNumber</a></td>
+                        <td><a href='/players/@player.Guid'>@player.SquadNumber</a></td>
                         <td>@player.FirstName</td>
                         <td>@player.LastName</td>
                         <td>@player.DateOfBirth.ToString("dd-MMM-yyyy")</td>

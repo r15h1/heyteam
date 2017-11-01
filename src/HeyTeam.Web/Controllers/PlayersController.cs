@@ -6,8 +6,7 @@ using HeyTeam.Web.Models.PlayerViewModels;
 namespace HeyTeam.Web.Controllers
 {
 
-    [Authorize]
-    [Route("squads/{squadId:guid}/[controller]")]
+    [Authorize]    
     public class PlayersController : Controller {
         private readonly IPlayerRepository playerRepository;
 
@@ -15,13 +14,15 @@ namespace HeyTeam.Web.Controllers
             this.playerRepository = playerRepository;
         }
 
-        [HttpGet("new")]
+        [Route("squads/{squadId:guid}/[controller]/new")]
+        [HttpGet]
         public IActionResult New() {
             ViewData["Title"] = "Add New Player";
             return View("Edit");
         }
 
-        [HttpGet("{playerId:guid}")]
+        [Route("players/{playerId:guid}")]
+        [HttpGet]
         public IActionResult Details(string squadId, string playerId) {
             var player = playerRepository.GetPlayer(System.Guid.Parse(playerId));
             PlayerDetailsViewModel model = new PlayerDetailsViewModel {
