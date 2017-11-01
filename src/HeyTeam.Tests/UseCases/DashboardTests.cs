@@ -45,7 +45,7 @@ namespace HeyTeam.Tests.UseCases
 
             var clubId = SetupClub();
             SetUpSquads(clubId);
-            club = clubRepository.Get(clubId);
+            club = clubRepository.GetClub(clubId);
             SetUpPlayers();
             SetupUsers();
         }
