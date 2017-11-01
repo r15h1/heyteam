@@ -35,8 +35,8 @@ namespace HeyTeam.Lib.Repositories {
             using(var connection = connectionFactory.Connect())
             {
                 string sql = @"SELECT S.Guid AS SquadGuid, P.Guid AS PlayerGuid, 
-                                    DateOfBirth, DominantFoot, FirstName, LastName, 
-                                    Email, Nationality, SquadNumber
+                                    P.DateOfBirth, P.DominantFoot, P.FirstName, P.LastName, 
+                                    P.Email, P.Nationality, P.SquadNumber
                                 FROM Players P
                                 INNER JOIN Squads S ON P.SquadId = S.SquadId
                                 WHERE P.Guid = @Guid";
@@ -46,7 +46,7 @@ namespace HeyTeam.Lib.Repositories {
                 var reader = connection.Query(sql, p).Cast<IDictionary<string, object>>();
                 var player = reader.Select<dynamic, Player>(
                         row => new Player(Guid.Parse(row.SquadGuid.ToString()), Guid.Parse(row.PlayerGuid.ToString())) {
-                            DateOfBirth = row.DateOfBirth, DominantFoot = char.Parse(row.DominantFoot),
+                            DateOfBirth = DateTime.Parse(row.DateOfBirth), DominantFoot = char.Parse(row.DominantFoot),
                             FirstName = row.FirstName, LastName = row.LastName, Email = row.Email,
                             Nationality = row.Nationality, SquadNumber = row.SquadNumber
                         }).FirstOrDefault();

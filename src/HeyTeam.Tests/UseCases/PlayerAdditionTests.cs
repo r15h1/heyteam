@@ -254,6 +254,8 @@ namespace HeyTeam.Tests.UseCases {
             Assert.True(player.SquadNumber == request.SquadNumber);
             Assert.True(player.Email.Equals(request.Email));            
             //missing positions
-        }        
+        }
+
+        private (int a, int b) Get() => (1, 2);
     }
 }
