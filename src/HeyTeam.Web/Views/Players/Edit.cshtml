@@ -1,2 +1,52 @@
+﻿@model HeyTeam.Web.Models.PlayerViewModels.PlayerDetailsViewModel
 <h1>@ViewData["Title"]</h1>
-<h3>Edit Player details</h3>
+<div class="row">
+    <div class="col-md-6" >
+        <form asp-action="New" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>            
+            <div class="form-group">
+                <label asp-for="FirstName" class="control-label"></label>
+                <input asp-for="FirstName" class="form-control" />
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LastName" class="control-label"></label>
+                <input asp-for="LastName" class="form-control" />
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DominantFoot" class="control-label"></label>
+                <input asp-for="DominantFoot" class="form-control" />
+                <span asp-validation-for="DominantFoot" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DateOfBirth" class="control-label"></label>
+                <input type="date" asp-for="DateOfBirth" class="form-control" />
+                <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Email" class="control-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group ">
+                <label asp-for="SquadNumber" class="control-label"></label>
+                <input asp-for="SquadNumber" class="form-control" />
+                <span asp-validation-for="SquadNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Nationality" class="control-label"></label>
+                <input asp-for="Nationality" class="form-control" />
+                <span asp-validation-for="Nationality" class="text-danger"></span>
+            </div>
+            <div class="form-group">                
+                <a asp-controller="Squads" asp-action="Details" asp-route-id='@ViewData["SquadId"]' class="btn btn-default">Cancel</a>
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

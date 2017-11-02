@@ -20,6 +20,7 @@ using HeyTeam.Lib.Validation;
 using System;
 using HeyTeam.Core.UseCases.Squad;
 using HeyTeam.Core.Entities;
+using HeyTeam.Core.UseCases.Player;
 
 namespace HeyTeam.Web
 {
@@ -73,8 +74,11 @@ namespace HeyTeam.Web
             services.AddScoped<IValidator<AddSquadRequest>, AddSquadRequestValidator>(); 
             services.AddScoped<IUseCase<AddSquadRequest, Response<Guid?>>, AddSquadUseCase>();
             services.AddScoped<IUseCase<GetSquadRequest, Response<System.ValueTuple<Core.Entities.Squad, IEnumerable<Core.Entities.Player>>>>, GetSquadUseCase>();
-            services.AddScoped<IValidator<GetSquadRequest>, GetSquadRequestValidator>(); 
-        }
+            services.AddScoped<IValidator<GetSquadRequest>, GetSquadRequestValidator>();
+			services.AddScoped<IValidator<AddPlayerRequest>, AddPlayerRequestValidator>();
+			services.AddScoped<IUseCase<AddPlayerRequest, Response<Guid?>>, AddPlayerUseCase>();
+
+		}
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public  void Configure(IApplicationBuilder app, IHostingEnvironment env)

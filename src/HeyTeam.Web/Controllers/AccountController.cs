@@ -287,7 +287,7 @@ namespace HeyTeam.Web.Controllers
             var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
             if (result.Succeeded)
             {
-                _logger.LogInformation("User logged in with {Name} provider.", info.LoginProvider);
+                _logger.LogInformation("User logged in with {FirstName} provider.", info.LoginProvider);
                 return RedirectToLocal(returnUrl);
             }
             if (result.IsLockedOut)
@@ -325,7 +325,7 @@ namespace HeyTeam.Web.Controllers
                     if (result.Succeeded)
                     {
                         await _signInManager.SignInAsync(user, isPersistent: false);
-                        _logger.LogInformation("User created an account using {Name} provider.", info.LoginProvider);
+                        _logger.LogInformation("User created an account using {FirstName} provider.", info.LoginProvider);
                         return RedirectToLocal(returnUrl);
                     }
                 }

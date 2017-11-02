@@ -84,10 +84,10 @@ namespace HeyTeam.Lib.Repositories {
         private string GetInsertStatement() {
             return @"INSERT INTO PLAYERS (
                 SquadId, Guid, DateOfBirth, 
-                DominantFoot, FirstName, LastName, Email, Nationality
+                DominantFoot, FirstName, LastName, Email, Nationality, SquadNumber
             ) 
             SELECT S.SquadId, @PlayerGuid, @DateOfBirth, 
-                @DominantFoot, @FirstName, @LastName, @Email, @Nationality
+                @DominantFoot, @FirstName, @LastName, @Email, @Nationality, @SquadNumber
             FROM SQUADS S
             WHERE S.Guid = @SquadGuid";
 
@@ -104,7 +104,8 @@ namespace HeyTeam.Lib.Repositories {
             p.Add("@LastName", player.LastName);
             p.Add("@Email", player.Email);
             p.Add("@Nationality", player.Nationality);
-            return p;
+			p.Add("@SquadNumber", player.SquadNumber);
+			return p;
         }
     }
 }

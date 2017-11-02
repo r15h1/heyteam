@@ -6,7 +6,8 @@
 <h3>Players</h3>
 <div>
     <div class="btn-group" role="group" aria-label="...">
-        <a type="button" class="btn btn-primary" id="AddPlayerButton" data-toggle="modal" href='~/squads/@Model.SquadId/players/new'>Add New Player</a>
+        <a type="button" class="btn btn-default" href='/'>Dashboard</a>
+        <a type="button" class="btn btn-primary" id="AddPlayerButton" data-toggle="modal" href='~/squads/@Model.SquadId/players/new'>Add New Player</a>        
     </div>
 </div>
 @if(Model.Players != null && Model.Players.Count() > 0)
@@ -16,8 +17,7 @@
             <thead>
                 <tr>
                     <th>Squad#</th>
-                    <th>FirstName</th>
-                    <th>LastName</th>
+                    <th>Name</th>                    
                     <th>DoB</th>
                     <th>Dominant Foot</th>
                     <th>Email</th>
@@ -31,9 +31,8 @@
                 @foreach(var player in Model.Players)
                 {
                     <tr>
-                        <td><a href='/players/@player.Guid'>@player.SquadNumber</a></td>
-                        <td>@player.FirstName</td>
-                        <td>@player.LastName</td>
+                        <td>@player.SquadNumber</td>
+                        <td><a href='/players/@player.Guid'>@player.FirstName @player.LastName</a></td>
                         <td>@player.DateOfBirth.ToString("dd-MMM-yyyy")</td>
                         <td>@player.DominantFoot</td>
                         <td>@player.Email</td>
