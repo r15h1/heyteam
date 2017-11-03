@@ -81,7 +81,19 @@ namespace HeyTeam.Lib.Repositories {
             }
         }
 
-        private string GetInsertStatement() {
+		public void UpdatePlayer(Player player)
+		{
+			Ensure.ArgumentNotNull(player);
+			using (var connection = connectionFactory.Connect())
+			{
+				string sql = GetUpdateStatement();
+				DynamicParameters p = SetupUpdateParameters(player);
+				connection.Open();
+				connection.Execute(sql, p);
+			}
+		}
+
+		private string GetInsertStatement() {
             return @"INSERT INTO PLAYERS (
                 SquadId, Guid, DateOfBirth, 
                 DominantFoot, FirstName, LastName, Email, Nationality, SquadNumber
@@ -107,5 +119,31 @@ namespace HeyTeam.Lib.Repositories {
 			p.Add("@SquadNumber", player.SquadNumber);
 			return p;
         }
-    }
+
+		private string GetUpdateStatement()
+		{
+			return @"UPDATE PLAYERS SET DateOfBirth =@DateOfBirth, 
+						DominantFoot = @DominantFoot,
+						FirstName = @FirstName,       
+						LastName = @LastName, 
+						Email = @Email, 
+						Nationality = @Nationality, 
+						SquadNumber = @SquadNumber                 
+            WHERE Guid = @PlayerGuid";
+		}
+
+		private DynamicParameters SetupUpdateParameters(Player player)
+		{
+			var p = new DynamicParameters();
+			p.Add("@PlayerGuid", player.Guid.ToString());
+			p.Add("@DateOfBirth", player.DateOfBirth);
+			p.Add("@DominantFoot", player.DominantFoot.ToString());
+			p.Add("@FirstName", player.FirstName);
+			p.Add("@LastName", player.LastName);
+			p.Add("@Email", player.Email);
+			p.Add("@Nationality", player.Nationality);
+			p.Add("@SquadNumber", player.SquadNumber);
+			return p;
+		}
+	}
 }

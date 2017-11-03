@@ -51,7 +51,7 @@ namespace HeyTeam.Tests.UseCases {
         public void ClubMustExist() {            
             var request = new AddSquadRequest{ ClubId = Guid.NewGuid(), SquadName = "U10" };    
             var response = useCase.Execute(request);            
-            Assert.True(!response.WasRequestFulfilled && response.Exception.GetType() == typeof(ClubNotFoundException));
+            Assert.True(!response.WasRequestFulfilled && response.Exception.GetType() == typeof(EntityNotFoundException));
         }
 
         [Fact]

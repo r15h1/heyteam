@@ -29,7 +29,7 @@ namespace HeyTeam.Core.UseCases
             
             var club = clubRepository.GetClub(request.ClubId);
             if (club == null)
-                return Response<List<Dashboard.Group>>.CreateResponse(new ClubNotFoundException());
+                return Response<List<Dashboard.Group>>.CreateResponse(new EntityNotFoundException());
 
             return new Response<List<Dashboard.Group>>(BuildDashboard(request.ClubId, request.Email));            
         }

@@ -1,13 +1,9 @@
 ﻿@model HeyTeam.Web.Models.PlayerViewModels.PlayerViewModel
-<h1>@Model.SquadName Player Details</h1>
-<h3>@($"{Model.FirstName} {Model.LastName}")</h3>
+<h1>@ViewData["Title"]</h1>
+<h3>@ViewData["SubTitle"]</h3>
 <div class="row">
     <div class="col-md-6" >
-        <form asp-action="Edit" method="post">
-            <input type="hidden" asp-for="PlayerId" />
-            <input type="hidden" asp-for="SquadId" />
-            <input type="hidden" asp-for="SquadName" />
-
+        <form asp-action="New" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>            
             <div class="form-group">
                 <label asp-for="FirstName" class="control-label"></label>
@@ -45,7 +41,7 @@
                 <span asp-validation-for="Nationality" class="text-danger"></span>
             </div>
             <div class="form-group">                
-                <a href="/squads/@Model.SquadId" class="btn btn-default">Cancel</a>
+                <a asp-controller="Squads" asp-action="Details" asp-route-id='@ViewData["SquadId"]' class="btn btn-default">Cancel</a>
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
         </form>

@@ -13,8 +13,7 @@ namespace HeyTeam.Core.UseCases.Squad {
         private readonly ISquadRepository squadRepository;
         private readonly IPlayerRepository playerRepository;
         private readonly IValidator<GetSquadRequest> validator;
-        private System.ValueTuple tuple;
-
+        
         public GetSquadUseCase(IClubRepository clubRepository, ISquadRepository squadRepository, IPlayerRepository playerRepository,IValidator<GetSquadRequest> validator) {
             this.clubRepository = clubRepository;
             this.squadRepository = squadRepository;
@@ -29,11 +28,11 @@ namespace HeyTeam.Core.UseCases.Squad {
 
             var club = clubRepository.GetClub(request.ClubId);
             if (club == null)
-                return Response<System.ValueTuple<Core.Entities.Squad, IEnumerable<Core.Entities.Player>>>.CreateResponse(new ClubNotFoundException());
+                return Response<System.ValueTuple<Core.Entities.Squad, IEnumerable<Core.Entities.Player>>>.CreateResponse(new EntityNotFoundException());
             
             var squad = squadRepository.GetSquad(request.SquadId);
             if (squad == null)
-                return Response<System.ValueTuple<Core.Entities.Squad, IEnumerable<Core.Entities.Player>>>.CreateResponse(new SquadNotFoundException());
+                return Response<System.ValueTuple<Core.Entities.Squad, IEnumerable<Core.Entities.Player>>>.CreateResponse(new EntityNotFoundException());
 
             var players = playerRepository.GetPlayers(request.SquadId);
 

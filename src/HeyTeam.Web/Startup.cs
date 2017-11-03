@@ -77,6 +77,10 @@ namespace HeyTeam.Web
             services.AddScoped<IValidator<GetSquadRequest>, GetSquadRequestValidator>();
 			services.AddScoped<IValidator<AddPlayerRequest>, AddPlayerRequestValidator>();
 			services.AddScoped<IUseCase<AddPlayerRequest, Response<Guid?>>, AddPlayerUseCase>();
+			services.AddScoped<IValidator<UpdatePlayerRequest>, UpdatePlayerRequestValidator>();
+			services.AddScoped<IUseCase<UpdatePlayerRequest, Response<Guid?>>, UpdatePlayerUseCase>();
+			services.AddScoped<IValidator<GetPlayerRequest>, GetPlayerRequestValidator>();
+			services.AddScoped<IUseCase<GetPlayerRequest, Response<(Player, string)>>, GetPlayerUseCase>();
 
 		}
 

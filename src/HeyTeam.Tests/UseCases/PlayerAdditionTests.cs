@@ -229,7 +229,7 @@ namespace HeyTeam.Tests.UseCases {
             var request = BuildAddRequest();
             request.SquadId = Guid.NewGuid();
             var response = useCase.Execute(request);
-            Assert.True(!response.WasRequestFulfilled && response.Exception.GetType() == typeof(SquadNotFoundException));   
+            Assert.True(!response.WasRequestFulfilled && response.Exception.GetType() == typeof(EntityNotFoundException));   
         }
 
         [Fact]

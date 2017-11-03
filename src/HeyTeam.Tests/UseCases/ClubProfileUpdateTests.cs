@@ -49,7 +49,7 @@ namespace HeyTeam.Tests.UseCases {
             request.SetFieldValue(UpdatableFields.URL, "http://manutd.com");
 
             var response = updateProfileUseCase.Execute(request);
-            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1 && typeof(ClubNotFoundException) == response.Exception.GetType());
+            Assert.True(!response.WasRequestFulfilled && response.Errors.Count == 1 && typeof(EntityNotFoundException) == response.Exception.GetType());
         }
 
         [Fact]

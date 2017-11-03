@@ -5,19 +5,19 @@ using HeyTeam.Core.Repositories;
 using HeyTeam.Core.Validation;
 
 namespace HeyTeam.Core.UseCases.Player {
-    public class AddPlayerUseCase : IUseCase<AddPlayerRequest, Response<Guid?>>
+    public class UpdatePlayerUseCase : IUseCase<UpdatePlayerRequest, Response<Guid?>>
     {   
         private readonly IPlayerRepository playerRepository;
         private readonly ISquadRepository squadRepository;
-        private readonly IValidator<AddPlayerRequest> validator;
+        private readonly IValidator<UpdatePlayerRequest> validator;
 
-        public AddPlayerUseCase(ISquadRepository squadRepository, IPlayerRepository playerRepository, IValidator<AddPlayerRequest> validator) {
+        public UpdatePlayerUseCase(ISquadRepository squadRepository, IPlayerRepository playerRepository, IValidator<UpdatePlayerRequest> validator) {
             this.squadRepository = squadRepository;
             this.playerRepository = playerRepository;
             this.validator = validator;
         }
 
-        public Response<Guid?> Execute(AddPlayerRequest request)
+        public Response<Guid?> Execute(UpdatePlayerRequest request)
         {
             var validationResult = validator.Validate(request);
             if (!validationResult.IsValid)
@@ -29,20 +29,19 @@ namespace HeyTeam.Core.UseCases.Player {
 
             var player = MapPlayer(request);
             var playerWithSameId = playerRepository.GetPlayer(player.Guid);
-            if(playerWithSameId != null)
-                return Response<Guid?>.CreateResponse(new DuplicateEntryException("A player with this id exists already"));
+            if(playerWithSameId == null)
+                return Response<Guid?>.CreateResponse(new EntityNotFoundException("A player with the specified id was not found"));
 
             try {   
-                squad.AddPlayer(player);
-                playerRepository.AddPlayer(player);
+                playerRepository.UpdatePlayer(player);
             } catch (Exception ex) {
                 return Response<Guid?>.CreateResponse(ex);
             }        
             return new Response<Guid?>(player.Guid);        
         }
 
-        private Entities.Player MapPlayer(AddPlayerRequest request) =>
-        new Entities.Player(request.SquadId) {  
+        private Entities.Player MapPlayer(UpdatePlayerRequest request) =>
+        new Entities.Player(request.SquadId, request.PlayerId) {  
             DateOfBirth = request.DateOfBirth.Value,
             DominantFoot = request.DominantFoot,
             FirstName = request.FirstName,

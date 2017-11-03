@@ -7,5 +7,6 @@ namespace HeyTeam.Core.Repositories {
         void AddPlayer(Player player);
         Player GetPlayer(Guid playerId);
         IEnumerable<Player> GetPlayers(Guid squadId);
-    }
+		void UpdatePlayer(Player player);
+	}
 }

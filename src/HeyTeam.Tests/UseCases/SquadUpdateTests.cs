@@ -78,14 +78,14 @@ namespace HeyTeam.Tests.UseCases {
         public void ClubMustExist() {
             var request = new UpdateSquadRequest{ ClubId = Guid.NewGuid(), SquadId = Guid.NewGuid(), SquadName = "U10" };
             var response = updateSquadUseCase.Execute(request);
-            Assert.True(!response.WasRequestFulfilled && response.Exception.GetType() == typeof(ClubNotFoundException));            
+            Assert.True(!response.WasRequestFulfilled && response.Exception.GetType() == typeof(EntityNotFoundException));            
         }
 
         [Fact]
         public void SquadMustExist() {
             var request = new UpdateSquadRequest{ ClubId = manUtdClubId, SquadId = Guid.NewGuid(), SquadName = "U10" };
             var response = updateSquadUseCase.Execute(request);
-            Assert.True(!response.WasRequestFulfilled && response.Exception.GetType() == typeof(SquadNotFoundException));            
+            Assert.True(!response.WasRequestFulfilled && response.Exception.GetType() == typeof(EntityNotFoundException));            
         }
 
         [Fact]

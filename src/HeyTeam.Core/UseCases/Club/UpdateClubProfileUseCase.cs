@@ -27,7 +27,7 @@ namespace HeyTeam.Core.UseCases.Club {
 
             var club = repository.GetClub(request.ClubId);
             if (club == null) 
-                return CreateResponse(new ClubNotFoundException(), "The specified club does not exist");
+                return CreateResponse(new EntityNotFoundException(), "The specified club does not exist");
 
             if(request.Fields.ContainsKey(UpdatableFields.URL))
                 if (repository.IsUrlAlreadyAssigned(request.Fields[UpdatableFields.URL], request.ClubId))

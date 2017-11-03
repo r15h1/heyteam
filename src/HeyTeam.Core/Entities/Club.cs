@@ -27,7 +27,7 @@ namespace HeyTeam.Core.Entities {
                 throw new InvalidOperationException("Target squad belongs to a different club");
 
             if(!Squads.Any(s => s.Guid == squad.Guid))
-                throw new SquadNotFoundException();
+                throw new EntityNotFoundException();
 
             if(Squads.Any(s => s.Guid != squad.Guid && s.Name.ToLowerInvariant().Equals(squad.Name.ToLowerInvariant()))) 
                 throw new DuplicateEntryException("Another squad already has this name");
