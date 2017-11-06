@@ -21,6 +21,7 @@ using System;
 using HeyTeam.Core.UseCases.Squad;
 using HeyTeam.Core.Entities;
 using HeyTeam.Core.UseCases.Player;
+using HeyTeam.Core.UseCases.Coach;
 
 namespace HeyTeam.Web
 {
@@ -81,6 +82,10 @@ namespace HeyTeam.Web
 			services.AddScoped<IUseCase<UpdatePlayerRequest, Response<Guid?>>, UpdatePlayerUseCase>();
 			services.AddScoped<IValidator<GetPlayerRequest>, GetPlayerRequestValidator>();
 			services.AddScoped<IUseCase<GetPlayerRequest, Response<(Player, string)>>, GetPlayerUseCase>();
+
+			services.AddScoped<ICoachRepository, CoachRepository>();
+			services.AddScoped<IValidator<AddCoachRequest>, AddCoachRequestValidator>();
+			services.AddScoped<IUseCase<AddCoachRequest, Response<Guid?>>, AddCoachUseCase>();
 
 		}
 

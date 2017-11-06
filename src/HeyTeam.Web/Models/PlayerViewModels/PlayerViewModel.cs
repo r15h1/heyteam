@@ -28,7 +28,7 @@ namespace HeyTeam.Web.Models.PlayerViewModels {
 		public string DominantFoot { get; set; }
 
 		[Required]
-		[DateOfBirth(ErrorMessage = "Player must be at least 4 years old at registration time")]
+		[PlayerDateOfBirth(ErrorMessage = "Player must be at least 4 years old at registration time")]
 		[Display(Name = "Date of Birth")]
 		public DateTime DateOfBirth { get; set; }
 
@@ -45,7 +45,7 @@ namespace HeyTeam.Web.Models.PlayerViewModels {
 		public string Nationality { get; set; }
 	}
 
-	public class DateOfBirthAttribute : ValidationAttribute
+	public class PlayerDateOfBirthAttribute : ValidationAttribute
 	{
 		public override bool IsValid(object value)
 		{
