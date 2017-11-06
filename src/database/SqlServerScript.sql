@@ -26,6 +26,19 @@ CREATE TABLE Players(
 	SquadNumber SMALLINT NULL,
 	FOREIGN KEY(SquadId) REFERENCES Squads (SquadId)
 );
+
+CREATE TABLE dbo.Coaches (
+	ClubId bigint NOT NULL,
+	CoachId bigint IDENTITY(1,1) PRIMARY KEY NOT NULL,
+	Guid uniqueidentifier NOT NULL,
+	FirstName varchar(100) NOT NULL,
+	LastName varchar(100) NOT NULL,
+	DateOfBirth date NOT NULL,
+	Email varchar(320) NOT NULL,
+	Phone varchar(20) NOT NULL,
+	Qualifications varchar(MAX) NULL,
+	FOREIGN KEY(ClubId) REFERENCES Clubs (ClubId)
+);
 -------------------------------------------------------------------------------------------------------------------------------------------------------------
 -----Identity tables
 CREATE TABLE AspNetRoleClaims (

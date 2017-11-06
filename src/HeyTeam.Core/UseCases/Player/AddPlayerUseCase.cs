@@ -17,8 +17,7 @@ namespace HeyTeam.Core.UseCases.Player {
             this.validator = validator;
         }
 
-        public Response<Guid?> Execute(AddPlayerRequest request)
-        {
+        public Response<Guid?> Execute(AddPlayerRequest request) {
             var validationResult = validator.Validate(request);
             if (!validationResult.IsValid)
                 return Response<Guid?>.CreateResponse(validationResult.Messages);
