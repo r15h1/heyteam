@@ -27,12 +27,12 @@ namespace HeyTeam.Web.Controllers {
         }
 
         [HttpGet("{squadId:guid}")]
-        public IActionResult Details([FromRoute]string squadId, [FromQuery]string returnUrl) {
+        public IActionResult Index([FromRoute]string squadId, [FromQuery]string returnUrl) {
             ViewData["Title"] = "Squad Details";
             var request = new GetSquadRequest { ClubId = club.Guid, SquadId = System.Guid.Parse(squadId) };
             var response = getSquadUseCase.Execute(request);
             var model = new SquadDetailsViewModel { SquadName = response.Result.Item1.Name, SquadId = response.Result.Item1.Guid.ToString(), Players = response.Result.Item2 };
-            return View("Details", model);
+            return View("Index", model);
         }
 
         [HttpGet("new")]

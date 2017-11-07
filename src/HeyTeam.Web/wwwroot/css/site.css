@@ -18,8 +18,9 @@
     margin-bottom: 10px;
 }
 
-.btn-group > btn {
+.btn-group > .btn {
     margin-right:10px;
+    border-radius:5px !important;
 }
 
 /* Carousel */

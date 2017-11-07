@@ -41,7 +41,7 @@
                 <span asp-validation-for="Nationality" class="text-danger"></span>
             </div>
             <div class="form-group">                
-                <a asp-controller="Squads" asp-action="Details" asp-route-id='@ViewData["SquadId"]' class="btn btn-default">Cancel</a>
+                <a asp-controller="Squads" asp-action="Index" asp-route-id='@ViewData["SquadId"]' class="btn btn-default">Cancel</a>
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
         </form>

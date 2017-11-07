@@ -83,7 +83,7 @@ namespace HeyTeam.Web.Controllers
 			};
 		}
 
-		[Route("players/{playerId:guid}")]
+		[Route("squads/{squadId:guid}/players/{playerId:guid}")]
         [HttpGet]
         public IActionResult Edit(string squadId, string playerId) {			
 			var response = getPlayerUseCase.Execute(new GetPlayerRequest { PlayerId = System.Guid.Parse(playerId) });
@@ -105,10 +105,10 @@ namespace HeyTeam.Web.Controllers
 
 				return View("Edit", model);
 			}
-            return View("Details");
+            return View("PlayerNotFound", squadId);
 		}
 
-		[Route("players/{playerId:guid}")]
+		[Route("squads/{squadId:guid}/players/{playerId:guid}")]
 		[HttpPost]
 		public IActionResult Edit(PlayerViewModel player) {
 			if (!ModelState.IsValid)
