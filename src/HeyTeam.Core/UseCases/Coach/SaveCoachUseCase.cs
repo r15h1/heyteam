@@ -8,12 +8,12 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace HeyTeam.Core.UseCases.Coach {
-    public class AddCoachUseCase : IUseCase<AddCoachRequest, Response<Guid?>> {
+    public class SaveCoachUseCase : IUseCase<SaveCoachRequest, Response<Guid?>> {
 		private readonly IClubRepository clubRepository;
 		private readonly ICoachRepository coachRepository;
-		private readonly IValidator<AddCoachRequest> validator;
+		private readonly IValidator<SaveCoachRequest> validator;
 
-		public AddCoachUseCase(IClubRepository clubRepository, ICoachRepository coachRepository, IValidator<AddCoachRequest> validator) {
+		public SaveCoachUseCase(IClubRepository clubRepository, ICoachRepository coachRepository, IValidator<SaveCoachRequest> validator) {
 			Ensure.ArgumentNotNull(clubRepository);
 			Ensure.ArgumentNotNull(coachRepository);
 			Ensure.ArgumentNotNull(validator);
@@ -23,7 +23,7 @@ namespace HeyTeam.Core.UseCases.Coach {
 			this.validator = validator;
 		}
 
-		public Response<Guid?> Execute(AddCoachRequest request) {
+		public Response<Guid?> Execute(SaveCoachRequest request) {
 			var validationResult = validator.Validate(request);
 			if (!validationResult.IsValid)
 				return Response<Guid?>.CreateResponse(validationResult.Messages);
@@ -33,20 +33,24 @@ namespace HeyTeam.Core.UseCases.Coach {
 				return Response<Guid?>.CreateResponse(new EntityNotFoundException());
 
 			var coach = MapCoach(request);
-			var coachWithSameId = coachRepository.GetCoach(coach.Guid);
-			if (coachWithSameId != null)
-				return Response<Guid?>.CreateResponse(new DuplicateEntryException("A coach with this id exists already"));
+
+			if (request.Command == SaveCoachRequest.Action.ADD) {
+				var coachWithSameId = coachRepository.GetCoach(coach.Guid);
+				if (coachWithSameId != null)
+					return Response<Guid?>.CreateResponse(new DuplicateEntryException("A coach with this id exists already"));
+			}
 
 			try {
-				coachRepository.AddCoach(coach);
+				if (request.Command == SaveCoachRequest.Action.UPDATE) coachRepository.UpdateCoach(coach);
+				else coachRepository.AddCoach(coach);
 			} catch (Exception ex) {
 				return Response<Guid?>.CreateResponse(ex);
 			}
 			return new Response<Guid?>(coach.Guid);
 		}
 
-		private Entities.Coach MapCoach(AddCoachRequest request) =>
-			new Entities.Coach(request.ClubId) {
+		private Entities.Coach MapCoach(SaveCoachRequest request) =>
+			new Entities.Coach(request.ClubId, request.CoachId) {
 				DateOfBirth = request.DateOfBirth,
 				Email = request.Email,
 				FirstName = request.FirstName,

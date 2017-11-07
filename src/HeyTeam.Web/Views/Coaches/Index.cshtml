@@ -1,0 +1,41 @@
+﻿@model IEnumerable<HeyTeam.Web.Models.CoachViewModels.CoachViewModel>
+<h1>Coaches</h1>
+<div class="btn-group" role="group" aria-label="...">
+    <a class="btn btn-primary" asp-action="Create">Add New Coach</a>
+</div>
+<div class="table-responsive">
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DateOfBirth)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Email)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Phone)
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model) {
+<tr>
+    <td>
+        <a asp-action="Edit" asp-route-coachid="@item.CoachId">@($"{item.FirstName} {item.LastName}")</a>
+</td>
+    <td>
+        @(item.DateOfBirth.ToString("dd MMM yyyy"))
+    </td>
+    <td>
+        @item.Email
+    </td>
+    <td>
+        @item.Phone
+    </td>
+</tr>
+            }
+        </tbody>
+    </table>
+</div>

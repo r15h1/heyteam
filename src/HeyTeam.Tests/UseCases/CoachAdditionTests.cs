@@ -17,20 +17,20 @@ namespace HeyTeam.Tests.UseCases {
 		private readonly ICoachRepository coachRepository;
 		private readonly IClubRepository clubRepository;
 		private readonly Guid clubId;
-		private readonly IUseCase<AddCoachRequest, Response<Guid?>> useCase;
+		private readonly IUseCase<SaveCoachRequest, Response<Guid?>> useCase;
 		private const int EmptyRequestErrorCount = 5;
 
 		public CoachAdditionTests() {
 			connectionString = $"Data Source=file:{Guid.NewGuid().ToString()}.sqlite";
 			Database.Create(connectionString);			
 			clubRepository = new ClubRepository(new Data.ConnectionFactory(new DatabaseSettings { ConnectionString = connectionString }));
-			IValidator<AddCoachRequest> validator = new AddCoachRequestValidator();
+			IValidator<SaveCoachRequest> validator = new SaveCoachRequestValidator();
 			coachRepository = new CoachRepository(new Data.ConnectionFactory(new DatabaseSettings { ConnectionString = connectionString }));
 			var registerUseCase = new RegisterClubUseCase(clubRepository, new RegisterClubRequestValidator());
 			RegisterClubRequest registerRequest = new RegisterClubRequest { Name = "Manchester United", Url = "http://manutd.com" };
 			var registerResponse = registerUseCase.Execute(registerRequest);
 			this.clubId = registerResponse.Result.Value;
-			this.useCase = new AddCoachUseCase(clubRepository, coachRepository, validator);
+			this.useCase = new SaveCoachUseCase(clubRepository, coachRepository, validator);
 		}
 
 		[Fact]
@@ -41,14 +41,14 @@ namespace HeyTeam.Tests.UseCases {
 
 		[Fact]
 		public void RequestMustBeValid() {
-			var request = new AddCoachRequest {  };
+			var request = new SaveCoachRequest {  };
 			var response = useCase.Execute(request);
 			Assert.True(!response.WasRequestFulfilled && response.Errors.Count == EmptyRequestErrorCount);
 		}
 
 		[Fact]
 		public void ClubIdCannotBeEmpty() {
-			var request = new AddCoachRequest { ClubId = Guid.Empty };
+			var request = new SaveCoachRequest { ClubId = Guid.Empty };
 			var response = useCase.Execute(request);
 			Assert.True(!response.WasRequestFulfilled && response.Errors.Count == EmptyRequestErrorCount);
 		}
@@ -179,10 +179,10 @@ namespace HeyTeam.Tests.UseCases {
 			Assert.Equal(request.Qualifications, savedCoach.Qualifications);			
 		}
 
-		private AddCoachRequest BuildRequest (Guid clubId, DateTime dateOfBirth, string firstName="Joe", string lastName = "Mour", 
+		private SaveCoachRequest BuildRequest (Guid clubId, DateTime dateOfBirth, string firstName="Joe", string lastName = "Mour", 
 			string email = "joe.mour@heyteam.com", string phone = "647.123.4567") {
 
-			return new AddCoachRequest {
+			return new SaveCoachRequest {
 				ClubId = clubId,
 				Email = email,
 				FirstName = firstName,

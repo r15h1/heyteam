@@ -1,31 +1,30 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using HeyTeam.Web.Services;
+﻿using HeyTeam.Core.Dashboard;
+using HeyTeam.Core.Entities;
+using HeyTeam.Core.Identity;
+using HeyTeam.Core.Repositories;
+using HeyTeam.Core.UseCases;
+using HeyTeam.Core.UseCases.Coach;
+using HeyTeam.Core.UseCases.Player;
+using HeyTeam.Core.UseCases.Squad;
+using HeyTeam.Core.Validation;
 using HeyTeam.Identity;
 using HeyTeam.Identity.Data;
 using HeyTeam.Identity.Seeding;
-using HeyTeam.Core.UseCases;
-using System.Collections.Generic;
-using HeyTeam.Core.Dashboard;
-using HeyTeam.Core.Repositories;
-using HeyTeam.Lib.Repositories;
 using HeyTeam.Lib.Data;
-using HeyTeam.Core.Identity;
-using HeyTeam.Core.Validation;
+using HeyTeam.Lib.Repositories;
 using HeyTeam.Lib.Validation;
+using HeyTeam.Web.Services;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using System;
-using HeyTeam.Core.UseCases.Squad;
-using HeyTeam.Core.Entities;
-using HeyTeam.Core.UseCases.Player;
-using HeyTeam.Core.UseCases.Coach;
+using System.Collections.Generic;
 
-namespace HeyTeam.Web
-{
-    public class Startup
+namespace HeyTeam.Web {
+	public class Startup
     {
         // public Startup(IConfiguration configuration)
         // {
@@ -62,7 +61,9 @@ namespace HeyTeam.Web
             services.AddTransient<IEmailSender, EmailSender>();
             services.AddMultitenancy<Club, TenantResolver>();
 
-            services.AddMvc();            
+			services.AddRouting(options => options.LowercaseUrls = true);
+			services.AddMvc();   
+			
             services.AddScoped<IIdentityInitializer, IdentityInitializer>();
             services.AddScoped<IDbConnectionFactory, ConnectionFactory>();
             services.AddScoped<IClubRepository, ClubRepository>();
@@ -84,9 +85,11 @@ namespace HeyTeam.Web
 			services.AddScoped<IUseCase<GetPlayerRequest, Response<(Player, string)>>, GetPlayerUseCase>();
 
 			services.AddScoped<ICoachRepository, CoachRepository>();
-			services.AddScoped<IValidator<AddCoachRequest>, AddCoachRequestValidator>();
-			services.AddScoped<IUseCase<AddCoachRequest, Response<Guid?>>, AddCoachUseCase>();
+			services.AddScoped<IValidator<SaveCoachRequest>, SaveCoachRequestValidator>();
+			services.AddScoped<IUseCase<SaveCoachRequest, Response<Guid?>>, SaveCoachUseCase>();
 
+			services.AddScoped<IValidator<GetCoachListRequest>, GetCoachListRequestValidator>();
+			services.AddScoped<IUseCase<GetCoachListRequest, Response<IEnumerable<Coach>>>, GetCoachListUseCase>();
 		}
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

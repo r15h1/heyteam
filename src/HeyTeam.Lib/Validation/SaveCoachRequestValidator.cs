@@ -4,12 +4,17 @@ using HeyTeam.Util;
 using System;
 
 namespace HeyTeam.Lib.Validation {
-	public class AddCoachRequestValidator : IValidator<AddCoachRequest> {
-		public ValidationResult<AddCoachRequest> Validate(AddCoachRequest request) {
-			var result = new ValidationResult<AddCoachRequest>(request);
+	public class SaveCoachRequestValidator : IValidator<SaveCoachRequest> {
+		public ValidationResult<SaveCoachRequest> Validate(SaveCoachRequest request) {
+			var result = new ValidationResult<SaveCoachRequest>(request);
 			if (request == null) {
 				result.AddMessage("Request cannot be null");
 			} else {
+				if(request.Command == SaveCoachRequest.Action.ADD && !request.CoachId.IsEmpty())
+					result.AddMessage("CoachId must be empty when creating a new coach");
+				else if (request.Command == SaveCoachRequest.Action.UPDATE && request.CoachId.IsEmpty())
+					result.AddMessage("CoachId must not be empty");
+
 				if (request.ClubId.IsEmpty()) 
 					result.AddMessage("ClubId cannot be null");
 

@@ -20,7 +20,17 @@ namespace HeyTeam.Lib.Repositories {
 			Ensure.ArgumentNotNull(coach);
 			using (var connection = connectionFactory.Connect()) {
 				string sql = GetInsertStatement();
-				DynamicParameters p = SetupInsertParameters(coach);
+				DynamicParameters p = SetupParameters(coach);
+				connection.Open();
+				connection.Execute(sql, p);
+			}
+		}
+
+		public void UpdateCoach(Coach coach) {
+			Ensure.ArgumentNotNull(coach);
+			using (var connection = connectionFactory.Connect()) {
+				string sql = GetUpdateStatement();
+				DynamicParameters p = SetupParameters(coach);
 				connection.Open();
 				connection.Execute(sql, p);
 			}
@@ -35,11 +45,16 @@ namespace HeyTeam.Lib.Repositories {
                 @FirstName, @LastName, @Email, @Phone, @Qualifications
             FROM Clubs C
             WHERE C.Guid = @ClubGuid";
-
-
 		}
 
-		private DynamicParameters SetupInsertParameters(Coach coach) {
+		private string GetUpdateStatement() {
+			return @"UPDATE COACHES SET
+				DateOfBirth = @DateOfBirth, FirstName = @FirstName, LastName = @LastName, 
+				Email = @Email, Phone = @Phone, Qualifications = @Qualifications            
+            WHERE Guid = @CoachGuid";
+		}
+
+		private DynamicParameters SetupParameters(Coach coach) {
 			var c = new DynamicParameters();
 			c.Add("@ClubGuid", coach.ClubId.ToString());
 			c.Add("@CoachGuid", coach.Guid.ToString());
@@ -67,12 +82,33 @@ namespace HeyTeam.Lib.Repositories {
 				p.Add("@Guid", coachId.ToString());
 				connection.Open();
 				var reader = connection.Query(sql, p).Cast<IDictionary<string, object>>();
-				var player = reader.Select<dynamic, Coach>(
+				var coach = reader.Select<dynamic, Coach>(
 						row => new Coach(Guid.Parse(row.ClubGuid.ToString()), Guid.Parse(row.CoachGuid.ToString())) {
 							DateOfBirth = DateTime.Parse(row.DateOfBirth.ToString()), FirstName = row.FirstName, LastName = row.LastName, Email = row.Email,
 							Phone = row.Phone, Qualifications = row.Qualifications
 						}).FirstOrDefault();
-				return player;
+				return coach;
+			}
+		}
+
+		public IEnumerable<Coach> GetCoaches(Guid clubId) {
+			using (var connection = connectionFactory.Connect()) {
+				string sql = @"SELECT CB.Guid AS ClubGuid, CO.Guid AS CoachGuid, 
+                                    CO.DateOfBirth, CO.FirstName, CO.LastName, 
+                                    CO.Email, CO.Qualifications, CO.Phone
+                                FROM Coaches CO
+                                INNER JOIN Clubs CB ON CO.ClubId = CB.ClubId
+                                WHERE CB.Guid = @ClubGuid";
+				DynamicParameters p = new DynamicParameters();
+				p.Add("@ClubGuid", clubId.ToString());
+				connection.Open();
+				var reader = connection.Query(sql, p).Cast<IDictionary<string, object>>();
+				return reader.Select<dynamic, Coach>(
+						row => new Coach(Guid.Parse(row.ClubGuid.ToString()), Guid.Parse(row.CoachGuid.ToString())) {
+							DateOfBirth = DateTime.Parse(row.DateOfBirth.ToString()), FirstName = row.FirstName, LastName = row.LastName, Email = row.Email,
+							Phone = row.Phone, Qualifications = row.Qualifications
+						}).ToList();
+
 			}
 		}
 	}
