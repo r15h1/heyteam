@@ -37,14 +37,14 @@ namespace HeyTeam.Web.Controllers {
 
         [HttpGet("new")]
         public IActionResult New(string returnUrl) {
-            ViewData["Title"] = "Add New Squad";
+            ViewData["Title"] = "New Squad";
             ViewData["ReturnUrl"] = returnUrl ?? "/";
             return View("Edit");
         }
 
         [HttpPost("new")]
         public IActionResult New([FromForm]SquadViewModel squad, [FromQuery]string returnUrl) {
-            ViewData["Title"] = "Add New Squad";
+            ViewData["Title"] = "New Squad";
             ViewData["ReturnUrl"] = returnUrl ?? "/";
 
             if (!ModelState.IsValid)
