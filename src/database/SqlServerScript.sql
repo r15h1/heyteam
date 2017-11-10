@@ -39,6 +39,16 @@ CREATE TABLE dbo.Coaches (
 	Qualifications varchar(MAX) NULL,
 	FOREIGN KEY(ClubId) REFERENCES Clubs (ClubId)
 );
+
+CREATE TABLE SquadCoaches
+(
+	SquadId bigint NOT NULL,
+	CoachId bigint NOT NULL,
+	PRIMARY KEY (SquadId, CoachId),
+	FOREIGN KEY(SquadId) REFERENCES Squads (SquadId),
+	FOREIGN KEY(CoachId) REFERENCES Coaches (CoachId)
+);  
+
 -------------------------------------------------------------------------------------------------------------------------------------------------------------
 -----Identity tables
 CREATE TABLE AspNetRoleClaims (

@@ -17,7 +17,7 @@ namespace HeyTeam.Core.UseCases.Coach {
 			if (!validationResult.IsValid)
 				return Response<IEnumerable<Entities.Coach>>.CreateResponse(validationResult.Messages);
 
-			return new Response<IEnumerable<Entities.Coach>>(coachRepository.GetCoaches(request.ClubId));
+			return new Response<IEnumerable<Entities.Coach>>(coachRepository.GetClubCoaches(request.ClubId));
 		}
 	}
 }

@@ -2,6 +2,7 @@
 using HeyTeam.Core.UseCases;
 using HeyTeam.Core.UseCases.Coach;
 using HeyTeam.Web.Models.CoachViewModels;
+using HeyTeam.Util;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -14,11 +15,11 @@ namespace HeyTeam.Web.Controllers {
 	public class CoachesController : Controller {
 		private readonly Club club;
 		private readonly IUseCase<SaveCoachRequest, Response<Guid?>> saveCoachUseCase;
-		private readonly IUseCase<GetCoachListRequest, Response<IEnumerable<Coach>>> getCoachListUseCase;
+		private readonly IUseCase<GetCoachListRequest, Response<IEnumerable<Core.Entities.Coach>>> getCoachListUseCase;
 
 		public CoachesController(Club club, 
 			IUseCase<SaveCoachRequest, Response<Guid?>> saveCoachUseCase,
-			IUseCase<GetCoachListRequest, Response<IEnumerable<Coach>>> getCoachListUseCase
+			IUseCase<GetCoachListRequest, Response<IEnumerable<Core.Entities.Coach>>> getCoachListUseCase
 		) {
 			this.club = club;	
 			this.saveCoachUseCase = saveCoachUseCase;
@@ -36,12 +37,15 @@ namespace HeyTeam.Web.Controllers {
 		}
 
 		[HttpGet("new")]
-        public IActionResult Create() {
+        public IActionResult Create(string returnurl) {
+			ViewData["ReturnUrl"] = returnurl ?? "/coaches";
             return View();
         }
 
 		[HttpPost("new")]
-		public IActionResult Create(CoachViewModel model) {
+		public IActionResult Create(CoachViewModel model, string returnurl) {
+			ViewData["ReturnUrl"] = returnurl ?? "/coaches";
+
 			if (!ModelState.IsValid)
 				return View(model);
 
@@ -52,8 +56,10 @@ namespace HeyTeam.Web.Controllers {
 
 				return View(model);
 			}
+			if(returnurl.IsEmpty())
+				return RedirectToAction("Index");
 
-			return RedirectToAction("Index");
+			return Redirect(returnurl);
 		}
 
 		[HttpGet("{coachId:guid}")]
@@ -79,7 +85,7 @@ namespace HeyTeam.Web.Controllers {
 			return RedirectToAction("Index");
 		}
 
-		private CoachViewModel Map(Coach coach) => new CoachViewModel {
+		private CoachViewModel Map(Core.Entities.Coach coach) => new CoachViewModel {
 				ClubId = coach.ClubId,
 				CoachId = coach.Guid,
 				DateOfBirth = coach.DateOfBirth,

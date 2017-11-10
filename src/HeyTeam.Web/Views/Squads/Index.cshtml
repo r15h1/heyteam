@@ -3,13 +3,29 @@
     ViewData["Title"] = $"{Model.SquadName} Squad";
 }
 <h1>@ViewData["Title"]</h1>
+<h3>Coach</h3>
+    @if (Model.Coach == null) {
+        <div class="btn-group" role="group" aria-label="...">
+            <a class="btn btn-primary" asp-controller="Squads" asp-action="Coach" asp-route-squadid="@Model.SquadId">Assign Coach</a>
+        </div>
+    } else {
+        <div class="input-group col-md-3 col-lg-3">
+            <Label class="form-control ">@($"{Model.Coach.FirstName} {Model.Coach.LastName}")</Label>
+            <div class="input-group-btn">
+                <button type = "button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action<span class="caret"></span></button>
+                <ul class="dropdown-menu">
+                    <li><a asp-controller="Squads" asp-action="Coach" asp-route-squadid="@Model.SquadId"> Change </a></li>
+                    <li><a href="#">Remove</a></li>
+                </ul>
+            </div>
+        </div>
+    }
 <h3>Players</h3>
-<div>
-    <div class="btn-group" role="group" aria-label="...">
-        @*<a type="button" class="btn btn-default" href='/'>Dashboard</a>*@
-        <a type="button" class="btn btn-primary" id="AddPlayerButton" data-toggle="modal" href='~/squads/@Model.SquadId/players/new'>Add New Player</a>        
-    </div>
+<div class="btn-group" role="group" aria-label="...">
+    @*<a type="button" class="btn btn-default" href='/'>Dashboard</a>*@
+    <a type="button" class="btn btn-primary" id="AddPlayerButton" data-toggle="modal" href='~/squads/@Model.SquadId/players/new'>Add New Player</a>        
 </div>
+
 @if(Model.Players != null && Model.Players.Count() > 0)
 {  
     <div class="table-responsive">

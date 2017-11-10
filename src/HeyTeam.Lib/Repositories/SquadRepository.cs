@@ -32,7 +32,25 @@ namespace HeyTeam.Lib.Repositories {
             }
         }
 
-        public Squad GetSquad(Guid squadId) {
+		public void AssignCoach(Guid squadId, Guid coachId) {
+			using (var connection = connectionFactory.Connect()) {
+				string sql = @" DELETE FROM SquadCoaches WHERE SquadId = (SELECT SquadId FROM Squads WHERE Guid = @SquadGuid);
+				
+								INSERT INTO SquadCoaches(SquadId, CoachId) 
+								VALUES (
+									(SELECT SquadId FROM Squads WHERE Guid = @SquadGuid),
+									(SELECT CoachId FROM Coaches WHERE Guid = @CoachGuid)
+								);";
+
+				var p = new DynamicParameters();
+				p.Add("@SquadGuid", squadId.ToString());
+				p.Add("@CoachGuid", coachId.ToString());
+				connection.Open();
+				connection.Execute(sql, p);
+			}
+		}
+
+		public Squad GetSquad(Guid squadId) {
             using (var connection = connectionFactory.Connect()) {
                 string sql = @"SELECT C.Guid AS ClubGuid, S.Guid AS SquadGuid, S.Name 
                                 FROM Squads S 
@@ -53,7 +71,15 @@ namespace HeyTeam.Lib.Repositories {
             }
         }
 
-        public void UpdateSquad(Squad squad) {
+		public SquadCoachAssignment GetSquadCoachAssignment(Guid squadId) {
+			throw new NotImplementedException();
+		}
+
+		public void UnAssignCoach(Guid squadId, Guid coachId) {
+			throw new NotImplementedException();
+		}
+
+		public void UpdateSquad(Squad squad) {
             using(var connection = connectionFactory.Connect()) {
                 string sql = @"UPDATE Squads SET Name = @Name WHERE Guid = @Guid";  
                                 

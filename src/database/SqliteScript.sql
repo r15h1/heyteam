@@ -40,6 +40,17 @@ CREATE TABLE Coaches (
 	FOREIGN KEY(ClubId) REFERENCES Clubs (ClubId)
 );
 
+CREATE TABLE SquadCoaches
+(
+	SquadId INTEGER NOT NULL,
+	CoachId INTEGER NOT NULL,
+	PRIMARY KEY (SquadId, CoachId),
+	FOREIGN KEY(SquadId) REFERENCES Squads (SquadId),
+	FOREIGN KEY(CoachId) REFERENCES Coaches (CoachId)
+);  
+
+
+
 CREATE TABLE AspNetRoleClaims (
 	Id INTEGER NOT NULL,
 	ClaimType nvarchar(2147483647),

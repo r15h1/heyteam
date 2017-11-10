@@ -21,7 +21,8 @@ namespace HeyTeam.Lib.Repositories {
             using(var connection = connectionFactory.Connect()) {
                 string sql = @"SELECT S.Name,
                                 S.Guid,
-                                (SELECT COUNT(1) FROM Players P WHERE P.SquadId = S.SquadId) AS NumberOfPlayers
+                                (SELECT COUNT(1) FROM Players P WHERE P.SquadId = S.SquadId) AS NumberOfPlayers,
+								(SELECT CO.FirstName + ' ' + CO.LastName FROM SquadCoaches SC INNER JOIN Coaches CO ON SC.SquadId = S.SquadId AND CO.CoachId = SC.CoachId) AS Coach
                             FROM Clubs C
                             INNER JOIN Squads S ON S.ClubId = C.ClubId
                             WHERE C.Guid = @ClubGuid";                                
@@ -39,7 +40,8 @@ namespace HeyTeam.Lib.Repositories {
             item.Cells.Add("squadname", row.Name);
             item.Cells.Add("squadid", row.Guid.ToString());
             item.Cells.Add("numberofplayers", row.NumberOfPlayers.ToString());
-            return item;
+			item.Cells.Add("coach", row.Coach);
+			return item;
         }
     }
 }

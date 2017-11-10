@@ -75,7 +75,7 @@ namespace HeyTeam.Web {
             services.AddScoped<IUseCase<DashboardRequest, Response<List<Group>>>, DashboardUseCase>();            
             services.AddScoped<IValidator<AddSquadRequest>, AddSquadRequestValidator>(); 
             services.AddScoped<IUseCase<AddSquadRequest, Response<Guid?>>, AddSquadUseCase>();
-            services.AddScoped<IUseCase<GetSquadRequest, Response<System.ValueTuple<Core.Entities.Squad, IEnumerable<Core.Entities.Player>>>>, GetSquadUseCase>();
+            services.AddScoped<IUseCase<GetSquadRequest, Response<System.ValueTuple<Core.Entities.Squad, IEnumerable<Core.Entities.Player>, Core.Entities.Coach>>>, GetSquadUseCase>();
             services.AddScoped<IValidator<GetSquadRequest>, GetSquadRequestValidator>();
 			services.AddScoped<IValidator<AddPlayerRequest>, AddPlayerRequestValidator>();
 			services.AddScoped<IUseCase<AddPlayerRequest, Response<Guid?>>, AddPlayerUseCase>();
@@ -90,6 +90,9 @@ namespace HeyTeam.Web {
 
 			services.AddScoped<IValidator<GetCoachListRequest>, GetCoachListRequestValidator>();
 			services.AddScoped<IUseCase<GetCoachListRequest, Response<IEnumerable<Coach>>>, GetCoachListUseCase>();
+
+			services.AddScoped<IValidator<SquadCoachChangeRequest>, SquadCoachChangeRequestValidator>();
+			services.AddScoped<IUseCase<SquadCoachChangeRequest, Response<string>>, SquadCoachAssignmentInteractor>();
 		}
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

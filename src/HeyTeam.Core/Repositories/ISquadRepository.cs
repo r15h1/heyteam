@@ -7,5 +7,8 @@ namespace HeyTeam.Core.Repositories {
         void AddSquad(Squad squad);
         void UpdateSquad(Squad squad);
         Squad GetSquad(Guid squadId);
-    }
+		SquadCoachAssignment GetSquadCoachAssignment(Guid squadId);
+		void AssignCoach(Guid squadId, Guid coachId);
+		void UnAssignCoach(Guid squadId, Guid coachId);
+	}
 }

@@ -6,7 +6,8 @@ namespace HeyTeam.Core.Repositories {
 	public interface ICoachRepository {
 		Coach GetCoach(Guid guid);
 		void AddCoach(Coach coach);
-		IEnumerable<Coach> GetCoaches(Guid clubId);
+		IEnumerable<Coach> GetClubCoaches(Guid clubId);
+		IEnumerable<Coach> GetSquadCoaches(Guid squadId);
 		void UpdateCoach(Coach coach);
 	}
 }
