@@ -94,8 +94,13 @@ namespace HeyTeam.Web.Controllers {
 			var squadResponse = getSquadUseCase.Execute(squadRequest);
 			var coachRequest = new GetCoachListRequest { ClubId = club.Guid };
 			var coachResponse = getCoachListUseCase.Execute(coachRequest);
+			var coaches = coachResponse.Result;
+			if (squadResponse.Result.Item3 != null)
+				coaches = coaches.Where(c => !c.Guid.Equals(squadResponse.Result.Item3.Guid));
+
+
 			var model = new AssignCoachViewModel { 
-				Coaches = coachResponse.Result.Select(c => new SelectListItem { Text = $"{c.FirstName} {c.LastName}", Value = c.Guid.ToString()}).OrderBy(c => c.Text).ToList(),
+				Coaches = coaches.Select(c => new SelectListItem { Text = $"{c.FirstName} {c.LastName}", Value = c.Guid.ToString()}).OrderBy(c => c.Text).ToList(),
 				SquadId = squadResponse.Result.Item1.Guid,
 				SquadName = squadResponse.Result.Item1.Name
 			};

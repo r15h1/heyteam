@@ -16,14 +16,14 @@ namespace HeyTeam.Web.Controllers
     public class PlayersController : Controller {
 		private readonly Club club;
 		
-		private readonly IUseCase<GetSquadRequest, Response<(Squad, IEnumerable<Player>)>> getSquadUseCase;
+		private readonly IUseCase<GetSquadRequest, Response<(Squad, IEnumerable<Player>, Coach)>> getSquadUseCase;
 		private readonly IUseCase<AddPlayerRequest, Response<Guid?>> addPlayerUseCase;
 		private readonly IUseCase<UpdatePlayerRequest, Response<Guid?>> updatePlayerUseCase;
 		private readonly IUseCase<GetPlayerRequest, Response<(Player, string)>> getPlayerUseCase;
 
 		public PlayersController(
 			Club club,
-			IUseCase<GetSquadRequest, Response<System.ValueTuple<Core.Entities.Squad, IEnumerable<Core.Entities.Player>>>> getSquadUseCase,
+			IUseCase<GetSquadRequest, Response<System.ValueTuple<Core.Entities.Squad, IEnumerable<Core.Entities.Player>, Coach>>> getSquadUseCase,
 			IUseCase<AddPlayerRequest, Response<Guid?>> addPlayerUseCase,
 			IUseCase<UpdatePlayerRequest, Response<Guid?>> updatePlayerUseCase,
 			IUseCase<GetPlayerRequest, Response<(Core.Entities.Player, string)>> getPlayerUseCase
