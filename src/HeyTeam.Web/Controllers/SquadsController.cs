@@ -10,6 +10,7 @@ using HeyTeam.Core.UseCases.Coach;
 using HeyTeam.Web.Models.CoachViewModels;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using static HeyTeam.Core.UseCases.Squad.SquadCoachChangeRequest;
 
 namespace HeyTeam.Web.Controllers {
     
@@ -113,10 +114,17 @@ namespace HeyTeam.Web.Controllers {
 			if (!ModelState.IsValid)
 				return View(model);
 
-			var request = new SquadCoachChangeRequest { 
-				CoachId = model.SelectedCoach.Value, 
-				SquadId = model.SquadId, 
-				Operation = SquadCoachChangeRequest.SquadCoachOperation.ADD
+			if(SetCoach(model.SquadId, model.SelectedCoach.Value, SquadCoachOperation.ADD))
+				return RedirectToAction("Index");
+
+			return View(model);
+		}
+
+		private bool SetCoach(Guid squadId, Guid coachId, SquadCoachOperation operation) {
+			var request = new SquadCoachChangeRequest {
+				CoachId = coachId,
+				SquadId = squadId,
+				Operation = operation
 			};
 
 			var response = squadCoachChangeInteractor.Execute(request);
@@ -124,10 +132,21 @@ namespace HeyTeam.Web.Controllers {
 				foreach (var error in response.Errors)
 					ModelState.AddModelError("", error);
 
-				return View(model);
+				return false;
 			}
 
-			return RedirectToAction("Index");
+			return true;
+		}
+
+		[HttpPost("{squadId:guid}")]
+		public IActionResult CoachUnassignment(CoachUnAssignmentViewModel model) {
+			if (!ModelState.IsValid)
+				return View(model);
+
+			if (SetCoach(model.SquadId.Value, model.CoachId.Value, SquadCoachOperation.REMOVE))
+				return RedirectToAction("Index");
+
+			return View(model);
 		}
 	}
 }

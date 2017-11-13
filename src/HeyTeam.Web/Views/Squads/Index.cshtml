@@ -15,53 +15,72 @@
                 <button type = "button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action<span class="caret"></span></button>
                 <ul class="dropdown-menu">
                     <li><a asp-controller="Squads" asp-action="Coach" asp-route-squadid="@Model.SquadId"> Change </a></li>
-                    <li><a href="#">Remove</a></li>
+                    <li><a href="#" data-toggle="modal" data-target="#myModal">Remove</a></li>
                 </ul>
             </div>
         </div>
-    }
-<h3>Players</h3>
-<div class="btn-group" role="group" aria-label="...">
-    @*<a type="button" class="btn btn-default" href='/'>Dashboard</a>*@
-    <a type="button" class="btn btn-primary" id="AddPlayerButton" data-toggle="modal" href='~/squads/@Model.SquadId/players/new'>Add New Player</a>        
-</div>
 
-@if(Model.Players != null && Model.Players.Count() > 0)
-{  
-    <div class="table-responsive">
-        <table class="table table-bordered table-hover">
-            <thead>
+        <div class="modal fade" id="myModal" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <form method="post">
+                        <input type="hidden" asp-for="SquadId" name="squadid"/>
+                        <input type="hidden" asp-for="Coach.Guid" name="coachid" />
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Confirm Coach Removal</h4>
+                        </div>
+                        <div class="modal-body">
+                            <p>Do you really want to un-assign the coach from this squad?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                            <input type="submit" class="btn btn-primary" value="Confirm"/>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+            }
+            <h3>Players</h3>
+            <div class="btn-group" role="group" aria-label="...">
+                @*<a type="button" class="btn btn-default" href='/'>Dashboard</a>*@
+                <a type="button" class="btn btn-primary" id="AddPlayerButton" data-toggle="modal" href='~/squads/@Model.SquadId/players/new'>Add New Player</a>
+            </div>
+
+            @if (Model.Players != null && Model.Players.Count() > 0) {
+<div class="table-responsive">
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>Squad#</th>
+                <th>Name</th>
+                <th>DoB</th>
+                <th>Dominant Foot</th>
+                <th>Email</th>
+                <th>Nationality</th>
+                <th>#Sessions Missed</th>
+                <th>#Missing Evaluations</th>
+                <th>Last Login</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var player in Model.Players) {
                 <tr>
-                    <th>Squad#</th>
-                    <th>Name</th>                    
-                    <th>DoB</th>
-                    <th>Dominant Foot</th>
-                    <th>Email</th>
-                    <th>Nationality</th>   
-                    <th>#Sessions Missed</th>                 
-                    <th>#Missing Evaluations</th>
-                    <th>Last Login</th>
+                    <td>@player.SquadNumber</td>
+                    <td><a href='/squads/@player.SquadId/players/@player.Guid'>@player.FirstName @player.LastName</a></td>
+                    <td>@player.DateOfBirth.ToString("dd-MMM-yyyy")</td>
+                    <td>@player.DominantFoot</td>
+                    <td>@player.Email</td>
+                    <td>@player.Nationality</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
                 </tr>
-            </thead>
-            <tbody>
-                @foreach(var player in Model.Players)
-                {
-                    <tr>
-                        <td>@player.SquadNumber</td>
-                        <td><a href='/squads/@player.SquadId/players/@player.Guid'>@player.FirstName @player.LastName</a></td>
-                        <td>@player.DateOfBirth.ToString("dd-MMM-yyyy")</td>
-                        <td>@player.DominantFoot</td>
-                        <td>@player.Email</td>
-                        <td>@player.Nationality</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
 }
-else {
-    <div>No players registered yet</div>
-}
+        </tbody>
+    </table>
+</div>
+            } else {
+            <div>No players registered yet</div>}

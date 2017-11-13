@@ -71,12 +71,18 @@ namespace HeyTeam.Lib.Repositories {
             }
         }
 
-		public SquadCoachAssignment GetSquadCoachAssignment(Guid squadId) {
-			throw new NotImplementedException();
-		}
-
 		public void UnAssignCoach(Guid squadId, Guid coachId) {
-			throw new NotImplementedException();
+			using (var connection = connectionFactory.Connect()) {
+				string sql = @" DELETE FROM SquadCoaches WHERE 
+								SquadId = (SELECT SquadId FROM Squads WHERE Guid = @SquadGuid) 
+								AND CoachId = (SELECT CoachId FROM Coaches WHERE Guid = @CoachGuid)";
+
+				var p = new DynamicParameters();
+				p.Add("@SquadGuid", squadId.ToString());
+				p.Add("@CoachGuid", coachId.ToString());
+				connection.Open();
+				connection.Execute(sql, p);
+			}
 		}
 
 		public void UpdateSquad(Squad squad) {
