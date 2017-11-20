@@ -1,6 +1,6 @@
 ﻿@model HeyTeam.Web.Models.CoachViewModels.CoachViewModel
-<h1>Coach Details</h1>
-<h3>New Coach</h3>
+<h1>New Coach</h1>
+<h3>Coach Details</h3>
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create" method="post" asp-route-returnurl="@ViewData["ReturnUrl"]">
@@ -35,7 +35,7 @@
                 <textarea asp-for="Qualifications" class="form-control"></textarea>
                 <span asp-validation-for="Qualifications" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="modal-footer">
                 <a href="@ViewData["ReturnUrl"]" class="btn btn-default">Cancel</a>
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>

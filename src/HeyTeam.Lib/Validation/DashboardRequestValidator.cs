@@ -1,14 +1,15 @@
-using HeyTeam.Core.UseCases;
+using HeyTeam.Core.Queries;
+using HeyTeam.Core.Repositories;
 using HeyTeam.Core.Validation;
 using HeyTeam.Util;
 
 namespace HeyTeam.Lib.Validation {
-    public class DashboardRequestValidator : IValidator<DashboardRequest>
+	public class DashboardRequestValidator : IValidator<DashboardRequest>
     {
         public ValidationResult<DashboardRequest> Validate(DashboardRequest request)
         {
             var result = new ValidationResult<DashboardRequest>(request);
-            if (request.Email.IsEmpty() || !request.Email.IsValidEmail())
+            if (request.UserEmail.IsEmpty() || !request.UserEmail.IsValidEmail())
                 result.AddMessage("User's email is not valid");
 
             if (request.ClubId.IsEmpty())

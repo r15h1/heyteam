@@ -7,15 +7,18 @@ using HeyTeam.Lib.Data;
 using HeyTeam.Core.Entities;
 using Dapper;
 using HeyTeam.Util;
+using HeyTeam.Core.Queries;
 
 namespace HeyTeam.Lib.Repositories {
     public class SquadRepository : ISquadRepository {
         private readonly IDbConnectionFactory connectionFactory;
+		private readonly IClubQuery clubRepository;
 
-        public SquadRepository(IDbConnectionFactory factory) {
-            Ensure.ArgumentNotNull(factory);
+		public SquadRepository(IDbConnectionFactory factory, IClubQuery clubRepository) {
+            ThrowIf.ArgumentIsNull(factory);
             this.connectionFactory = factory;
-        }
+			this.clubRepository = clubRepository;
+		}
 
         public void AddSquad(Squad squad) {
             using(var connection = connectionFactory.Connect()) {
@@ -49,27 +52,6 @@ namespace HeyTeam.Lib.Repositories {
 				connection.Execute(sql, p);
 			}
 		}
-
-		public Squad GetSquad(Guid squadId) {
-            using (var connection = connectionFactory.Connect()) {
-                string sql = @"SELECT C.Guid AS ClubGuid, S.Guid AS SquadGuid, S.Name 
-                                FROM Squads S 
-                                INNER JOIN Clubs C ON C.ClubId = S.ClubId
-                                WHERE S.Guid = @SquadGuid";  
-
-                var p = new DynamicParameters();
-                p.Add("@SquadGuid", squadId.ToString());
-                connection.Open();
-
-                var reader = connection.Query(sql, p).Cast<IDictionary<string, object>>();
-                var squad = reader.Select<dynamic, Squad>(
-                        row => new Squad(Guid.Parse(row.ClubGuid.ToString()), Guid.Parse(row.SquadGuid.ToString())) {
-                            Name = row.Name
-                        }).FirstOrDefault();
-
-                return squad;                
-            }
-        }
 
 		public void UnAssignCoach(Guid squadId, Guid coachId) {
 			using (var connection = connectionFactory.Connect()) {

@@ -2,7 +2,7 @@
 <h1>@($"{Model.SquadName} Squad")</h1>
 <h3>Assign a Different Coach</h3>
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-4">
         <form asp-action="Coach" method="post">
             <input type="hidden" asp-for = "SquadId" />
             <div asp-validation-summary="ModelOnly" class="text-danger"></div> 
@@ -18,7 +18,7 @@
                 <span asp-validation-for="SelectedCoach" class="text-danger"></span>
             </div>
 
-            <div class="form-group">
+            <div class="modal-footer">
                 <a href="/squads/@Model.SquadId" class="btn btn-default">Cancel</a>
                 <input type="submit" value="Assign Selected Coach" class="btn btn-primary" />
             </div>

@@ -3,11 +3,9 @@ using System;
 using System.Collections.Generic;
 
 namespace HeyTeam.Core.Repositories {
-	public interface ICoachRepository {
-		Coach GetCoach(Guid guid);
-		void AddCoach(Coach coach);
-		IEnumerable<Coach> GetClubCoaches(Guid clubId);
-		IEnumerable<Coach> GetSquadCoaches(Guid squadId);
+	public interface ICoachRepository 
+	{		
+		void AddCoach(Coach coach);		
 		void UpdateCoach(Coach coach);
-	}
+	}	
 }

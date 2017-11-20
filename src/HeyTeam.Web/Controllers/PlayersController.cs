@@ -1,53 +1,44 @@
 using HeyTeam.Core.Entities;
-using HeyTeam.Core.UseCases;
-using HeyTeam.Core.UseCases.Player;
-using HeyTeam.Core.UseCases.Squad;
+using HeyTeam.Core.Queries;
+using HeyTeam.Core.Services;
 using HeyTeam.Web.Models.PlayerViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 
-namespace HeyTeam.Web.Controllers
-{
+namespace HeyTeam.Web.Controllers {
 
-	[Authorize]    
-    public class PlayersController : Controller {
+	[Authorize]
+	public class PlayersController : Controller {
 		private readonly Club club;
-		
-		private readonly IUseCase<GetSquadRequest, Response<(Squad, IEnumerable<Player>, Coach)>> getSquadUseCase;
-		private readonly IUseCase<AddPlayerRequest, Response<Guid?>> addPlayerUseCase;
-		private readonly IUseCase<UpdatePlayerRequest, Response<Guid?>> updatePlayerUseCase;
-		private readonly IUseCase<GetPlayerRequest, Response<(Player, string)>> getPlayerUseCase;
+		private readonly IPlayerService playerService;
+		private readonly ISquadQuery squadQuery;
+		private readonly IPlayerQuery playerQuery;
 
 		public PlayersController(
 			Club club,
-			IUseCase<GetSquadRequest, Response<System.ValueTuple<Core.Entities.Squad, IEnumerable<Core.Entities.Player>, Coach>>> getSquadUseCase,
-			IUseCase<AddPlayerRequest, Response<Guid?>> addPlayerUseCase,
-			IUseCase<UpdatePlayerRequest, Response<Guid?>> updatePlayerUseCase,
-			IUseCase<GetPlayerRequest, Response<(Core.Entities.Player, string)>> getPlayerUseCase
+			ISquadQuery squadQuery,
+			IPlayerService playerService,
+			IPlayerQuery playerQuery
 		) {
 			this.club = club;
-            this.getPlayerUseCase = getPlayerUseCase;
-			this.getSquadUseCase = getSquadUseCase;
-			this.addPlayerUseCase = addPlayerUseCase;
-			this.updatePlayerUseCase = updatePlayerUseCase;
+			this.squadQuery = squadQuery;
+			this.playerService = playerService;
+			this.playerQuery = playerQuery;
 		}
 
-        [Route("squads/{squadId:guid}/[controller]/new")]
-        [HttpGet]
-        public IActionResult New(string squadId) {
+		[Route("squads/{squadId:guid}/[controller]/new")]
+		[HttpGet]
+		public IActionResult New(string squadId) {
 			SetupTitle(squadId, "Add New Player");
 			return View("Create");
 		}
 
 		private void SetupTitle(string squadId, string title) {
-			var request = new GetSquadRequest { ClubId = club.Guid, SquadId = System.Guid.Parse(squadId) };
-			var response = getSquadUseCase.Execute(request);
-			ViewData["SquadId"] = squadId;
+			var squad = squadQuery.GetSquad(System.Guid.Parse(squadId));
+			ViewData["SquadId"] = squad.Guid;
 			ViewData["Title"] = title;
-			ViewData["SubTitle"] = response.Result.Item1.Name;
+			ViewData["SubTitle"] = squad.Name;
 		}
 
 		[Route("squads/{squadId:guid}/[controller]/new")]
@@ -58,20 +49,20 @@ namespace HeyTeam.Web.Controllers
 				return View("Create", player);
 			}
 
-			AddPlayerRequest request = MapAddPlayerRequest(player);
-			var response = addPlayerUseCase.Execute(request);
-			if(!response.WasRequestFulfilled) {
+			PlayerRequest request = MapPlayerRequest(player);
+			var response = playerService.RegisterPlayer(request);
+			if (!response.RequestIsFulfilled) {
 				foreach (var error in response.Errors)
 					ModelState.AddModelError("", error);
 
 				return View("Create", player);
-			}				
-			
+			}
+
 			return Redirect($"/squads/{player.SquadId}");
 		}
 
-		private AddPlayerRequest MapAddPlayerRequest(PlayerViewModel player) {
-			return new AddPlayerRequest {
+		private PlayerRequest MapPlayerRequest(PlayerViewModel player) {
+			return new PlayerRequest {
 				DateOfBirth = player.DateOfBirth,
 				DominantFoot = player.DominantFoot.FirstOrDefault(),
 				Email = player.Email,
@@ -84,28 +75,27 @@ namespace HeyTeam.Web.Controllers
 		}
 
 		[Route("squads/{squadId:guid}/players/{playerId:guid}")]
-        [HttpGet]
-        public IActionResult Edit(string squadId, string playerId) {			
-			var response = getPlayerUseCase.Execute(new GetPlayerRequest { PlayerId = System.Guid.Parse(playerId) });
-			if(response.WasRequestFulfilled)
-			{
-				var player = response.Result.Item1;
-				var model = new PlayerViewModel {					
-					DateOfBirth = player.DateOfBirth,
-					DominantFoot = player.DominantFoot.ToString(),
-					Email = player.Email,
-					FirstName = player.FirstName,
-					LastName = player.LastName,
-					Nationality = player.Nationality,
-					SquadNumber = player.SquadNumber,
-					SquadId = player.SquadId,
-					PlayerId = player.Guid,
-					SquadName = response.Result.Item2
-				};
+		[HttpGet]
+		public IActionResult Edit(string squadId, string playerId) {
+			var player = playerQuery.GetPlayer(System.Guid.Parse(playerId));
+			if(player == null)
+				return View("PlayerNotFound", squadId);
 
-				return View("Edit", model);
-			}
-            return View("PlayerNotFound", squadId);
+			var squad = squadQuery.GetSquad(player.SquadId);
+			var model = new PlayerViewModel {
+				DateOfBirth = player.DateOfBirth,
+				DominantFoot = player.DominantFoot.ToString(),
+				Email = player.Email,
+				FirstName = player.FirstName,
+				LastName = player.LastName,
+				Nationality = player.Nationality,
+				SquadNumber = player.SquadNumber,
+				SquadId = player.SquadId,
+				PlayerId = player.Guid,
+				SquadName = squad.Name
+			};
+
+			return View("Edit", model);
 		}
 
 		[Route("squads/{squadId:guid}/players/{playerId:guid}")]
@@ -115,8 +105,7 @@ namespace HeyTeam.Web.Controllers
 				return View("Edit", player);
 
 
-			var request = new UpdatePlayerRequest
-			{
+			var request = new PlayerRequest {
 				DateOfBirth = player.DateOfBirth,
 				DominantFoot = player.DominantFoot.FirstOrDefault(),
 				Email = player.Email,
@@ -127,9 +116,8 @@ namespace HeyTeam.Web.Controllers
 				SquadId = player.SquadId,
 				PlayerId = player.PlayerId.Value
 			};
-			var response = updatePlayerUseCase.Execute(request);
-			if (!response.WasRequestFulfilled)
-			{
+			var response = playerService.UpdatePlayerProfile(request);
+			if (!response.RequestIsFulfilled) {
 				foreach (var error in response.Errors)
 					ModelState.AddModelError("", error);
 
@@ -138,5 +126,5 @@ namespace HeyTeam.Web.Controllers
 
 			return Redirect($"/squads/{player.SquadId}");
 		}
-	}        
+	}
 }

@@ -1,48 +1,41 @@
-using Microsoft.AspNetCore.Mvc;
-using System;
+using HeyTeam.Core.Entities;
+using HeyTeam.Core.Queries;
+using HeyTeam.Core.Services;
+using HeyTeam.Web.Models.CoachViewModels;
 using HeyTeam.Web.Models.SquadViewModels;
 using Microsoft.AspNetCore.Authorization;
-using HeyTeam.Core.UseCases.Squad;
-using HeyTeam.Core.UseCases;
-using HeyTeam.Core.Entities;
-using System.Collections.Generic;
-using HeyTeam.Core.UseCases.Coach;
-using HeyTeam.Web.Models.CoachViewModels;
-using System.Linq;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using static HeyTeam.Core.UseCases.Squad.SquadCoachChangeRequest;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace HeyTeam.Web.Controllers {
-    
-    [Authorize]
+
+	[Authorize]
     [Route("[controller]")]
     public class SquadsController : Controller {
         private readonly Club club;
-        private readonly IUseCase<AddSquadRequest, Response<Guid?>> addSquadUseCase;
-        private readonly IUseCase<GetSquadRequest, Response<(Squad, IEnumerable<Player>, Coach)>> getSquadUseCase;
-		private readonly IUseCase<GetCoachListRequest, Response<IEnumerable<Coach>>> getCoachListUseCase;
-		private readonly IUseCase<SquadCoachChangeRequest, Response<string>> squadCoachChangeInteractor;
+        private readonly ISquadService squadService;
+		private readonly ISquadQuery squadQuery;
+		private readonly ICoachQuery coachQuery;
 
 		public SquadsController(
-                Club club, 
-                IUseCase<AddSquadRequest, Response<Guid?>> addSquadUseCase,
-                IUseCase<GetSquadRequest, Response<System.ValueTuple<Core.Entities.Squad, IEnumerable<Core.Entities.Player>, Core.Entities.Coach>>> getSquadUseCase,
-				IUseCase<GetCoachListRequest, Response<IEnumerable<Core.Entities.Coach>>> getCoachListUseCase,
-				IUseCase<SquadCoachChangeRequest, Response<string>> squadCoachChangeInteractor
+                Club club,
+				ISquadService squadService,
+				ISquadQuery squadQuery,
+				ICoachQuery coachQuery
 		) {
             this.club = club;
-            this.addSquadUseCase = addSquadUseCase;
-            this.getSquadUseCase = getSquadUseCase;
-			this.getCoachListUseCase = getCoachListUseCase;
-			this.squadCoachChangeInteractor = squadCoachChangeInteractor;
+            this.squadService = squadService;
+			this.squadQuery = squadQuery;
+			this.coachQuery = coachQuery;
 		}
 
         [HttpGet("{squadId:guid}")]
         public IActionResult Index([FromRoute]string squadId) {
             ViewData["Title"] = "Squad Details";
-            var request = new GetSquadRequest { ClubId = club.Guid, SquadId = System.Guid.Parse(squadId) };
-            var response = getSquadUseCase.Execute(request);
-            var model = new SquadDetailsViewModel { SquadName = response.Result.Item1.Name, SquadId = response.Result.Item1.Guid.ToString(), Players = response.Result.Item2, Coach = response.Result.Item3 };
+			var response = squadQuery.GetFullSquadDetails(System.Guid.Parse(squadId));
+            var model = new SquadDetailsViewModel { SquadName = response.Squad.Name, SquadId = response.Squad.Guid.ToString(), Players = response.Players, Coach = response.Coach };
             return View("Index", model);
         }
 
@@ -62,15 +55,15 @@ namespace HeyTeam.Web.Controllers {
                 return View("Edit", squad);
             
 
-            var result = addSquadUseCase.Execute(new AddSquadRequest{
+            var response = squadService.RegisterSquad(new SquadRequest{
                 SquadName = squad.SquadName,
                 ClubId = club.Guid
             });
             
-            if(result.WasRequestFulfilled) {
+            if(response.RequestIsFulfilled) {
                 return RedirectToLocal("/");
             } else {
-                foreach(var error in result.Errors)
+                foreach(var error in response.Errors)
                     ModelState.AddModelError("", error);                
                 
                 return View("Edit", squad);
@@ -91,19 +84,15 @@ namespace HeyTeam.Web.Controllers {
 
 		[HttpGet("{squadId:guid}/coach")]
 		public IActionResult Coach([FromRoute]string squadId) {
-			var squadRequest = new GetSquadRequest { ClubId = club.Guid, SquadId = System.Guid.Parse(squadId) };
-			var squadResponse = getSquadUseCase.Execute(squadRequest);
-			var coachRequest = new GetCoachListRequest { ClubId = club.Guid };
-			var coachResponse = getCoachListUseCase.Execute(coachRequest);
-			var coaches = coachResponse.Result;
-			if (squadResponse.Result.Item3 != null)
-				coaches = coaches.Where(c => !c.Guid.Equals(squadResponse.Result.Item3.Guid));
-
+			var response = squadQuery.GetFullSquadDetails(System.Guid.Parse(squadId));
+			var coaches = coachQuery.GetClubCoaches(club.Guid);
+			if (response.Coach != null)
+				coaches = coaches.Where(c => !c.Guid.Equals(response.Coach.Guid));
 
 			var model = new AssignCoachViewModel { 
 				Coaches = coaches.Select(c => new SelectListItem { Text = $"{c.FirstName} {c.LastName}", Value = c.Guid.ToString()}).OrderBy(c => c.Text).ToList(),
-				SquadId = squadResponse.Result.Item1.Guid,
-				SquadName = squadResponse.Result.Item1.Name
+				SquadId = response.Squad.Guid,
+				SquadName = response.Squad.Name
 			};
 
 			return View(model);
@@ -114,28 +103,13 @@ namespace HeyTeam.Web.Controllers {
 			if (!ModelState.IsValid)
 				return View(model);
 
-			if(SetCoach(model.SquadId, model.SelectedCoach.Value, SquadCoachOperation.ADD))
-				return RedirectToAction("Index");
-
-			return View(model);
-		}
-
-		private bool SetCoach(Guid squadId, Guid coachId, SquadCoachOperation operation) {
-			var request = new SquadCoachChangeRequest {
-				CoachId = coachId,
-				SquadId = squadId,
-				Operation = operation
-			};
-
-			var response = squadCoachChangeInteractor.Execute(request);
-			if (!response.WasRequestFulfilled) {
-				foreach (var error in response.Errors)
-					ModelState.AddModelError("", error);
-
-				return false;
+			var response = squadService.AssignCoach(model.SquadId, model.SelectedCoach.Value);
+			if(!response.RequestIsFulfilled) {
+				AddModelErrors(response.Errors);
+				return View(model);
 			}
 
-			return true;
+			return RedirectToAction("Index");			
 		}
 
 		[HttpPost("{squadId:guid}")]
@@ -143,10 +117,18 @@ namespace HeyTeam.Web.Controllers {
 			if (!ModelState.IsValid)
 				return View(model);
 
-			if (SetCoach(model.SquadId.Value, model.CoachId.Value, SquadCoachOperation.REMOVE))
-				return RedirectToAction("Index");
+			var response = squadService.UnAssignCoach(model.SquadId.Value, model.CoachId.Value);
+			if (!response.RequestIsFulfilled) {
+				AddModelErrors(response.Errors);
+				return View(model);
+			}
 
-			return View(model);
+			return RedirectToAction("Index");
+		}
+
+		private void AddModelErrors(IEnumerable<string> errors) {
+			foreach (var error in errors)
+				ModelState.AddModelError("", error);
 		}
 	}
 }

@@ -1,11 +1,11 @@
 ﻿using HeyTeam.Core.Entities;
-using HeyTeam.Core.UseCases;
-using HeyTeam.Core.UseCases.Coach;
-using HeyTeam.Web.Models.CoachViewModels;
+using HeyTeam.Core.Queries;
+using HeyTeam.Core.Services;
+using HeyTeam.Lib.Services;
 using HeyTeam.Util;
+using HeyTeam.Web.Models.CoachViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -14,26 +14,26 @@ namespace HeyTeam.Web.Controllers {
 	[Route("[controller]")]
 	public class CoachesController : Controller {
 		private readonly Club club;
-		private readonly IUseCase<SaveCoachRequest, Response<Guid?>> saveCoachUseCase;
-		private readonly IUseCase<GetCoachListRequest, Response<IEnumerable<Core.Entities.Coach>>> getCoachListUseCase;
+		private readonly ICoachService coachService;
+		private readonly ICoachQuery coachQuery;
 
-		public CoachesController(Club club, 
-			IUseCase<SaveCoachRequest, Response<Guid?>> saveCoachUseCase,
-			IUseCase<GetCoachListRequest, Response<IEnumerable<Core.Entities.Coach>>> getCoachListUseCase
+		public CoachesController(Club club,
+			ICoachService coachService,
+			ICoachQuery coachQuery
 		) {
 			this.club = club;	
-			this.saveCoachUseCase = saveCoachUseCase;
-			this.getCoachListUseCase = getCoachListUseCase;
+			this.coachService = coachService;
+			this.coachQuery = coachQuery;
 		}
 
 		[HttpGet]
 		public IActionResult Index() {
-			List<CoachViewModel> coaches = new List<CoachViewModel>();
-			var response = getCoachListUseCase.Execute(new GetCoachListRequest { ClubId = club.Guid });
-			foreach (var coach in response.Result)
-				coaches.Add(Map(coach));
+			List<CoachViewModel> list = new List<CoachViewModel>();
+			var coaches = coachQuery.GetClubCoaches(club.Guid);
+			foreach (var coach in coaches)
+				list.Add(Map(coach));
 				
-			return View(coaches);			
+			return View(list);			
 		}
 
 		[HttpGet("new")]
@@ -49,23 +49,31 @@ namespace HeyTeam.Web.Controllers {
 			if (!ModelState.IsValid)
 				return View(model);
 
-			var response = saveCoachUseCase.Execute(Map(model, SaveCoachRequest.Action.ADD));
-			if (!response.WasRequestFulfilled) { 
-				foreach (var error in response.Errors)
-					ModelState.AddModelError("", error);
-
+			var response = coachService.RegisterCoach(Map(model));
+			if (!response.RequestIsFulfilled) {
+				UpdateModelErrors(response.Errors);
 				return View(model);
 			}
-			if(returnurl.IsEmpty())
+
+			return ActionResultOnSuccess(returnurl);
+		}
+
+		public IActionResult ActionResultOnSuccess(string returnUrl = null) {
+			if (returnUrl.IsEmpty())
 				return RedirectToAction("Index");
 
-			return Redirect(returnurl);
+			return Redirect(returnUrl);
+		}
+
+		public void UpdateModelErrors(IEnumerable<string> errors) {
+			foreach (var error in errors)
+				ModelState.AddModelError("", error);
 		}
 
 		[HttpGet("{coachId:guid}")]
 		public IActionResult Edit(string coachId) {
-			var response = getCoachListUseCase.Execute(new GetCoachListRequest { ClubId = club.Guid });
-			var coach = response.Result.FirstOrDefault(c => c.Guid.ToString().Equals(coachId));
+			var coaches = coachQuery.GetClubCoaches(club.Guid);
+			var coach = coaches.FirstOrDefault(c => c.Guid.ToString().Equals(coachId));
 			return View(Map(coach));
 		}
 
@@ -74,15 +82,13 @@ namespace HeyTeam.Web.Controllers {
 			if (!ModelState.IsValid)
 				return View(model);
 
-			var response = saveCoachUseCase.Execute(Map(model, SaveCoachRequest.Action.UPDATE));
-			if (!response.WasRequestFulfilled) {
-				foreach (var error in response.Errors)
-					ModelState.AddModelError("", error);
-
+			var response = coachService.UpdateCoachProfile(Map(model));
+			if (!response.RequestIsFulfilled) {
+				UpdateModelErrors(response.Errors);
 				return View(model);
 			}
 
-			return RedirectToAction("Index");
+			return ActionResultOnSuccess();
 		}
 
 		private CoachViewModel Map(Core.Entities.Coach coach) => new CoachViewModel {
@@ -96,7 +102,7 @@ namespace HeyTeam.Web.Controllers {
 				Qualifications = coach.Qualifications				
 			};
 
-		private SaveCoachRequest Map(CoachViewModel model, SaveCoachRequest.Action command) => new SaveCoachRequest {
+		private CoachRequest Map(CoachViewModel model) => new CoachRequest {
 				CoachId = model.CoachId,
 				ClubId = club.Guid,
 				DateOfBirth = model.DateOfBirth,
@@ -104,8 +110,7 @@ namespace HeyTeam.Web.Controllers {
 				FirstName = model.FirstName,
 				LastName = model.LastName,
 				Phone = model.Phone,
-				Qualifications = model.Qualifications,
-				Command = command
+				Qualifications = model.Qualifications
 			};
 	
 	}

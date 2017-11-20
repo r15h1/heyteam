@@ -28,7 +28,7 @@ namespace HeyTeam.Tests.UseCases
         private readonly IIdentityManager identityManager;
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly string connectionString;
-        private Club club;
+        private ClubSquadAggregate club;
         private readonly string playerUser = "email2@heyteam.com", adminUser = "admin@heyteam.com", coachUser = "coach@heyteam.com";
 
         public DashboardTests() {
@@ -36,7 +36,7 @@ namespace HeyTeam.Tests.UseCases
             Database.Create(connectionString); 
             IValidator<DashboardRequest> validator = new DashboardRequestValidator();
             this.clubRepository = new ClubRepository(new Data.ConnectionFactory(new DatabaseSettings { ConnectionString = connectionString } ));   
-            this.squadRepository = new SquadRepository(new Data.ConnectionFactory(new DatabaseSettings { ConnectionString = connectionString } ));  
+            this.squadRepository = new SquadRepository(new Data.ConnectionFactory(new DatabaseSettings { ConnectionString = connectionString } ), clubRepository);  
             this.dashboardRepository = new DashboardRepository(new Data.ConnectionFactory(new DatabaseSettings { ConnectionString = connectionString } ));
 
             identityManager = Util.GetIdentityInstance(connectionString);
@@ -45,7 +45,7 @@ namespace HeyTeam.Tests.UseCases
 
             var clubId = SetupClub();
             SetUpSquads(clubId);
-            club = clubRepository.GetClub(clubId);
+            club = squadRepository.GetClubSquads(clubId);
             SetUpPlayers();
             SetupUsers();
         }
@@ -59,10 +59,10 @@ namespace HeyTeam.Tests.UseCases
         }
 
         private void SetUpSquads(Guid clubId) {
-            var validator =  new AddSquadRequestValidator();
-            var squadUseCase = new AddSquadUseCase(clubRepository, squadRepository, validator);
-            squadUseCase.Execute(new AddSquadRequest{ ClubId = clubId, SquadName = "U10" });
-            squadUseCase.Execute(new AddSquadRequest{ ClubId = clubId, SquadName = "U11" });
+            var validator =  new ClubSquadRequestValidator();
+            var squadUseCase = new ClubSquadInteractor(squadRepository, validator);
+            squadUseCase.Execute(new ClubSquadRequest{ ClubId = clubId, SquadName = "U10" });
+            squadUseCase.Execute(new ClubSquadRequest{ ClubId = clubId, SquadName = "U11" });
         }
 
         private void SetUpPlayers() {      
@@ -127,7 +127,7 @@ namespace HeyTeam.Tests.UseCases
 
         [Fact]
         public void AdminDashboardMustContainSquadSummary() {
-            var dashboard = useCase.Execute(new DashboardRequest { Email = adminUser, ClubId = club.Guid }).Result;
+            var dashboard = useCase.Execute(new DashboardRequest { Email = adminUser, ClubId = club.Club.Guid }).Result;
             var squadGroup = dashboard.Where(i => i.Name.ToLowerInvariant().Equals("squads")).ToList();
             Assert.True(squadGroup.Count() == 1);
             var squads = squadGroup.FirstOrDefault().Items;
@@ -136,14 +136,14 @@ namespace HeyTeam.Tests.UseCases
 
         [Fact]
         public void CoachDashboardMustNotContainSquadSummary() {
-            var dashboard = useCase.Execute(new DashboardRequest { Email = coachUser, ClubId = club.Guid }).Result;
+            var dashboard = useCase.Execute(new DashboardRequest { Email = coachUser, ClubId = club.Club.Guid }).Result;
             var squadGroup = dashboard.Where(i => i.Name.ToLowerInvariant().Equals("squads")).ToList();
             Assert.True(squadGroup.Count() == 0);            
         }
 
         [Fact]
         public void PlayerDashboardMustNotContainSquadSummary() {
-            var dashboard = useCase.Execute(new DashboardRequest { Email = playerUser, ClubId = club.Guid }).Result;
+            var dashboard = useCase.Execute(new DashboardRequest { Email = playerUser, ClubId = club.Club.Guid }).Result;
             var squadGroup = dashboard.Where(i => i.Name.ToLowerInvariant().Equals("squads")).ToList();
             Assert.True(squadGroup.Count() == 0);
         }

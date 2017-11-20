@@ -1,22 +1,21 @@
+using HeyTeam.Core.Entities;
+using HeyTeam.Core.Queries;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
+using SaasKit.Multitenancy;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HeyTeam.Core.Entities;
-using HeyTeam.Core.Repositories;
-using HeyTeam.Web.Models;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
-using SaasKit.Multitenancy;
 
 namespace HeyTeam.Web.Services {
-    public class TenantResolver : ITenantResolver<Club> {
+	public class TenantResolver : ITenantResolver<Club> {
         private readonly string Tenant_List_Cache_Key = "Tenant_List_Cache_Key";
         private readonly IEnumerable<Club> clubs;
 
-        public TenantResolver(IClubRepository repository, IMemoryCache cache) {
+        public TenantResolver(IClubQuery query, IMemoryCache cache) {
             if (!cache.TryGetValue(Tenant_List_Cache_Key, out clubs)) {
-                clubs = repository.GetClubs();
+                clubs = query.GetClubs();
                 cache.Set(Tenant_List_Cache_Key, clubs, new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromHours(2)));
             }                
         }

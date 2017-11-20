@@ -1,27 +1,25 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using HeyTeam.Core.Dashboard;
 using HeyTeam.Core.Entities;
-using HeyTeam.Core.UseCases;
+using HeyTeam.Core.Queries;
 using HeyTeam.Identity;
 using HeyTeam.Web.Models.DashboardViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace HeyTeam.Web.Controllers {
 
-    [Authorize]
+	[Authorize]
     public class DashboardController : Controller {
         private readonly Club club;
-        private readonly IUseCase<DashboardRequest, Response<List<Group>>> useCase;
+        private readonly IDashboardQuery dashboardQuery;
         private readonly UserManager<ApplicationUser> userManager;
 
-        public DashboardController(Club club, IUseCase<DashboardRequest, Response<List<Group>>> useCase, UserManager<ApplicationUser> userManager) {
+        public DashboardController(Club club, IDashboardQuery dashboardQuery, UserManager<ApplicationUser> userManager) {
             this.club = club;
-            this.useCase = useCase;
+            this.dashboardQuery = dashboardQuery;
             this.userManager = userManager;
         }
 
@@ -29,11 +27,15 @@ namespace HeyTeam.Web.Controllers {
         public IActionResult Index() {
             var user = userManager.GetUserAsync(User).Result;
             var request = new DashboardRequest {
-                Email = user.Email,
+                UserEmail = user.Email,
                 ClubId = club.Guid
             };
-            var response = useCase.Execute(request);
-            IndexViewModel viewModel = CreateViewModel(response.Result);
+			var response = dashboardQuery.GetDashboard(request);
+			if(response.Errors != null && response.Errors.Any()) {
+				return View( new IndexViewModel { Errors = response.Errors });
+			}
+				
+            IndexViewModel viewModel = CreateViewModel(response.Dashboard);
             return View(viewModel);
         }
 

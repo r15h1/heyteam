@@ -37,5 +37,13 @@ namespace HeyTeam.Util {
                 return false;
             }
         }
-    }
+
+		public static bool IsEmpty(this DateTime value) {
+			return value == null;
+		}
+
+		public static bool IsEmpty(this DateTime? value) {
+			return !value.HasValue || value == null;
+		}
+	}
 }

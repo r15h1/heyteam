@@ -25,7 +25,9 @@ namespace HeyTeam.Tests.UseCases {
             connectionString = $"Data Source=file:{Guid.NewGuid().ToString()}.sqlite";
             Database.Create(connectionString);   
             IValidator<AddPlayerRequest> validator = new AddPlayerRequestValidator();
-            var squadRepository = new SquadRepository(new Data.ConnectionFactory(new DatabaseSettings { ConnectionString = connectionString } ));
+			var connectionFactory = new Data.ConnectionFactory(new DatabaseSettings { ConnectionString = connectionString });
+
+			var squadRepository = new SquadRepository(connectionFactory, new ClubRepository(connectionFactory));
             playerRepository = new PlayerRepository(new Data.ConnectionFactory(new DatabaseSettings { ConnectionString = connectionString } ));
             useCase = new AddPlayerUseCase(squadRepository, playerRepository, validator);
             squadId = SetupSquad(squadRepository, connectionString);
@@ -38,8 +40,8 @@ namespace HeyTeam.Tests.UseCases {
             RegisterClubRequest registerRequest = new RegisterClubRequest { Name = "Manchester United" , Url = "http://manutd.com"};
             var registerResponse = registerUseCase.Execute(registerRequest);  
             
-            var addSquadRequest = new AddSquadRequest{ ClubId = registerResponse.Result.Value, SquadName = "U10" };
-            var addSquadUseCase = new AddSquadUseCase(clubRepository, squadRepository, new AddSquadRequestValidator());
+            var addSquadRequest = new ClubSquadRequest{ ClubId = registerResponse.Result.Value, SquadName = "U10" };
+            var addSquadUseCase = new ClubSquadInteractor(squadRepository, new ClubSquadRequestValidator());
             var addSquadResponse = addSquadUseCase.Execute(addSquadRequest);
 
             return addSquadResponse.Result.Value;
