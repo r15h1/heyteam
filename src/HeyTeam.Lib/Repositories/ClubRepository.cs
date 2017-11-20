@@ -1,22 +1,18 @@
-using System.Collections.Generic;
-using HeyTeam.Core.Entities;
-using HeyTeam.Core.Repositories;
-using System;
-using System.Linq;
-using HeyTeam.Lib.Repositories;
-using HeyTeam.Lib.Data;
 using Dapper;
+using HeyTeam.Core;
+using HeyTeam.Core.Repositories;
+using HeyTeam.Lib.Data;
 using HeyTeam.Util;
 
 namespace HeyTeam.Lib.Repositories {
-    public class ClubRepository : IClubRepository {
+	public class ClubRepository : IClubRepository {
         private readonly IDbConnectionFactory connectionFactory;
 
         public ClubRepository(IDbConnectionFactory factory) {
             ThrowIf.ArgumentIsNull(factory);
             this.connectionFactory = factory;
         }
-        public void AddClub(Core.Entities.Club club) {    
+        public void AddClub(Club club) {    
             using (var connection = connectionFactory.Connect()) {
                 string sql = @"INSERT INTO CLUBS(Guid, Name, Url) 
                                 SELECT @Guid, @Name, @Url 
@@ -31,7 +27,7 @@ namespace HeyTeam.Lib.Repositories {
             }
         }
 
-        public void UpdateClub(Core.Entities.Club club) {
+        public void UpdateClub(Club club) {
             using (var connection = connectionFactory.Connect()) {
                 string sql = "UPDATE CLUBS SET Name = @Name, Url = @Url WHERE Guid = @Guid";  
                 var p = new DynamicParameters();

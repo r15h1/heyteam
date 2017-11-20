@@ -1,5 +1,4 @@
-﻿using HeyTeam.Core.Entities;
-using System;
+﻿using System;
 
 namespace HeyTeam.Core.Services {
 	public interface ICoachService

@@ -1,7 +1,7 @@
 ﻿using HeyTeam.Util;
 using System;
 
-namespace HeyTeam.Core.Entities {
+namespace HeyTeam.Core {
 	public class Coach {
 		public Coach(Guid clubId, Guid? coachId = null) {
 			if (clubId.IsEmpty()) throw new ArgumentNullException();

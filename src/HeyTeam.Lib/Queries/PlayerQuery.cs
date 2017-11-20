@@ -1,15 +1,14 @@
+using Dapper;
+using HeyTeam.Core;
+using HeyTeam.Core.Queries;
+using HeyTeam.Lib.Data;
+using HeyTeam.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Dapper;
-using HeyTeam.Core.Entities;
-using HeyTeam.Core.Repositories;
-using HeyTeam.Lib.Data;
-using HeyTeam.Util;
-using HeyTeam.Core.Queries;
 
 namespace HeyTeam.Lib.Queries {
-    public class PlayerQuery : IPlayerQuery {
+	public class PlayerQuery : IPlayerQuery {
 
         private readonly IDbConnectionFactory connectionFactory;
         public PlayerQuery(IDbConnectionFactory factory) {

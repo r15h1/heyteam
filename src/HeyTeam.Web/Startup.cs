@@ -1,4 +1,4 @@
-﻿using HeyTeam.Core.Entities;
+﻿using HeyTeam.Core;
 using HeyTeam.Core.Identity;
 using HeyTeam.Core.Queries;
 using HeyTeam.Core.Repositories;
@@ -83,6 +83,11 @@ namespace HeyTeam.Web {
 			services.AddScoped<ICoachRepository, CoachRepository>();
 			services.AddScoped<IValidator<CoachRequest>, CoachRequestValidator>();
 			services.AddScoped<ICoachService, CoachService>();
+
+			services.AddScoped<IValidator<EventSetupRequest>, EventSetupRequestValidator>();
+			services.AddScoped<IEventQuery, EventQuery>();
+			services.AddScoped<IEventRepository, EventRepository>();
+			services.AddScoped<IEventService, EventService>();
 		}
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,7 +1,6 @@
-﻿using HeyTeam.Core.Entities;
+﻿using HeyTeam.Core;
 using HeyTeam.Core.Queries;
 using HeyTeam.Core.Services;
-using HeyTeam.Lib.Services;
 using HeyTeam.Util;
 using HeyTeam.Web.Models.CoachViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -91,7 +90,7 @@ namespace HeyTeam.Web.Controllers {
 			return ActionResultOnSuccess();
 		}
 
-		private CoachViewModel Map(Core.Entities.Coach coach) => new CoachViewModel {
+		private CoachViewModel Map(Coach coach) => new CoachViewModel {
 				ClubId = coach.ClubId,
 				CoachId = coach.Guid,
 				DateOfBirth = coach.DateOfBirth,

@@ -1,4 +1,4 @@
-﻿using HeyTeam.Core.Entities;
+﻿using HeyTeam.Core;
 using HeyTeam.Core.Exceptions;
 using HeyTeam.Core.Queries;
 using HeyTeam.Core.Repositories;
@@ -33,7 +33,7 @@ namespace HeyTeam.Lib.Services {
 			Player player = MapPlayer(request);
 			try {
 				playerRepository.AddPlayer(player);
-				return new Response();
+				return Response.CreateResponse();
 			} catch(Exception ex) {
 				return Response.CreateResponse(ex);
 			}
@@ -68,7 +68,7 @@ namespace HeyTeam.Lib.Services {
 
 			try {
 				playerRepository.UpdatePlayer(player);
-				return new Response();
+				return Response.CreateResponse();
 			} catch (Exception ex) {
 				return Response.CreateResponse(ex);
 			}

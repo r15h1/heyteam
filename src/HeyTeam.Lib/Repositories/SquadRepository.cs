@@ -1,16 +1,13 @@
-using System.Collections.Generic;
-using HeyTeam.Core.Repositories;
-using System;
-using System.Linq;
-using HeyTeam.Lib.Repositories;
-using HeyTeam.Lib.Data;
-using HeyTeam.Core.Entities;
 using Dapper;
-using HeyTeam.Util;
+using HeyTeam.Core;
 using HeyTeam.Core.Queries;
+using HeyTeam.Core.Repositories;
+using HeyTeam.Lib.Data;
+using HeyTeam.Util;
+using System;
 
 namespace HeyTeam.Lib.Repositories {
-    public class SquadRepository : ISquadRepository {
+	public class SquadRepository : ISquadRepository {
         private readonly IDbConnectionFactory connectionFactory;
 		private readonly IClubQuery clubRepository;
 
@@ -22,7 +19,7 @@ namespace HeyTeam.Lib.Repositories {
 
         public void AddSquad(Squad squad) {
             using(var connection = connectionFactory.Connect()) {
-            string sql =    @"INSERT INTO SQUADS(ClubId, Guid, Name) 
+				string sql = @"INSERT INTO SQUADS(ClubId, Guid, Name) 
                                 SELECT C.ClubId, @SquadGuid, @Name FROM CLUBS C  
                                     WHERE C.Guid = @ClubGuid";  
                                 

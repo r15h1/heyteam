@@ -1,4 +1,4 @@
-using HeyTeam.Core.Entities;
+using HeyTeam.Core;
 using HeyTeam.Core.Queries;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;

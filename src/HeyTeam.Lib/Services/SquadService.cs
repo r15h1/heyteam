@@ -1,4 +1,4 @@
-﻿using HeyTeam.Core.Entities;
+﻿using HeyTeam.Core;
 using HeyTeam.Core.Exceptions;
 using HeyTeam.Core.Queries;
 using HeyTeam.Core.Repositories;
@@ -35,7 +35,7 @@ namespace HeyTeam.Lib.Services {
 				return Response.CreateResponse(new IllegalOperationException("The squad and coach belong to different clubs"));
 
 			squadRepository.AssignCoach(squadId, coachId);
-			return new Response();
+			return Response.CreateResponse();
 		}
 
 		public Response UnAssignCoach(Guid squadId, Guid coachId) {
@@ -46,7 +46,7 @@ namespace HeyTeam.Lib.Services {
 				return Response.CreateResponse(new IllegalOperationException("The squad's coach is not the one specified"));
 
 			squadRepository.UnAssignCoach(squadId, coachId);
-			return new Response();
+			return Response.CreateResponse();
 		}
 
 		public Response RegisterSquad(SquadRequest request) {
@@ -64,7 +64,7 @@ namespace HeyTeam.Lib.Services {
 				return Response.CreateResponse(ex);
 			}
 
-			return new Response();
+			return Response.CreateResponse();
 		}
 
 		private IEnumerable<string> Validate(SquadRequest request, bool mustHaveSquadId = false) {
@@ -102,7 +102,7 @@ namespace HeyTeam.Lib.Services {
 				return Response.CreateResponse(ex);
 			}
 
-			return new Response();
+			return Response.CreateResponse();
 		}
 	}
 }

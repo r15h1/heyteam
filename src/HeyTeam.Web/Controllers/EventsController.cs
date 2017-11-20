@@ -1,14 +1,11 @@
-﻿using HeyTeam.Core.Entities;
+﻿using HeyTeam.Core;
 using HeyTeam.Core.Queries;
-using HeyTeam.Core.Repositories;
-using HeyTeam.Core.UseCases;
-using HeyTeam.Core.UseCases.Events;
+using HeyTeam.Core.Services;
 using HeyTeam.Web.Models.EventsViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -17,25 +14,42 @@ namespace HeyTeam.Web.Controllers {
 	[Route("[controller]")]
 	public class EventsController : Controller {
 		private readonly Club club;
+		private readonly IEventService eventService;
+		private readonly IEventQuery eventsQuery;
 		private readonly ISquadQuery squadQuery;
 
-		public EventsController(Club club, ISquadQuery squadQuery) {
+		public EventsController(Club club, IEventService eventService, IEventQuery eventsQuery, ISquadQuery squadQuery) {
 			this.club = club;
+			this.eventService = eventService;
+			this.eventsQuery = eventsQuery;
 			this.squadQuery = squadQuery;
 		}
 
         [HttpGet("")]
         public ActionResult Index() {
-            return View(new List<EventListViewModel>());
+			var events = eventsQuery.GetEvents(club.Guid);
+			var list = new List<EventListViewModel>();
+			foreach (var @event in events)
+				list.Add(Map(@event));
+
+			return View(list);
         }
 
-        // GET: Sessions/Details/5
-        public ActionResult Details(int id) {
+		private EventListViewModel Map(Event @event) => new EventListViewModel { 
+			EndDate = @event.EndDate,
+			EventId = @event.Guid,
+			Location = @event.Location,
+			StartDate = @event.StartDate,
+			Title = @event.Title
+		};
+
+		// GET: Sessions/Details/5
+		public ActionResult Details(int id) {
             return View();
         }
 
 		[HttpGet("new")]
-		public ActionResult New() {
+		public ActionResult Create() {
 			var clubSquads = squadQuery.GetSquads(club.Guid);
 			var squadList = clubSquads.Select(s => new SelectListItem { Text = $"{s.Name}", Value = s.Guid.ToString() })
 									.OrderBy(s => s.Text)
@@ -47,7 +61,7 @@ namespace HeyTeam.Web.Controllers {
         // POST: Sessions/Create
         [HttpPost("new")]
         [ValidateAntiForgeryToken]
-        public ActionResult New(NewEventViewModel model) {
+        public ActionResult Create(NewEventViewModel model) {
 			if (!ModelState.IsValid) {
 				var clubSquads = squadQuery.GetSquads(club.Guid);
 				var squadList = clubSquads.Select(s => new SelectListItem { Text = $"{s.Name}", Value = s.Guid.ToString() })
@@ -59,6 +73,15 @@ namespace HeyTeam.Web.Controllers {
 				
 
             try {
+				EventSetupRequest request = Map(model);
+				var response = eventService.CreateEvent(request);
+				if(!response.RequestIsFulfilled) {
+					foreach (var error in response.Errors)
+						ModelState.AddModelError("", error);
+
+					return View(model);
+				}
+
                 return RedirectToAction(nameof(Index));
             }
             catch {
@@ -66,8 +89,16 @@ namespace HeyTeam.Web.Controllers {
             }
         }
 
-        // GET: Sessions/Edit/5
-        public ActionResult Edit(int id) {
+		private EventSetupRequest Map(NewEventViewModel model) => new EventSetupRequest {
+			ClubId = club.Guid,
+			EndDate = model.EndDate,
+			Location = model.Location,
+			StartDate = model.StartDate,
+			Title = model.Title
+		};
+
+		// GET: Sessions/Edit/5
+		public ActionResult Edit(int id) {
             return View();
         }
 

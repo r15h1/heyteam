@@ -1,11 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using HeyTeam.Core.Exceptions;
 using HeyTeam.Util;
+using System;
 
-namespace HeyTeam.Core.Entities {
-    public class Squad {        
+namespace HeyTeam.Core {
+	public class Squad {        
         public Squad(Guid clubId, Guid? squadId = null) {
             if(clubId.IsEmpty()) throw new ArgumentNullException();
             ClubId = clubId;

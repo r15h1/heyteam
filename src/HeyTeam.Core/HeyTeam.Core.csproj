@@ -1,8 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
-    <Compile Remove="Entities\SquadPlayerAggregate.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\HeyTeam.Util\HeyTeam.Util.csproj" />
   </ItemGroup>
   <ItemGroup>

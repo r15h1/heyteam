@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using HeyTeam.Util;
 
-namespace HeyTeam.Core.Entities {
+namespace HeyTeam.Core {
     public class Player {
         public Player (Guid squadId, Guid? playerId = null) {
             if(squadId.IsEmpty()) throw new ArgumentNullException();

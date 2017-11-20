@@ -1,5 +1,5 @@
+using HeyTeam.Core;
 using HeyTeam.Core.Dashboard;
-using HeyTeam.Core.Entities;
 using HeyTeam.Core.Queries;
 using HeyTeam.Identity;
 using HeyTeam.Web.Models.DashboardViewModels;

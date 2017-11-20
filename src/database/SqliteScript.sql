@@ -1,6 +1,6 @@
 CREATE TABLE Clubs(
 	ClubId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-	Guid uniqueidentifier NOT NULL,
+	Guid uniqueidentifier NOT NULL UNIQUE,
 	Name varchar(250) NOT NULL,
 	Url varchar(250) NULL    
 );
@@ -8,7 +8,7 @@ CREATE TABLE Clubs(
 CREATE TABLE Squads(
 	ClubId INTEGER NOT NULL,
 	SquadId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-	Guid uniqueidentifier NOT NULL,
+	Guid uniqueidentifier NOT NULL UNIQUE,
 	Name varchar(100) NOT NULL,
 	FOREIGN KEY(ClubId) REFERENCES Clubs (ClubId)
 );
@@ -16,7 +16,7 @@ CREATE TABLE Squads(
 CREATE TABLE Players(
 	SquadId INTEGER NOT NULL,
 	PlayerId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-	Guid uniqueidentifier NOT NULL,
+	Guid uniqueidentifier NOT NULL UNIQUE,
 	DateOfBirth date NOT NULL,
 	DominantFoot varchar(1) NOT NULL,
 	FirstName varchar(100) NOT NULL,
@@ -30,7 +30,7 @@ CREATE TABLE Players(
 CREATE TABLE Coaches (
 	ClubId INTEGER NOT NULL,
 	CoachId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-	Guid uniqueidentifier NOT NULL,
+	Guid uniqueidentifier NOT NULL UNIQUE,
 	FirstName varchar(100) NOT NULL,
 	LastName varchar(100) NOT NULL,
 	DateOfBirth date NOT NULL,
@@ -48,6 +48,26 @@ CREATE TABLE SquadCoaches
 	FOREIGN KEY(SquadId) REFERENCES Squads (SquadId),
 	FOREIGN KEY(CoachId) REFERENCES Coaches (CoachId)
 );  
+
+CREATE TABLE Events(
+	ClubId INTEGER NOT NULL,
+	EventId INTEGER AUTOINCREMENT PRIMARY KEY NOT NULL,
+	Guid uniqueidentifier NOT NULL UNIQUE,
+	Title varchar(250) NOT NULL,
+	StartDate datetime2(7) NOT NULL,
+	EndDate datetime2(7) NOT NULL,
+	Location varchar(400) NOT NULL,
+	FOREIGN KEY(ClubId) REFERENCES Clubs (ClubId)
+);
+
+CREATE TABLE SquadEvents
+(
+	SquadId INTEGER NOT NULL,
+	EventId INTEGER NOT NULL,
+	PRIMARY KEY (SquadId, EventId),
+	FOREIGN KEY(SquadId) REFERENCES Squads (SquadId),
+	FOREIGN KEY(EventId) REFERENCES Events (EventId)
+); 
 
 
 

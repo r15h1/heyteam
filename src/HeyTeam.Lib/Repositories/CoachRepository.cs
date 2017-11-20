@@ -1,5 +1,5 @@
 ﻿using Dapper;
-using HeyTeam.Core.Entities;
+using HeyTeam.Core;
 using HeyTeam.Core.Repositories;
 using HeyTeam.Lib.Data;
 using HeyTeam.Util;

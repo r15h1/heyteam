@@ -1,4 +1,4 @@
-using HeyTeam.Core.Entities;
+using HeyTeam.Core;
 using HeyTeam.Core.Queries;
 using HeyTeam.Core.Services;
 using HeyTeam.Web.Models.PlayerViewModels;

@@ -1,16 +1,14 @@
 ﻿using Dapper;
-using HeyTeam.Core.Entities;
+using HeyTeam.Core;
 using HeyTeam.Core.Queries;
 using HeyTeam.Lib.Data;
 using HeyTeam.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
-namespace HeyTeam.Lib.Queries
-{
-    public class CoachQuery : ICoachQuery
+namespace HeyTeam.Lib.Queries {
+	public class CoachQuery : ICoachQuery
     {
 		private readonly IDbConnectionFactory connectionFactory;
 

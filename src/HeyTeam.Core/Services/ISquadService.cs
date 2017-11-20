@@ -1,11 +1,7 @@
-﻿using HeyTeam.Core.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System;
 
-namespace HeyTeam.Core.Services
-{
-    public interface ISquadService
+namespace HeyTeam.Core.Services {
+	public interface ISquadService
     {
 		Response RegisterSquad(SquadRequest squad);
 		Response UpdateSquadProfile(SquadRequest squad);

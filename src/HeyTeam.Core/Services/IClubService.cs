@@ -1,8 +1,4 @@
-﻿using HeyTeam.Core.Entities;
-using HeyTeam.Core.UseCases;
-using System;
-
-namespace HeyTeam.Core.Services {
+﻿namespace HeyTeam.Core.Services {
 	public interface IClubService
     {
 		Response RegisterClub(Club club);

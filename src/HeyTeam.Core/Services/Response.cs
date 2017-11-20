@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace HeyTeam.Core.Services {
     public class Response {        
-        public Response(){}
+        private Response(){}
         public Response(Exception exception) => this.Exception = exception;
         public List<string> Errors{ get; } = new List<string>();
         public Exception Exception { get; }
@@ -11,8 +11,10 @@ namespace HeyTeam.Core.Services {
         public void AddError(string error) {
             if(!string.IsNullOrEmpty(error)) 
                 Errors.Add(error);
-        }        
-        public static Response CreateResponse(IEnumerable<string> errors) => BuildResponse(errors);
+        }
+
+		public static Response CreateResponse() => new Response();
+		public static Response CreateResponse(IEnumerable<string> errors) => BuildResponse(errors);
         public static Response CreateResponse(Exception ex) => BuildResponse(new List<string> {ex.Message}, ex);
         private static Response BuildResponse(IEnumerable<string> errors, Exception ex = null)
         {

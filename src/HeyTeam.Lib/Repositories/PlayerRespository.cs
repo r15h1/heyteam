@@ -1,14 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Dapper;
-using HeyTeam.Core.Entities;
+using HeyTeam.Core;
 using HeyTeam.Core.Repositories;
 using HeyTeam.Lib.Data;
 using HeyTeam.Util;
 
 namespace HeyTeam.Lib.Repositories {
-    public class PlayerRepository : IPlayerRepository {
+	public class PlayerRepository : IPlayerRepository {
 
         private readonly IDbConnectionFactory connectionFactory;
         public PlayerRepository(IDbConnectionFactory factory) {

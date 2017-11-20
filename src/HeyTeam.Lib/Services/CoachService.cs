@@ -1,4 +1,4 @@
-﻿using HeyTeam.Core.Entities;
+﻿using HeyTeam.Core;
 using HeyTeam.Core.Exceptions;
 using HeyTeam.Core.Queries;
 using HeyTeam.Core.Repositories;
@@ -6,8 +6,6 @@ using HeyTeam.Core.Services;
 using HeyTeam.Core.Validation;
 using HeyTeam.Util;
 using System;
-using System.Collections;
-using System.Linq;
 
 namespace HeyTeam.Lib.Services {
 	public class CoachService : ICoachService {
@@ -41,7 +39,7 @@ namespace HeyTeam.Lib.Services {
 			} catch (Exception ex) {
 				return Response.CreateResponse(ex);
 			}
-			return new Response();
+			return Response.CreateResponse();
 		}
 
 		public Response UpdateCoachProfile(CoachRequest request) {
@@ -62,11 +60,11 @@ namespace HeyTeam.Lib.Services {
 			} catch (Exception ex) {
 				return Response.CreateResponse(ex);
 			}
-			return new Response();
+			return Response.CreateResponse();
 		}		
 
-		private Core.Entities.Coach MapCoach(CoachRequest request, Guid? coachId) =>
-			new Core.Entities.Coach(request.ClubId, coachId) {
+		private Coach MapCoach(CoachRequest request, Guid? coachId) =>
+			new Coach(request.ClubId, coachId) {
 				DateOfBirth = request.DateOfBirth,
 				Email = request.Email,
 				FirstName = request.FirstName,
