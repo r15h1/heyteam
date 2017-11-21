@@ -57,7 +57,8 @@ namespace HeyTeam.Lib.Queries {
 								(SELECT CO.FirstName + ' ' + CO.LastName FROM SquadCoaches SC INNER JOIN Coaches CO ON SC.SquadId = S.SquadId AND CO.CoachId = SC.CoachId) AS Coach
                             FROM Clubs C
                             INNER JOIN Squads S ON S.ClubId = C.ClubId
-                            WHERE C.Guid = @ClubGuid";
+                            WHERE C.Guid = @ClubGuid
+							ORDER BY S.Name;";
 				var p = new DynamicParameters();
 				p.Add("@ClubGuid", clubdId.ToString());
 				connection.Open();

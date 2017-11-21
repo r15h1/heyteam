@@ -55,7 +55,8 @@ namespace HeyTeam.Lib.Queries {
                                     P.Email, P.Nationality, P.SquadNumber
                                 FROM Players P
                                 INNER JOIN Squads S ON P.SquadId = S.SquadId
-                                WHERE S.Guid = @Guid";
+                                WHERE S.Guid = @Guid
+								ORDER BY P.FirstName, P.LastName";
                 DynamicParameters p = new DynamicParameters();
                 p.Add("@Guid", squadId.ToString());
                 connection.Open();

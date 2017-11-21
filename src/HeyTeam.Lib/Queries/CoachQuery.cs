@@ -49,7 +49,8 @@ namespace HeyTeam.Lib.Queries {
                                     CO.Email, CO.Qualifications, CO.Phone
                                 FROM Coaches CO
                                 INNER JOIN Clubs CB ON CO.ClubId = CB.ClubId
-                                WHERE CB.Guid = @ClubGuid";
+                                WHERE CB.Guid = @ClubGuid
+								ORDER BY CO.FirstName, CO.LastName";
 				DynamicParameters p = new DynamicParameters();
 				p.Add("@ClubGuid", clubId.ToString());
 				connection.Open();
