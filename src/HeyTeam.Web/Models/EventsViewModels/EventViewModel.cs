@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace HeyTeam.Web.Models.EventsViewModels {
-	public class NewEventViewModel {
+	public class EventViewModel {
 		public List<SelectListItem> SquadList { get; set; } = new List<SelectListItem>();
 
 		[Required]
@@ -13,7 +13,7 @@ namespace HeyTeam.Web.Models.EventsViewModels {
 		
 		[Required]
 		[MinLength(1)]
-		public Guid[] Squads { get; set; }
+		public IEnumerable<Guid> Squads { get; set; }
 
 		[Required]
 		[FutureDate(ErrorMessage = "Start Date must be in the future")]
@@ -28,6 +28,8 @@ namespace HeyTeam.Web.Models.EventsViewModels {
 		[Required]
 		[StringLength(400)]
 		public string Location { get; set; }
+
+		public Guid? EventId { get; set; }
 		
 	}
 

@@ -5,9 +5,11 @@ namespace HeyTeam.Core.Services {
 
 	public interface IEventService {
 		Response CreateEvent(EventSetupRequest request);
+		Response UpdateEvent(EventSetupRequest request);
 	}
 
 	public class EventSetupRequest {
+		public Guid? EventId { get; set; }
 		public Guid ClubId { get; set; }
 		public string Title { get; set; }
 		public IEnumerable<Guid> Squads { get; set; }

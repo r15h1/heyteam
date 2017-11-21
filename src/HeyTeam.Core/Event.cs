@@ -14,6 +14,7 @@ namespace HeyTeam.Core {
 		public string Title { get; set; }
 		public string Description { get; set; }
 		public IEnumerable<Material> Materials { get; set; }
+		public IEnumerable<Squad> Squads { get; set; }
 		public string Location { get; set; }
 		public DateTime StartDate { get; set; }
 		public DateTime EndDate { get; set; }

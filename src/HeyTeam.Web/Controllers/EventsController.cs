@@ -26,49 +26,44 @@ namespace HeyTeam.Web.Controllers {
 			this.squadQuery = squadQuery;
 		}
 
-        [HttpGet("")]
-        public ActionResult Index() {
+		[HttpGet("")]
+		public ActionResult Index() {
 			var events = eventsQuery.GetEvents(club.Guid);
 			var list = new List<EventListViewModel>();
 			foreach (var @event in events)
-				list.Add(Map(@event));
+				list.Add(MapList(@event));
 
-			return View(list);
-        }
+			return View(list.OrderBy(e => e.StartDate).ThenBy(e => e.EndDate));
+		}
 
-		private EventListViewModel Map(Event @event) => new EventListViewModel { 
+		private EventListViewModel MapList(Event @event) => new EventListViewModel {
 			EndDate = @event.EndDate,
 			EventId = @event.Guid,
 			Location = @event.Location,
 			StartDate = @event.StartDate,
-			Title = @event.Title
+			Title = @event.Title,
+			Squads = @event.Squads == null ? "No Squad Assigned" : string.Join(", ", @event.Squads.OrderBy(s => s.Name).Select(s => s.Name))
 		};
-
-		// GET: Sessions/Details/5
-		public ActionResult Details(int id) {
-            return View();
-        }
 
 		[HttpGet("new")]
 		public ActionResult Create() {
-			var model = new NewEventViewModel { SquadList = GetSquadList() };
-            return View(model);
-        }
+			var model = new EventViewModel { SquadList = GetSquadList() };
+			return View(model);
+		}
 
-        // POST: Sessions/Create
-        [HttpPost("new")]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(NewEventViewModel model) {
+		// POST: Sessions/Create
+		[HttpPost("new")]
+		[ValidateAntiForgeryToken]
+		public ActionResult Create(EventViewModel model) {
 			if (!ModelState.IsValid) {
 				model.SquadList = GetSquadList();
 				return View(model);
 			}
-
-
+			
 			try {
 				EventSetupRequest request = Map(model);
 				var response = eventService.CreateEvent(request);
-				if(!response.RequestIsFulfilled) {
+				if (!response.RequestIsFulfilled) {
 					foreach (var error in response.Errors)
 						ModelState.AddModelError("", error);
 
@@ -76,12 +71,11 @@ namespace HeyTeam.Web.Controllers {
 					return View(model);
 				}
 
-                return RedirectToAction(nameof(Index));
-            }
-            catch {
-                return View();
-            }
-        }
+				return RedirectToAction(nameof(Index));
+			} catch {
+				return View();
+			}
+		}
 
 		private List<SelectListItem> GetSquadList() {
 			var clubSquads = squadQuery.GetSquads(club.Guid);
@@ -91,31 +85,57 @@ namespace HeyTeam.Web.Controllers {
 			return squadList;
 		}
 
-		private EventSetupRequest Map(NewEventViewModel model) => new EventSetupRequest {
+		private EventSetupRequest Map(EventViewModel model) => new EventSetupRequest {
 			ClubId = club.Guid,
 			EndDate = model.EndDate,
 			Location = model.Location,
 			StartDate = model.StartDate,
 			Title = model.Title,
-			Squads = model.Squads
+			Squads = model.Squads,
+			EventId = model.EventId
 		};
 
-		// GET: Sessions/Edit/5
-		public ActionResult Edit(int id) {
-            return View();
-        }
+		[HttpGet("{eventId}")]
+		public ActionResult Edit([FromRoute]string eventId) {
+			var @event = eventsQuery.GetEvent(Guid.Parse(eventId));
+			return View(MapEvent(@event));
+		}
 
-        // POST: Sessions/Edit/5
-        [HttpPost]
+		private EventViewModel MapEvent(Event @event) => new EventViewModel {
+			EndDate = @event.EndDate,
+			EventId = @event.Guid,
+			Location = @event.Location,
+			StartDate = @event.StartDate,
+			Title = @event.Title,
+			Squads = @event.Squads.Select(s => s.Guid),
+			SquadList = GetSquadList()
+		};
+
+		// POST: Sessions/Edit/5
+		[HttpPost("{eventId}")]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection) {
-            try {
-                return RedirectToAction(nameof(Index));
-            }
-            catch {
-                return View();
-            }
-        }
+        public ActionResult Edit(EventViewModel model) {
+			if (!ModelState.IsValid) {
+				model.SquadList = GetSquadList();
+				return View(model);
+			}
+
+			try {
+				EventSetupRequest request = Map(model);
+				var response = eventService.UpdateEvent(request);
+				if (!response.RequestIsFulfilled) {
+					foreach (var error in response.Errors)
+						ModelState.AddModelError("", error);
+
+					model.SquadList = GetSquadList();
+					return View(model);
+				}
+
+				return RedirectToAction(nameof(Index));
+			} catch {
+				return View();
+			}
+		}
 
         // GET: Sessions/Delete/5
         public ActionResult Delete(int id) {
