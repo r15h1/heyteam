@@ -6,19 +6,24 @@ using HeyTeam.Core.Services;
 using HeyTeam.Core.Validation;
 using HeyTeam.Util;
 using System;
+using System.Linq;
 
 namespace HeyTeam.Lib.Services {
 	public class EventService : IEventService {
 		private readonly IEventRepository eventRepository;
 		private readonly IValidator<EventSetupRequest> validator;
 		private readonly IClubQuery clubQuery;
+		private readonly ISquadQuery squadQuery;
 
-		public EventService(IEventRepository eventRepository, IValidator<EventSetupRequest> validator, IClubQuery clubQuery) {
+		public EventService(IEventRepository eventRepository, IValidator<EventSetupRequest> validator, IClubQuery clubQuery, ISquadQuery squadQuery) {
 			ThrowIf.ArgumentIsNull(eventRepository);
+			ThrowIf.ArgumentIsNull(clubQuery);
+			ThrowIf.ArgumentIsNull(squadQuery);
 			ThrowIf.ArgumentIsNull(validator);
 			this.eventRepository = eventRepository;
 			this.validator = validator;
 			this.clubQuery = clubQuery;
+			this.squadQuery = squadQuery;
 		}
 
 		public Response CreateEvent(EventSetupRequest request) {
@@ -29,6 +34,9 @@ namespace HeyTeam.Lib.Services {
 			var club = clubQuery.GetClub(request.ClubId);
 			if (club == null)
 				throw new EntityNotFoundException("The specified club doesn not exist");
+
+			var squads = squadQuery.GetSquads(club.Guid);
+			var similar = request.Squads.Intersect(squads.Select(s => s.Guid));
 						
 			try{
 				eventRepository.AddEvent(Map(request));

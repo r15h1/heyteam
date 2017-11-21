@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -50,11 +51,7 @@ namespace HeyTeam.Web.Controllers {
 
 		[HttpGet("new")]
 		public ActionResult Create() {
-			var clubSquads = squadQuery.GetSquads(club.Guid);
-			var squadList = clubSquads.Select(s => new SelectListItem { Text = $"{s.Name}", Value = s.Guid.ToString() })
-									.OrderBy(s => s.Text)
-									.ToList();
-			var model = new NewEventViewModel { SquadList = squadList };
+			var model = new NewEventViewModel { SquadList = GetSquadList() };
             return View(model);
         }
 
@@ -63,22 +60,19 @@ namespace HeyTeam.Web.Controllers {
         [ValidateAntiForgeryToken]
         public ActionResult Create(NewEventViewModel model) {
 			if (!ModelState.IsValid) {
-				var clubSquads = squadQuery.GetSquads(club.Guid);
-				var squadList = clubSquads.Select(s => new SelectListItem { Text = $"{s.Name}", Value = s.Guid.ToString() })
-										.OrderBy(s => s.Text)
-										.ToList();
-				model.SquadList = squadList;
+				model.SquadList = GetSquadList();
 				return View(model);
 			}
-				
 
-            try {
+
+			try {
 				EventSetupRequest request = Map(model);
 				var response = eventService.CreateEvent(request);
 				if(!response.RequestIsFulfilled) {
 					foreach (var error in response.Errors)
 						ModelState.AddModelError("", error);
 
+					model.SquadList = GetSquadList();
 					return View(model);
 				}
 
@@ -89,12 +83,21 @@ namespace HeyTeam.Web.Controllers {
             }
         }
 
+		private List<SelectListItem> GetSquadList() {
+			var clubSquads = squadQuery.GetSquads(club.Guid);
+			var squadList = clubSquads.Select(s => new SelectListItem { Text = $"{s.Name}", Value = s.Guid.ToString() })
+									.OrderBy(s => s.Text)
+									.ToList();
+			return squadList;
+		}
+
 		private EventSetupRequest Map(NewEventViewModel model) => new EventSetupRequest {
 			ClubId = club.Guid,
 			EndDate = model.EndDate,
 			Location = model.Location,
 			StartDate = model.StartDate,
-			Title = model.Title
+			Title = model.Title,
+			Squads = model.Squads
 		};
 
 		// GET: Sessions/Edit/5
