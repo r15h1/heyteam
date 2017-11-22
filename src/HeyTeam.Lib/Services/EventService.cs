@@ -13,19 +13,23 @@ namespace HeyTeam.Lib.Services {
 	public class EventService : IEventService {
 		private readonly IEventRepository eventRepository;
 		private readonly IEventQuery eventQuery;
-		private readonly IValidator<EventSetupRequest> validator;
+		private readonly IValidator<EventSetupRequest> setUpRequestValidator;
+		private readonly IValidator<EventDeleteRequest> deleteRequestValidator;
 		private readonly IClubQuery clubQuery;
 		private readonly ISquadQuery squadQuery;
 
-		public EventService(IEventRepository eventRepository, IEventQuery eventQuery, IValidator<EventSetupRequest> validator, IClubQuery clubQuery, ISquadQuery squadQuery) {
+		public EventService(IEventRepository eventRepository, IEventQuery eventQuery, IValidator<EventSetupRequest> setUpRequestValidator, 
+								IValidator<EventDeleteRequest> deleteRequestValidator, IClubQuery clubQuery, ISquadQuery squadQuery
+		) {
 			ThrowIf.ArgumentIsNull(eventRepository);
 			ThrowIf.ArgumentIsNull(eventQuery);
 			ThrowIf.ArgumentIsNull(clubQuery);
 			ThrowIf.ArgumentIsNull(squadQuery);
-			ThrowIf.ArgumentIsNull(validator);
+			ThrowIf.ArgumentIsNull(setUpRequestValidator);
 			this.eventRepository = eventRepository;
 			this.eventQuery = eventQuery;
-			this.validator = validator;
+			this.setUpRequestValidator = setUpRequestValidator;
+			this.deleteRequestValidator = deleteRequestValidator;
 			this.clubQuery = clubQuery;
 			this.squadQuery = squadQuery;
 		}
@@ -68,7 +72,7 @@ namespace HeyTeam.Lib.Services {
 		}
 
 		private (bool isValid, IEnumerable<Squad> clubSquads, Response response) Validate(EventSetupRequest request) {
-			var validationResult = validator.Validate(request);
+			var validationResult = setUpRequestValidator.Validate(request);
 			if (!validationResult.IsValid)
 				return (false, null, Response.CreateResponse(validationResult.Messages));
 
@@ -93,5 +97,25 @@ namespace HeyTeam.Lib.Services {
 			Title = request.Title,
 			Squads = squads
 		};
+
+		public Response DeleteEvent(EventDeleteRequest request) {
+			var validationResult = deleteRequestValidator.Validate(request);
+			if (!validationResult.IsValid)
+				return Response.CreateResponse(validationResult.Messages);
+				
+			var @event = eventQuery.GetEvent(request.EventId);
+			if(@event == null)
+				return Response.CreateResponse(new EntityNotFoundException("The specified event was not found"));
+			else if (@event.ClubId != request.ClubId)
+				return Response.CreateResponse(new IllegalOperationException("The specified event belongs does not belong to this club"));
+
+
+			try {
+				eventRepository.DeleteEvent(request.ClubId, request.EventId);
+			} catch (Exception ex) {
+				return Response.CreateResponse(ex);
+			}
+			return Response.CreateResponse();
+		}
 	}
 }

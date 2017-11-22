@@ -6,6 +6,7 @@ namespace HeyTeam.Core.Services {
 	public interface IEventService {
 		Response CreateEvent(EventSetupRequest request);
 		Response UpdateEvent(EventSetupRequest request);
+		Response DeleteEvent(EventDeleteRequest request);
 	}
 
 	public class EventSetupRequest {
@@ -16,5 +17,10 @@ namespace HeyTeam.Core.Services {
 		public DateTime? StartDate { get; set; }
 		public DateTime? EndDate { get; set; }
 		public string Location { get; set; }
+	}
+
+	public class EventDeleteRequest {
+		public Guid ClubId { get; set; }
+		public Guid EventId { get; set; }
 	}
 }

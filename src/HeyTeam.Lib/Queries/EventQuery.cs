@@ -29,7 +29,7 @@ namespace HeyTeam.Lib.Queries {
 								SELECT S.Guid AS SquadGuid, S.Name
 								FROM SquadEvents SE
 								INNER JOIN Events E ON SE.EventId = E.EventId AND E.Guid = @EventGuid
-								INNER JOIN Squads S ON SE.SquadId = S.SquadId;";
+								INNER JOIN Squads S ON SE.SquadId = S.SquadId";
 				DynamicParameters p = new DynamicParameters();
 				p.Add("@EventGuid", eventId.ToString());
 				connection.Open();
@@ -56,14 +56,15 @@ namespace HeyTeam.Lib.Queries {
 			using (var connection = connectionFactory.Connect()) {
 				string sql = @"SELECT C.Guid AS ClubGuid, E.Guid AS EventGuid, E.Title, E.StartDate, E.EndDate, E.Location
 								FROM Events E
-								INNER JOIN Clubs C ON E.ClubId = C.ClubId AND C.Guid = @ClubGuid;
+								INNER JOIN Clubs C ON E.ClubId = C.ClubId AND C.Guid = @ClubGuid
+								WHERE E.StartDate >= GetDate();
 								
 								SELECT E.Guid AS EventGuid, S.Guid AS SquadGuid, S.Name
 								FROM SquadEvents SE
 								INNER JOIN Events E ON SE.EventId = E.EventId
 								INNER JOIN Squads S ON SE.SquadId = S.SquadId
 								INNER JOIN Clubs C ON E.ClubId = C.ClubId AND C.ClubId = S.ClubId
-								WHERE C.Guid = @ClubGuid";
+								WHERE C.Guid = @ClubGuid AND E.StartDate >= GetDate()";
 				DynamicParameters p = new DynamicParameters();
 				p.Add("@ClubGuid", clubId.ToString());
 				connection.Open();

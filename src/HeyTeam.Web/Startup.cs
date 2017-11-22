@@ -85,6 +85,7 @@ namespace HeyTeam.Web {
 			services.AddScoped<ICoachService, CoachService>();
 
 			services.AddScoped<IValidator<EventSetupRequest>, EventSetupRequestValidator>();
+			services.AddScoped<IValidator<EventDeleteRequest>, EventDeleteRequestValidator>();
 			services.AddScoped<IEventQuery, EventQuery>();
 			services.AddScoped<IEventRepository, EventRepository>();
 			services.AddScoped<IEventService, EventService>();

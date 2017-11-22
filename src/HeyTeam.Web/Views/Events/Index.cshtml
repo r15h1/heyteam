@@ -6,6 +6,29 @@
         <a class="btn btn-primary" asp-action="New">Add New Event</a>
     </div>
 </div>
+
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <form method="post" asp-action="Delete">
+                <input type="hidden" id="eventId" name="eventId"/>
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Confirm Event Deletion</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Do you really want to this event?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <input type="submit" id="ConfirmDeleteButton" class="btn btn-danger" value="Delete" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <div class="table-responsive">
     <table class="table table-bordered table-hover">
         <thead>
@@ -25,11 +48,12 @@
                 <th>
                     @Html.DisplayNameFor(model => model.Location)
                 </th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
             @foreach (var item in Model) {
-<tr>
+<tr data-id="@item.EventId">
     <td>
         <a asp-action="Edit" asp-route-eventId="@Html.ValueFor(modelItem => item.EventId)">@Html.DisplayFor(modelItem => item.Title)</a>
 </td>
@@ -45,8 +69,29 @@
     <td>
         @Html.DisplayFor(modelItem => item.Location)
     </td>
+    <td>
+        <a href="#" class="deleteButton text-danger"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+</a>
+    </td>
 </tr>
             }
     </tbody>
 </table>
     </div>
+
+@section Scripts {
+<script type="text/javascript">
+    $('a.deleteButton').on('click', function (e) {
+        e.preventDefault();
+        var id = $(this).closest('tr').data('id');
+        $('#myModal').data('id', id).modal('show');
+    });
+
+    $('#ConfirmDeleteButton').click(function () {
+        var id = $('#myModal').data('id');
+        $("#eventId").val(id);
+        alert($("#eventId").val());
+        $('#myModal').modal('hide');
+    });
+</script>
+}

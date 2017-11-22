@@ -137,19 +137,14 @@ namespace HeyTeam.Web.Controllers {
 			}
 		}
 
-        // GET: Sessions/Delete/5
-        public ActionResult Delete(int id) {
-            return View();
-        }
 
         // POST: Sessions/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection) {
+        public ActionResult Delete(Guid eventId) {
             try {
-                // TODO: Add delete logic here
-
-                return RedirectToAction(nameof(Index));
+				var response = eventService.DeleteEvent(new EventDeleteRequest { ClubId = club.Guid, EventId = eventId });
+				return RedirectToAction(nameof(Index));
             }
             catch {
                 return View();

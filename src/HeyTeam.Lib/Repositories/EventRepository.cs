@@ -54,6 +54,27 @@ namespace HeyTeam.Lib.Repositories {
 			}
 		}
 
+		public void DeleteEvent(Guid clubId, Guid eventId) {
+			using (var connection = connectionFactory.Connect()) {
+				string deleteSql = @"	DELETE SquadEvents WHERE EventId = (SELECT EventId FROM Events WHERE Guid = @EventGuid);
+										DELETE Events WHERE Guid = @EventGuid;";
+
+				var deleteParameters = new DynamicParameters();
+				deleteParameters.Add("@EventGuid", eventId.ToString());
+
+				connection.Open();
+				using (var transaction = connection.BeginTransaction()) {
+					try {
+						connection.Execute(deleteSql, deleteParameters, transaction);
+						transaction.Commit();
+					} catch (Exception ex) {
+						transaction.Rollback();
+						throw ex;
+					}
+				}
+			}
+		}
+
 		public void UpdateEvent(Event @event) {
 			using (var connection = connectionFactory.Connect()) {
 				string assignEventToSquadsSql = @"INSERT INTO SquadEvents (SquadId, EventId) VALUES (
