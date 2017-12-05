@@ -13,7 +13,7 @@ namespace HeyTeam.Core.Services {
                 Errors.Add(error);
         }
 
-		public static Response CreateResponse() => new Response();
+		public static Response CreateSuccessResponse() => new Response();
 		public static Response CreateResponse(IEnumerable<string> errors) => BuildResponse(errors);
         public static Response CreateResponse(Exception ex) => BuildResponse(new List<string> {ex.Message}, ex);
         private static Response BuildResponse(IEnumerable<string> errors, Exception ex = null)

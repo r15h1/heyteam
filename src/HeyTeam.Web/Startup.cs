@@ -11,6 +11,7 @@ using HeyTeam.Lib.Data;
 using HeyTeam.Lib.Queries;
 using HeyTeam.Lib.Repositories;
 using HeyTeam.Lib.Services;
+using HeyTeam.Lib.Settings;
 using HeyTeam.Lib.Validation;
 using HeyTeam.Web.Services;
 using Microsoft.AspNetCore.Builder;
@@ -31,7 +32,7 @@ namespace HeyTeam.Web {
         public Startup(IHostingEnvironment env)
         {
             var builder = new ConfigurationBuilder();
-
+			builder.AddJsonFile("appsettings.json");
             if (env.IsDevelopment())
             {
                 builder.AddUserSecrets<Startup>();
@@ -46,7 +47,9 @@ namespace HeyTeam.Web {
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<DatabaseSettings>(Configuration);
-            services.AddDbContext<ApplicationDbContext>(options =>
+			services.Configure<VideoConfiguration>(Configuration);
+
+			services.AddDbContext<ApplicationDbContext>(options =>
                 //options.UseSqlite(Configuration.GetConnectionString("ConnectionString")));
                 options.UseSqlServer(Configuration["ConnectionString"]));
 
@@ -89,6 +92,14 @@ namespace HeyTeam.Web {
 			services.AddScoped<IEventQuery, EventQuery>();
 			services.AddScoped<IEventRepository, EventRepository>();
 			services.AddScoped<IEventService, EventService>();
+
+			services.AddScoped<IFileHandlerFactory, FileHandlerFactory>();
+			services.AddScoped<IValidator<TrainingMaterialRequest>, TrainingMaterialRequestValidator>();
+			services.AddScoped<IValidator<ReSyncRequest>, TrainingMaterialReSyncRequestValidator>();
+			services.AddScoped<ILibraryRepository, LibraryRepository>();
+			services.AddScoped<ILibraryService, LibraryService>();
+			services.AddScoped<ILibraryQuery, LibraryQuery>();
+
 		}
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -106,7 +117,7 @@ namespace HeyTeam.Web {
 
             app.UseStaticFiles();
             app.UseAuthentication();            
-            app.UseMultitenancy<Club>();
+            app.UseMultitenancy<Club>();			
 
             app.UseMvc(routes =>
             {

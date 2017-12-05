@@ -46,7 +46,7 @@ namespace HeyTeam.Lib.Services {
 			} catch(Exception ex) {
 				return Response.CreateResponse(ex);
 			}
-			return Response.CreateResponse();
+			return Response.CreateSuccessResponse();
 		}
 
 		public Response UpdateEvent(EventSetupRequest request) {
@@ -68,7 +68,7 @@ namespace HeyTeam.Lib.Services {
 			} catch (Exception ex) {
 				return Response.CreateResponse(ex);
 			}
-			return Response.CreateResponse();
+			return Response.CreateSuccessResponse();
 		}
 
 		private (bool isValid, IEnumerable<Squad> clubSquads, Response response) Validate(EventSetupRequest request) {
@@ -86,7 +86,7 @@ namespace HeyTeam.Lib.Services {
 				return (false, null, Response.CreateResponse(new IllegalOperationException("Not all of specified squads belong to this club")));
 
 			var squads = request.Squads.Join(clubSquads, s1 => s1, s2 => s2.Guid, (guid, squad) => squad).ToList();
-			return (true, squads, Response.CreateResponse());
+			return (true, squads, Response.CreateSuccessResponse());
 		}
 
 
@@ -115,7 +115,7 @@ namespace HeyTeam.Lib.Services {
 			} catch (Exception ex) {
 				return Response.CreateResponse(ex);
 			}
-			return Response.CreateResponse();
+			return Response.CreateSuccessResponse();
 		}
 	}
 }

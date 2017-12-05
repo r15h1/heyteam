@@ -39,7 +39,7 @@ namespace HeyTeam.Lib.Services {
 			} catch (Exception ex) {
 				return Response.CreateResponse(ex);
 			}
-			return Response.CreateResponse();
+			return Response.CreateSuccessResponse();
 		}
 
 		public Response UpdateCoachProfile(CoachRequest request) {
@@ -60,7 +60,7 @@ namespace HeyTeam.Lib.Services {
 			} catch (Exception ex) {
 				return Response.CreateResponse(ex);
 			}
-			return Response.CreateResponse();
+			return Response.CreateSuccessResponse();
 		}		
 
 		private Coach MapCoach(CoachRequest request, Guid? coachId) =>

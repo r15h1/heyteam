@@ -1,0 +1,68 @@
+﻿@model HeyTeam.Web.Models.LibraryViewModels.NewTrainingMaterialViewModel
+<h1>New Training Material</h1>
+<h3>Details</h3>
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create" method="post" asp-route-returnurl="@ViewData["ReturnUrl"]" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>            
+            <div class="form-group">
+                <label asp-for="Title" class="control-label"></label>
+                <input asp-for="Title" class="form-control" maxlength="250"/>
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <textarea asp-for="Description" class="form-control" maxlength="1000"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>       
+            
+            <div class="form-group">
+                
+                <label asp-for="File" class="control-label"></label>
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="input-group">
+                            <input type="file" asp-for="File" class="form-control" placeholder="please select a file" />
+                            <div class="input-group-btn open">
+                                <a id="ClearFiles" class="btn btn-default" title="clear" href="#"><span class="glyphicon glyphicon-remove"></span> </a>
+                            </div>
+                        </div>                        
+                        <div id="FileDesc">no file selected</div>
+                        <span asp-validation-for="File" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <a asp-action="Index" class="btn btn-default">Cancel</a>
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+</form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+
+    <script type="text/javascript">
+        $('#File').on('change', function (e) {
+            var files = document.getElementById("File").files;
+            if (files.length == 0) {
+                $('#FileDesc').text("No file selected");
+            } else {
+                var file = files[0];
+                var temp = "<br>Filename: " + file.name;
+                temp += "<br>Type: " + file.type;
+                temp += "<br>Size: " + file.size + " bytes";
+                $('#FileDesc').html(temp);
+            }
+        });
+
+        $('#ClearFiles').click(function (e) {
+            $('#File').val(null);
+            $('#FileDesc').text("no file selected");
+        });
+
+    </script>
+}

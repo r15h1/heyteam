@@ -33,7 +33,7 @@ namespace HeyTeam.Lib.Services {
 			Player player = MapPlayer(request);
 			try {
 				playerRepository.AddPlayer(player);
-				return Response.CreateResponse();
+				return Response.CreateSuccessResponse();
 			} catch(Exception ex) {
 				return Response.CreateResponse(ex);
 			}
@@ -68,7 +68,7 @@ namespace HeyTeam.Lib.Services {
 
 			try {
 				playerRepository.UpdatePlayer(player);
-				return Response.CreateResponse();
+				return Response.CreateSuccessResponse();
 			} catch (Exception ex) {
 				return Response.CreateResponse(ex);
 			}

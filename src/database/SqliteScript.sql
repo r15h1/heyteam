@@ -69,7 +69,18 @@ CREATE TABLE SquadEvents
 	FOREIGN KEY(EventId) REFERENCES Events (EventId)
 ); 
 
-
+CREATE TABLE TrainingMaterials (		
+	TrainingMaterialId INTEGER AUTOINCREMENT PRIMARY KEY NOT NULL,
+	Guid uniqueidentifier NOT NULL UNIQUE,
+	ClubId bigint NOT NULL,
+	Title varchar(250) NOT NULL,
+	"Description" varchar(1000) NOT NULL,
+	ContentType varchar(100) NOT NULL,
+	ExternalId varchar(100) NULL,
+	Url Varchar(1000) NULL,
+	ThumbnailUrl Varchar(1000) NULL,
+	FOREIGN KEY(ClubId) REFERENCES Clubs (ClubId)
+);
 
 CREATE TABLE AspNetRoleClaims (
 	Id INTEGER NOT NULL,

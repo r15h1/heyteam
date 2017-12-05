@@ -1,10 +1,11 @@
+using HeyTeam.Lib.Data;
+using HeyTeam.Lib.Settings;
+using Microsoft.Extensions.Options;
 using System.Data;
 using System.Data.SqlClient;
-using HeyTeam.Lib.Data;
-using Microsoft.Extensions.Options;
 
 namespace HeyTeam.Lib.Repositories {
-    public class ConnectionFactory : IDbConnectionFactory
+	public class ConnectionFactory : IDbConnectionFactory
     {
 
         public ConnectionFactory(IOptions<DatabaseSettings> settings) => this.DatabaseSettings = settings.Value ;
