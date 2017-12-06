@@ -17,7 +17,9 @@ namespace HeyTeam.Web.Models.LibraryViewModels {
 		public string Status { 
 			get => Url.IsEmpty() ? "not available yet" : "available"; 
 		}
-
+		public bool IsVideo {
+			get => !ContentType.IsEmpty() && ContentType.ToLowerInvariant().Contains("video");
+		}
 		public List<string> Errors { get; set; }
 	}
 }

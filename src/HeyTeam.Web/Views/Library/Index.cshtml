@@ -45,7 +45,7 @@
                     <div class="media">
                         <a asp-action="Details" asp-route-trainingMaterialId="@m.Guid">
                             <div class="media-left media-middle">
-                                <img src="@(m.ThumbnailUrl.IsEmpty()?"/images/na.jpg":m.ThumbnailUrl)" class="media-object img-thumbnail" style="max-width:90px;" />
+                                <img src="@(m.ThumbnailUrl.IsEmpty()?"/images/na.png":m.ThumbnailUrl)" class="media-object img-thumbnail" style="max-width:90px;" />
                             </div>
                             <div class="media-body">
 
@@ -57,10 +57,10 @@
                     </div>
                 </td>
                 <td>@m.ContentType</td>
-                <td>@Html.Raw(m.Url.IsEmpty() || m.ThumbnailUrl.IsEmpty() ? $"<a href='/library/{@m.Guid}'><span class='glyphicon glyphicon-warning-sign text-warning' aria-hidden='true'></span> Check Status</a>" : "available") </td>  
+                <td>@Html.Raw(m.IsVideo && (m.Url.IsEmpty() || m.ThumbnailUrl.IsEmpty()) ? $"<a href='/library/{@m.Guid}'><span class='glyphicon glyphicon-warning-sign text-warning' aria-hidden='true'></span> Check Status</a>" : "available") </td>  
                 <td class="text-center">
-                @if (!m.Url.IsEmpty() && m.IsVideo) {
-                    <a href="@m.Url" target="_blank" title="Watch Video"><span class="glyphicon glyphicon-play text-success"> </span></a>
+                @if (!m.Url.IsEmpty()) {
+                    <a href="@m.Url" target="_blank" title="@(m.IsVideo ? "Watch Video" : "View/Download")"><span class="glyphicon glyphicon-@(m.IsVideo? "play" : "download") text-success"> </span></a>
                 }</td>
                 <td class="text-center">
                     <a href="#" class="deleteButton text-danger" title="Delete"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>                   

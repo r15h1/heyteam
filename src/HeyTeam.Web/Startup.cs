@@ -48,6 +48,7 @@ namespace HeyTeam.Web {
         {
             services.Configure<DatabaseSettings>(Configuration);
 			services.Configure<VideoConfiguration>(Configuration);
+			services.Configure<FileConfiguration>(Configuration);
 
 			services.AddDbContext<ApplicationDbContext>(options =>
                 //options.UseSqlite(Configuration.GetConnectionString("ConnectionString")));

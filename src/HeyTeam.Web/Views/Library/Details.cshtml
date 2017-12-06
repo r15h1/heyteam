@@ -25,27 +25,27 @@
             <label asp-for="Url" class="control-label"></label>
             <div class="input-group">                
                 
-                @if (Model.Url.IsEmpty()) {
+                @if (Model.Url.IsEmpty() && Model.IsVideo) {
                 <form asp-action="Resync" method="post">
                     <input type="hidden" value="@Model.Guid.Value" name="trainingMaterialId" />
                     <button type="submit" class="btn btn-warning "><span class="glyphicon glyphicon-warning-sign"></span> Sync with Vimeo</button>
                 </form>} else {
                 <input asp-for="Url" class="form-control" maxlength="100" readonly />
                 <span class="input-group-btn">
-                    <a href="@Model.Url" target="_blank" class="btn btn-default" title="Watch Video"><span class="glyphicon glyphicon-play text-success"> </span></a>
+                    <a href="@Model.Url" target="_blank" class="btn btn-default" title="@(Model.IsVideo ? "Watch Video" : "View/Downlaod")"><span class="glyphicon glyphicon-@(Model.IsVideo ? "play" : "download") text-success"> </span></a>
                 </span> 
                 }
             </div>
         </div>
         <div class="form-group">
             <label asp-for="ThumbnailUrl" class="control-label"></label>            
-            @if (Model.ThumbnailUrl.IsEmpty()) {
+            @if (Model.ThumbnailUrl.IsEmpty() && Model.IsVideo) {
                 <form asp-action="Resync" method="post">
                     <input type="hidden" value="@Model.Guid.Value" name="trainingMaterialId" />
                     <button type="submit" class="btn btn-warning "><span class="glyphicon glyphicon-warning-sign"></span> Sync with Vimeo</button>
                 </form>
             } else {
-                        <img src="@(Model.ThumbnailUrl.IsEmpty() ? "/images/na.jpg" : Model.ThumbnailUrl)" class="media-object img-thumbnail" style="max-width:90px;" />
+                        <img src="@(Model.ThumbnailUrl.IsEmpty() ? "/images/na.png" : Model.ThumbnailUrl)" class="media-object img-thumbnail" style="max-width:90px;" />
             }
         </div>
         <div class="form-group">
