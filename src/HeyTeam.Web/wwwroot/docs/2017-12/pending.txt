@@ -1,0 +1,2 @@
+done: Delete training material from database
+Upload file Store on server > Delete from server

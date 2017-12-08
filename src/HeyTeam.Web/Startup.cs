@@ -58,8 +58,9 @@ namespace HeyTeam.Web {
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
-            // Add application services.
-            services.AddTransient<IEmailSender, EmailSender>();
+			services.AddMemoryCache();
+			// Add application services.
+			services.AddTransient<IEmailSender, EmailSender>();
             services.AddMultitenancy<Club, TenantResolver>();
 
 			services.AddRouting(options => options.LowercaseUrls = true);

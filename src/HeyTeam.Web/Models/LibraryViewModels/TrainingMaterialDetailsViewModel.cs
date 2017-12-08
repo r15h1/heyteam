@@ -21,5 +21,6 @@ namespace HeyTeam.Web.Models.LibraryViewModels {
 			get => !ContentType.IsEmpty() && ContentType.ToLowerInvariant().Contains("video");
 		}
 		public List<string> Errors { get; set; }
+		public string ShortContentType { get; set; }
 	}
 }

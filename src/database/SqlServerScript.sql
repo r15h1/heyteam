@@ -82,6 +82,15 @@ CREATE TABLE TrainingMaterials (
 	FOREIGN KEY(ClubId) REFERENCES Clubs (ClubId)
 );
 
+CREATE TABLE EventTrainingMaterials
+(
+	EventId bigint NOT NULL,
+	TrainingMaterialId bigint NOT NULL,
+	PRIMARY KEY (EventId, TrainingMaterialId),
+	FOREIGN KEY(TrainingMaterialId) REFERENCES TrainingMaterials (TrainingMaterialId),
+	FOREIGN KEY(EventId) REFERENCES Events (EventId)
+); 
+
 -------------------------------------------------------------------------------------------------------------------------------------------------------------
 -----Identity tables
 CREATE TABLE AspNetRoleClaims (

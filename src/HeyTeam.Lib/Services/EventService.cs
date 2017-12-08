@@ -17,9 +17,10 @@ namespace HeyTeam.Lib.Services {
 		private readonly IValidator<EventDeleteRequest> deleteRequestValidator;
 		private readonly IClubQuery clubQuery;
 		private readonly ISquadQuery squadQuery;
+		private readonly ILibraryQuery libraryQuery;
 
 		public EventService(IEventRepository eventRepository, IEventQuery eventQuery, IValidator<EventSetupRequest> setUpRequestValidator, 
-								IValidator<EventDeleteRequest> deleteRequestValidator, IClubQuery clubQuery, ISquadQuery squadQuery
+								IValidator<EventDeleteRequest> deleteRequestValidator, IClubQuery clubQuery, ISquadQuery squadQuery, ILibraryQuery libraryQuery
 		) {
 			ThrowIf.ArgumentIsNull(eventRepository);
 			ThrowIf.ArgumentIsNull(eventQuery);
@@ -32,17 +33,18 @@ namespace HeyTeam.Lib.Services {
 			this.deleteRequestValidator = deleteRequestValidator;
 			this.clubQuery = clubQuery;
 			this.squadQuery = squadQuery;
+			this.libraryQuery = libraryQuery;
 		}
 
 		public Response CreateEvent(EventSetupRequest request) {
 			if(!request.EventId.IsEmpty())
 				return Response.CreateResponse(new IllegalOperationException("Event Id must not be specified when creating a new event"));
 
-			var (isValid, squads, response) = Validate(request);
+			var (isValid, squads, trainingMaterials, response) = Validate(request);
 			if (!isValid) return response;
 
 			try {
-				eventRepository.AddEvent(Map(request, squads));
+				eventRepository.AddEvent(Map(request, squads, trainingMaterials));
 			} catch(Exception ex) {
 				return Response.CreateResponse(ex);
 			}
@@ -60,42 +62,53 @@ namespace HeyTeam.Lib.Services {
 					return Response.CreateResponse(new IllegalOperationException("The specified event does not belong to this club"));
 			}
 			
-			var (isValid, squads, response) = Validate(request);
+			var (isValid, squads, trainingMaterials, response) = Validate(request);
 			if (!isValid) return response;
 
 			try {
-				eventRepository.UpdateEvent(Map(request, squads));
+				eventRepository.UpdateEvent(Map(request, squads, trainingMaterials));
 			} catch (Exception ex) {
 				return Response.CreateResponse(ex);
 			}
 			return Response.CreateSuccessResponse();
 		}
 
-		private (bool isValid, IEnumerable<Squad> clubSquads, Response response) Validate(EventSetupRequest request) {
+		private (bool isValid, IEnumerable<Squad> squads, IEnumerable<TrainingMaterial> trainingMaterials, Response response) Validate(EventSetupRequest request) {
 			var validationResult = setUpRequestValidator.Validate(request);
 			if (!validationResult.IsValid)
-				return (false, null, Response.CreateResponse(validationResult.Messages));
+				return (false, null, null, Response.CreateResponse(validationResult.Messages));
 
 			var club = clubQuery.GetClub(request.ClubId);
 			if (club == null)
-				return (false, null, Response.CreateResponse(new EntityNotFoundException("The specified club doesn not exist")));
+				return (false, null, null, Response.CreateResponse(new EntityNotFoundException("The specified club doesn not exist")));
 
 			var clubSquads = squadQuery.GetSquads(club.Guid);
 			var allOfRequestedSquadsBelongToClub = !request.Squads.Except(clubSquads.Select(s => s.Guid)).Any();
 			if (!allOfRequestedSquadsBelongToClub)
-				return (false, null, Response.CreateResponse(new IllegalOperationException("Not all of specified squads belong to this club")));
+				return (false, null, null, Response.CreateResponse(new IllegalOperationException("Not all of specified squads belong to this club")));
 
-			var squads = request.Squads.Join(clubSquads, s1 => s1, s2 => s2.Guid, (guid, squad) => squad).ToList();
-			return (true, squads, Response.CreateSuccessResponse());
+			List<TrainingMaterial> trainingMaterials = null;
+			if (request.TrainingMaterials != null && request.TrainingMaterials.Any()) {
+				var clubTrainingMaterials = libraryQuery.GetTrainingMaterials(club.Guid);
+				var allOfRequestedMaterialsBelongToClub = !request.TrainingMaterials.Except(clubTrainingMaterials.Select(t => t.Guid)).Any();
+				if (!allOfRequestedMaterialsBelongToClub)
+					return (false, null, null, Response.CreateResponse(new IllegalOperationException("Not all of specified materials belong to this club")));
+
+				trainingMaterials = request.TrainingMaterials.Join(clubTrainingMaterials, t1 => t1, t2 => t2.Guid, (guid, trainignMaterial) => trainignMaterial).ToList();
+			}
+
+			var squads = request.Squads.Join(clubSquads, s1 => s1, s2 => s2.Guid, (guid, squad) => squad).ToList();			
+			return (true, squads, trainingMaterials, Response.CreateSuccessResponse());
 		}
 
 
-		private Event Map(EventSetupRequest request, IEnumerable<Squad> squads) => new Event(request.ClubId, request.EventId) {
+		private Event Map(EventSetupRequest request, IEnumerable<Squad> squads, IEnumerable<TrainingMaterial> trainingMaterials) => new Event(request.ClubId, request.EventId) {
 			EndDate = request.EndDate.Value,
 			Location = request.Location,
 			StartDate = request.StartDate.Value,
 			Title = request.Title,
-			Squads = squads
+			Squads = squads,
+			TrainingMaterials = trainingMaterials
 		};
 
 		public Response DeleteEvent(EventDeleteRequest request) {

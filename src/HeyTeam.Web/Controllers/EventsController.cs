@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -92,13 +94,15 @@ namespace HeyTeam.Web.Controllers {
 			StartDate = model.StartDate,
 			Title = model.Title,
 			Squads = model.Squads,
+			TrainingMaterials = model.TrainingMaterials,
 			EventId = model.EventId
 		};
 
 		[HttpGet("{eventId}")]
 		public ActionResult Edit([FromRoute]string eventId) {
 			var @event = eventsQuery.GetEvent(Guid.Parse(eventId));
-			return View(MapEvent(@event));
+			var model = MapEvent(@event);
+			return View(model);
 		}
 
 		private EventViewModel MapEvent(Event @event) => new EventViewModel {
@@ -108,7 +112,12 @@ namespace HeyTeam.Web.Controllers {
 			StartDate = @event.StartDate,
 			Title = @event.Title,
 			Squads = @event.Squads.Select(s => s.Guid),
-			SquadList = GetSquadList()
+			SquadList = GetSquadList(),
+			TrainingMaterials = @event.TrainingMaterials?.Select(t => t.Guid),
+			SelectedTrainingMaterialList = JsonConvert.SerializeObject(
+					@event.TrainingMaterials?.Select(t => new { Id = t.Guid, Text = t.Title, Thumbnail = t.ThumbnailUrl, ContentType = t.ShortContentType }).ToList(),
+					new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver()}
+				)
 		};
 
 		// POST: Sessions/Edit/5

@@ -82,6 +82,15 @@ CREATE TABLE TrainingMaterials (
 	FOREIGN KEY(ClubId) REFERENCES Clubs (ClubId)
 );
 
+CREATE TABLE EventTrainingMaterials
+(
+	EventId INTEGER NOT NULL,
+	TrainingMaterialId INTEGER NOT NULL,
+	PRIMARY KEY (EventId, TrainingMaterialId),
+	FOREIGN KEY(TrainingMaterialId) REFERENCES TrainingMaterials (TrainingMaterialId),
+	FOREIGN KEY(EventId) REFERENCES Events (EventId)
+); 
+
 CREATE TABLE AspNetRoleClaims (
 	Id INTEGER NOT NULL,
 	ClaimType nvarchar(2147483647),

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using HeyTeam.Core;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -30,7 +31,10 @@ namespace HeyTeam.Web.Models.EventsViewModels {
 		public string Location { get; set; }
 
 		public Guid? EventId { get; set; }
-		
+
+		public IEnumerable<Guid> TrainingMaterials { get; set; }
+		public string SelectedTrainingMaterialList { get; set; }
+
 	}
 
 	public class FutureDateAttribute : ValidationAttribute {

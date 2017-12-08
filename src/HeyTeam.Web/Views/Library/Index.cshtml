@@ -32,8 +32,8 @@
         <thead>
             <tr>
                 <th class="col-md-7">Title</th> 
-                <th class="col-md-2">Content Type</th>
-                <th class="col-md-2">Status</th>
+                <th class="col-md-2 text-center">Content Type</th>
+                <th class="col-md-2 text-center">Status</th>
                 <th></th>
                 <th></th>
             </tr>
@@ -56,8 +56,8 @@
                         </a>
                     </div>
                 </td>
-                <td>@m.ContentType</td>
-                <td>@Html.Raw(m.IsVideo && (m.Url.IsEmpty() || m.ThumbnailUrl.IsEmpty()) ? $"<a href='/library/{@m.Guid}'><span class='glyphicon glyphicon-warning-sign text-warning' aria-hidden='true'></span> Check Status</a>" : "available") </td>  
+                <td class="text-center">@m.ShortContentType</td>
+                <td class="text-center">@Html.Raw(m.IsVideo && (m.Url.IsEmpty() || m.ThumbnailUrl.IsEmpty()) ? $"<a href='/library/{@m.Guid}'><span class='glyphicon glyphicon-warning-sign text-warning' aria-hidden='true'></span> Check Status</a>" : "available") </td>  
                 <td class="text-center">
                 @if (!m.Url.IsEmpty()) {
                     <a href="@m.Url" target="_blank" title="@(m.IsVideo ? "Watch Video" : "View/Download")"><span class="glyphicon glyphicon-@(m.IsVideo? "play" : "download") text-success"> </span></a>

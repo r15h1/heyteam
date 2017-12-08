@@ -6,6 +6,8 @@ using HeyTeam.Core;
 using HeyTeam.Core.Queries;
 using HeyTeam.Core.Exceptions;
 using HeyTeam.Util;
+using Microsoft.Extensions.Caching.Memory;
+using System.Threading.Tasks;
 
 namespace HeyTeam.Lib.Services {
 	public class LibraryService : ILibraryService {
@@ -14,17 +16,20 @@ namespace HeyTeam.Lib.Services {
 		private readonly IFileHandlerFactory fileHandlerFactory;
 		private readonly ILibraryRepository libraryRepository;
 		private readonly ILibraryQuery libraryQuery;
+		private readonly IMemoryCache cache;
 
 		public LibraryService(	IValidator<TrainingMaterialRequest> trainingMaterialRequestValidator,
 								IValidator<ReSyncRequest> resyncRequestValidator,
 								IFileHandlerFactory fileHandlerFactory, 
 								ILibraryRepository libraryRepository, 
-								ILibraryQuery libraryQuery){
+								ILibraryQuery libraryQuery,
+								IMemoryCache cache){
 			this.trainingMaterialRequestValidator = trainingMaterialRequestValidator;
 			this.resyncRequestValidator = resyncRequestValidator;
 			this.fileHandlerFactory = fileHandlerFactory;
 			this.libraryRepository = libraryRepository;
 			this.libraryQuery = libraryQuery;
+			this.cache = cache;
 		}
 		
 		public Response AddTrainingMaterial(TrainingMaterialRequest request) {
@@ -50,7 +55,13 @@ namespace HeyTeam.Lib.Services {
 				return Response.CreateSuccessResponse();
 			} catch (Exception ex) {
 				return Response.CreateResponse(ex);
+			} finally {
+				UpdateCache(request.ClubId);
 			}
+		}
+
+		private void UpdateCache(Guid clubId) {
+			Task.Run(() => libraryQuery.UpdateCache(clubId));
 		}
 
 		public Response DeleteTrainingMaterial(TrainingMaterialDeleteRequest request) {
@@ -64,10 +75,12 @@ namespace HeyTeam.Lib.Services {
 				return Response.CreateResponse(new IllegalOperationException("The specified training material does not belong to this club"));
 
 			try {				
-				libraryRepository.DeleteTrainingMaterial(trainingMaterial.ClubId, trainingMaterial.Guid.Value);
+				libraryRepository.DeleteTrainingMaterial(trainingMaterial.ClubId, trainingMaterial.Guid);
 				return Response.CreateSuccessResponse();
 			} catch (Exception ex) {
 				return Response.CreateResponse(ex);
+			} finally {
+				UpdateCache(request.ClubId);
 			}
 		}
 
@@ -94,6 +107,8 @@ namespace HeyTeam.Lib.Services {
 				return Response.CreateSuccessResponse();
 			} catch (Exception ex) {
 				return Response.CreateResponse(ex);
+			} finally {
+				UpdateCache(request.ClubId);
 			}
 		}
 

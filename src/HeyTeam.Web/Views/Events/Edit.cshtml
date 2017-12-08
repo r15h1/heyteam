@@ -32,6 +32,11 @@
                 <input asp-for="Location" class="form-control" />
                 <span asp-validation-for="Location" class="text-danger"></span>
             </div>
+            <div class="form-group">
+                <label asp-for="TrainingMaterials" class="control-label"></label>
+                <select id="TrainingMaterials" name="TrainingMaterials" class="form-control" multiple></select>
+                <span asp-validation-for="TrainingMaterials" class="text-danger"></span>
+            </div>
             <div class="modal-footer">
                 <a asp-action="Index" class="btn btn-default">Cancel</a>
                 <input type="submit" value="Save" class="btn btn-primary" />
@@ -44,9 +49,56 @@
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script src="~/lib/select2/dist/js/select2.min.js"></script>
     <script>
-        $(document).ready(function () {
-            $('#Squads').select2();
+       
+       $('#Squads').select2();
+
+        var selectedTrainingMaterials = @Html.Raw(Model.SelectedTrainingMaterialList);
+        var trainingMaterialDropdown = $('#TrainingMaterials').select2({
+            ajax: {
+                url: '/api/library?',
+                data: function (params) {
+                    var query = {
+                        q: params.term,
+                        page: 1
+                    };
+                    return query;
+                },
+                processResults: function (data) { return { results: data }; }
+            },
+            data: selectedTrainingMaterials,
+            escapeMarkup: function (markup) { return markup; },
+            minimumInputLength: 1,
+            placeholder: 'select...',
+            templateResult: resultStyles,
+            templateSelection: resultStyles
         });
+
+        function resultStyles(selection) {
+            if (selection.id) {
+                var thumbnail = selection.thumbnail;
+                if (!thumbnail) {
+                    return selection.text;
+                } else {
+                    var $selection = formatMaterialPresentation(thumbnail, selection.text, selection.contentType);
+                    return $($selection);
+                }
+            }
+        }
+
+        function formatMaterialPresentation(thumbnail, text, contentType) {
+            return '<div class="media" style="margin-top:0; padding-bottom:5px">' +
+                '<div class="media-left"><img class="media-object" style="max-height:40px;" src="' + thumbnail + '" alt=""></div>' +
+                '<div class="media-body"><div class="img-changer-text">' + text + '</div>(' + contentType + ')</div >' +
+                '</div>';
+        }
+
+        if (selectedTrainingMaterials && selectedTrainingMaterials.length > 0) {
+            for (var i in selectedTrainingMaterials) {
+                $("#TrainingMaterials option[value='" + selectedTrainingMaterials[i].id + "']").prop("selected", true);
+                //trainingMaterialDropdown.val(selectedTrainingMaterials[i].id);
+            }            
+            trainingMaterialDropdown.trigger("change");
+        }
     </script>
 }
 

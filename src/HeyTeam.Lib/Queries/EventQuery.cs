@@ -24,12 +24,21 @@ namespace HeyTeam.Lib.Queries {
 			using (var connection = connectionFactory.Connect()) {
 				string sql = @"SELECT C.Guid AS ClubGuid, E.Guid AS EventGuid, E.Title, E.StartDate, E.EndDate, E.Location
 								FROM Events E
-								INNER JOIN Clubs C ON E.ClubId = C.ClubId AND E.Guid = @EventGuid;
+								INNER JOIN Clubs C ON E.ClubId = C.ClubId AND E.Guid = @EventGuid
+								WHERE E.Deleted IS NULL OR E.Deleted = 0;
 								
 								SELECT S.Guid AS SquadGuid, S.Name
 								FROM SquadEvents SE
-								INNER JOIN Events E ON SE.EventId = E.EventId AND E.Guid = @EventGuid
-								INNER JOIN Squads S ON SE.SquadId = S.SquadId";
+								INNER JOIN Events E ON SE.EventId = E.EventId AND E.Guid = @EventGuid 
+								INNER JOIN Squads S ON SE.SquadId = S.SquadId
+								WHERE E.Deleted IS NULL OR E.Deleted = 0;
+
+								SELECT T.Guid AS TrainingMaterialGuid, T.Title, T.ContentType, T.ThumbnailUrl, T.Url, T.ExternalId, T.Description
+								FROM EventTrainingMaterials ETM
+								INNER JOIN Events E ON ETM.EventId = E.EventId AND E.Guid = @EventGuid
+								INNER JOIN TrainingMaterials T ON ETM.TrainingMaterialId = T.TrainingMaterialId
+								WHERE E.Deleted IS NULL OR E.Deleted = 0;";
+
 				DynamicParameters p = new DynamicParameters();
 				p.Add("@EventGuid", eventId.ToString());
 				connection.Open();
@@ -45,6 +54,17 @@ namespace HeyTeam.Lib.Queries {
 							Name = row.Name
 						}).ToList();
 
+				if (@event != null)
+					@event.TrainingMaterials = reader.Read().Cast<IDictionary<string, object>>().Select<dynamic, TrainingMaterial>(
+						row => new TrainingMaterial(@event.ClubId, Guid.Parse(row.TrainingMaterialGuid.ToString())) {
+							Title = row.Title,
+							ContentType = row.ContentType,
+							Description = row.Description,
+							ExternalId = row.ExternalId,
+							ThumbnailUrl = row.ThumbnailUrl,
+							Url = row.Url
+						}).ToList();
+
 				return @event;
 			}
 		}
@@ -57,14 +77,14 @@ namespace HeyTeam.Lib.Queries {
 				string sql = @"SELECT C.Guid AS ClubGuid, E.Guid AS EventGuid, E.Title, E.StartDate, E.EndDate, E.Location
 								FROM Events E
 								INNER JOIN Clubs C ON E.ClubId = C.ClubId AND C.Guid = @ClubGuid
-								WHERE E.StartDate >= GetDate();
+								WHERE E.StartDate >= GetDate() AND (E.Deleted IS NULL OR E.Deleted = 0);
 								
 								SELECT E.Guid AS EventGuid, S.Guid AS SquadGuid, S.Name
 								FROM SquadEvents SE
 								INNER JOIN Events E ON SE.EventId = E.EventId
 								INNER JOIN Squads S ON SE.SquadId = S.SquadId
 								INNER JOIN Clubs C ON E.ClubId = C.ClubId AND C.ClubId = S.ClubId
-								WHERE C.Guid = @ClubGuid AND E.StartDate >= GetDate()";
+								WHERE C.Guid = @ClubGuid AND E.StartDate >= GetDate()  AND (E.Deleted IS NULL OR E.Deleted = 0);";
 				DynamicParameters p = new DynamicParameters();
 				p.Add("@ClubGuid", clubId.ToString());
 				connection.Open();

@@ -14,8 +14,8 @@
             <textarea asp-for="Description" class="form-control" maxlength="100" readonly></textarea>
         </div>
         <div class="form-group">
-            <label asp-for="ContentType" class="control-label"></label>
-            <input asp-for="ContentType" class="form-control" maxlength="100" readonly />
+            <label asp-for="ShortContentType" class="control-label">Content Type</label>
+            <input asp-for="ShortContentType" class="form-control" maxlength="100" readonly />
         </div>
         <div class="form-group">
             <label asp-for="ExternalId" class="control-label"></label>
@@ -38,14 +38,14 @@
             </div>
         </div>
         <div class="form-group">
-            <label asp-for="ThumbnailUrl" class="control-label"></label>            
+            <label asp-for="ThumbnailUrl" class="control-label">Thumbnail</label>            
             @if (Model.ThumbnailUrl.IsEmpty() && Model.IsVideo) {
                 <form asp-action="Resync" method="post">
                     <input type="hidden" value="@Model.Guid.Value" name="trainingMaterialId" />
                     <button type="submit" class="btn btn-warning "><span class="glyphicon glyphicon-warning-sign"></span> Sync with Vimeo</button>
                 </form>
             } else {
-                        <img src="@(Model.ThumbnailUrl.IsEmpty() ? "/images/na.png" : Model.ThumbnailUrl)" class="media-object img-thumbnail" style="max-width:90px;" />
+                <img src="@(Model.ThumbnailUrl.IsEmpty() ? "/images/na.png" : Model.ThumbnailUrl)" class="media-object img-thumbnail" style="max-width:90px;" />
             }
         </div>
         <div class="form-group">

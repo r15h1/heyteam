@@ -14,5 +14,6 @@ namespace HeyTeam.Web.Models.LibraryViewModels {
 		public bool IsVideo{
 			get => !ContentType.IsEmpty() && ContentType.ToLowerInvariant().Contains("video");
 		}
+		public string ShortContentType { get; set; }
 	}
 }

@@ -32,10 +32,15 @@
                 <input asp-for="Location" class="form-control" />
                 <span asp-validation-for="Location" class="text-danger"></span>
             </div>
+            <div class="form-group">
+                <label asp-for="TrainingMaterials" class="control-label"></label>
+                <select asp-for="TrainingMaterials" class="form-control" multiple></select>
+                <span asp-validation-for="TrainingMaterials" class="text-danger"></span>
+            </div>
             <div class="modal-footer">
                 <a asp-action="Index" class="btn btn-default">Cancel</a>
                 <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
+            </div>            
         </form>
     </div>
 </div>
@@ -47,6 +52,40 @@
         $(document).ready(function () {
             $('#Squads').select2();
         });
+
+        $('#TrainingMaterials').select2({
+            ajax: {
+                url: '/api/library?',
+                data: function (params) {
+                    var query = {
+                        q:params.term,
+                        page: 1
+                    };
+                    return query;
+                },
+                processResults: function (data) {return {results: data};}
+            },
+            minimumInputLength: 1,
+            placeholder: 'select...',
+            templateResult: resultStyles,
+            templateSelection: resultStyles
+        });
+
+        function resultStyles(selection) {
+            if (!selection.id) { return selection.text; }
+            var thumbnail = selection.thumbnail;
+            if (!thumbnail) {
+                return selection.text;
+            } else {
+                var $selection = $(
+                    '<div class="media" style="margin-top:0; padding-bottom:5px">' +
+                    '<div class="media-left"><img class="media-object" style="max-height:40px;" src="' + thumbnail + '" alt=""></div>' +
+                    '<div class="media-body"><div class="img-changer-text">' + selection.text + '</div>(' + selection.contentType + ')</div >' +
+                    '</div>'
+                );
+                return $selection;
+            }
+        }
     </script>
 }
 

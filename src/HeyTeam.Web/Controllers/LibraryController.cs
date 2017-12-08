@@ -40,7 +40,8 @@ namespace HeyTeam.Web.Controllers {
 				Guid = trainingMaterial.Guid,
 				ThumbnailUrl = trainingMaterial?.ThumbnailUrl,
 				Title = trainingMaterial?.Title,
-				Url = trainingMaterial?.Url
+				Url = trainingMaterial?.Url,
+				ShortContentType = trainingMaterial?.ShortContentType
 			};
 			return View(model);
 		}
@@ -81,10 +82,11 @@ namespace HeyTeam.Web.Controllers {
 					list.Add(new TrainingMaterialListViewModel {
 						ContentType = m.ContentType,
 						Description = m.Description,
-						Guid = m.Guid.Value,
+						Guid = m.Guid,
 						ThumbnailUrl = m.ThumbnailUrl,
 						Title = m.Title,
-						Url = m.Url
+						Url = m.Url,
+						ShortContentType = m.ShortContentType
 					});
 
 			return list;

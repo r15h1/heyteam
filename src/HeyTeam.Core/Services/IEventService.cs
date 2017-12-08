@@ -14,6 +14,7 @@ namespace HeyTeam.Core.Services {
 		public Guid ClubId { get; set; }
 		public string Title { get; set; }
 		public IEnumerable<Guid> Squads { get; set; }
+		public IEnumerable<Guid> TrainingMaterials { get; set; }
 		public DateTime? StartDate { get; set; }
 		public DateTime? EndDate { get; set; }
 		public string Location { get; set; }
