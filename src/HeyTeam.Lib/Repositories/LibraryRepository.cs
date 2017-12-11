@@ -70,7 +70,7 @@ namespace HeyTeam.Lib.Repositories {
 
 		public void DeleteTrainingMaterial(Guid ClubId, Guid trainingMaterialId) {			
 			using (var connection = connectionFactory.Connect()) {
-				string sql = "DELETE TrainingMaterials WHERE Guid = @TrainingMaterialGuid AND ClubId = (SELECT ClubId FROM Clubs WHERE Guid = @ClubGuid)";
+				string sql = "UPDATE TrainingMaterials SET Deleted = 1, DeletedOn = GetDate() WHERE Guid = @TrainingMaterialGuid AND ClubId = (SELECT ClubId FROM Clubs WHERE Guid = @ClubGuid)";
 				var p = new DynamicParameters();
 				p.Add("@ClubGuid", ClubId.ToString());
 				p.Add("@TrainingMaterialGuid", trainingMaterialId.ToString());

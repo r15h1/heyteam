@@ -84,7 +84,16 @@ namespace HeyTeam.Lib.Queries {
 								INNER JOIN Events E ON SE.EventId = E.EventId
 								INNER JOIN Squads S ON SE.SquadId = S.SquadId
 								INNER JOIN Clubs C ON E.ClubId = C.ClubId AND C.ClubId = S.ClubId
-								WHERE C.Guid = @ClubGuid AND E.StartDate >= GetDate()  AND (E.Deleted IS NULL OR E.Deleted = 0);";
+								WHERE C.Guid = @ClubGuid AND E.StartDate >= GetDate()  AND (E.Deleted IS NULL OR E.Deleted = 0);
+								
+								SELECT E.Guid AS EventGuid, T.Guid AS TrainingMaterialGuid, T.Title, T.ContentType, T.ThumbnailUrl, T.Url, T.ExternalId, T.Description
+								FROM EventTrainingMaterials ETM
+								INNER JOIN Events E ON ETM.EventId = E.EventId 
+								INNER JOIN TrainingMaterials T ON ETM.TrainingMaterialId = T.TrainingMaterialId
+								WHERE (T.Deleted IS NULL OR T.Deleted = 0) AND 
+								E.EventId IN (SELECT E.EventId FROM Events E
+												INNER JOIN Clubs C ON E.ClubId = C.ClubId AND C.Guid = @ClubGuid
+												WHERE E.StartDate >= GetDate() AND (E.Deleted IS NULL OR E.Deleted = 0));";
 				DynamicParameters p = new DynamicParameters();
 				p.Add("@ClubGuid", clubId.ToString());
 				connection.Open();
@@ -95,11 +104,21 @@ namespace HeyTeam.Lib.Queries {
 						}).ToList();
 
 				var squads = reader.Read().Cast<dynamic>();
-				foreach (var @event in events)
-					@event.Squads = squads.Where(r => r.EventGuid == @event.Guid).Select<dynamic, Squad>(row => new Squad(@event.ClubId, Guid.Parse(row.SquadGuid.ToString())) {
-										Name = row.Name
-									}).ToList();
+				var trainingMaterials = reader.Read().Cast<dynamic>();
 
+				foreach (var @event in events) { 
+					@event.Squads = squads.Where(r => r.EventGuid == @event.Guid)
+										.Select<dynamic, Squad>(row => new Squad(@event.ClubId, Guid.Parse(row.SquadGuid.ToString())) {
+											Name = row.Name
+										}).ToList();
+
+					@event.TrainingMaterials = trainingMaterials.Where(r => r.EventGuid == @event.Guid)
+												.Select<dynamic, TrainingMaterial>(row => new TrainingMaterial(@event.ClubId, Guid.Parse(row.EventGuid.ToString())) {
+													ContentType = row.ContentType, Description = row.Description, ExternalId = row.ExternalId, 
+													ThumbnailUrl = row.ThumbnailUrl, Title = row.Title, Url = row.Url
+												}).ToList();
+				}
+				
 				return events;
 			}
 		}

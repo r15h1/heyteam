@@ -44,7 +44,8 @@ namespace HeyTeam.Web.Controllers {
 			Location = @event.Location,
 			StartDate = @event.StartDate,
 			Title = @event.Title,
-			Squads = @event.Squads == null ? "No Squad Assigned" : string.Join(", ", @event.Squads.OrderBy(s => s.Name).Select(s => s.Name))
+			Squads = @event.Squads == null ? "No Squad Assigned" : string.Join(", ", @event.Squads.OrderBy(s => s.Name).Select(s => s.Name)),
+			TrainingMaterials = @event.TrainingMaterials?.Count()
 		};
 
 		[HttpGet("new")]

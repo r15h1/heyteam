@@ -26,7 +26,8 @@ namespace HeyTeam.Lib.Queries {
 			using (var connection = connectionFactory.Connect()) {
 				string sql = @"	SELECT T.Guid AS TrainingMaterialGuid, C.Guid AS ClubGuid, T.Title, T.Description, T.ContentType, T.ExternalId, T.Url, T.ThumbnailUrl
 								FROM TrainingMaterials T
-								INNER JOIN Clubs C ON C.ClubId = T.ClubId AND T.Guid = @TrainingMaterialGuid";
+								INNER JOIN Clubs C ON C.ClubId = T.ClubId AND T.Guid = @TrainingMaterialGuid
+								WHERE T.Deleted IS NULL OR T.Deleted = 0";
 				DynamicParameters p = new DynamicParameters();
 				p.Add("@TrainingMaterialGuid", trainingMaterialId.ToString());
 				connection.Open();
@@ -48,7 +49,8 @@ namespace HeyTeam.Lib.Queries {
 			using (var connection = connectionFactory.Connect()) {
 				string sql = @"	SELECT T.Guid AS TrainingMaterialGuid, C.Guid AS ClubGuid, T.Title, T.Description, T.ContentType, T.ExternalId, T.Url, T.ThumbnailUrl
 								FROM TrainingMaterials T
-								INNER JOIN Clubs C ON C.ClubId = T.ClubId AND C.Guid = @ClubGuid								
+								INNER JOIN Clubs C ON C.ClubId = T.ClubId AND C.Guid = @ClubGuid
+								WHERE T.Deleted IS NULL OR T.Deleted = 0
 								ORDER BY T.TrainingMaterialId DESC";
 				DynamicParameters p = new DynamicParameters();
 				p.Add("@ClubGuid", clubId.ToString());

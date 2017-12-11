@@ -11,5 +11,6 @@ namespace HeyTeam.Web.Models.EventsViewModels {
 		public DateTime StartDate { get; set; }
 		public DateTime EndDate { get; set; }
 		public string Location { get; set; }
+		public int? TrainingMaterials { get; set; }
 	}
 }
