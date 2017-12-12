@@ -1,4 +1,4 @@
-﻿@model IEnumerable<HeyTeam.Web.Models.EventsViewModels.EventListViewModel>
+﻿@model IEnumerable<HeyTeam.Core.Models.EventSummary>
 <h1>Events</h1>
 <h3>Upcoming</h3>
 <div>
@@ -54,23 +54,25 @@
         </thead>
         <tbody>
             @foreach (var item in Model) {
-<tr data-id="@item.EventId">
+<tr data-id="@item.Guid">
     <td>
-        <a asp-action="Edit" asp-route-eventId="@Html.ValueFor(modelItem => item.EventId)">@Html.DisplayFor(modelItem => item.Title)</a>
+        <a asp-action="Edit" asp-route-eventId="@Html.ValueFor(modelItem => item.Guid)">@Html.DisplayFor(modelItem => item.Title)</a>
 </td>
     <td>
         @Html.DisplayFor(modelItem => item.Squads)
     </td>
     <td class="text-center">
-        @item.StartDate.ToString("dd-MMM-yyyy")<br/>@item.StartDate.ToString("h:mm t")M
+        @item.StartDate.ToString("dd-MMM-yyyy")<br/>@item.StartDate.ToString("ddd h:mm t")M
     </td>
     <td class="text-center">
-        @item.EndDate.ToString("dd-MMM-yyyy")<br />@item.EndDate.ToString("h:mm t")M
+        @item.EndDate.ToString("dd-MMM-yyyy")<br />@item.EndDate.ToString("ddd h:mm t")M
     </td>
     <td>
         @Html.DisplayFor(modelItem => item.Location)
     </td>
-    <td>@(item.TrainingMaterials.HasValue && item.TrainingMaterials.Value > 0 ? item.TrainingMaterials : null)</td>
+    <td>
+        @(item.TrainingMaterialsCount > 0 ? item.TrainingMaterialsCount : null)
+    </td>
     <td><a href="#" class="deleteButton text-danger"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a></td>
 </tr>
             }

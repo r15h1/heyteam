@@ -6,6 +6,7 @@ using HeyTeam.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using HeyTeam.Core.Models;
 
 namespace HeyTeam.Lib.Queries {
 	public class EventQuery : IEventQuery {
@@ -119,6 +120,40 @@ namespace HeyTeam.Lib.Queries {
 												}).ToList();
 				}
 				
+				return events;
+			}
+		}
+
+		public IEnumerable<EventSummary> GetEventsSummary(Guid clubId) {
+			if (clubId.IsEmpty())
+				return null;
+
+			using (var connection = connectionFactory.Connect()) {
+				string sql = @"SELECT	C.Guid AS ClubGuid, E.Guid AS EventGuid, E.Title, 
+										E.StartDate, E.EndDate, E.Location,
+										(SELECT COUNT(1) FROM EventTrainingMaterials ETM 
+											INNER JOIN TrainingMaterials T ON ETM.TrainingMaterialId = T.TrainingMaterialId
+											WHERE ETM.EventId = E.EventId AND (T.Deleted IS NULL OR T.Deleted = 0)
+										) AS TrainingMaterialCount,
+
+										(SELECT STUFF(
+												(SELECT ', ' + Name FROM (SELECT S.Name AS Name FROM Squads S
+												INNER JOIN SquadEvents SE ON SE.SquadId = S.SquadId
+												WHERE SE.EventId = E.EventId)SQ ORDER BY Name FOR XML PATH (''))
+											,1,1,'')
+										) AS Squads
+								FROM Events E
+								INNER JOIN Clubs C ON E.ClubId = C.ClubId AND C.Guid = @ClubGuid
+								WHERE E.StartDate >= GetDate() AND (E.Deleted IS NULL OR E.Deleted = 0);";
+				DynamicParameters p = new DynamicParameters();
+				p.Add("@ClubGuid", clubId.ToString());
+				connection.Open();
+				var reader = connection.Query(sql, p).Cast<IDictionary<string, object>>();
+				var events = reader.Select<dynamic, EventSummary>(
+						row => new EventSummary(Guid.Parse(row.ClubGuid.ToString()), Guid.Parse(row.EventGuid.ToString())) {
+							EndDate = row.EndDate, Location = row.Location, StartDate = row.StartDate, Title = row.Title, Squads = row.Squads, TrainingMaterialsCount = row.TrainingMaterialCount
+						}).ToList();
+
 				return events;
 			}
 		}

@@ -30,23 +30,9 @@ namespace HeyTeam.Web.Controllers {
 
 		[HttpGet("")]
 		public ActionResult Index() {
-			var events = eventsQuery.GetEvents(club.Guid);
-			var list = new List<EventListViewModel>();
-			foreach (var @event in events)
-				list.Add(MapList(@event));
-
-			return View(list.OrderBy(e => e.StartDate).ThenBy(e => e.EndDate));
-		}
-
-		private EventListViewModel MapList(Event @event) => new EventListViewModel {
-			EndDate = @event.EndDate,
-			EventId = @event.Guid,
-			Location = @event.Location,
-			StartDate = @event.StartDate,
-			Title = @event.Title,
-			Squads = @event.Squads == null ? "No Squad Assigned" : string.Join(", ", @event.Squads.OrderBy(s => s.Name).Select(s => s.Name)),
-			TrainingMaterials = @event.TrainingMaterials?.Count()
-		};
+			var events = eventsQuery.GetEventsSummary(club.Guid);
+			return View(events.OrderBy(e => e.StartDate).ThenBy(e => e.EndDate));
+		}		
 
 		[HttpGet("new")]
 		public ActionResult Create() {
