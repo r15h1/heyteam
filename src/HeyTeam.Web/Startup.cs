@@ -14,6 +14,7 @@ using HeyTeam.Lib.Services;
 using HeyTeam.Lib.Settings;
 using HeyTeam.Lib.Validation;
 using HeyTeam.Web.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -49,25 +50,41 @@ namespace HeyTeam.Web {
             services.Configure<DatabaseSettings>(Configuration);
 			services.Configure<VideoConfiguration>(Configuration);
 			services.Configure<FileConfiguration>(Configuration);
+			services.Configure<CryptographicConfiguration>(Configuration);
 
 			services.AddDbContext<ApplicationDbContext>(options =>
                 //options.UseSqlite(Configuration.GetConnectionString("ConnectionString")));
                 options.UseSqlServer(Configuration["ConnectionString"]));
 
-            services.AddIdentity<ApplicationUser, IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultTokenProviders();
+            services.AddIdentity<ApplicationUser, IdentityRole>(config =>
+			{
+				config.SignIn.RequireConfirmedEmail = true;
+			})
+             .AddEntityFrameworkStores<ApplicationDbContext>()
+             .AddDefaultTokenProviders();
 
 			services.AddMemoryCache();
 			// Add application services.
 			services.AddTransient<IEmailSender, EmailSender>();
-            services.AddMultitenancy<Club, TenantResolver>();
+            services.AddMultitenancy<Club, TenantResolver>();			
 
 			services.AddRouting(options => options.LowercaseUrls = true);
-			services.AddMvc();   
-			
-            services.AddScoped<IIdentityInitializer, IdentityInitializer>();
+			services.AddMvc();
+
+			services.AddDataProtection();
+
+			services.AddAuthorization(options =>
+			{
+				options.AddPolicy("Administrator", policy => policy.Requirements.Add(new RolesRequirement(new string[] { "Administrator" })));
+				options.AddPolicy("Player", policy => policy.Requirements.Add(new RolesRequirement(new string[] { "Player" })));
+				options.AddPolicy("Coach", policy => policy.Requirements.Add(new RolesRequirement(new string[] { "Coach" })));
+			});
+
+			services.AddSingleton<IAuthorizationHandler, RolesHandler>();
+
+			services.AddScoped<IIdentityInitializer, IdentityInitializer>();
 			services.AddScoped<IIdentityManager, IdentityManager>();
+			services.AddScoped<IIdentityQuery, IdentityQuery>();
 			services.AddScoped<IDbConnectionFactory, ConnectionFactory>();
 
 			services.AddScoped<IClubQuery, ClubQuery>();

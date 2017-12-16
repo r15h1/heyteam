@@ -1,0 +1,94 @@
+﻿@model List<HeyTeam.Web.Models.AccountViewModels.UserListViewModel>
+@using HeyTeam.Util
+<h1>Users</h1>
+<h3>List</h3>
+<div class="table-responsive">
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th class="text-center">Login / Email</th>
+                <th class="text-center">Name</th>
+                <th class="text-center">Access Rights</th>
+                <th class="text-center">Registered</th>
+                <th class="text-center">Account Locked</th>
+                <th class="text-center">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model) {                
+            <tr data-email="@item.Email">
+                <td>@Html.DisplayFor(modelItem => item.Email)</td>
+                <td>@foreach(var name in item.Names) {
+                        <div>@name</div>
+                    }</td>
+                <td class="text-center">@foreach (var access in item.Access) {
+                    <div>@access</div>
+                    }</td>
+                <td class="text-center">@(Html.Raw(item.UserId.IsEmpty() ? "" : "<span class='glyphicon glyphicon-ok-circle text-success'></span>"))</td>
+                <td class="text-center">@(Html.Raw(item.AccountIsLocked.HasValue && item.AccountIsLocked.Value ? "<span class='glyphicon glyphicon-lock text-danger'></span>" : ""))</td>                
+                <td class="text-center">
+                    <div class="dropdown">
+                        <button class="btn btn-default btn-xs dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">action <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
+                            <li>@(Html.Raw(item.UserId.IsEmpty() ? "<a class='SendInvite' href='#'>Send Invite</a>" : "<a class='Revokeaccess' href='#'>Revoke Access</a>"))</li>
+                            @(Html.Raw(item.AccountIsLocked.HasValue && !item.UserId.IsEmpty() ? (item.AccountIsLocked.Value ? "<li><a class='Unlock' href='#'>Unlock</a></li>" : "<li><a class='Lock' href='#'>Lock</a></li>") : ""))
+                        </ul>
+                    </div>
+                    </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <form id="mymodal" asp-controller="Accounts" method="post">
+                <input type="hidden" id="email" name="email" />
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title"></h4>
+                </div>
+                <div class="modal-body">
+                    <p class="message"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <input type="submit" id="ConfirmButton" class="btn btn-primary" value="Confirm" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script type="text/javascript">
+    $('a.SendInvite').on('click', function (e) {
+        e.preventDefault();
+        $("h4.modal-title").text("Registration Invitation");
+        $("p.message").text("Invite this user to register?");
+        $("#mymodal").attr("action", "/accounts/sendinvitation");
+        var email = $(this).closest('tr').data('email');
+        $('#myModal').data('email', email).modal('show');
+    });
+
+    $('a.Revokeaccess').on('click', function (e) {
+        e.preventDefault();
+        $("h4.modal-title").text("Revoke Access");
+        $("p.message").text("Recoke access for this user?");
+        $("#mymodal").attr("action", "/accounts/revokeaccess");
+        var email = $(this).closest('tr').data('email');
+        $('#myModal').data('email', email).modal('show');
+    });
+
+
+    $('#ConfirmButton').click(function () {
+        var email = $('#myModal').data('email');
+        $("#email").val(email);
+        $('#myModal').modal('hide');
+    });
+</script>
+}
