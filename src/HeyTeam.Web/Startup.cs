@@ -56,12 +56,17 @@ namespace HeyTeam.Web {
                 //options.UseSqlite(Configuration.GetConnectionString("ConnectionString")));
                 options.UseSqlServer(Configuration["ConnectionString"]));
 
-            services.AddIdentity<ApplicationUser, IdentityRole>(config =>
-			{
+			services.AddIdentity<ApplicationUser, IdentityRole>(config => {
 				config.SignIn.RequireConfirmedEmail = true;
 			})
-             .AddEntityFrameworkStores<ApplicationDbContext>()
-             .AddDefaultTokenProviders();
+			.AddEntityFrameworkStores<ApplicationDbContext>()
+			.AddDefaultTokenProviders();
+
+			 services.ConfigureApplicationCookie(options =>
+			 {
+				 options.LoginPath = "/accounts/login";
+				 options.LogoutPath = "/accounts/logout";
+			 }); 
 
 			services.AddMemoryCache();
 			// Add application services.
@@ -118,6 +123,9 @@ namespace HeyTeam.Web {
 			services.AddScoped<ILibraryRepository, LibraryRepository>();
 			services.AddScoped<ILibraryService, LibraryService>();
 			services.AddScoped<ILibraryQuery, LibraryQuery>();
+
+			services.AddScoped<IValidator<InvitationRequest>, InvitationRequestValidator>();
+			services.AddScoped<IAccountsService, AccountsService>();
 
 		}
 

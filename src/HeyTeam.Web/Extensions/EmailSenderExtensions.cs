@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using HeyTeam.Web.Services;
+using HeyTeam.Core.Services;
 
 namespace HeyTeam.Web.Services
 {

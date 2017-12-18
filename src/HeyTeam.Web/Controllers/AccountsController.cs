@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.DataProtection;
 using HeyTeam.Lib.Settings;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Options;
+using HeyTeam.Core.Services;
 
 //https://docs.microsoft.com/en-us/aspnet/core/security/authentication/accconfirm?tabs=aspnetcore2x%2Csql-server
 namespace HeyTeam.Web.Controllers {
@@ -33,6 +34,7 @@ namespace HeyTeam.Web.Controllers {
         private readonly ILogger logger;
         private readonly IIdentityInitializer initializer;
 		private readonly IDataProtectionProvider dataProtectionProvider;
+		private readonly IAccountsService accountService;
 		private readonly CryptographicSettings cryptographicSettings;
 
 		public AccountsController(
@@ -42,9 +44,8 @@ namespace HeyTeam.Web.Controllers {
             SignInManager<ApplicationUser> signInManager,
             IEmailSender emailSender,
             ILogger<AccountsController> logger,
-            IIdentityInitializer initializer,
-			IDataProtectionProvider dataProtectionProvider,
-			IOptions<CryptographicConfiguration> cryptographicConfiguration
+            IIdentityInitializer initializer,			
+			IAccountsService accountService
 			)
         {
 			this.club = club;
@@ -54,8 +55,7 @@ namespace HeyTeam.Web.Controllers {
             this.emailSender = emailSender;
             this.logger = logger;
             this.initializer = initializer;
-			this.dataProtectionProvider = dataProtectionProvider;
-			this.cryptographicSettings = cryptographicConfiguration.Value.CryptographicSettings;
+			this.accountService = accountService;
 		}
 
 		[Authorize(Policy = "Administrator")]
@@ -71,22 +71,7 @@ namespace HeyTeam.Web.Controllers {
 									AccountIsLocked = g.Select(u => u.AccountLocked).FirstOrDefault()
 								}).ToList();
 			return View(model);
-		}
-
-		[Authorize(Policy = "Administrator")]
-		[HttpPost]
-		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> SendInvitation(string email) {
-			var invite = new SendInvitationModel {
-				Club = club.Guid.ToString(),
-				Email = email,
-				Expiry = DateTime.Now.AddDays(10)
-			};
-
-			var token = Protect(invite, cryptographicSettings.RegistrationPurposeKey);
-			await emailSender.SendEmailAsync(email, "Test", "This is a test");
-			return RedirectToAction(nameof(Index));
-		}
+		}		
 
 		[Authorize(Policy = "Administrator")]
 		[HttpPost]
@@ -280,11 +265,13 @@ namespace HeyTeam.Web.Controllers {
         [AllowAnonymous]
         public IActionResult Register(string token, string returnUrl = null)
         {
-			if(token.IsEmpty())
-				return View("RegistrationDenied");
-			
-			 
+			//verify expiry
+			//verify email, email must be the same as decrypted, email must be a player or coach
+			//player must not be already registered
 
+			if(token.IsEmpty())
+				return View("RegistrationDenied");			 
+			
 			ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
@@ -536,11 +523,6 @@ namespace HeyTeam.Web.Controllers {
             }
         }
 
-		private string Protect(object target, string key) => dataProtectionProvider.CreateProtector(key).Protect(JsonConvert.SerializeObject(target));
-
-		private string Protect(string target, string key) => dataProtectionProvider.CreateProtector(key).Protect(target);
-
-		private string UnProtect(string target, string key) => dataProtectionProvider.CreateProtector(key).Unprotect(target);
         #endregion
     }
 }
