@@ -8,6 +8,7 @@ namespace HeyTeam.Core.Services
 	{
 		Response SendInvitation(InvitationRequest request);
 		Response CreateMemberAccount(MembershipRequest request);
+		Response VerifyToken(TokenVerificationRequest request);
     }
 
 	public class InvitationRequest {
@@ -19,5 +20,9 @@ namespace HeyTeam.Core.Services
 		public string Token { get; set; }
 		public string Email { get; set; }
 		public string Password { get; set; }
+	}
+
+	public class TokenVerificationRequest{
+		public string Token { get; set; }
 	}
 }

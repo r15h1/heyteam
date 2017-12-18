@@ -1,2 +1,9 @@
-﻿<h2>Invalid or Expired Registration Link</h2>
-<p>This registration link is not valid or has expired. Please contact your administrator.</p>
+﻿@model IEnumerable<string>
+@using HeyTeam.Util
+<h2>Invalid Link</h2>
+<p>This link is not valid or has expired. Please contact your administrator.</p>
+@if(Model.Any()) {
+    @foreach (var error in Model) {
+        @Html.Raw($"<p>{error}</p>") 
+    }
+}

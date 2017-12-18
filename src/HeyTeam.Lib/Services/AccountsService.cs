@@ -33,6 +33,10 @@ namespace HeyTeam.Lib.Services {
 			this.clubQuery = clubQuery;
 		}
 
+		public Response CreateMemberAccount(MembershipRequest request) {
+			throw new NotImplementedException();
+		}
+
 		public Response SendInvitation(InvitationRequest request) {
 			var validationResult = invitationRequestValidator.Validate(request);
 			if (!validationResult.IsValid)
@@ -63,6 +67,10 @@ namespace HeyTeam.Lib.Services {
 			} catch(Exception ex) {
 				return Response.CreateResponse(ex);
 			}
+		}
+
+		public Response VerifyToken(TokenVerificationRequest request) {
+			return Response.CreateResponse(new NotImplementedException());
 		}
 
 		private string Protect(object target, string key) => dataProtectionProvider.CreateProtector(key).Protect(JsonConvert.SerializeObject(target));

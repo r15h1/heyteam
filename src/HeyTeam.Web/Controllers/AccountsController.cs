@@ -270,8 +270,12 @@ namespace HeyTeam.Web.Controllers {
 			//player must not be already registered
 
 			if(token.IsEmpty())
-				return View("RegistrationDenied");			 
-			
+				return View("RegistrationDenied", new string[] { "Invalid Registration Token" });
+
+			var response = accountService.VerifyToken(new TokenVerificationRequest { Token = token });
+			if(!response.RequestIsFulfilled)
+				return View("RegistrationDenied", response.Errors);
+
 			ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
