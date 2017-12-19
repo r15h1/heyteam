@@ -276,7 +276,6 @@ namespace HeyTeam.Web.Controllers {
 			if(!response.RequestIsFulfilled)
 				return View("RegistrationDenied", response.Errors);
 
-			ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
 
