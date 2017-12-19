@@ -23,7 +23,7 @@ using HeyTeam.Core.Services;
 //https://docs.microsoft.com/en-us/aspnet/core/security/authentication/accconfirm?tabs=aspnetcore2x%2Csql-server
 namespace HeyTeam.Web.Controllers {
 	[Authorize]
-    //[Route("[controller]/[action]")]
+    [Route("[controller]/[action]")]
     public class AccountsController : Controller
     {
 		private readonly Club club;

@@ -68,6 +68,7 @@ namespace HeyTeam.Web {
 			 {
 				 options.LoginPath = "/accounts/login";
 				 options.LogoutPath = "/accounts/logout";
+				 options.AccessDeniedPath = "/accounts/accessdenied";
 			 }); 
 
 			services.AddMemoryCache();

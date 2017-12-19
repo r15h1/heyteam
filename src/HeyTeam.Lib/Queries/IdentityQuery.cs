@@ -24,17 +24,23 @@ namespace HeyTeam.Lib.Queries
 		}
 
 		public IEnumerable<User> GetUsers(Guid clubId) {
-			string sql = @"SELECT P.FirstName, P.LastName, P.Email, U.Id AS UserId, R.Name AS Role, 
+			string sql = @"SELECT M.*, U.Id AS UserId, R.Name AS Role, 
 							CAST (CASE WHEN U.LockoutEnd IS NOT NULL AND U.LockoutEnd > GetUTCDate() THEN 1 ELSE 0 END AS Bit) AS AccountLocked,
-							U.EmailConfirmed
-						FROM Players P
-						INNER JOIN Squads S ON P.SquadId = S.SquadId
-						INNER JOIN Clubs C ON C.ClubId = S.ClubId
-						LEFT JOIN AspNetUsers U ON P.Email = U.Email
-						LEFT JOIN AspNetUserRoles UR ON U.Id = UR.UserId
-						LEFT JOIN AspNetRoles R ON UR.RoleId = R.Id
-						WHERE C.Guid = @ClubGuid
-						ORDER BY P.FirstName, P.LastName, P.Email";
+							U.EmailConfirmed FROM
+							(SELECT P.Guid, P.FirstName, P.LastName, P.Email, P.DateOfBirth, 'Player' AS Membership
+							FROM Players P
+							INNER JOIN Squads S ON P.SquadId = S.SquadId
+							INNER JOIN Clubs C ON C.ClubId = S.ClubId
+							WHERE C.Guid = @ClubGuid
+								UNION ALL
+							SELECT CO.Guid, CO.FirstName, CO.LastName, CO.Email, CO.DateOfBirth, 'Coach' AS Membership
+							FROM Coaches CO
+							INNER JOIN Clubs CL ON CO.ClubId = CL.ClubId
+							WHERE CL.Guid = @ClubGuid) M
+							LEFT JOIN AspNetUsers U ON M.Email = U.Email
+							LEFT JOIN AspNetUserRoles UR ON U.Id = UR.UserId
+							LEFT JOIN AspNetRoles R ON UR.RoleId = R.Id
+						ORDER BY M.FirstName, M.LastName, M.Email";
 
 			var p = new DynamicParameters();
 			p.Add("@ClubGuid", clubId.ToString());
