@@ -16,11 +16,13 @@ using HeyTeam.Lib.Validation;
 using HeyTeam.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.IO;
 
 namespace HeyTeam.Web {
 	public class Startup
@@ -76,7 +78,9 @@ namespace HeyTeam.Web {
 			services.AddRouting(options => options.LowercaseUrls = true);
 			services.AddMvc();
 
-			services.AddDataProtection();
+			services.AddDataProtection()
+				.PersistKeysToFileSystem(new DirectoryInfo(@"C:\Temp\Keys"))
+				.SetApplicationName("HeyTeam.Web");
 
 			services.AddAuthorization(options =>
 			{

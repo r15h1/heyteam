@@ -18,6 +18,11 @@ namespace HeyTeam.Lib.Queries
 			ThrowIf.ArgumentIsNull(factory);
 			this.connectionFactory = factory;
 		}
+
+		public User GetUserByEmail(Guid clubId, string email) {
+			throw new NotImplementedException();
+		}
+
 		public IEnumerable<User> GetUsers(Guid clubId) {
 			string sql = @"SELECT P.FirstName, P.LastName, P.Email, U.Id AS UserId, R.Name AS Role, 
 							CAST (CASE WHEN U.LockoutEnd IS NOT NULL AND U.LockoutEnd > GetUTCDate() THEN 1 ELSE 0 END AS Bit) AS AccountLocked,

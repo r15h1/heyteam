@@ -72,21 +72,37 @@ namespace HeyTeam.Lib.Services
 			}
 		}
 
-		public Response VerifyToken(TokenVerificationRequest request) {
+		public (Response Response, Invitation Invitation) VerifyToken(TokenVerificationRequest request) {
             if (request == null || request.Token.IsEmpty())
-                return Response.CreateResponse(new ArgumentNullException("request", "Token cannot be null"));
+                return (Response.CreateResponse(new ArgumentNullException("request", "Token cannot be null")), null);
 
             try {
-                var json = UnProtect(request.Token, cryptographicSettings.RegistrationPurposeKey);
-                var invite = JsonConvert.DeserializeObject<Invitation>(json);
-                return Response.CreateSuccessResponse();
-            } catch(Exception ex) {
-                return Response.CreateResponse(ex);
-            }
-            
-            
+				Invitation invite = DecryptToken(request.Token);
 
-            return Response.CreateResponse(new NotImplementedException());
+				if (invite == null || invite.ClubId.IsEmpty() || invite.Email.IsEmpty() || invite.Expiry.IsEmpty())
+					return (Response.CreateResponse(new ArgumentNullException("token", "The token is invalid")), null);
+
+				if (invite.Expiry.Value < DateTime.Today)
+					return (Response.CreateResponse(new IllegalOperationException("The token is expired")), null);
+
+				var club = clubQuery.GetClub(invite.ClubId.Value);
+				if (club == null || club.Guid != request.ClubId)
+					return (Response.CreateResponse(new EntityNotFoundException("The token does not correspond to this club")), null);
+
+				IEnumerable<Member> members = clubQuery.GetMembersByEmail(club.Guid, invite.Email);
+				if (!members.Any())
+					return (Response.CreateResponse(new EntityNotFoundException("The token does not correspond to any player or coach")), null);
+
+				return (Response.CreateSuccessResponse(), invite);
+			} catch (Exception ex) {
+                return (Response.CreateResponse(ex), null);
+            }
+		}
+
+		private Invitation DecryptToken(string token) {
+			var json = UnProtect(token, cryptographicSettings.RegistrationPurposeKey);
+			var invite = JsonConvert.DeserializeObject<Invitation>(json);
+			return invite;
 		}
 
 		private string Protect(object target, string key) => dataProtectionProvider.CreateProtector(key).Protect(JsonConvert.SerializeObject(target));
@@ -96,11 +112,4 @@ namespace HeyTeam.Lib.Services
 		private string UnProtect(string target, string key) => dataProtectionProvider.CreateProtector(key).Unprotect(target);
 
 	}
-
-    class Invitation
-    {
-        public Guid? ClubId { get; set; }
-        public string Email { get; set; }
-        public DateTime? Expiry { get; set; }
-    }
 }

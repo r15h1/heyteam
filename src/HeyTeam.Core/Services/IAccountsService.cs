@@ -8,7 +8,7 @@ namespace HeyTeam.Core.Services
 	{
 		Response SendInvitation(InvitationRequest request);
 		Response CreateMemberAccount(MembershipRequest request);
-		Response VerifyToken(TokenVerificationRequest request);
+		(Response Response, Invitation Invitation) VerifyToken(TokenVerificationRequest request);
     }
 
 	public class InvitationRequest {
@@ -24,5 +24,12 @@ namespace HeyTeam.Core.Services
 
 	public class TokenVerificationRequest{
 		public string Token { get; set; }
+		public Guid ClubId{ get; set; }
+	}
+
+	public class Invitation {
+		public Guid? ClubId { get; set; }
+		public string Email { get; set; }
+		public DateTime? Expiry { get; set; }
 	}
 }

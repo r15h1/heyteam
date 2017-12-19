@@ -263,20 +263,20 @@ namespace HeyTeam.Web.Controllers {
 
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult Register(string token, string returnUrl = null)
+        public async Task<IActionResult> Register(string token, string returnUrl = null)
         {
-			//verify expiry
-			//verify email, email must be the same as decrypted, email must be a player or coach
-			//player must not be already registered
-
 			if(token.IsEmpty())
 				return View("RegistrationDenied", new string[] { "Invalid Registration Token" });
 
-			var response = accountService.VerifyToken(new TokenVerificationRequest { Token = token });
+			var (response, invitation) = accountService.VerifyToken(new TokenVerificationRequest { Token = token, ClubId = club.Guid });
 			if(!response.RequestIsFulfilled)
 				return View("RegistrationDenied", response.Errors);
 
-            return View();
+			var user = await userManager.FindByEmailAsync(invitation.Email);
+			if (user != null)
+				return View("RegistrationDenied", new string[] { "This user is already registered"});
+
+			return View();
         }
 
         [HttpPost]
