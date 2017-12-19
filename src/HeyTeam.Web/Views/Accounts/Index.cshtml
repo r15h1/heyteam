@@ -6,8 +6,8 @@
     <table class="table table-bordered table-hover">
         <thead>
             <tr>
-                <th class="text-center">Login / Email</th>
                 <th class="text-center">Name</th>
+                <th class="text-center">Login / Email</th>                
                 <th class="text-center">Access Rights</th>
                 <th class="text-center">Registered</th>
                 <th class="text-center">Account Locked</th>
@@ -16,11 +16,11 @@
         </thead>
         <tbody>
             @foreach (var item in Model) {                
-            <tr data-email="@item.Email">
-                <td>@Html.DisplayFor(modelItem => item.Email)</td>
+            <tr data-email="@item.Email">                
                 <td>@foreach(var name in item.Names) {
                         <div>@name</div>
                     }</td>
+                <td>@Html.DisplayFor(modelItem => item.Email)</td>
                 <td class="text-center">@foreach (var access in item.Access) {
                     <div>@access</div>
                     }</td>

@@ -19,6 +19,8 @@ using HeyTeam.Lib.Settings;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Options;
 using HeyTeam.Core.Services;
+using System.Collections.Generic;
+using HeyTeam.Core.Identity;
 
 //https://docs.microsoft.com/en-us/aspnet/core/security/authentication/accconfirm?tabs=aspnetcore2x%2Csql-server
 namespace HeyTeam.Web.Controllers {
@@ -35,6 +37,7 @@ namespace HeyTeam.Web.Controllers {
         private readonly IIdentityInitializer initializer;
 		private readonly IDataProtectionProvider dataProtectionProvider;
 		private readonly IAccountsService accountService;
+		private readonly IIdentityManager identityManager;
 		private readonly CryptographicSettings cryptographicSettings;
 
 		public AccountsController(
@@ -45,7 +48,8 @@ namespace HeyTeam.Web.Controllers {
             IEmailSender emailSender,
             ILogger<AccountsController> logger,
             IIdentityInitializer initializer,			
-			IAccountsService accountService
+			IAccountsService accountService,
+			IIdentityManager identityManager
 			)
         {
 			this.club = club;
@@ -56,6 +60,7 @@ namespace HeyTeam.Web.Controllers {
             this.logger = logger;
             this.initializer = initializer;
 			this.accountService = accountService;
+			this.identityManager = identityManager;
 		}
 
 		[Authorize(Policy = "Administrator")]
@@ -265,46 +270,60 @@ namespace HeyTeam.Web.Controllers {
         [AllowAnonymous]
         public async Task<IActionResult> Register(string token, string returnUrl = null)
         {
-			if(token.IsEmpty())
-				return View("RegistrationDenied", new string[] { "Invalid Registration Token" });
+			var (messages, invitation) = await VerifyToken(token);
+			if(messages.Any())
+				return View("RegistrationDenied", messages);
 
-			var (response, invitation) = accountService.VerifyToken(new TokenVerificationRequest { Token = token, ClubId = club.Guid });
-			if(!response.RequestIsFulfilled)
-				return View("RegistrationDenied", response.Errors);
-
-			var user = await userManager.FindByEmailAsync(invitation.Email);
-			if (user != null)
-				return View("RegistrationDenied", new string[] { "This user is already registered"});
-
+			ViewData["Token"] = token;
 			return View();
         }
 
-        [HttpPost]
+		private async Task<(IEnumerable<string>, Invitation)> VerifyToken(string token) {
+			if (token.IsEmpty())
+				return (new string[] { "Invalid Registration Token" }, null);
+
+			var (response, invitation) = accountService.VerifyToken(new TokenVerificationRequest { Token = token, ClubId = club.Guid });
+			if (!response.RequestIsFulfilled)
+				return (response.Errors, null);
+
+			var user = await userManager.FindByEmailAsync(invitation.Email);
+			if (user != null)
+				return (new string[] { "This user is already registered" }, null);
+
+			return (new string[] { }, invitation);
+		}
+
+		[HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model, string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
-            if (ModelState.IsValid)
-            {
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
-                var result = await userManager.CreateAsync(user, model.Password);
-                if (result.Succeeded)
-                {
-                    logger.LogInformation("User created a new account with password.");
+			if (ModelState.IsValid) {
+				var (messages, invitation) = await VerifyToken(model.Token);
+				if (messages.Any())
+					return View("RegistrationDenied", messages);
+				else if (invitation == null || invitation.Email.IsEmpty() || !invitation.Email.ToLowerInvariant().Equals(model.Email.ToLowerInvariant()))
+					return View("RegistrationDenied", new string[] { "The specified email does not match our records" });
 
-                    var code = await userManager.GenerateEmailConfirmationTokenAsync(user);
-                    var callbackUrl = Url.EmailConfirmationLink(user.Id, code, Request.Scheme);
-                    await emailSender.SendEmailConfirmationAsync(model.Email, callbackUrl);
+				var result = await identityManager.SetupUser(new Credential { Email = model.Email, Password = model.Password });
 
-                    await signInManager.SignInAsync(user, isPersistent: false);
-                    logger.LogInformation("User created a new account with password.");
-                    return RedirectToLocal(returnUrl);
-                }
-                AddErrors(result);
-            }
+				if (result.Succeeded) {
+					logger.LogInformation("User created a new account with password.");
+					var user = await userManager.FindByEmailAsync(model.Email);
+					var code = await userManager.GenerateEmailConfirmationTokenAsync(user);
+					var callbackUrl = Url.EmailConfirmationLink(user.Id, code, Request.Scheme);
+					await emailSender.SendEmailConfirmationAsync(model.Email, callbackUrl);
 
-            // If we got this far, something failed, redisplay form
+					await signInManager.SignInAsync(user, isPersistent: false);
+					logger.LogInformation("User created a new account with password.");
+					return RedirectToLocal(returnUrl);
+				} else {
+					foreach (var error in result.Errors)
+						ModelState.AddModelError(string.Empty, error);
+				}
+			}
+
             return View(model);
         }
 

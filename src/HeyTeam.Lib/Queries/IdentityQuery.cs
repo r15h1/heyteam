@@ -50,7 +50,7 @@ namespace HeyTeam.Lib.Queries
 				var reader = connection.Query(sql, p).Cast<IDictionary<string, object>>();
 				var users = reader.Select<dynamic, User>(row => new User(row.UserId) {
 						Email = row.Email,
-						Roles = row.Roles,
+						Roles = row.Role,
 						Name = $"{row.FirstName} {row.LastName}",
 						AccountLocked = row.AccountLocked,
 						EmailConfirmed = row.EmailConfirmed,
