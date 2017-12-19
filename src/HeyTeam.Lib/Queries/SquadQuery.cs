@@ -10,20 +10,18 @@ using System.Linq;
 namespace HeyTeam.Lib.Repositories {
 	public class SquadQuery : ISquadQuery {
         private readonly IDbConnectionFactory connectionFactory;
-		private readonly IPlayerQuery playerQuery;
-		private readonly ICoachQuery coachQuery;
+		private readonly IMemberQuery memberQuery;
 
-		public SquadQuery(IDbConnectionFactory factory, IPlayerQuery playerQuery, ICoachQuery coachQuery) {
+		public SquadQuery(IDbConnectionFactory factory, IMemberQuery memberQuery) {
             ThrowIf.ArgumentIsNull(factory);
             this.connectionFactory = factory;
-			this.playerQuery = playerQuery;
-			this.coachQuery = coachQuery;
+			this.memberQuery = memberQuery;
 		}
 
 		public (Squad Squad, IEnumerable<Player> Players, Coach Coach) GetFullSquadDetails(Guid squadId) {
 			var squad = GetSquad(squadId);
-			var players = playerQuery.GetPlayers(squadId);
-			var coach = coachQuery.GetSquadCoaches(squadId);
+			var players = memberQuery.GetPlayers(squadId);
+			var coach = memberQuery.GetSquadCoaches(squadId);
 
 			return (squad, players, coach.FirstOrDefault());
 		}

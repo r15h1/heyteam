@@ -13,13 +13,13 @@ namespace HeyTeam.Web.Controllers {
 		private readonly Club club;
 		private readonly IPlayerService playerService;
 		private readonly ISquadQuery squadQuery;
-		private readonly IPlayerQuery playerQuery;
+		private readonly IMemberQuery playerQuery;
 
 		public PlayersController(
 			Club club,
 			ISquadQuery squadQuery,
 			IPlayerService playerService,
-			IPlayerQuery playerQuery
+			IMemberQuery playerQuery
 		) {
 			this.club = club;
 			this.squadQuery = squadQuery;

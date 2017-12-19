@@ -14,21 +14,21 @@ namespace HeyTeam.Web.Controllers {
 	public class CoachesController : Controller {
 		private readonly Club club;
 		private readonly ICoachService coachService;
-		private readonly ICoachQuery coachQuery;
+		private readonly IMemberQuery memberQuery;
 
 		public CoachesController(Club club,
 			ICoachService coachService,
-			ICoachQuery coachQuery
+			IMemberQuery memberQuery
 		) {
 			this.club = club;	
 			this.coachService = coachService;
-			this.coachQuery = coachQuery;
+			this.memberQuery = memberQuery;
 		}
 
 		[HttpGet]
 		public IActionResult Index() {
 			List<CoachViewModel> list = new List<CoachViewModel>();
-			var coaches = coachQuery.GetClubCoaches(club.Guid);
+			var coaches = memberQuery.GetClubCoaches(club.Guid);
 			foreach (var coach in coaches)
 				list.Add(Map(coach));
 				
@@ -71,7 +71,7 @@ namespace HeyTeam.Web.Controllers {
 
 		[HttpGet("{coachId:guid}")]
 		public IActionResult Edit(string coachId) {
-			var coaches = coachQuery.GetClubCoaches(club.Guid);
+			var coaches = memberQuery.GetClubCoaches(club.Guid);
 			var coach = coaches.FirstOrDefault(c => c.Guid.ToString().Equals(coachId));
 			return View(Map(coach));
 		}

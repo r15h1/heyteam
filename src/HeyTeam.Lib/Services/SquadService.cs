@@ -13,14 +13,14 @@ namespace HeyTeam.Lib.Services {
 		private readonly ISquadRepository squadRepository;
 		private readonly ISquadQuery squadQuery;
 		private readonly IClubQuery clubQuery;
-		private readonly ICoachQuery coachQuery;
+		private readonly IMemberQuery memberQuery;
 
-		public SquadService(ISquadRepository squadRepository, ISquadQuery squadQuery, IClubQuery clubQuery, ICoachQuery coachQuery)
+		public SquadService(ISquadRepository squadRepository, ISquadQuery squadQuery, IClubQuery clubQuery, IMemberQuery memberQuery)
 		{
 			this.squadRepository = squadRepository;
 			this.squadQuery = squadQuery;
 			this.clubQuery = clubQuery;
-			this.coachQuery = coachQuery;
+			this.memberQuery = memberQuery;
 		}
 
 		public Response AssignCoach(Guid squadId, Guid coachId) {
@@ -28,7 +28,7 @@ namespace HeyTeam.Lib.Services {
 			if (squad == null)
 				return Response.CreateResponse(new List<string> { "The specified squad does not exist" });
 
-			var coach = coachQuery.GetCoach(coachId);
+			var coach = memberQuery.GetCoach(coachId);
 			if (coach == null)
 				return Response.CreateResponse(new List<string> { "The specified coach does not exist" });
 			else if(squad.ClubId != coach.ClubId)

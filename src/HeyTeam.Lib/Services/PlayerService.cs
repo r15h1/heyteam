@@ -10,11 +10,11 @@ using System;
 namespace HeyTeam.Lib.Services {
 	public class PlayerService : IPlayerService {
 		private readonly IPlayerRepository playerRepository;
-		private readonly IPlayerQuery playerQuery;
+		private readonly IMemberQuery playerQuery;
 		private readonly ISquadQuery squadQuery;
 		private readonly IValidator<PlayerRequest> validator;
 
-		public PlayerService(IPlayerRepository playerRepository, IPlayerQuery playerQuery, ISquadQuery squadQuery, IValidator<PlayerRequest> validator)	{
+		public PlayerService(IPlayerRepository playerRepository, IMemberQuery playerQuery, ISquadQuery squadQuery, IValidator<PlayerRequest> validator)	{
 			this.playerRepository = playerRepository;
 			this.playerQuery = playerQuery;
 			this.squadQuery = squadQuery;

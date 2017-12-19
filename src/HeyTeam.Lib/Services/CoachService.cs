@@ -10,17 +10,17 @@ using System;
 namespace HeyTeam.Lib.Services {
 	public class CoachService : ICoachService {
 		private readonly IClubQuery clubQuery;
-		private readonly ICoachQuery coachQuery;
+		private readonly IMemberQuery memberQuery;
 		private readonly ICoachRepository coachRepository;
 		private readonly IValidator<CoachRequest> validator;
 
-		public CoachService(IClubQuery clubQuery,  ICoachQuery coachQuery, ICoachRepository coachRepository, IValidator<CoachRequest> validator) {
+		public CoachService(IClubQuery clubQuery,  IMemberQuery memberQuery, ICoachRepository coachRepository, IValidator<CoachRequest> validator) {
 			ThrowIf.ArgumentIsNull(clubQuery);
 			ThrowIf.ArgumentIsNull(coachRepository);
 			ThrowIf.ArgumentIsNull(validator);
 
 			this.clubQuery = clubQuery;
-			this.coachQuery = coachQuery;
+			this.memberQuery = memberQuery;
 			this.coachRepository = coachRepository;
 			this.validator = validator;
 		}
@@ -51,7 +51,7 @@ namespace HeyTeam.Lib.Services {
 			if (club == null)
 				return Response.CreateResponse(new EntityNotFoundException("The specified club does not exist"));
 
-			var coach = coachQuery.GetCoach(request.CoachId.Value);
+			var coach = memberQuery.GetCoach(request.CoachId.Value);
 			if(coach == null || coach.ClubId != request.ClubId)
 				return Response.CreateResponse(new EntityNotFoundException("The specified coach does not exist"));
 

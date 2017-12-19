@@ -106,11 +106,10 @@ namespace HeyTeam.Web {
 			services.AddScoped<IValidator<DashboardRequest>, DashboardRequestValidator>();
 			
 			services.AddScoped<IValidator<PlayerRequest>, PlayerRequestValidator>();
-			services.AddScoped<IPlayerQuery, PlayerQuery>();
+			services.AddScoped<IMemberQuery, MemberQuery>();
 			services.AddScoped<IPlayerRepository, PlayerRepository>();
 			services.AddScoped<IPlayerService, PlayerService>();
 
-			services.AddScoped<ICoachQuery, CoachQuery>();
 			services.AddScoped<ICoachRepository, CoachRepository>();
 			services.AddScoped<IValidator<CoachRequest>, CoachRequestValidator>();
 			services.AddScoped<ICoachService, CoachService>();

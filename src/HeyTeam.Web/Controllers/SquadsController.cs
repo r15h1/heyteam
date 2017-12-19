@@ -17,18 +17,18 @@ namespace HeyTeam.Web.Controllers {
         private readonly Club club;
         private readonly ISquadService squadService;
 		private readonly ISquadQuery squadQuery;
-		private readonly ICoachQuery coachQuery;
+		private readonly IMemberQuery memberQuery;
 
 		public SquadsController(
                 Club club,
 				ISquadService squadService,
 				ISquadQuery squadQuery,
-				ICoachQuery coachQuery
+				IMemberQuery memberQuery
 		) {
             this.club = club;
             this.squadService = squadService;
 			this.squadQuery = squadQuery;
-			this.coachQuery = coachQuery;
+			this.memberQuery = memberQuery;
 		}
 
         [HttpGet("{squadId:guid}")]
@@ -85,7 +85,7 @@ namespace HeyTeam.Web.Controllers {
 		[HttpGet("{squadId:guid}/coach")]
 		public IActionResult Coach([FromRoute]string squadId) {
 			var response = squadQuery.GetFullSquadDetails(System.Guid.Parse(squadId));
-			var coaches = coachQuery.GetClubCoaches(club.Guid);
+			var coaches = memberQuery.GetClubCoaches(club.Guid);
 			if (response.Coach != null)
 				coaches = coaches.Where(c => !c.Guid.Equals(response.Coach.Guid));
 

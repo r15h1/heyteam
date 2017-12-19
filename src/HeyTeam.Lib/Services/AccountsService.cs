@@ -22,18 +22,20 @@ namespace HeyTeam.Lib.Services
 		private readonly IEmailSender emailSender;
 		private readonly IValidator<InvitationRequest> invitationRequestValidator;
         private readonly IClubQuery clubQuery;
-		private readonly IPlayerQuery playerQuery;
+		private readonly IMemberQuery memberQuery;
 
 		public AccountsService(IDataProtectionProvider dataProtectionProvider, 
 								IOptions<CryptographicConfiguration> cryptographicConfiguration, 
 								IEmailSender emailSender,
 								IValidator<InvitationRequest> invitationRequestValidator,
-                                IClubQuery clubQuery) {
+                                IClubQuery clubQuery,
+								IMemberQuery memberQuery) {
 			this.dataProtectionProvider = dataProtectionProvider;
 			this.cryptographicSettings = cryptographicConfiguration.Value.CryptographicSettings;
 			this.emailSender = emailSender;
 			this.invitationRequestValidator = invitationRequestValidator;
             this.clubQuery = clubQuery;
+			this.memberQuery = memberQuery;
 		}
 
 		public Response CreateMemberAccount(MembershipRequest request) {
@@ -49,7 +51,7 @@ namespace HeyTeam.Lib.Services
 			if(club == null)
 				return Response.CreateResponse(new EntityNotFoundException("The specified club does not exist"));
 
-			IEnumerable<Member> members = clubQuery.GetMembersByEmail(club.Guid, request.Email);
+			IEnumerable<Member> members = memberQuery.GetMembersByEmail(club.Guid, request.Email);
 			if(!members.Any())
 				return Response.CreateResponse(new EntityNotFoundException("The specified member (email) does not exist in the specified club"));
 
@@ -89,7 +91,7 @@ namespace HeyTeam.Lib.Services
 				if (club == null || club.Guid != request.ClubId)
 					return (Response.CreateResponse(new EntityNotFoundException("The token does not correspond to this club")), null);
 
-				IEnumerable<Member> members = clubQuery.GetMembersByEmail(club.Guid, invite.Email);
+				IEnumerable<Member> members = memberQuery.GetMembersByEmail(club.Guid, invite.Email);
 				if (!members.Any())
 					return (Response.CreateResponse(new EntityNotFoundException("The token does not correspond to any player or coach")), null);
 
