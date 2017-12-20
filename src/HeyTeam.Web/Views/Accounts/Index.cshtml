@@ -45,8 +45,9 @@
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
-                        <li>@(Html.Raw(item.UserId.IsEmpty() ? "<a class='SendInvite' href='#'>Send Invite</a>" : "<a class='Revokeaccess' href='#'>Revoke Access</a>"))</li>
-                        <li>@(Html.Raw(item.AccountIsLocked.HasValue && !item.UserId.IsEmpty() ? (item.AccountIsLocked.Value ? "<a class='Unlock' href='#'>Unlock</a>" : "<a class='Lock' href='#'>Lock</a>") : ""))</li>
+                        @*<li>@(Html.Raw(item.UserId.IsEmpty() ? "<a class='SendInvite' href='#'>Send Invite</a>" : "<a class='Revokeaccess' href='#'>Revoke Access</a>"))</li>*@
+                        @(Html.Raw(item.UserId.IsEmpty() ? "<li><a class='SendInvite' href='#'>Send Invite</a></li>" : ""))
+                        @(Html.Raw(item.AccountIsLocked.HasValue && !item.UserId.IsEmpty() ? (item.AccountIsLocked.Value ? "<li><a class='Unlock' href='#'>Unlock</a></li>" : "<li><a class='Lock' href='#'>Lock</a></li>") : ""))
                     </ul>
                 </div>
             </td>
@@ -80,21 +81,42 @@
 
 @section Scripts {
     <script type="text/javascript">
+        var successMessage, errorMessage, reloadPage;
         $('a.SendInvite').on('click', function (e) {
             e.preventDefault();
-            $("h4.modal-title").text("Registration Invitation");
-            $("p.message").text("Invite this user to register?");
-            $("#myform").attr("action", "/api/accounts/invitation");
             var email = $(this).closest('tr').data('email');
+            $("h4.modal-title").text("Registration Invitation");
+            $("p.message").text("Invite this user (" + email + ") to register?");
+            $("#myform").attr("action", "/api/accounts/invitation");            
+            successMessage = "Invitation email was sent successfully to " + email + ".";
+            errorMessage = "There was an error sending the invitation email to " + email + ". Please contact your administrator.";
+            reloadPage = false;
             $('#myModal').data('email', email).modal('show');
         });
 
-        $('a.Revokeaccess').on('click', function (e) {
+        $('a.Lock').on('click', function (e) {
             e.preventDefault();
-            $("h4.modal-title").text("Revoke Access");
-            $("p.message").text("Recoke access for this user?");
-            $("#myform").attr("action", "/api/accounts/revokeaccess");
             var email = $(this).closest('tr').data('email');
+            $("h4.modal-title").text("Lock Account");
+            $("p.message").text("Lock this user's account (" + email + ")?");
+            $("#myform").attr("action", "/api/accounts/togglelock");
+            
+            successMessage = "Account for user " + email + " locked successfully.";
+            errorMessage = "There was an error locking this account (" + email + "). Please contact your administrator.";
+            reloadPage = true;
+            $('#myModal').data('email', email).modal('show');
+        });
+
+        $('a.Unlock').on('click', function (e) {
+            e.preventDefault();
+            var email = $(this).closest('tr').data('email');
+            $("h4.modal-title").text("Unlock Account");
+            $("p.message").text("Unlock this user's account (" + email + ")?");
+            $("#myform").attr("action", "/api/accounts/togglelock");
+
+            successMessage = "Account for user " + email + " unlocked successfully.";
+            errorMessage = "There was an error unlocking this account (" + email + "). Please contact your administrator.";
+            reloadPage = true;
             $('#myModal').data('email', email).modal('show');
         });
 
@@ -113,17 +135,20 @@
                 url: $("#myform").attr('action'),
                 data: formData
             }).done(function () {
-                $('#messageText').text("Email was sent successfully");
+                $('#messageText').text(successMessage);
                 $('#messageDesc').text("");
                 $('#messagePopup').removeAttr("class");
-                $('#messagePopup').addClass("alert alert-success alert-dismissible").fadeIn().delay(5000).fadeOut();
+                $('#messagePopup').addClass("alert alert-success alert-dismissible").fadeIn().delay(3000).fadeOut(function () { 
+                    if (reloadPage === true) {
+                        location.reload();
+                    }
+                });
             }).fail(function (message) {
-                $('#messageText').text("There was an error sending the invitation email. Please contact your administrator.");
+                $('#messageText').text(errorMessage);
                 $('#messageDesc').text(message.responseText);
                 $('#messagePopup').removeAttr("class");
                 $('#messagePopup').addClass("alert alert-danger alert-dismissible").fadeIn().delay(10000).fadeOut();
-             });
-
+            });
         });
     </script>
 }

@@ -6,12 +6,13 @@ namespace HeyTeam.Core.Services
 {
     public interface IAccountsService 
 	{
-		Response SendInvitation(InvitationRequest request);
+		Response SendInvitation(AccountRequest request);
+		Response ToggleLock(AccountRequest request);
 		Response CreateMemberAccount(MembershipRequest request);
 		(Response Response, Invitation Invitation) VerifyToken(TokenVerificationRequest request);
     }
 
-	public class InvitationRequest {
+	public class AccountRequest {
 		public Guid ClubId { get; set; }
 		public string Email { get; set; }
 	}

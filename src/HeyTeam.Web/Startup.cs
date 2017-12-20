@@ -128,7 +128,7 @@ namespace HeyTeam.Web {
 			services.AddScoped<ILibraryService, LibraryService>();
 			services.AddScoped<ILibraryQuery, LibraryQuery>();
 
-			services.AddScoped<IValidator<InvitationRequest>, InvitationRequestValidator>();
+			services.AddScoped<IValidator<AccountRequest>, AccountRequestValidator>();
 			services.AddScoped<IAccountsService, AccountsService>();
 
 		}

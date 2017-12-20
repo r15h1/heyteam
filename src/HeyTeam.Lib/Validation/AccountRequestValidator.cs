@@ -5,9 +5,9 @@ using HeyTeam.Util;
 
 namespace HeyTeam.Lib.Validation
 {
-	public class InvitationRequestValidator : IValidator<InvitationRequest> {
-		public ValidationResult<InvitationRequest> Validate(InvitationRequest request) {
-			var result = new ValidationResult<InvitationRequest>(request);
+	public class AccountRequestValidator : IValidator<AccountRequest> {
+		public ValidationResult<AccountRequest> Validate(AccountRequest request) {
+			var result = new ValidationResult<AccountRequest>(request);
 			if (request == null) {
 				result.AddMessage("Request cannot be null");
 			} else {

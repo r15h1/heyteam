@@ -6,6 +6,7 @@ namespace HeyTeam.Core.Identity {
     {
 		Task<IdentityOperationResult> SetupUser(Credential credential);
         IdentityOperationResult AddUserToRole(string email, string role);
-        IEnumerable<string> GetRoles(string email);
+		Task<IdentityOperationResult> ToggleLock(string email);
+		IEnumerable<string> GetRoles(string email);
     }
 }

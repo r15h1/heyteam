@@ -22,7 +22,19 @@ namespace HeyTeam.Web.Controllers {
 		[HttpPost("invitation")]
 		[ValidateAntiForgeryToken]
 		public IActionResult Invitation(string email) {
-			var response = accountService.SendInvitation(new InvitationRequest {
+			var response = accountService.SendInvitation(new AccountRequest {
+				ClubId = club.Guid,
+				Email = email,
+			});
+
+			return response.RequestIsFulfilled ? Ok() : BadRequest(response.Errors) as IActionResult;
+		}
+
+		[Authorize(Policy = "Administrator")]
+		[HttpPost("togglelock")]
+		[ValidateAntiForgeryToken]
+		public IActionResult ToggleLock(string email) {
+			var response = accountService.ToggleLock(new AccountRequest {
 				ClubId = club.Guid,
 				Email = email,
 			});
