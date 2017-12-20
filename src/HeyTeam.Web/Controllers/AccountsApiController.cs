@@ -1,12 +1,7 @@
 ﻿using HeyTeam.Core;
-using HeyTeam.Core.Queries;
 using HeyTeam.Core.Services;
-using HeyTeam.Web.Models.ApiModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace HeyTeam.Web.Controllers {
 

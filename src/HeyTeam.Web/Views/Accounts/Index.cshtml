@@ -3,7 +3,11 @@
 
 <h1>Users</h1>
 <h3>List</h3>
-<div id="messagePopup" class="alert alert-success" style="display: none;" role="alert"></div>
+<div id="messagePopup" style="display:none;" role="alert">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <span id="messageText"></span><br/>
+    <span id="messageDesc"></span>
+</div>
 <div class="table-responsive">
     <table class="table table-bordered table-hover">
         <thead>
@@ -107,11 +111,19 @@
             $.ajax({
                 type: 'POST',
                 url: $("#myform").attr('action'),
-                data: formData,
-                success: function (data) {
-                    $('#messagePopup').html("EMail was sent successfully").fadeIn().delay(3000).fadeOut();
-                }
-            });
+                data: formData
+            }).done(function () {
+                $('#messageText').text("Email was sent successfully");
+                $('#messageDesc').text("");
+                $('#messagePopup').removeAttr("class");
+                $('#messagePopup').addClass("alert alert-success alert-dismissible").fadeIn().delay(5000).fadeOut();
+            }).fail(function (message) {
+                $('#messageText').text("There was an error sending the invitation email. Please contact your administrator.");
+                $('#messageDesc').text(message.responseText);
+                $('#messagePopup').removeAttr("class");
+                $('#messagePopup').addClass("alert alert-danger alert-dismissible").fadeIn().delay(10000).fadeOut();
+             });
+
         });
     </script>
 }
