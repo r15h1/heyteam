@@ -13,7 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace HeyTeam.Web.Controllers {
-	[Authorize]
+	[Authorize(Policy = "Administrator")]
 	[Route("[controller]")]
 	public class EventsController : Controller {
 		private readonly Club club;

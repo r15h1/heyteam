@@ -1,9 +1,15 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using HeyTeam.Web.Models
 @using HeyTeam.Identity
+@using Microsoft.AspNetCore.Authorization
 
+@inject IAuthorizationService AuthorizationService
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
+
+@{
+    bool isAdmin = (await AuthorizationService.AuthorizeAsync(User, "Administrator")).Succeeded;
+}
 
 <!DOCTYPE html>
 <html>
@@ -40,15 +46,19 @@
                  <div class="navbar-collapse collapse">
                     <ul class="nav navbar-nav">
                         <li><a asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
-                        <li><a asp-controller="Coaches" asp-action="Index">Coaches</a></li>
-                        <li><a asp-controller="Events" asp-action="Index">Events</a></li>
-                        <li><a asp-controller="Library" asp-action="Index">Library</a></li>
+                       @if (isAdmin) { 
+                            <li><a asp-controller="Coaches" asp-action="Index">Coaches</a></li>
+                            <li><a asp-controller="Events" asp-action="Index">Events</a></li>
+                            <li><a asp-controller="Library" asp-action="Index">Library</a></li>
+                        }
                     </ul>
                      
                     @await Html.PartialAsync("_LoginPartial")
-                     <ul class="nav navbar-nav navbar-right">
-                         <li><a asp-area="" asp-controller="Accounts" asp-action="Index">Users</a></li>
-                     </ul>
+                    @if (isAdmin) {
+                         <ul class="nav navbar-nav navbar-right">
+                             <li><a asp-area="" asp-controller="Accounts" asp-action="Index">Users</a></li>
+                         </ul>
+                     }
                 </div> 
             </div>
         </nav>

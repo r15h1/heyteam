@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace HeyTeam.Web.Controllers {
 
-	[Authorize]
+	[Authorize(Policy = "Administrator")]
 	public class PlayersController : Controller {
 		private readonly Club club;
 		private readonly IPlayerService playerService;

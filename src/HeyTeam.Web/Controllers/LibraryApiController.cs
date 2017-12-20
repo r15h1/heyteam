@@ -7,8 +7,8 @@ using System.Collections.Generic;
 
 namespace HeyTeam.Web.Controllers {
 
-	[Authorize]
-    [Produces("application/json")]
+	[Authorize(Policy = "Administrator")]
+	[Produces("application/json")]
     [Route("api/library")]
     public class LibraryApiController : Controller
     {

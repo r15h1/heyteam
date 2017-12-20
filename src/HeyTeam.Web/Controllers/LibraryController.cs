@@ -10,7 +10,7 @@ using System.Collections.Generic;
 
 namespace HeyTeam.Web.Controllers {
 
-	[Authorize]
+	[Authorize(Policy = "Administrator")]
 	[Route("[controller]")]
 	public class LibraryController : Controller
     {

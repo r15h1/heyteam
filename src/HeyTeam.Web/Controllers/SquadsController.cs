@@ -11,8 +11,8 @@ using System.Linq;
 
 namespace HeyTeam.Web.Controllers {
 
-	[Authorize]
-    [Route("[controller]")]
+	[Authorize(Policy = "Administrator")]
+	[Route("[controller]")]
     public class SquadsController : Controller {
         private readonly Club club;
         private readonly ISquadService squadService;
