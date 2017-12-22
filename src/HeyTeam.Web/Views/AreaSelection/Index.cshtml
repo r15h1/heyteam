@@ -8,7 +8,7 @@
                 @foreach (var item in Model)
             {
                 <tr>                    
-                    <td><a asp-controller="Members" asp-action="Index" asp-route-profileid="@item.Guid"> @($"{item.FirstName} {item.LastName}")</a></td>
+                    <td><a asp-area="Membership" asp-controller="Home" asp-action="Index" asp-route-memberid="@item.Guid"> @($"{item.FirstName} {item.LastName}")</a></td>
                     <td>@Html.DisplayFor(modelItem => item.Membership)</td>
                 </tr>
         }

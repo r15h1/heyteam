@@ -3,7 +3,7 @@ using HeyTeam.Core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HeyTeam.Web.Administration.Controllers {
+namespace HeyTeam.Web.Areas.Administration.Controllers {
 
     [Authorize(Policy = "Administrator")]
     [Produces("application/json")]

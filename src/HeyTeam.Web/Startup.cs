@@ -156,9 +156,13 @@ namespace HeyTeam.Web {
                    name: "area",
                    template: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
-                routes.MapRoute(
+				//routes.MapRoute(
+				//	name: "membership",
+				//	template: "{area:exists=membership}/{memberid:guid}/{controller=Home}/{action=Index}");
+
+				routes.MapRoute(
                     name: "default",
-                    template: "{controller=Members}/{action=MemberSelection}");
+                    template: "{controller=AreaSelectionController}/{action=Index}");
             });
         }
     }

@@ -11,14 +11,14 @@ using System.Threading.Tasks;
 namespace HeyTeam.Web.Controllers
 {
     [Authorize]     
-    [Route("[controller]")]
-    public class MembersController : Controller
+    [Route("")]
+    public class AreaSelectionController : Controller
     {
         private readonly Club club;
         private readonly UserManager<ApplicationUser> userManager;
         private readonly IMemberQuery memberQuery;
 
-        public MembersController(Club club, UserManager<ApplicationUser> userManager, IMemberQuery memberQuery) 
+        public AreaSelectionController(Club club, UserManager<ApplicationUser> userManager, IMemberQuery memberQuery) 
         {
             this.club = club;
             this.userManager = userManager;
@@ -26,7 +26,7 @@ namespace HeyTeam.Web.Controllers
         }
 
         [HttpGet("")]
-        public async Task<IActionResult> MemberSelection()
+        public async Task<IActionResult> Index()
         {
             var user = userManager.GetUserAsync(User).Result;
             bool isAdmin = await userManager.IsInRoleAsync(user, "Administrator");
@@ -35,23 +35,9 @@ namespace HeyTeam.Web.Controllers
 
             var members = memberQuery.GetMembersByEmail(club.Guid, user.Email);            
             if (members.Count() > 1)
-                return View("MemberSelector", members);
+                return View(members);
             
-            return RedirectToAction("Index", new {profileid = members.FirstOrDefault().Guid});            
-        }
-
-        [Authorize(Policy = "PlayerOrCoach")]        
-        [HttpGet("[controller]/{profileid:guid}")]
-        public IActionResult Index(Guid profileid)
-        {
-            var user = userManager.GetUserAsync(User).Result;
-            var request = new DashboardRequest
-            {
-                UserEmail = user.Email,
-                ClubId = club.Guid
-            };
-            
-            return View("Index");
+            return RedirectToAction("Index", "Home", new { Area = "Membership", memberid = members.FirstOrDefault().Guid});            
         }
     }
 }
