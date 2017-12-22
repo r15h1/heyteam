@@ -32,5 +32,7 @@
   <ItemGroup>
     <Folder Include="Areas\Administration\Data\" />
     <Folder Include="Areas\Administration\Models\" />
+    <Folder Include="Areas\Membership\Data\" />
+    <Folder Include="Areas\Membership\Models\" />
   </ItemGroup>
 </Project>

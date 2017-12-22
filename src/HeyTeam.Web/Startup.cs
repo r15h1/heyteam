@@ -131,7 +131,6 @@ namespace HeyTeam.Web {
 
 			services.AddScoped<IValidator<AccountRequest>, AccountRequestValidator>();
 			services.AddScoped<IAccountsService, AccountsService>();
-
 		}
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -159,7 +158,7 @@ namespace HeyTeam.Web {
 
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Profiles}/{action=ProfileSelection}");
+                    template: "{controller=Members}/{action=MemberSelection}");
             });
         }
     }

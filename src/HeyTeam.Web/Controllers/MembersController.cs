@@ -6,17 +6,19 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace HeyTeam.Web.Controllers
 {
-    [Authorize]    
-    public class ProfilesController : Controller
+    [Authorize]     
+    [Route("[controller]")]
+    public class MembersController : Controller
     {
         private readonly Club club;
         private readonly UserManager<ApplicationUser> userManager;
         private readonly IMemberQuery memberQuery;
 
-        public ProfilesController(Club club, UserManager<ApplicationUser> userManager, IMemberQuery memberQuery)
+        public MembersController(Club club, UserManager<ApplicationUser> userManager, IMemberQuery memberQuery) 
         {
             this.club = club;
             this.userManager = userManager;
@@ -24,16 +26,16 @@ namespace HeyTeam.Web.Controllers
         }
 
         [HttpGet("")]
-        public IActionResult ProfileSelection()
+        public async Task<IActionResult> MemberSelection()
         {
             var user = userManager.GetUserAsync(User).Result;
-            bool isAdmin = userManager.IsInRoleAsync(user, "Administrator").Result;
+            bool isAdmin = await userManager.IsInRoleAsync(user, "Administrator");
             if(isAdmin)
                 return RedirectToAction("Index", "Home", new { Area = "Administration" });
 
             var members = memberQuery.GetMembersByEmail(club.Guid, user.Email);            
             if (members.Count() > 1)
-                return View("ProfileSelector", members);
+                return View("MemberSelector", members);
             
             return RedirectToAction("Index", new {profileid = members.FirstOrDefault().Guid});            
         }
