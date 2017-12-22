@@ -55,7 +55,7 @@
 
         $('#TrainingMaterials').select2({
             ajax: {
-                url: '/api/library?',
+                url: '/administration/api/library?',
                 data: function (params) {
                     var query = {
                         q:params.term,

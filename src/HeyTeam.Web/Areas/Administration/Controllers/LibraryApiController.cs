@@ -5,12 +5,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 
-namespace HeyTeam.Web.Controllers {
+namespace HeyTeam.Web.Areas.Administration.Controllers {
 
 	[Authorize(Policy = "Administrator")]
 	[Produces("application/json")]
-    [Route("api/library")]
-    public class LibraryApiController : Controller
+	[Area("Administration")]
+	[Route("[area]/api/library")]
+	public class LibraryApiController : Controller
     {
 		private readonly Club club;
 		private readonly ILibraryQuery libraryQuery;
