@@ -61,46 +61,17 @@ namespace HeyTeam.Web.Controllers {
             this.initializer = initializer;
 			this.accountService = accountService;
 			this.identityManager = identityManager;
-		}
-
-		[Authorize(Policy = "Administrator")]
-		[HttpGet]
-		public IActionResult Index() {
-			var users = identityQuery.GetUsers(club.Guid);
-			var model = users?.GroupBy(u => u.Email)
-								.Select(g => new UserListViewModel {
-									Email = g.Key,
-									Access = g.Select(u => u.Roles).Distinct(),
-									Names = g.Select(u => u.Name).Distinct(),
-									UserId = g.Select(u => u.UserId).FirstOrDefault(),
-									AccountIsLocked = g.Select(u => u.AccountLocked).FirstOrDefault()
-								}).ToList();
-			return View(model);
 		}		
-
-		[Authorize(Policy = "Administrator")]
-		[HttpPost]
-		[ValidateAntiForgeryToken]
-		public IActionResult Lock(string email) {
-			return RedirectToAction(nameof(Index));
-		}
-
-		[Authorize(Policy = "Administrator")]
-		[HttpPost]
-		[ValidateAntiForgeryToken]
-		public IActionResult Unlock(string email) {
-			return RedirectToAction(nameof(Index));
-		}
 
 		[TempData]
         public string ErrorMessage { get; set; }
 
-        [HttpGet]
-        [AllowAnonymous]
-        public async Task<IActionResult> Seed() {
-            await initializer.Initialize();
-            return new JsonResult("seeded");
-        }
+        //[HttpGet]
+        //[AllowAnonymous]
+        //public async Task<IActionResult> Seed() {
+        //    await initializer.Initialize();
+        //    return new JsonResult("seeded");
+        //}
 
         [HttpGet]
         [AllowAnonymous]

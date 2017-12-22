@@ -46,7 +46,7 @@
             <h3>Players</h3>
             <div class="btn-group" role="group" aria-label="...">
                 @*<a type="button" class="btn btn-default" href='/'>Dashboard</a>*@
-                <a type="button" class="btn btn-primary" id="AddPlayerButton" data-toggle="modal" href='~/squads/@Model.SquadId/players/new'>Add New Player</a>
+                <a type="button" class="btn btn-primary" id="AddPlayerButton" data-toggle="modal" -area="Administration" asp-controller="Players" asp-action="New" asp-route-squadid="@Model.SquadId">Add New Player</a>
             </div>
 
             @if (Model.Players != null && Model.Players.Count() > 0) {
@@ -69,7 +69,10 @@
             @foreach (var player in Model.Players) {
                 <tr>
                     <td>@player.SquadNumber</td>
-                    <td><a href='/squads/@player.SquadId/players/@player.Guid'>@player.FirstName @player.LastName</a></td>
+                    <td>
+                        @*<a href='/squads/@player.SquadId/players/@player.Guid'>@player.FirstName @player.LastName</a>*@
+                        <a asp-area="Administration" asp-controller="Players" asp-action="Edit" asp-route-squadid="@player.SquadId" asp-route-playerid="@player.Guid">@player.FirstName @player.LastName</a>
+                                    </td>
                     <td>@player.DateOfBirth.ToString("dd-MMM-yyyy")</td>
                     <td>@player.DominantFoot</td>
                     <td>@player.Email</td>

@@ -27,9 +27,9 @@
                 @foreach(var squad in Model.Squads)
                 {
                     <tr>
-                        <td><a href='/squads/@squad.Cells["squadid"]?@returnUrl'>@squad.Cells["squadname"]</a></td>
+                        <td><a asp-area="Administration" asp-controller="Squads" asp-action="Index" asp-route-squadId="@squad.Cells["squadid"]">@squad.Cells["squadname"]</a></td>
                         <td>@squad.Cells["coach"]</td>
-                        <td><a href='/squads/@squad.Cells["squadid"]/players?@returnUrl'>@squad.Cells["numberofplayers"]</a></td>
+                        <td>@squad.Cells["numberofplayers"]</td>
                         <td></td>
                         <td></td>
                     </tr>
@@ -38,7 +38,3 @@
         </table>
     </div>
 }
-
-<h3>My Action Items</h3>
-<h3>Upcoming Sessions</h3>
-<h3>Recent Activity</h3>

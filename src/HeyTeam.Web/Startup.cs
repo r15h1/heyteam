@@ -88,7 +88,8 @@ namespace HeyTeam.Web {
 				options.AddPolicy("Administrator", policy => policy.Requirements.Add(new RolesRequirement(new string[] { "Administrator" })));
 				options.AddPolicy("Player", policy => policy.Requirements.Add(new RolesRequirement(new string[] { "Player" })));
 				options.AddPolicy("Coach", policy => policy.Requirements.Add(new RolesRequirement(new string[] { "Coach" })));
-			});
+                options.AddPolicy("PlayerOrCoach", policy => policy.Requirements.Add(new RolesRequirement(new string[] { "Coach", "Player" })));
+            });
 
 			services.AddSingleton<IAuthorizationHandler, RolesHandler>();
 
@@ -153,8 +154,12 @@ namespace HeyTeam.Web {
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
+                   name: "area",
+                   template: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+
+                routes.MapRoute(
                     name: "default",
-                    template: "{controller=Dashboard}/{action=Index}/{id?}");
+                    template: "{controller=Profiles}/{action=ProfileSelection}");
             });
         }
     }

@@ -9,10 +9,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace HeyTeam.Web.Controllers {
+namespace HeyTeam.Web.Areas.Administration.Controllers {
 
-	[Authorize(Policy = "Administrator")]
-	[Route("[controller]")]
+    [Authorize(Policy = "Administrator")]
+    [Area("Administration")]
+    [Route("[area]/[controller]")]
     public class SquadsController : Controller {
         private readonly Club club;
         private readonly ISquadService squadService;

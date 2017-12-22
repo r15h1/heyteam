@@ -6,23 +6,28 @@ using HeyTeam.Web.Models.DashboardViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace HeyTeam.Web.Controllers {
+namespace HeyTeam.Web.Areas.Administration.Controllers
+{
 
-	[Authorize]
-    public class DashboardController : Controller {
+    [Authorize(Policy = "Administrator")]
+    [Area("Administration")]
+    [Route("[area]/[controller]")]
+    public class HomeController : Controller {
         private readonly Club club;
         private readonly IDashboardQuery dashboardQuery;
         private readonly UserManager<ApplicationUser> userManager;
 
-        public DashboardController(Club club, IDashboardQuery dashboardQuery, UserManager<ApplicationUser> userManager) {
+        public HomeController(Club club, IDashboardQuery dashboardQuery, UserManager<ApplicationUser> userManager) {
             this.club = club;
             this.dashboardQuery = dashboardQuery;
             this.userManager = userManager;
         }
 
+        
         [HttpGet]
         public IActionResult Index() {
             var user = userManager.GetUserAsync(User).Result;
@@ -30,11 +35,11 @@ namespace HeyTeam.Web.Controllers {
                 UserEmail = user.Email,
                 ClubId = club.Guid
             };
-			var response = dashboardQuery.GetDashboard(request);
-			if(response.Errors != null && response.Errors.Any()) {
-				return View( new IndexViewModel { Errors = response.Errors });
-			}
-				
+            var response = dashboardQuery.GetDashboard(request);
+            if (response.Errors != null && response.Errors.Any()) {
+                return View(new IndexViewModel { Errors = response.Errors });
+            }
+
             IndexViewModel viewModel = CreateViewModel(response.Dashboard);
             return View(viewModel);
         }

@@ -8,10 +8,12 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace HeyTeam.Web.Controllers {
-	[Authorize(Policy = "Administrator")]
-	[Route("[controller]")]
-	public class CoachesController : Controller {
+namespace HeyTeam.Web.Areas.Administration.Controllers
+{
+    [Authorize(Policy = "Administrator")]
+    [Area("Administration")]
+    [Route("[area]/[controller]")]
+    public class CoachesController : Controller {
 		private readonly Club club;
 		private readonly ICoachService coachService;
 		private readonly IMemberQuery memberQuery;

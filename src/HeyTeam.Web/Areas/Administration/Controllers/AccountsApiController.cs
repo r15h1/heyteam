@@ -3,11 +3,12 @@ using HeyTeam.Core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HeyTeam.Web.Controllers {
+namespace HeyTeam.Web.Areas.Administration.Controllers {
 
-	[Authorize]
+    [Authorize(Policy = "Administrator")]
     [Produces("application/json")]
-    [Route("api/accounts")]
+    [Area("Administration")]
+    [Route("[area]/api/accounts")]
     public class AccountsApiController : Controller
     {
 		private readonly Club club;
@@ -18,7 +19,6 @@ namespace HeyTeam.Web.Controllers {
 			this.accountService = accountService;
 		}
 
-		[Authorize(Policy = "Administrator")]
 		[HttpPost("invitation")]
 		[ValidateAntiForgeryToken]
 		public IActionResult Invitation(string email) {
@@ -30,7 +30,6 @@ namespace HeyTeam.Web.Controllers {
 			return response.RequestIsFulfilled ? Ok() : BadRequest(response.Errors) as IActionResult;
 		}
 
-		[Authorize(Policy = "Administrator")]
 		[HttpPost("togglelock")]
 		[ValidateAntiForgeryToken]
 		public IActionResult ToggleLock(string email) {

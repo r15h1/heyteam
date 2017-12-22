@@ -8,11 +8,12 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 
-namespace HeyTeam.Web.Controllers {
+namespace HeyTeam.Web.Areas.Administration.Controllers {
 
-	[Authorize(Policy = "Administrator")]
-	[Route("[controller]")]
-	public class LibraryController : Controller
+    [Authorize(Policy = "Administrator")]
+    [Area("Administration")]
+    [Route("[area]/[controller]")]
+    public class LibraryController : Controller
     {
 		private readonly Club club;
 		private readonly ILibraryService libraryService;

@@ -43,7 +43,7 @@
             <tr data-id="@m.Guid">
                 <td>
                     <div class="media">
-                        <a asp-action="Details" asp-route-trainingMaterialId="@m.Guid">
+                        <a asp-area="Administration" asp-action="Details" asp-route-trainingMaterialId="@m.Guid">
                             <div class="media-left media-middle">
                                 <img src="@(m.ThumbnailUrl.IsEmpty()?"/images/na.png":m.ThumbnailUrl)" class="media-object img-thumbnail" style="max-width:45px;" />
                             </div>

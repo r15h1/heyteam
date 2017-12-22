@@ -6,10 +6,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 
-namespace HeyTeam.Web.Controllers {
+namespace HeyTeam.Web.Areas.Administration.Controllers {
 
-	[Authorize(Policy = "Administrator")]
-	public class PlayersController : Controller {
+    [Authorize(Policy = "Administrator")]
+    [Area("Administration")]
+    [Route("[area]/squads/{squadId:guid}/[controller]")]
+    public class PlayersController : Controller {
 		private readonly Club club;
 		private readonly IPlayerService playerService;
 		private readonly ISquadQuery squadQuery;
@@ -27,7 +29,7 @@ namespace HeyTeam.Web.Controllers {
 			this.playerQuery = playerQuery;
 		}
 
-		[Route("squads/{squadId:guid}/[controller]/new")]
+		[Route("new")]
 		[HttpGet]
 		public IActionResult New(string squadId) {
 			SetupTitle(squadId, "Add New Player");
@@ -41,7 +43,7 @@ namespace HeyTeam.Web.Controllers {
 			ViewData["SubTitle"] = squad.Name;
 		}
 
-		[Route("squads/{squadId:guid}/[controller]/new")]
+		[Route("new")]
 		[HttpPost]
 		public IActionResult New(PlayerViewModel player) {
 			if (!ModelState.IsValid) {
@@ -74,7 +76,7 @@ namespace HeyTeam.Web.Controllers {
 			};
 		}
 
-		[Route("squads/{squadId:guid}/players/{playerId:guid}")]
+		[Route("{playerId:guid}")]
 		[HttpGet]
 		public IActionResult Edit(string squadId, string playerId) {
 			var player = playerQuery.GetPlayer(System.Guid.Parse(playerId));
@@ -98,7 +100,7 @@ namespace HeyTeam.Web.Controllers {
 			return View("Edit", model);
 		}
 
-		[Route("squads/{squadId:guid}/players/{playerId:guid}")]
+		[Route("{playerId:guid}")]
 		[HttpPost]
 		public IActionResult Edit(PlayerViewModel player) {
 			if (!ModelState.IsValid)

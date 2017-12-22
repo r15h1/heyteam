@@ -82,12 +82,13 @@
 @section Scripts {
     <script type="text/javascript">
         var successMessage, errorMessage, reloadPage;
+        var rootApiUrl = "/administration/api/accounts";
         $('a.SendInvite').on('click', function (e) {
             e.preventDefault();
             var email = $(this).closest('tr').data('email');
             $("h4.modal-title").text("Registration Invitation");
             $("p.message").text("Invite this user (" + email + ") to register?");
-            $("#myform").attr("action", "/api/accounts/invitation");            
+            $("#myform").attr("action", rootApiUrl + "/invitation");            
             successMessage = "Invitation email was sent successfully to " + email + ".";
             errorMessage = "There was an error sending the invitation email to " + email + ". Please contact your administrator.";
             reloadPage = false;
@@ -99,7 +100,7 @@
             var email = $(this).closest('tr').data('email');
             $("h4.modal-title").text("Lock Account");
             $("p.message").text("Lock this user's account (" + email + ")?");
-            $("#myform").attr("action", "/api/accounts/togglelock");
+            $("#myform").attr("action", rootApiUrl + "/togglelock");
             
             successMessage = "Account for user " + email + " locked successfully.";
             errorMessage = "There was an error locking this account (" + email + "). Please contact your administrator.";
@@ -112,7 +113,7 @@
             var email = $(this).closest('tr').data('email');
             $("h4.modal-title").text("Unlock Account");
             $("p.message").text("Unlock this user's account (" + email + ")?");
-            $("#myform").attr("action", "/api/accounts/togglelock");
+            $("#myform").attr("action", rootApiUrl + "/togglelock");
 
             successMessage = "Account for user " + email + " unlocked successfully.";
             errorMessage = "There was an error unlocking this account (" + email + "). Please contact your administrator.";

@@ -12,10 +12,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace HeyTeam.Web.Controllers {
-	[Authorize(Policy = "Administrator")]
-	[Route("[controller]")]
-	public class EventsController : Controller {
+namespace HeyTeam.Web.Areas.Administration.Controllers {
+    [Authorize(Policy = "Administrator")]
+    [Area("Administration")]
+    [Route("[area]/[controller]")]
+    public class EventsController : Controller {
 		private readonly Club club;
 		private readonly IEventService eventService;
 		private readonly IEventQuery eventsQuery;

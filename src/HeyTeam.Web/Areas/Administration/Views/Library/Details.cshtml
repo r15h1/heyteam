@@ -54,7 +54,7 @@
         </div>
 
         <div class="modal-footer">
-            <a href="/library" class="btn btn-default">Back to Library</a>
+            <a asp-area="Administration" asp-controller="Library" asp-action="Index" class="btn btn-default">Back to Library</a>
         </div>
         @if (Model.Errors?.Count > 0) {
             @foreach (var error in Model.Errors) {
