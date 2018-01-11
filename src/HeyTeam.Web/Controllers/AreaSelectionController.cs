@@ -36,8 +36,12 @@ namespace HeyTeam.Web.Controllers
             var members = memberQuery.GetMembersByEmail(club.Guid, user.Email);            
             if (members.Count() > 1)
                 return View(members);
-            
-            return RedirectToAction("Index", "Home", new { Area = "Membership", memberid = members.FirstOrDefault().Guid});            
+
+			bool isCoach = await userManager.IsInRoleAsync(user, "Coach");
+			if (isCoach)
+				return RedirectToAction("Index", "Home", new { Area = "Coaching" });
+
+			return RedirectToAction("Index", "Home", new { Area = "Membership", memberid = members.FirstOrDefault().Guid});            
         }
     }
 }

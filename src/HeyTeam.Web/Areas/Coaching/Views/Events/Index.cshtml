@@ -1,0 +1,50 @@
+﻿@model IEnumerable<HeyTeam.Core.Models.EventSummary>
+<h1>Events</h1>
+<div class="table-responsive">
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Title)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Squads)
+                </th>
+                <th>
+                    Starts
+                </th>
+                <th>
+                    Ends
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Location)
+                </th>
+                <th><span class="glyphicon glyphicon-book" title="Training Materials"></span></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model) {
+                <tr data-id="@item.Guid">
+                    <td>
+                        <a asp-action="Edit" asp-route-eventId="@Html.ValueFor(modelItem => item.Guid)">@Html.DisplayFor(modelItem => item.Title)</a>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Squads)
+                    </td>
+                    <td class="text-center">
+                        @item.StartDate.ToString("dd-MMM-yyyy")<br />@item.StartDate.ToString("ddd h:mm t")M
+                    </td>
+                    <td class="text-center">
+                        @item.EndDate.ToString("dd-MMM-yyyy")<br />@item.EndDate.ToString("ddd h:mm t")M
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Location)
+                    </td>
+                    <td>
+                        @(item.TrainingMaterialsCount > 0 ? item.TrainingMaterialsCount : null)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace HeyTeam.Web.Areas.Membership.Controllers
 {
-	[Authorize(Policy = "PlayerOrCoach")]
+	[Authorize(Policy = "Player")]
 	[Area("Membership")]
 	[Route("[area]/{memberid:guid}/[controller]")]
 	public class EventsController : Controller
