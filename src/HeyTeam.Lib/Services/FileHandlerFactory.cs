@@ -13,8 +13,13 @@ namespace HeyTeam.Lib.Services {
 			this.videoConfig = videoConfig.Value;
 			this.fileConfig = fileConfig.Value;
 		}
-		public IFileHandler GetFileHandler(string contentType) =>
-			(!contentType.IsEmpty() && contentType.ToLowerInvariant().Contains("video")) ?
-				new VideoHandler(videoConfig) : new FileHandler(fileConfig) as IFileHandler;
+		public IFileHandler GetFileHandler(string contentType) {
+			if (!contentType.IsEmpty()) {
+				if (contentType.ToLowerInvariant().Contains("video")) return new VideoHandler(videoConfig);
+				else if (contentType.ToLowerInvariant().Contains("zip")) return new ZipHandler(fileConfig);
+			}
+
+			return new FileHandler(fileConfig) as IFileHandler;
+		}
     }
 }
