@@ -24,7 +24,7 @@ namespace HeyTeam.Core {
 
 				if (ContentType.Contains("application")) {
 					var split = ContentType.Split(new char[] { '.', ',', '/', '\\' });
-					return split[split.Length - 1];
+					return split[split.Length - 1].Equals("zip") ? "session-plan": split[split.Length - 1];
 				}
 
 				return ContentType;
