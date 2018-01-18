@@ -36,7 +36,7 @@
                 @foreach (var item in Model) {
                     <tr data-id="@item.Guid">
                         <td>
-                            <a asp-action="Edit" asp-route-eventId="@Html.ValueFor(modelItem => item.Guid)">@Html.DisplayFor(modelItem => item.Title)</a>
+                            <a asp-area="Coaches" asp-action="Details" asp-route-eventId="@Html.ValueFor(modelItem => item.Guid)">@Html.DisplayFor(modelItem => item.Title)</a>
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => item.Squads)

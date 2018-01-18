@@ -28,5 +28,11 @@ namespace HeyTeam.Web.Areas.Coaches.Controllers {
 			var events = eventsQuery.GetEventsSummary(club.Guid);
 			return View(events.OrderBy(e => e.StartDate).ThenBy(e => e.EndDate));
 		}
+
+		[HttpGet("{eventId:guid}")]
+		public ActionResult Details(string eventId) {
+			var events = eventsQuery.GetEventsSummary(club.Guid);
+			return View(events.OrderBy(e => e.StartDate).ThenBy(e => e.EndDate));
+		}
 	}
 }
