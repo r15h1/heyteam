@@ -87,12 +87,12 @@ namespace HeyTeam.Web {
 			{
 				options.AddPolicy("Administrator", policy => policy.Requirements.Add(new RolesRequirement(new string[] { "Administrator" })));
 
-				//options.AddPolicy("Player", policy => policy.Requirements.Add(new RolesRequirement(new string[] { "Player" })));
+				options.AddPolicy("Player", policy => policy.Requirements.Add(new RolesRequirement(new string[] { "Player" })));
 				options.AddPolicy("Player", policy => policy.Requirements.Add(new MembershipRequirement("Player")));
 
 				options.AddPolicy("Coach", policy => policy.Requirements.Add(new RolesRequirement(new string[] { "Coach" })));
-                options.AddPolicy("PlayerOrCoach", policy => policy.Requirements.Add(new RolesRequirement(new string[] { "Coach", "Player" })));
-            });
+				options.AddPolicy("Coach", policy => policy.Requirements.Add(new MembershipRequirement("Coach")));				
+			});
 
 			services.AddSingleton<IAuthorizationHandler, RolesHandler>();
 			services.AddScoped<IAuthorizationHandler, MembershipRequirementHandler>();

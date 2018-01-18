@@ -5,9 +5,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 
-namespace HeyTeam.Web.Areas.Coaching.Controllers {
+namespace HeyTeam.Web.Areas.Coaches.Controllers {
 	[Authorize(Policy = "Coach")]
-	[Area("Coaching")]
+	[Area("Coaches")]
 	[Route("[area]/{memberid:guid}/[controller]")]
 	public class EventsController : Controller
     {

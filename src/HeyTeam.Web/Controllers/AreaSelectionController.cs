@@ -39,9 +39,9 @@ namespace HeyTeam.Web.Controllers
 
 			bool isCoach = await userManager.IsInRoleAsync(user, "Coach");
 			if (isCoach)
-				return RedirectToAction("Index", "Home", new { Area = "Coaching" });
+				return RedirectToAction("Index", "Home", new { Area = "Coaches" });
 
-			return RedirectToAction("Index", "Home", new { Area = "Membership", memberid = members.FirstOrDefault().Guid});            
+			return RedirectToAction("Index", "Home", new { Area = "Players", memberid = members.FirstOrDefault().Guid});            
         }
     }
 }

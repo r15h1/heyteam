@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 
-namespace HeyTeam.Web.Areas.Membership.Controllers
+namespace HeyTeam.Web.Areas.Players.Controllers
 {
 	[Authorize(Policy = "Player")]
-	[Area("Membership")]
+	[Area("Players")]
 	[Route("[area]/{memberid:guid}/[controller]")]
 	public class EventsController : Controller
     {

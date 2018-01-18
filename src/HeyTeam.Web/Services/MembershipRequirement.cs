@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using HeyTeam.Core.Queries;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Filters;
+using HeyTeam.Util;
 
 namespace HeyTeam.Web.Services {
 	public class MembershipRequirement : IAuthorizationRequirement { 
@@ -25,9 +26,18 @@ namespace HeyTeam.Web.Services {
 				// Examine MVC-specific things like routing data.
 				if (mvcContext.RouteData.Values.ContainsKey("memberid")) {
 					string memberid = mvcContext.RouteData.Values["memberid"] as string;
-					var member = memberQuery.GetPlayer(Guid.Parse(memberid));
-					if (member != null)
-						context.Succeed(requirement);
+
+					if (!requirement.Membership.IsEmpty()) {
+						if (requirement.Membership.Equals("Player")) {
+							var member = memberQuery.GetPlayer(Guid.Parse(memberid));
+							if (member != null)
+								context.Succeed(requirement);
+						} else if (requirement.Membership.Equals("Coach")) {
+							var member = memberQuery.GetCoach(Guid.Parse(memberid));
+							if (member != null)
+								context.Succeed(requirement);
+						}
+					}
 				}
 			}
 			return Task.CompletedTask;

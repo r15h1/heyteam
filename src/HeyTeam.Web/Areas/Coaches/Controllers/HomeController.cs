@@ -8,9 +8,9 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace HeyTeam.Web.Areas.Membership.Controllers {
-	[Authorize(Policy = "Player")]
-	[Area("Membership")]
+namespace HeyTeam.Web.Areas.Coaches.Controllers {
+	[Authorize(Policy = "Coach")]
+	[Area("Coaches")]
 	[Route("[area]/{memberid:guid}")]
 	[Route("[area]/{memberid:guid}/[controller]")]
 	public class HomeController : Controller
