@@ -13,7 +13,7 @@ namespace HeyTeam.Core.Queries {
 
 	public class EventsRequest {
 		public Guid ClubId { get; set; }
-		public IEnumerable<Guid> Squads { get; set; }
+		public Guid? Squad { get; set; }
 		public int Month { get; set; } = DateTime.Today.Month;
 		public int Year { get; set; } = DateTime.Today.Year;
 	}

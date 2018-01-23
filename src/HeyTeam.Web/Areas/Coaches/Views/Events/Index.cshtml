@@ -8,8 +8,8 @@
         <input id="month" type="month" value=@($"{DateTime.Now.Year}-{(DateTime.Now.Month < 10 ? "0" : "")}{DateTime.Now.Month}")>
     </div>
     <div class="form-group">
-        <label for="Squads" class="control-label">Squads:</label>
-        <select id="Squads" name="Month" class="form-control" multiple asp-items="Model.Squads"></select>
+        <label for="Squad" class="control-label">Squads:</label>
+        <select id="Squad" name="Month" asp-items="Model.Squads"></select>
     </div>
 </div>
 
@@ -57,20 +57,18 @@
 @section Scripts {
     <script src="~/lib/select2/dist/js/select2.min.js"></script>
     <script type="text/javascript">
-        $('#Squads').select2();
+        //$('#Squads').select2();
     </script>
     <script type="text/javascript">
         $("#month").change(updateTable);
-        $("#Squads").change(updateTable);
+        $("#Squad").change(updateTable);
 
         function updateTable() {
             var date = $('#month').val().split('-');
             $("#eventsTable > tbody").empty();
             var url = "/api/events?month=" + date[1] + "&year=" + date[0];
-            if ($('#Squads').val()) {
-                for (var k = 0; k < $('#Squads').val().length; k++) {
-                    url = url + "&squads=" + $('#Squads').val()[k];
-                }
+            if ($('#Squad').val()) {
+                url = url + "&squad=" + $('#Squad').val();                
             }
 
             $.ajax({

@@ -25,12 +25,12 @@ namespace HeyTeam.Web.Controllers
 		}
 
 		[HttpGet("")]
-		public IEnumerable<EventSummary> GetEvents(IEnumerable<Guid> squads, int month, int year) {
+		public IEnumerable<EventSummary> GetEvents(Guid? squad, int month, int year) {
 			var eventRequest = new EventsRequest() { 
 				ClubId = club.Guid,
 				Month = month,
 				Year = year,
-				Squads = squads
+				Squad = squad
 			};
 
 			var events = eventsQuery.GetEventsSummary(eventRequest);

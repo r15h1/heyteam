@@ -163,7 +163,7 @@ namespace HeyTeam.Lib.Queries {
 				return null;
 
 			using (var connection = connectionFactory.Connect()) {
-				string sql = @"SELECT	C.Guid AS ClubGuid, E.Guid AS EventGuid, E.Title, 
+				string sql = @"SELECT DISTINCT C.Guid AS ClubGuid, E.Guid AS EventGuid, E.Title, 
 										E.StartDate, E.EndDate, E.Location,
 										(SELECT COUNT(1) FROM EventTrainingMaterials ETM 
 											INNER JOIN TrainingMaterials T ON ETM.TrainingMaterialId = T.TrainingMaterialId
@@ -182,24 +182,17 @@ namespace HeyTeam.Lib.Queries {
 								INNER JOIN Squads S ON S.SquadId = SE.SquadId
 								WHERE (E.Deleted IS NULL OR E.Deleted = 0)
 									AND MONTH(E.StartDate) = @Month AND YEAR(E.StartDate) = @Year
-									AND (CASE WHEN @Squads IS NOT NULL THEN S.Guid IN @Squads END)
+									AND (@Squads IS NULL OR S.Guid = @Squads)
 								;";
 				DynamicParameters p = new DynamicParameters();
 				p.Add("@ClubGuid", request.ClubId.ToString());
 				p.Add("@Month", request.Month);
 				p.Add("@Year", request.Year);
 
-				if(request.Squads == null || request.Squads.Count() == 0) {
+				if(request.Squad.IsEmpty()) {
 					p.Add("@Squads", null);
-				} else {
-					var squads = "";
-					int i = 0;
-					foreach (var squad in request.Squads) {
-						squads += $"'{squad}'" + (i < request.Squads.Count() ? "," : "");
-						i++;
-					}
-					squads = "(" + squads + ")";
-					p.Add("@Squads", squads);
+				} else {                    
+					p.Add("@Squads", request.Squad);
 				}
 
 				connection.Open();

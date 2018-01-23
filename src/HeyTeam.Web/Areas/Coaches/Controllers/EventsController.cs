@@ -28,7 +28,7 @@ namespace HeyTeam.Web.Areas.Coaches.Controllers {
 
 		[HttpGet("")]
 		public ActionResult Index() {
-			var events = eventsQuery.GetEventsSummary(club.Guid);
+			var events = eventsQuery.GetEventsSummary(new EventsRequest { ClubId=club.Guid });
 			var squads = GetSquadList();
 			var model = new EventsViewModel { EventSummary = events.OrderBy(e => e.StartDate).ThenBy(e => e.EndDate), Squads = squads };
 			return View(model);
@@ -44,6 +44,7 @@ namespace HeyTeam.Web.Areas.Coaches.Controllers {
 			var clubSquads = squadQuery.GetSquads(club.Guid);
 			var squadList = clubSquads.Select(s => new SelectListItem { Text = $"{s.Name}", Value = s.Guid.ToString() })
 									.OrderBy(s => s.Text)
+                                    .Prepend(new SelectListItem { Text = "All", Value = "" })
 									.ToList();
 			return squadList;
 		}
