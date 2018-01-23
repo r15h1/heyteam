@@ -64,5 +64,12 @@ namespace HeyTeam.Web.Areas.Coaches.Controllers {
 									.ToList();
 			return squadList;
 		}
+
+		[HttpGet("{eventId:guid}/attendance")]
+		public ActionResult Attendance(Guid eventId) {
+			var @event = eventsQuery.GetEvent(eventId);
+			var model = MapEvent(@event);
+			return View("Details", model);
+		}
 	}
 }

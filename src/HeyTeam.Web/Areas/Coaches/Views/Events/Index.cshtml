@@ -48,7 +48,7 @@
                     <td>
                         @(item.TrainingMaterialsCount > 0 ? item.TrainingMaterialsCount : null)
                     </td>
-                    <td class="text-center"><a href="#"><span class="glyphicon glyphicon-hand-up" title="Attendance"></span></a></td>
+                    <td class="text-center"><a asp-area="Coaches" asp-controller="Events" asp-action="Attendance" asp-route-eventId="@Html.ValueFor(modelItem => item.Guid)"><span class="glyphicon glyphicon-hand-up" title="Attendance"></span></a></td>
                 </tr>
             }
         </tbody>
@@ -88,7 +88,7 @@
                             row = row + "<td>" + entry.endDate + "</td>";
                             row = row + "<td>" + entry.location + "</td>";
                             row = row + "<td>" + entry.trainingMaterialsCount + "</td>";
-                            row = row + "<td class='text-center'><a href='#'><span class='glyphicon glyphicon-hand-up' title='Attendance'></span></a></td>";
+                            row = row + "<td class='text-center'><a href='events/" + entry.guid + "/attendance'><span class='glyphicon glyphicon-hand-up' title='Attendance'></span></a></td>";
                             row = row + "</tr>";
                             $("#eventsTable > tbody").append(row);
                         }
