@@ -31,7 +31,7 @@
             @foreach (var item in Model.EventSummary) {
                 <tr data-id="@item.Guid">
                     <td>
-                        <a asp-area="Coaches" asp-action="Details" asp-route-eventId="@Html.ValueFor(modelItem => item.Guid)">@Html.DisplayFor(modelItem => item.Title)</a>
+                        <a asp-area="Coaches" asp-controller="Events" asp-action="Details" asp-route-eventId="@Html.ValueFor(modelItem => item.Guid)">@Html.DisplayFor(modelItem => item.Title)</a>
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.Squads)
@@ -82,7 +82,7 @@
                             var entry = data[i];
                             //console.log(entry);
                             var row = "<tr dataid='" + entry.guid + "'>";
-                            row = row + "<td><a asp-area='Coaches' asp-action='Details' asp-route-eventId=" + entry.guid + ">" + entry.title + "</a></td>";
+                            row = row + "<td><a href='events/" + entry.guid + "'>" + entry.title + "</a></td>";
                             row = row + "<td>" + entry.squads + "</td>";
                             row = row + "<td>" + entry.startDate + "</td>";
                             row = row + "<td>" + entry.endDate + "</td>";

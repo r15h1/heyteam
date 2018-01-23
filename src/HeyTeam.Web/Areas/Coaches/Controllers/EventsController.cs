@@ -2,9 +2,13 @@
 using HeyTeam.Core.Queries;
 using HeyTeam.Core.Services;
 using HeyTeam.Web.Areas.Coaches.Models;
+using HeyTeam.Web.Models.EventsViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -35,10 +39,22 @@ namespace HeyTeam.Web.Areas.Coaches.Controllers {
 		}
 
 		[HttpGet("{eventId:guid}")]
-		public ActionResult Details(string eventId) {
-			var events = eventsQuery.GetEventsSummary(club.Guid);
-			return View(events.OrderBy(e => e.StartDate).ThenBy(e => e.EndDate));
+		public ActionResult Details(Guid eventId) {
+			var @event = eventsQuery.GetEvent(eventId);
+			var model = MapEvent(@event);
+			return View(model);
 		}
+
+		private EventDetailsViewModel MapEvent(Event @event) => new EventDetailsViewModel {
+			EndDate = @event.EndDate,
+			EventId = @event.Guid,
+			Location = @event.Location,
+			StartDate = @event.StartDate,
+			Title = @event.Title,
+			Squads = @event.Squads.Select(s => s.Guid),
+			SquadList = GetSquadList(),
+			TrainingMaterials = @event.TrainingMaterials
+		};
 
 		private List<SelectListItem> GetSquadList() {
 			var clubSquads = squadQuery.GetSquads(club.Guid);
