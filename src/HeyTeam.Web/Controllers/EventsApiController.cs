@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using HeyTeam.Core;
 using HeyTeam.Core.Models;
 using HeyTeam.Core.Queries;
+using HeyTeam.Core.Services;
 using HeyTeam.Web.Models.EventsViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -19,10 +20,12 @@ namespace HeyTeam.Web.Controllers
     {
 		private readonly Club club;
 		private readonly IEventQuery eventsQuery;
+		private readonly IEventService eventService;
 
-		public EventsApiController(Club club, IEventQuery eventsQuery) {
+		public EventsApiController(Club club, IEventQuery eventsQuery, IEventService eventService) {
 			this.club = club;
 			this.eventsQuery = eventsQuery;
+			this.eventService = eventService;
 		}
 
 		[HttpGet("")]
@@ -40,6 +43,26 @@ namespace HeyTeam.Web.Controllers
 
 		[HttpPost("attendance")]
 		public IActionResult Attendance([FromBody] EventAttendanceViewModel attendance) {
+			if(!ModelState.IsValid)
+				return BadRequest();
+		
+			var request = new EventAttendanceRequest {
+				ClubId = club.Guid,
+				EventId = attendance.EventId,
+				PlayerId = attendance.PlayerId,
+				SquadId = attendance.SquadId,
+				Attendance = attendance.Attendance
+			};
+
+			var response = eventService.UpdateAttendance(request);
+
+			if (!response.RequestIsFulfilled) {
+				foreach (var error in response.Errors)
+					ModelState.AddModelError("", error);
+
+				return BadRequest();
+			}
+
 			return Ok();
 		}
 	}

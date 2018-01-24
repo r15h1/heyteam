@@ -123,5 +123,15 @@ namespace HeyTeam.Lib.Repositories {
 				}
 			}
 		}
+
+		public void UpdateAttendance(Guid squadId, Guid eventId, Guid playerId, Attendance attendance) {
+			string sql = @"DELETE EventAttendance WHERE SquadId = (SELECT SquadId FROM Squads WHERE Guid = @SquadId) " +
+							"AND EventId = (SELECT EventId FROM Events WHERE Guid = @EventId)" +
+							"AND PlayerId = (SELECT PlayerId FROM Players WHERE GUID = @PlayerId);" +
+
+							"INSERT INTO EventAttendance()";
+
+
+		}
 	}
 }
