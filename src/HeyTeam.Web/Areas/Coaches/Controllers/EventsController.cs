@@ -6,8 +6,6 @@ using HeyTeam.Web.Models.EventsViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -68,8 +66,16 @@ namespace HeyTeam.Web.Areas.Coaches.Controllers {
 		[HttpGet("{eventId:guid}/attendance")]
 		public ActionResult Attendance(Guid eventId) {
 			var @event = eventsQuery.GetEvent(eventId);
-			var model = MapEvent(@event);
-			return View("Details", model);
+			var eventPlayers = eventsQuery.GetPlayersByEvent(eventId);
+			var model = new EventAttendanceModel {
+				EndDate = @event.EndDate,
+				EventId = @event.Guid,
+				Location = @event.Location,
+				StartDate = @event.StartDate,
+				Title = @event.Title,
+				EventPlayers = eventPlayers
+			};
+			return View(model);
 		}
 	}
 }

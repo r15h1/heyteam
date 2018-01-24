@@ -205,5 +205,34 @@ namespace HeyTeam.Lib.Queries {
 				return events;
 			}
 		}
+
+		public IEnumerable<EventPlayer> GetPlayersByEvent(Guid eventId) {
+			if (eventId.IsEmpty())
+				return null;
+
+			using (var connection = connectionFactory.Connect()) {
+				string sql = @"SELECT S.Guid AS SquadGuid, E.Guid AS EventGuid, P.Guid AS PlayerGuid, 
+									P.DateOfBirth, P.DominantFoot, P.FirstName, P.LastName, 
+									P.Email, P.Nationality, P.SquadNumber, S.Name AS SquadName,
+									EA.AttendanceId
+								FROM Players P
+								INNER JOIN Squads S ON P.SquadId = S.SquadId
+								INNER JOIN SquadEvents SE ON S.SquadId = SE.SquadId
+								INNER JOIN Events E ON E.EventId = SE.EventId
+								LEFT JOIN EventAttendance EA ON SE.SquadId = EA.SquadId AND SE.EventId = SE.EventId AND EA.PlayerId = P.PlayerId								
+								WHERE E.Guid = @Guid
+								ORDER BY S.Name, P.FirstName, P.LastName";
+				DynamicParameters p = new DynamicParameters();
+				p.Add("@Guid", eventId.ToString());
+				connection.Open();
+				var reader = connection.Query(sql, p).Cast<IDictionary<string, object>>();
+				var players = reader.Select<dynamic, EventPlayer>(
+						row => new EventPlayer(Guid.Parse(row.SquadGuid.ToString()), Guid.Parse(row.EventGuid.ToString()), Guid.Parse(row.PlayerGuid.ToString())) {
+							PlayerName = $"{row.FirstName} {row.LastName}", SquadNumber = row.SquadNumber, SquadName = row.SquadName,
+							Attendance = (Attendance?) row.AttendanceId
+						}).ToList();
+				return players;
+			}
+		}
 	}
 }

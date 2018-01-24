@@ -9,6 +9,7 @@ namespace HeyTeam.Core.Queries {
 		IEnumerable<Event> GetEvents(Guid clubId, Guid? squadId = null);
 		IEnumerable<EventSummary> GetEventsSummary(Guid clubId);
 		IEnumerable<EventSummary> GetEventsSummary(EventsRequest request);
+		IEnumerable<EventPlayer> GetPlayersByEvent(Guid eventId);
 	}
 
 	public class EventsRequest {

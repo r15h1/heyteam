@@ -1,0 +1,70 @@
+﻿@model HeyTeam.Web.Areas.Coaches.Models.EventAttendanceModel
+<h1>Attendance</h1>
+<h3>@($"{Model.Title}")</h3>
+<span class="text-info">@($"{Model.StartDate.ToString("ddd dd-MMM-yyyy h:mm t")}M")<br />@($"{Model.Location}")</span>
+<div class="table-responsive">
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>Squad</th>
+                <th>Player</th>
+                <th class="text-center">Present <span class="glyphicon glyphicon-ok-sign"></span></th>
+                <th class="text-center">No Show <span class="glyphicon glyphicon-remove-sign"></span></th>
+                <th class="text-center">Late <span class="glyphicon glyphicon-time"></span></th>
+                <th class="text-center">Left Early <span class="glyphicon glyphicon-exclamation-sign"></span></th>
+                <th class="text-center">Clear</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var player in Model.EventPlayers) {
+                <tr data-eventid="@player.EventGuid" data-squadid="@player.SquadGuid" data-playerid="@player.PlayerGuid">
+                    <td>@player.SquadName</td>
+                    <td>@player.PlayerName</td>
+                    <td class="text-center"><button data-attendanceid="1" class="btn @(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.Present ? "btn-success" : "btn-default")" title="Present"><span class="glyphicon glyphicon-ok-sign"></span></button></td>
+                    <td class="text-center"><button data-attendanceid="2" class="btn @(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.NoShow ? "btn-success" : "btn-default")" title="No Show"><span class="glyphicon glyphicon-remove-sign"></span></button></td>
+                    <td class="text-center"><button data-attendanceid="3" class="btn @(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.Late ? "btn-success" : "btn-default")" title="Late"><span class="glyphicon glyphicon-time"></span></button></td>
+                    <td class="text-center"><button data-attendanceid="4" class="btn @(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.LeftEarly ? "btn-success" : "btn-default")" title="Left Early"><span class="glyphicon glyphicon-exclamation-sign"></span></button></td>
+                    <td class="text-center"><button data-attendanceid="0" class="btn btn-default" title="Clear"><span class="glyphicon glyphicon-remove text-danger"></span></button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+        $('button').on('click', function (e) {
+            var eventId = $(this).closest('tr').data('eventid');
+            var squadId = $(this).closest('tr').data('squadid');
+            var playerId = $(this).closest('tr').data('playerid');
+            var attendanceid = $(this).data('attendanceid');
+            //alert(eventId + '\n' + squadId + '\n' + playerId + '\n' + attendanceid);
+            var button = $(this);
+
+            $.ajax({
+                method: "POST",
+                contentType: 'application/json',
+                url: "/api/events/attendance",
+                data: JSON.stringify({ "eventid": eventId, "squadid": squadId, "playerid": playerId, "attendance": (attendanceid == 0 ? null : attendanceid) })
+            })
+                .done(function (data) {
+                    var buttons = button.closest('tr').find("button");
+                    clearStyle(buttons);
+                    if (attendanceid != 0) {
+                        var style = (attendanceid == 1 ? "btn-success" : (attendanceid == 2 ? "btn-danger" : (attendanceid == 3 ? "btn-warning" : "btn-info")));
+                        $(button).addClass("btn " + style);
+                    }                     
+                })
+                .fail(function (jqXHR, textStatus, errorThrown) {
+                    console.log(textStatus);
+                });
+        });
+
+        function clearStyle(buttons) {
+            for (var i = 0; i < buttons.length - 1; i++) {
+                $(buttons[i]).removeClass();
+                $(buttons[i]).addClass("btn btn-default");
+            }
+        }
+    </script>
+}

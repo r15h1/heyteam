@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using HeyTeam.Core;
 using HeyTeam.Core.Models;
 using HeyTeam.Core.Queries;
+using HeyTeam.Web.Models.EventsViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -36,5 +37,10 @@ namespace HeyTeam.Web.Controllers
 			var events = eventsQuery.GetEventsSummary(eventRequest);
 			return events;
 		}
-    }
+
+		[HttpPost("attendance")]
+		public IActionResult Attendance([FromBody] EventAttendanceViewModel attendance) {
+			return Ok();
+		}
+	}
 }
