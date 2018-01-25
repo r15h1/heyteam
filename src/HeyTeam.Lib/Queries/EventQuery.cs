@@ -219,7 +219,7 @@ namespace HeyTeam.Lib.Queries {
 								INNER JOIN Squads S ON P.SquadId = S.SquadId
 								INNER JOIN SquadEvents SE ON S.SquadId = SE.SquadId
 								INNER JOIN Events E ON E.EventId = SE.EventId
-								LEFT JOIN EventAttendance EA ON SE.SquadId = EA.SquadId AND SE.EventId = SE.EventId AND EA.PlayerId = P.PlayerId								
+								LEFT JOIN EventAttendance EA ON SE.SquadId = EA.SquadId AND EA.EventId = SE.EventId AND EA.PlayerId = P.PlayerId AND EA.EventId = E.EventId						
 								WHERE E.Guid = @Guid
 								ORDER BY S.Name, P.FirstName, P.LastName";
 				DynamicParameters p = new DynamicParameters();

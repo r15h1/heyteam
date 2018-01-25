@@ -150,7 +150,7 @@ namespace HeyTeam.Lib.Services {
 				return Response.CreateResponse(new IllegalOperationException("The specified squad does not belong to this club"));
 
 			var @event = eventQuery.GetEvent(request.EventId);
-			if(@event == null || @event.Squads.Any(s => s.Guid == squad.Guid))
+			if(@event == null || !@event.Squads.Any(s => s.Guid == squad.Guid))
 				return Response.CreateResponse(new IllegalOperationException("The specified squad is not bound to this event"));
 
 			var player = memberQuery.GetPlayer(request.PlayerId);
@@ -158,7 +158,7 @@ namespace HeyTeam.Lib.Services {
 				return Response.CreateResponse(new IllegalOperationException("The specified player does not belong this squad"));
 
 			try {
-				//eventRepository.UpdateAttendance(request.ClubId, request.EventId);
+				eventRepository.UpdateAttendance(request.SquadId, request.EventId, request.PlayerId, request.Attendance);
 			} catch (Exception ex) {
 				return Response.CreateResponse(ex);
 			}

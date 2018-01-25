@@ -124,14 +124,40 @@ namespace HeyTeam.Lib.Repositories {
 			}
 		}
 
-		public void UpdateAttendance(Guid squadId, Guid eventId, Guid playerId, Attendance attendance) {
-			string sql = @"DELETE EventAttendance WHERE SquadId = (SELECT SquadId FROM Squads WHERE Guid = @SquadId) " +
-							"AND EventId = (SELECT EventId FROM Events WHERE Guid = @EventId)" +
-							"AND PlayerId = (SELECT PlayerId FROM Players WHERE GUID = @PlayerId);" +
+		public void UpdateAttendance(Guid squadId, Guid eventId, Guid playerId, Attendance? attendance) {
+			string sql = @"DELETE EventAttendance WHERE SquadId = (SELECT SquadId FROM Squads WHERE Guid = @SquadGuid) " +
+							"AND EventId = (SELECT EventId FROM Events WHERE Guid = @EventGuid) " +
+							"AND PlayerId = (SELECT PlayerId FROM Players WHERE GUID = @PlayerGuid); " +
 
-							"INSERT INTO EventAttendance()";
+							"IF @AttendanceId IS NOT NULL " +
+								"BEGIN " +
+									"INSERT INTO EventAttendance(SquadId, EventId, PlayerId, AttendanceId) "+
+									"VALUES(" +
+										"(SELECT SquadId FROM Squads WHERE Guid = @SquadGuid), " +
+										"(SELECT EventId FROM Events WHERE Guid = @EventGuid), " +
+										"(SELECT PlayerId FROM Players WHERE GUID = @PlayerGuid), " +
+										"@AttendanceId "+
+									") " +
+								"END";
 
-
+			var parameters = new DynamicParameters();
+			parameters.Add("@SquadGuid", squadId.ToString());
+			parameters.Add("@EventGuid", eventId.ToString());
+			parameters.Add("@PlayerGuid", playerId.ToString());
+			parameters.Add("@AttendanceId", (attendance.HasValue ? (short?) attendance : null)) ;
+			
+			using (var connection = connectionFactory.Connect()) {
+				connection.Open();
+				using (var transaction = connection.BeginTransaction()) {
+					try {
+						connection.Execute(sql, parameters, transaction);
+						transaction.Commit();
+					} catch (Exception ex) {
+						transaction.Rollback();
+						throw ex;
+					}
+				}
+			}
 		}
 	}
 }
