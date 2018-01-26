@@ -136,6 +136,9 @@ namespace HeyTeam.Web {
 
 			services.AddScoped<IValidator<AccountRequest>, AccountRequestValidator>();
 			services.AddScoped<IAccountsService, AccountsService>();
+
+			services.AddScoped<IAvailabilityQuery, AvailabilityQuery>();	
+
 		}
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

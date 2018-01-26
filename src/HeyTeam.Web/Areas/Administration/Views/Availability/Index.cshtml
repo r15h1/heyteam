@@ -1,0 +1,38 @@
+﻿@model IEnumerable<HeyTeam.Core.Availability>
+
+<h2>Availability</h2>
+<h3>Currently Unavailable</h3>
+<div>
+    <div class="btn-group" role="group" aria-label="...">
+        <a class="btn btn-primary" id="AddAvailibilityButton" asp-area="Administration" asp-controller="Availability" asp-action="New">Add Availability Status</a>
+        <a class="btn btn-primary" id="CheckHistoryButton" href="#">Check Availability History</a>
+    </div>
+</div>
+<div class="table-responsive">
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>Squad Name</th>
+                <th>Player Name</th>
+                <th>Status</th>
+                <th>Date From</th>
+                <th>Date To</th>
+                <th>Notes</th>
+                <th>Update Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var availability in Model) {
+            <tr>
+                <td><a asp-area="Administration" asp-controller="Availability" asp-action="Index" asp-route-squadId="@availability.SquadId">@availability.SquadName</a></td>
+                <td><a asp-area="Administration" asp-controller="Availability" asp-action="Index" asp-route-squadId="@availability.SquadId">@availability.PlayerName</a></td>
+                <td>@availability.AvailabilityStatus</td>
+                <td>@availability.DateFrom</td>
+                <td>@availability.DateTo</td>
+                <td>@availability.Notes</td>
+                <td></td>
+            </tr>
+            }
+        </tbody>
+    </table>
+</div>
