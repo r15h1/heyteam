@@ -22,7 +22,7 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 		}
 
 		[HttpGet]
-		public IActionResult Get(LibrarySearchModel model) {
+		public IActionResult Get(GenericSearchModel model) {
 			var results = libraryQuery.Search(club.Guid, model.Query, model.Page, model.Limit) ?? new List<string>(); ;
 			return new JsonResult(results);
 		}

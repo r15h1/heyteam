@@ -1,5 +1,6 @@
 using Dapper;
 using HeyTeam.Core;
+using HeyTeam.Core.Queries;
 using HeyTeam.Core.Repositories;
 using HeyTeam.Lib.Data;
 using HeyTeam.Util;
@@ -8,10 +9,13 @@ namespace HeyTeam.Lib.Repositories {
 	public class PlayerRepository : IPlayerRepository {
 
         private readonly IDbConnectionFactory connectionFactory;
-        public PlayerRepository(IDbConnectionFactory factory) {
+		private readonly IMemberQuery memberQuery;
+
+		public PlayerRepository(IDbConnectionFactory factory, IMemberQuery memberQuery) {
             ThrowIf.ArgumentIsNull(factory);
             this.connectionFactory = factory;
-        }
+			this.memberQuery = memberQuery;
+		}
 
         public void AddPlayer(Player player) {
             ThrowIf.ArgumentIsNull(player);
@@ -22,6 +26,7 @@ namespace HeyTeam.Lib.Repositories {
                 connection.Open();
                 connection.Execute(sql, p);                
             }
+			memberQuery.UpdateCache();
         }
 
 		public void UpdatePlayer(Player player)
@@ -34,6 +39,7 @@ namespace HeyTeam.Lib.Repositories {
 				connection.Open();
 				connection.Execute(sql, p);
 			}
+			memberQuery.UpdateCache();
 		}
 
 		private string GetInsertStatement() {

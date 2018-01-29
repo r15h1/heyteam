@@ -1,5 +1,6 @@
 ﻿using HeyTeam.Core;
 using HeyTeam.Core.Identity;
+using HeyTeam.Core.Models;
 using HeyTeam.Core.Queries;
 using HeyTeam.Core.Repositories;
 using HeyTeam.Core.Services;
@@ -137,7 +138,10 @@ namespace HeyTeam.Web {
 			services.AddScoped<IValidator<AccountRequest>, AccountRequestValidator>();
 			services.AddScoped<IAccountsService, AccountsService>();
 
-			services.AddScoped<IAvailabilityQuery, AvailabilityQuery>();	
+			services.AddScoped<IAvailabilityQuery, AvailabilityQuery>();
+			services.AddScoped<IValidator<NewAvailabilityRequest>, NewAvailabilityRequestValidator>();
+			services.AddScoped<IAvailabilityRepository, AvailabilityRepository>();
+			services.AddScoped<IAvailabilityService, AvailabilityService>();
 
 		}
 

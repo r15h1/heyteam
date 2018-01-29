@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace HeyTeam.Web.Models.ApiModels
 {
-    public class LibrarySearchModel
+    public class GenericSearchModel
     {
 		[FromQuery(Name="q")]
 		[Required]

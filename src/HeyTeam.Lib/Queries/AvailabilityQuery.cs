@@ -16,7 +16,7 @@ namespace HeyTeam.Lib.Queries {
 			this.connectionFactory = factory;
 		}
 
-		public IEnumerable<Availability> GetAvailabilities(AvailabilityRequest request) {
+		public IEnumerable<Availability> GetAvailabilities(GetAvailabilityRequest request) {
 			bool includeSquadId = request.SquadId.HasValue && !request.SquadId.Value.IsEmpty();
 			bool includePlayerId = request.PlayerId.HasValue && !request.PlayerId.Value.IsEmpty();
 			var sql = GetSql(includeSquadId, includePlayerId);
@@ -31,9 +31,9 @@ namespace HeyTeam.Lib.Queries {
 				connection.Open();
 				var reader = connection.Query(sql, p).Cast<IDictionary<string, object>>();
 				var events = reader.Select<dynamic, Availability>(
-						row => new Availability(Guid.Parse(row.SquadGuid), Guid.Parse(row.EventGuid.ToString())) {
+						row => new Availability(Guid.Parse(row.PlayerGuid.ToString())) {
 							AvailabilityStatus = (AvailabilityStatus?) row.AvailabilityId,
-							DateFrom = row.DateFrom, DateTo = row.DateTo,
+							DateFrom = row.DateFrom, DateTo = (DateTime?) row.DateTo,
 							Notes = row.Notes, PlayerName = row.PlayerName, SquadName = row.SquadName
 						}).ToList();
 
@@ -43,7 +43,7 @@ namespace HeyTeam.Lib.Queries {
 		}
 
 		private string GetSql(bool includeSquadId, bool includePlayerId) {
-			return "SELECT S.Guid AS \"SquadGuid\", P.Guid AS \"PlayerGuid\", "+
+			return "SELECT P.Guid AS \"PlayerGuid\", "+
 					"S.Name AS \"SquadName\", P.FirstName + ' ' + P.LastName AS \"PlayerName\", " +
 					"PA.AvailabilityId, PA.DateFrom, PA.DateTo, PA.Notes " +
 					"FROM PlayerAvailability PA " +

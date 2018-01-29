@@ -1,8 +1,10 @@
 using Dapper;
 using HeyTeam.Core;
+using HeyTeam.Core.Models;
 using HeyTeam.Core.Queries;
 using HeyTeam.Lib.Data;
 using HeyTeam.Util;
+using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,10 +13,13 @@ namespace HeyTeam.Lib.Queries {
 	public class MemberQuery : IMemberQuery {
 
         private readonly IDbConnectionFactory connectionFactory;
-        public MemberQuery(IDbConnectionFactory factory) {
+		private readonly IMemoryCache cache;
+
+		public MemberQuery(IDbConnectionFactory factory, IMemoryCache cache) {
             ThrowIf.ArgumentIsNull(factory);
             this.connectionFactory = factory;
-        }
+			this.cache = cache;
+		}
 
         public Player GetPlayer(Guid playerId)
         {
@@ -170,5 +175,47 @@ namespace HeyTeam.Lib.Queries {
 			}
 		}
 
+		public IEnumerable<PlayerSearchResult> SearchPlayers(string searchTerm, int page = 1, int limit = 10) {						
+			if (searchTerm.IsEmpty()) return null;
+
+			IEnumerable<PlayerIndexedDocument> list = null;
+			if (!cache.TryGetValue<IEnumerable<PlayerIndexedDocument>>(CacheKeys.PLAYERS_SEACH_BY_NAME, out list)) {
+				UpdateCache();
+				list = cache.Get<IEnumerable<PlayerIndexedDocument>>(CacheKeys.PLAYERS_SEACH_BY_NAME);
+			}
+
+			return list?.Where(t => t.SearchField.Contains(searchTerm.ToLowerInvariant()))
+				.Skip((page - 1) * limit)
+				.Take(limit)
+				.Select(t => new PlayerSearchResult  { PlayerId = t.PlayerId, PlayerName = t.PlayerName, SquadName = t.SquadName, SquadNumber = t.SquadNumber });
+		}
+
+		public void UpdateCache() {
+			var list = GetPlayerDocuments();
+			cache.Remove(CacheKeys.PLAYERS_SEACH_BY_NAME);
+			MemoryCacheEntryOptions options = new MemoryCacheEntryOptions() { SlidingExpiration = TimeSpan.FromMinutes(10) };
+			cache.Set(CacheKeys.PLAYERS_SEACH_BY_NAME, list, options);
+		}
+
+		private IEnumerable<PlayerIndexedDocument> GetPlayerDocuments(){
+			using (var connection = connectionFactory.Connect()) {
+				string sql = "SELECT P.Guid AS \"PlayerGuid\", P.FirstName + ' ' + P.LastName AS \"PlayerName\", " +
+									"P.SquadNumber AS \"SquadNumber\", S.Name AS \"SquadName\" " +
+								"FROM Players P " +
+								"INNER JOIN Squads S ON S.SquadId = P.SquadId " +
+								"ORDER BY PlayerName ";
+				DynamicParameters p = new DynamicParameters();
+				connection.Open();
+				var reader = connection.Query(sql, p).Cast<IDictionary<string, object>>();
+				var list = reader.Select<dynamic, PlayerIndexedDocument>(
+						row => new PlayerIndexedDocument() {
+							PlayerId = Guid.Parse(row.PlayerGuid.ToString()), PlayerName = row.PlayerName, 
+							SearchField = $"{row.PlayerName.ToLowerInvariant()} {row.SquadNumber} {row.SquadName.ToLowerInvariant()}",
+							SquadName = row.SquadName, SquadNumber = row.SquadNumber.ToString()
+						}).ToList();
+
+				return list;			
+			}
+		}
 	}
 }

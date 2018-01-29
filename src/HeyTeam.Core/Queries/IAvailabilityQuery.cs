@@ -6,10 +6,10 @@ namespace HeyTeam.Core.Queries
 {
     public interface IAvailabilityQuery
     {
-		IEnumerable<Availability> GetAvailabilities(AvailabilityRequest request);
+		IEnumerable<Availability> GetAvailabilities(GetAvailabilityRequest request);
 	}
 
-	public class AvailabilityRequest{
+	public class GetAvailabilityRequest{
 		public Guid ClubId{ get; set; }
 		public Guid? SquadId { get; set; }
 		public Guid? PlayerId { get; set; }		

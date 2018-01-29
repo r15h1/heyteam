@@ -5,12 +5,10 @@ using System.Text;
 namespace HeyTeam.Core
 {
     public class Availability {
-		public Availability(Guid squadId, Guid playerId) {
-			SquadId = squadId;
+		public Availability(Guid playerId) {
 			PlayerId = playerId;
 		}
 
-		public Guid SquadId { get; }
 		public string SquadName { get; set; }
 		public Guid PlayerId { get; }
 		public string PlayerName { get; set; }

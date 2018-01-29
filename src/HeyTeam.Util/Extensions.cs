@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace HeyTeam.Util {
@@ -44,6 +45,10 @@ namespace HeyTeam.Util {
 
 		public static bool IsEmpty(this DateTime? value) {
 			return !value.HasValue || value == null;
+		}
+
+		public static bool In<T>(this T val, params T[] values) where T : struct {
+			return values.Contains(val);
 		}
 	}
 }

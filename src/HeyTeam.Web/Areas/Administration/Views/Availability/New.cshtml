@@ -7,30 +7,64 @@
         <form asp-action="New" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="PlayerId" class="control-label"></label>
-                <select asp-for="PlayerId" class="form-control" ></select>
+                <label asp-for="PlayerId" class="control-label">Player</label>
+                <select id="PlayerId" asp-for="PlayerId" class="form-control" required></select>
                 <span asp-validation-for="PlayerId" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="DateFrom" class="control-label"></label>
+                <label asp-for="DateFrom" class="control-label">From</label>
                 <input asp-for="DateFrom" type="date" class="form-control" min="@DateTime.Today.AddDays(-30).ToString("yyyy-MM-dd")" max="@DateTime.Today.AddMonths(3).ToString("yyyy-MM-dd")" required />
                 <span asp-validation-for="DateFrom" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="DateTo" class="control-label"></label>
+                <label asp-for="DateTo" class="control-label">To</label>
                 <input asp-for="DateTo" type="date" class="form-control" min="@DateTime.Today.AddDays(-30).ToString("yyyy-MM-dd")" max="@DateTime.Today.AddMonths(6).ToString("yyyy-MM-dd")" />
                 <span asp-validation-for="DateTo" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="AvailabilityStatus" class="control-label"></label>
-                <input asp-for="AvailabilityStatus" class="form-control" />
+                <label asp-for="AvailabilityStatus" class="control-label">Availability status</label>
+                <select asp-for="AvailabilityStatus" class="form-control" required>
+                    <option value="" selected disabled>select...</option>
+                    <option value="1">Injured</option>
+                    <option value="2">Out of town</option>
+                    <option value="3">Other</option>
+                </select>
                 <span asp-validation-for="AvailabilityStatus" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Notes" class="control-label"></label>
-                <input asp-for="Notes" class="form-control" />
+                <textarea asp-for="Notes" class="form-control" rows="4" maxlength="250"></textarea>
                 <span asp-validation-for="Notes" class="text-danger"></span>
+            </div>
+            <div class="modal-footer">
+                <a asp-area="Administration" asp-controller="Availability" asp-action="Index" asp-route-id='@ViewData["PlayerId"]' class="btn btn-default">Cancel</a>
+                <input type="submit" value="Save" class="btn btn-primary" />
             </div>
         </form>
     </div>
 </div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/lib/select2/dist/js/select2.min.js"></script>
+    <script>
+        $('#PlayerId').select2({
+            ajax: {
+                url: '/api/players?',
+                data: function (params) {
+                    var query = {
+                        q:params.term
+                    };
+                    return query;
+                },
+                processResults: function (data) {return {results: data};}
+            },
+            minimumInputLength: 1,
+            placeholder: 'select...'
+        });        
+    </script>
+}
+
+@section CSS {
+    <link href="~/lib/select2/dist/css/select2.min.css" rel="stylesheet" />
+}
