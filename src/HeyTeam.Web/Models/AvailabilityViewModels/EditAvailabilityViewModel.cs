@@ -21,6 +21,7 @@ namespace HeyTeam.Web.Models.AvailabilityViewModels {
 		
 		public string Notes { get; set; }
 
+        public string PlayerName { get; set; }
         public string SelectedPlayer { get; set; }
-	}
+    }
 }

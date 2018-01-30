@@ -76,7 +76,8 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
                 SelectedPlayer = JsonConvert.SerializeObject(
                      new { Id = availability.PlayerId, Text = availability.PlayerName },
                     new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() }
-                )
+                ),
+                PlayerName = availability.PlayerName
             };
             return View(model);
         }
