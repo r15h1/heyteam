@@ -6,9 +6,32 @@
 <div>
     <div class="btn-group" role="group" aria-label="...">
         <a class="btn btn-primary" id="AddAvailibilityButton" asp-area="Administration" asp-controller="Availability" asp-action="New">Add Availability Status</a>
-        <a class="btn btn-primary" id="CheckHistoryButton" href="#">Check Availability History</a>
+        @*<a class="btn btn-primary" id="CheckHistoryButton" href="#">Check Availability History</a>*@
     </div>
 </div>
+
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <form method="post" asp-action="Delete">
+                <input type="hidden" id="eventId" name="eventId" />
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Confirm Event Deletion</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Do you really want to this event?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <input type="submit" id="ConfirmDeleteButton" class="btn btn-danger" value="Delete" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <div class="table-responsive">
     <table class="table table-bordered table-hover">
         <thead>
@@ -19,24 +42,26 @@
                 <th>Date From</th>
                 <th>Date To</th>
                 <th>Notes</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
             @foreach (var availability in Model) {
-                <tr data-availabilityId="@availability.AvailabilityId">
-                    <td>@availability.SquadName</td>
-                    <td><a asp-area="Administration" asp-controller="Availability" asp-action="Edit" asp-route-availabilityId="@availability.AvailabilityId">@availability.PlayerName</a></td>
-                    <td>
-                        @(availability.AvailabilityStatus == HeyTeam.Core.AvailabilityStatus.Injured ? "Injured" :
-                                (availability.AvailabilityStatus == HeyTeam.Core.AvailabilityStatus.OutOfTown ? "Out of town" :
-                                    (availability.AvailabilityStatus == HeyTeam.Core.AvailabilityStatus.Other ? "Other" : "Unknown"
+            <tr data-availabilityId="@availability.AvailabilityId">
+                <td>@availability.SquadName</td>
+                <td><a asp-area="Administration" asp-controller="Availability" asp-action="Edit" asp-route-availabilityId="@availability.AvailabilityId">@availability.PlayerName</a></td>
+                <td>
+                    @(availability.AvailabilityStatus == HeyTeam.Core.AvailabilityStatus.Injured ? "Injured" :
+                        (availability.AvailabilityStatus == HeyTeam.Core.AvailabilityStatus.OutOfTown ? "Out of town" :
+                            (availability.AvailabilityStatus == HeyTeam.Core.AvailabilityStatus.Other ? "Other" : "Unknown"
 
-                        )))
-                    </td>
-                    <td>@availability.DateFrom.ToString("dd MMM yyyy")</td>
-                    <td>@(availability.DateTo.HasValue ? @availability.DateTo.Value.ToString("dd MMM yyyy") : "Unknown")</td>
-                    <td>@Html.Raw(availability.Notes.IsEmpty() || availability.Notes.Length < 25 ? availability.Notes : $"<span data-toggle='tooltip' title=\"{availability.Notes}\">{availability.Notes.Substring(0, 25)}...</span>")</td>                    
-                </tr>
+                )))
+                </td>
+                <td>@availability.DateFrom.ToString("dd MMM yyyy")</td>
+                <td>@(availability.DateTo.HasValue ? @availability.DateTo.Value.ToString("dd MMM yyyy") : "Unknown")</td>
+                <td>@Html.Raw(availability.Notes.IsEmpty() || availability.Notes.Length < 25 ? availability.Notes : $"<span data-toggle='tooltip' title=\"{availability.Notes}\">{availability.Notes.Substring(0, 25)}...</span>")</td>
+                <td><a href="#" class="deleteButton text-danger" title="Delete availability"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a></td>
+            </tr>
             }
         </tbody>
     </table>
@@ -46,6 +71,18 @@
     <script>
         $(document).ready(function(){
             $('[data-toggle="tooltip"]').tooltip();
+        });
+
+        $('a.deleteButton').on('click', function (e) {
+            e.preventDefault();
+            var id = $(this).closest('tr').data('id');
+            $('#myModal').data('id', id).modal('show');
+        });
+
+        $('#ConfirmDeleteButton').click(function () {
+            var id = $('#myModal').data('id');
+            $("#eventId").val(id);
+            $('#myModal').modal('hide');
         });
     </script>
 }
