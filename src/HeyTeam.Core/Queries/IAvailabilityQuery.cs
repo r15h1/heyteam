@@ -7,7 +7,8 @@ namespace HeyTeam.Core.Queries
     public interface IAvailabilityQuery
     {
 		IEnumerable<Availability> GetAvailabilities(GetAvailabilityRequest request);
-	}
+        Availability GetAvailability(Guid clubId, Guid availabilityId);
+    }
 
 	public class GetAvailabilityRequest{
 		public Guid ClubId{ get; set; }

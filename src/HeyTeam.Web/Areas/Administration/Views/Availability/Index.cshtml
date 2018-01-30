@@ -19,19 +19,23 @@
                 <th>Date From</th>
                 <th>Date To</th>
                 <th>Notes</th>
-                <th>Update Status</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var availability in Model) {
-                <tr>
+                <tr data-availabilityId="@availability.AvailabilityId">
                     <td>@availability.SquadName</td>
-                    <td><a asp-area="Administration" asp-controller="Availability" asp-action="Index" asp-route-squadId="@availability.PlayerId">@availability.PlayerName</a></td>
-                    <td>@availability.AvailabilityStatus</td>
+                    <td><a asp-area="Administration" asp-controller="Availability" asp-action="Edit" asp-route-availabilityId="@availability.AvailabilityId">@availability.PlayerName</a></td>
+                    <td>
+                        @(availability.AvailabilityStatus == HeyTeam.Core.AvailabilityStatus.Injured ? "Injured" :
+                                (availability.AvailabilityStatus == HeyTeam.Core.AvailabilityStatus.OutOfTown ? "Out of town" :
+                                    (availability.AvailabilityStatus == HeyTeam.Core.AvailabilityStatus.Other ? "Other" : "Unknown"
+
+                        )))
+                    </td>
                     <td>@availability.DateFrom.ToString("dd MMM yyyy")</td>
                     <td>@(availability.DateTo.HasValue ? @availability.DateTo.Value.ToString("dd MMM yyyy") : "Unknown")</td>
-                    <td>@Html.Raw(availability.Notes.IsEmpty() || availability.Notes.Length < 25 ? availability.Notes : $"<span data-toggle='tooltip' title=\"{availability.Notes}\">{availability.Notes.Substring(0, 25)}...</span>")</td>
-                    <td></td>
+                    <td>@Html.Raw(availability.Notes.IsEmpty() || availability.Notes.Length < 25 ? availability.Notes : $"<span data-toggle='tooltip' title=\"{availability.Notes}\">{availability.Notes.Substring(0, 25)}...</span>")</td>                    
                 </tr>
             }
         </tbody>

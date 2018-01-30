@@ -5,6 +5,9 @@ using HeyTeam.Core.Services;
 using HeyTeam.Web.Models.AvailabilityViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using System;
 
 namespace HeyTeam.Web.Areas.Administration.Controllers {
 	[Authorize(Policy = "Administrator")]
@@ -57,5 +60,25 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 
 			return RedirectToAction(nameof(Index));
 		}
-	}
+
+        [HttpGet("{availabilityId:guid}")]
+        public IActionResult Edit(Guid availabilityId)
+        {
+            var availability = availabilityQuery.GetAvailability(club.Guid, availabilityId);
+            var model = new EditAvailabilityViewModel
+            {
+                AvailabilityId = availability.AvailabilityId,
+                AvailabilityStatus = availability.AvailabilityStatus,
+                DateFrom = availability.DateFrom,
+                DateTo = availability.DateTo,
+                Notes = availability.Notes,
+                PlayerId = availability.PlayerId,
+                SelectedPlayer = JsonConvert.SerializeObject(
+                     new { Id = availability.PlayerId, Text = availability.PlayerName },
+                    new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() }
+                )
+            };
+            return View(model);
+        }
+    }
 }

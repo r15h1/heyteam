@@ -19,7 +19,7 @@ namespace HeyTeam.Lib.Queries {
 		public IEnumerable<Availability> GetAvailabilities(GetAvailabilityRequest request) {
 			bool includeSquadId = request.SquadId.HasValue && !request.SquadId.Value.IsEmpty();
 			bool includePlayerId = request.PlayerId.HasValue && !request.PlayerId.Value.IsEmpty();
-			var sql = GetSql(includeSquadId, includePlayerId);
+			var sql = GetAvailabilitiesSql(includeSquadId, includePlayerId);
 
 			DynamicParameters p = new DynamicParameters();
 			p.Add("@ClubGuid", request.ClubId.ToString());
@@ -30,20 +30,48 @@ namespace HeyTeam.Lib.Queries {
 			using (var connection = connectionFactory.Connect()) {
 				connection.Open();
 				var reader = connection.Query(sql, p).Cast<IDictionary<string, object>>();
-				var events = reader.Select<dynamic, Availability>(
-						row => new Availability(Guid.Parse(row.PlayerGuid.ToString())) {
+				var availabilities = reader.Select<dynamic, Availability>(
+						row => new Availability(Guid.Parse(row.AvailabilityGuid.ToString()), Guid.Parse(row.PlayerGuid.ToString())) {
 							AvailabilityStatus = (AvailabilityStatus?) row.AvailabilityId,
 							DateFrom = row.DateFrom, DateTo = (DateTime?) row.DateTo,
 							Notes = row.Notes, PlayerName = row.PlayerName, SquadName = row.SquadName
 						}).ToList();
 
-				return events;
+				return availabilities;
 			}
 
 		}
 
-		private string GetSql(bool includeSquadId, bool includePlayerId) {
-			return "SELECT P.Guid AS \"PlayerGuid\", "+
+        public Availability GetAvailability(Guid clubId, Guid availabilityId)
+        {
+            var sql = GetSingleAvailabilitySql();
+            DynamicParameters p = new DynamicParameters();
+            p.Add("@ClubGuid", clubId.ToString());
+            p.Add("@AvailabilityGuid", availabilityId.ToString());
+
+            using (var connection = connectionFactory.Connect())
+            {
+                connection.Open();
+                var reader = connection.Query(sql, p).Cast<IDictionary<string, object>>();
+                var availability = reader.Select<dynamic, Availability>(
+                        row => new Availability(Guid.Parse(row.AvailabilityGuid.ToString()), Guid.Parse(row.PlayerGuid.ToString()))
+                        {
+                            AvailabilityStatus = (AvailabilityStatus?)row.AvailabilityId,
+                            DateFrom = row.DateFrom,
+                            DateTo = (DateTime?)row.DateTo,
+                            Notes = row.Notes,
+                            PlayerName = row.PlayerName,
+                            SquadName = row.SquadName
+                        }).FirstOrDefault();
+
+                return availability;
+            }
+
+            
+        }
+
+        private string GetAvailabilitiesSql(bool includeSquadId, bool includePlayerId) {
+			return "SELECT PA.Guid AS \"AvailabilityGuid\", P.Guid AS \"PlayerGuid\", "+
 					"S.Name AS \"SquadName\", P.FirstName + ' ' + P.LastName AS \"PlayerName\", " +
 					"PA.AvailabilityId, PA.DateFrom, PA.DateTo, PA.Notes " +
 					"FROM PlayerAvailability PA " +
@@ -55,6 +83,19 @@ namespace HeyTeam.Lib.Queries {
 					(includeSquadId ? "AND S.Guid = @SquadGuid " : string.Empty) +
 					(includePlayerId ? "AND P.Guid = @PlayerGuid " : string.Empty);
 		}
-		
-	}
+
+        private string GetSingleAvailabilitySql()
+        {
+            return "SELECT PA.Guid AS \"AvailabilityGuid\", P.Guid AS \"PlayerGuid\", " +
+                    "S.Name AS \"SquadName\", P.FirstName + ' ' + P.LastName AS \"PlayerName\", " +
+                    "PA.AvailabilityId, PA.DateFrom, PA.DateTo, PA.Notes " +
+                    "FROM PlayerAvailability PA " +
+                    "INNER JOIN Availability A ON PA.AvailabilityId = A.AvailabilityId " +
+                    "INNER JOIN Players P ON P.PlayerId = PA.PlayerId " +
+                    "INNER JOIN Squads S ON S.SquadId = P.SquadId " +
+                    "INNER JOIN Clubs C ON C.ClubId= S.ClubId " +
+                    "WHERE C.Guid = @ClubGuid AND PA.Guid = @AvailabilityGuid ";
+        }
+
+    }
 }
