@@ -9,7 +9,7 @@
             <input type="hidden" asp-for="AvailabilityId" />
             <div class="form-group">
                 <label asp-for="PlayerId" class="control-label">Player</label>
-                <select id="PlayerId" name="PlayerId" class="form-control" required>
+                <select id="PlayerId" name="PlayerId" class="form-control" required disabled>
                     <option value="@Model.PlayerId" selected>@Model.PlayerName</option>
                 </select>
                 <span asp-validation-for="PlayerId" class="text-danger"></span>
@@ -49,7 +49,7 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    <script src="~/lib/select2/dist/js/select2.min.js"></script>
+    @*<script src="~/lib/select2/dist/js/select2.min.js"></script>
     <script>
         var playerDropDown = $('#PlayerId').select2({            
             ajax: {
@@ -68,9 +68,9 @@
         });
 
         playerDropDown.trigger("change");
-    </script>
+    </script>*@
 }
 
-@section CSS {
+@*@section CSS {
     <link href="~/lib/select2/dist/css/select2.min.css" rel="stylesheet" />
-}
+}*@
