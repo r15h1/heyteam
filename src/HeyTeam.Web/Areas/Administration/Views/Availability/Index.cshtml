@@ -14,14 +14,15 @@
     <div class="modal-dialog">
         <!-- Modal content-->
         <div class="modal-content">
-            <form method="post" asp-action="Delete">
-                <input type="hidden" id="eventId" name="eventId" />
+            <form method="post" asp-area="Administration" asp-controller="Availability" asp-action="Delete">
+                <input type="hidden" id="availabilityId" name="availabilityId" />
+                <input type="hidden" id="playerId" name="playerId" />
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Confirm Event Deletion</h4>
+                    <h4 class="modal-title">Confirm Availability Deletion</h4>
                 </div>
                 <div class="modal-body">
-                    <p>Do you really want to this event?</p>
+                    <p>Do you really want to this player's availability?</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
@@ -47,7 +48,7 @@
         </thead>
         <tbody>
             @foreach (var availability in Model) {
-            <tr data-availabilityId="@availability.AvailabilityId">
+            <tr data-availabilityid="@availability.AvailabilityId" data-playerid="@availability.PlayerId">
                 <td>@availability.SquadName</td>
                 <td><a asp-area="Administration" asp-controller="Availability" asp-action="Edit" asp-route-availabilityId="@availability.AvailabilityId">@availability.PlayerName</a></td>
                 <td>
@@ -75,13 +76,16 @@
 
         $('a.deleteButton').on('click', function (e) {
             e.preventDefault();
-            var id = $(this).closest('tr').data('id');
-            $('#myModal').data('id', id).modal('show');
+            var availabilityId = $(this).closest('tr').data('availabilityid');
+            var playerId = $(this).closest('tr').data('playerid');
+            $('#myModal').data('availabilityid', availabilityId).data('playerid', playerId).modal('show');
         });
 
         $('#ConfirmDeleteButton').click(function () {
-            var id = $('#myModal').data('id');
-            $("#eventId").val(id);
+            var availabilityId = $('#myModal').data('availabilityid');
+            var playerId = $('#myModal').data('playerid');
+            $("#availabilityId").val(availabilityId);
+            $("#playerId").val(playerId);
             $('#myModal').modal('hide');
         });
     </script>

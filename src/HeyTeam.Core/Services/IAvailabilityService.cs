@@ -1,8 +1,9 @@
 ﻿using HeyTeam.Core.Models;
-using System;
 
-namespace HeyTeam.Core.Services {
-	public interface IAvailabilityService {
+namespace HeyTeam.Core.Services
+{
+    public interface IAvailabilityService {
 		Response AddAvailability(NewAvailabilityRequest request);
-	}
+        Response DeleteAvailability(DeleteAvailabilityRequest request);
+    }
 }

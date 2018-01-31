@@ -81,5 +81,20 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
             };
             return View(model);
         }
+
+        [HttpPost("delete")]
+        public IActionResult Delete(DeleteAvailabilityViewModel model)
+        {
+            var response = availabilityService.DeleteAvailability(new DeleteAvailabilityRequest { AvailabilityId=model.AvailabilityId, ClubId = club.Guid, PlayerId = model.PlayerId });
+            if (!response.RequestIsFulfilled)
+            {
+                foreach (var error in response.Errors)
+                    ModelState.AddModelError("", error);
+
+                return View(model);
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
