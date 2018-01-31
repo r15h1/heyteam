@@ -1,0 +1,90 @@
+﻿@model IEnumerable<HeyTeam.Core.Availability>
+@using HeyTeam.Util
+
+<h2>Availability</h2>
+<h3>Currently Unavailable</h3>
+<div>
+    <div class="btn-group" role="group" aria-label="...">
+        <a class="btn btn-primary" id="AddAvailibilityButton" asp-area="Players" asp-controller="Availability" asp-action="New">Add Availability Status</a>
+        <a class="btn btn-primary" id="CheckHistoryButton" asp-area="Players" asp-controller="Availability" asp-action="History">Check Availability History</a>
+    </div>
+</div>
+
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <form method="post" asp-area="Players" asp-controller="Availability" asp-action="Delete">
+                <input type="hidden" id="availabilityId" name="availabilityId" />
+                <input type="hidden" id="playerId" name="playerId" />
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Confirm Availability Deletion</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Do you really want to this player's availability?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <input type="submit" id="ConfirmDeleteButton" class="btn btn-danger" value="Delete" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>Status</th>
+                <th>Date From</th>
+                <th>Date To</th>
+                <th>Notes</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var availability in Model) {
+            <tr data-availabilityid="@availability.AvailabilityId" data-playerid="@availability.PlayerId">
+                <td>@availability.SquadName</td>
+                <td><a asp-area="Players" asp-controller="Availability" asp-action="Edit" asp-route-availabilityId="@availability.AvailabilityId">@availability.PlayerName</a></td>
+                <td>
+                    @(availability.AvailabilityStatus == HeyTeam.Core.AvailabilityStatus.Injured ? "Injured" :
+                        (availability.AvailabilityStatus == HeyTeam.Core.AvailabilityStatus.OutOfTown ? "Out of town" :
+                            (availability.AvailabilityStatus == HeyTeam.Core.AvailabilityStatus.Other ? "Other" : "Unknown"
+
+                )))
+                </td>
+                <td>@availability.DateFrom.ToString("dd MMM yyyy")</td>
+                <td>@(availability.DateTo.HasValue ? @availability.DateTo.Value.ToString("dd MMM yyyy") : "Unknown")</td>
+                <td>@Html.Raw(availability.Notes.IsEmpty() || availability.Notes.Length < 25 ? availability.Notes : $"<span data-toggle='tooltip' title=\"{availability.Notes}\">{availability.Notes.Substring(0, 25)}...</span>")</td>
+                <td><a href="#" class="deleteButton text-danger" title="Delete availability"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a></td>
+            </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function(){
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+
+        $('a.deleteButton').on('click', function (e) {
+            e.preventDefault();
+            var availabilityId = $(this).closest('tr').data('availabilityid');
+            var playerId = $(this).closest('tr').data('playerid');
+            $('#myModal').data('availabilityid', availabilityId).data('playerid', playerId).modal('show');
+        });
+
+        $('#ConfirmDeleteButton').click(function () {
+            var availabilityId = $('#myModal').data('availabilityid');
+            var playerId = $('#myModal').data('playerid');
+            $("#availabilityId").val(availabilityId);
+            $("#playerId").val(playerId);
+            $('#myModal').modal('hide');
+        });
+    </script>
+}

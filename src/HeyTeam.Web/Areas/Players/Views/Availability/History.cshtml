@@ -1,0 +1,78 @@
+﻿
+@using HeyTeam.Util
+<h2>Availability History</h2>
+<h3>Select Year</h3>
+<div class="row">
+    <div class="col-md-12" style="margin-bottom:15px;">
+        <div class="form-inline">
+            <div class="form-group">                
+                <input id="year" type="number" placeholder="year" min="@DateTime.Today.AddYears(-5).Year" max="@DateTime.Today.Year" class="form-control input-sm " value="@DateTime.Today.Year" style="width:100px" />
+            </div>
+        </div>
+    </div>
+</div>
+<div id="availabilitiesMessage" class="table-responsive" style="display:none"></div>
+<div id="availabilitiesTable" class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Date From</th>
+                    <th>Date To</th>
+                    <th>Status</th>
+                    <th>Notes</th>
+                </tr>
+            </thead>
+            <tbody id="availabilitiesTableBody"></tbody>
+        </table>
+    </div>
+    @section Scripts {
+        <script src="~/lib/select2/dist/js/select2.min.js"></script>
+        <script>
+            $(document).ready(function () {
+                $('[data-toggle="tooltip"]').tooltip();
+                $("#availabilitiesTable").hide();
+                $("#availabilitiesMessage").hide();                
+            });            
+
+            $("#year").change(function (e) {
+                console.log($("#year").val());
+                updateHistory();
+            });
+
+            function updateHistory() {
+                //var playerid = $('#playerId').val();
+                var year = $('#year').val();
+
+                console.log(playerid);
+                console.log(year);
+
+                if (playerid != null) {
+
+                    $.ajax({
+                        method: "GET",
+                        contentType: 'application/json',
+                        url: "/api/availabilities?playerid=" + playerid + "&year=" + year
+                    })
+                        .done(function (data) {
+                            console.log(data);
+                            $("#availabilitiesTableBody").empty();
+                            if (data.length > 0) {
+                                $("#availabilitiesTable").show();
+                                $("#availabilitiesMessage").hide();
+                                for (var i = 0; i < data.length; i++) {
+                                    var row = $("<tr><td>" + data[i].formattedDateFrom + "</td><td>" + data[i].formattedDateTo + "</td><td>" + data[i].availabilityStatusDescription + "</td><td>" + data[i].notes + "</td></tr>");
+                                    $("#availabilitiesTableBody").append(row);
+                                }
+                            } else {
+                                $("#availabilitiesTable").hide();
+                                $("#availabilitiesMessage").show();
+                                $("#availabilitiesMessage").text("No record found");  
+                            }
+                        })
+                        .fail(function (jqXHR, textStatus, errorThrown) {
+                            console.log(textStatus);
+                        });
+                }
+            }
+        </script>
+    }

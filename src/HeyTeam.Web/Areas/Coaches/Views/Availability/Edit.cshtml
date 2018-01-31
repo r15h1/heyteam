@@ -1,0 +1,50 @@
+﻿@model HeyTeam.Web.Models.AvailabilityViewModels.EditAvailabilityViewModel
+
+<h2>@Model.PlayerName's Availability</h2>
+<h3>Details</h3>
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="AvailabilityId" />
+            <input type="hidden" asp-for="PlayerId" />
+            <div class="form-group">
+                <label class="control-label">Player</label>
+                <input asp-for="PlayerName" class="form-control" disabled />
+            </div>
+            <div class="form-group">
+                <label asp-for="DateFrom" class="control-label">From</label>
+                <input asp-for="DateFrom" type="date" class="form-control" min="@DateTime.Today.AddDays(-30).ToString("yyyy-MM-dd")" max="@DateTime.Today.AddMonths(3).ToString("yyyy-MM-dd")" required />
+                <span asp-validation-for="DateFrom" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DateTo" class="control-label">To</label>
+                <input asp-for="DateTo" type="date" class="form-control" min="@DateTime.Today.AddDays(-30).ToString("yyyy-MM-dd")" max="@DateTime.Today.AddMonths(6).ToString("yyyy-MM-dd")" />
+                <span asp-validation-for="DateTo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AvailabilityStatus" class="control-label">Availability status</label>
+                <select asp-for="AvailabilityStatus" class="form-control" required>
+                    <option value="" selected disabled>select...</option>
+                    <option value="1">Injured</option>
+                    <option value="2">Out of town</option>
+                    <option value="3">Other</option>
+                </select>
+                <span asp-validation-for="AvailabilityStatus" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Notes" class="control-label"></label>
+                <textarea asp-for="Notes" class="form-control" rows="4" maxlength="250"></textarea>
+                <span asp-validation-for="Notes" class="text-danger"></span>
+            </div>
+            <div class="modal-footer">
+                <a asp-area="Coaches" asp-controller="Availability" asp-action="Index" asp-route-id='@ViewData["PlayerId"]' class="btn btn-default">Cancel</a>
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
