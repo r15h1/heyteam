@@ -37,5 +37,40 @@ namespace HeyTeam.Lib.Repositories
 				connection.Execute(sql, p);
 			}
 		}
+
+		public void DeleteAvailability(DeleteAvailabilityRequest request) {
+			using (var connection = connectionFactory.Connect()) {
+				string sql = @"DELETE PlayerAvailability
+								FROM PlayerAvailability PA
+								INNER JOIN Players P ON PA.PlayerId = P.PlayerId
+								INNER JOIN Squads S ON P.SquadId = S.SquadId
+								INNER JOIN Clubs C ON S.ClubId = C.ClubId
+								WHERE C.Guid = @ClubGuid AND P.Guid = @PlayerGuid AND PA.Guid = @AvailabilityGuid";
+
+				var p = new DynamicParameters();
+				p.Add("@ClubGuid", request.ClubId.ToString());
+				p.Add("@PlayerGuid", request.PlayerId.ToString());
+				p.Add("@AvailabilityGuid", request.AvailabilityId.ToString());
+				connection.Open();
+				connection.Execute(sql, p);
+			}
+		}
+
+		public void UpdateAvailability(UpdateAvailabilityRequest request) {
+			using (var connection = connectionFactory.Connect()) {
+				string sql = @"UPDATE PlayerAvailability
+								SET AvailabilityId = @AvailabilityId, DateFrom = @DateFrom, DateTo = @DateTo, Notes = @Notes
+								WHERE Guid = @AvailabilityGuid";
+
+				var p = new DynamicParameters();
+				p.Add("@AvailabilityGuid", request.AvailabilityId.ToString());
+				p.Add("@AvailabilityId", (short)request.AvailabilityStatus);
+				p.Add("@DateFrom", request.DateFrom);
+				p.Add("@DateTo", request.DateTo);
+				p.Add("@Notes", request.Notes);
+				connection.Open();
+				connection.Execute(sql, p);
+			}
+		}
 	}
 }

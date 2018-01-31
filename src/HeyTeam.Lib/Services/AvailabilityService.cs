@@ -56,34 +56,55 @@ namespace HeyTeam.Lib.Services {
         {
             if (request == null) return Response.CreateResponse(new ArgumentNullException());
 
-            if(request.ClubId.IsEmpty() || request.PlayerId.IsEmpty() || request.AvailabilityId.IsEmpty())
-                return Response.CreateResponse(new ArgumentNullException("ClubId, PlayerId and AvailabilityId cannot be empty"));
+			var response = VerifyIntegrity(request.ClubId, request.PlayerId, request.AvailabilityId);
+			if (response != null) return response;
 
-            var club = clubQuery.GetClub(request.ClubId);
-            if (club == null)
-                Response.CreateResponse(new EntityNotFoundException("The specified club does not exist"));
-
-            var player = memberQuery.GetPlayer(request.PlayerId);
-            if (player == null)
-                Response.CreateResponse(new EntityNotFoundException("The specified player does not exist"));
-
-            var squad = squadQuery.GetSquad(player.SquadId);
-            if (squad == null || squad.ClubId != club.Guid)
-                return Response.CreateResponse(new IllegalOperationException("The specified player does not belong to this club"));
-
-            var availability = availabilityQuery.GetAvailability(request.ClubId, request.AvailabilityId);
-            if(availability == null)
-                Response.CreateResponse(new EntityNotFoundException("The specified availability does not exist"));
-
-            if(availability.PlayerId != request.PlayerId)
-                return Response.CreateResponse(new IllegalOperationException("This availability does not belong to the specified player"));
-
-            try {
-                //repository.DeleteAvailability(request.AvailabilityId);
+			try {
+                repository.DeleteAvailability(request);
                 return Response.CreateSuccessResponse();
             }catch(Exception ex) {
                 return Response.CreateResponse(ex);
             }
         }
-    }
+
+		public Response UpdateAvailability(UpdateAvailabilityRequest request) {
+			if (request == null) return Response.CreateResponse(new ArgumentNullException());
+
+			var response = VerifyIntegrity(request.ClubId, request.PlayerId, request.AvailabilityId);
+			if (response != null) return response;
+
+			try {
+				repository.UpdateAvailability(request);
+				return Response.CreateSuccessResponse();
+			} catch (Exception ex) {
+				return Response.CreateResponse(ex);
+			}
+		}
+
+		private Response VerifyIntegrity(Guid clubId, Guid playerId, Guid availabilityId) {
+			if (clubId.IsEmpty() || playerId.IsEmpty() || availabilityId.IsEmpty())
+				return Response.CreateResponse(new ArgumentNullException("ClubId, playerId and AvailabilityId cannot be empty"));
+
+			var club = clubQuery.GetClub(clubId);
+			if (club == null)
+				Response.CreateResponse(new EntityNotFoundException("The specified club does not exist"));
+
+			var player = memberQuery.GetPlayer(playerId);
+			if (player == null)
+				Response.CreateResponse(new EntityNotFoundException("The specified player does not exist"));
+
+			var squad = squadQuery.GetSquad(player.SquadId);
+			if (squad == null || squad.ClubId != club.Guid)
+				return Response.CreateResponse(new IllegalOperationException("The specified player does not belong to this club"));
+
+			var availability = availabilityQuery.GetAvailability(clubId, availabilityId);
+			if (availability == null)
+				Response.CreateResponse(new EntityNotFoundException("The specified availability does not exist"));
+
+			if (availability.PlayerId != playerId)
+				return Response.CreateResponse(new IllegalOperationException("This availability does not belong to the specified player"));
+
+			return null;
+		}
+	}
 }

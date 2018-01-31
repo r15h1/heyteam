@@ -61,28 +61,52 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 			return RedirectToAction(nameof(Index));
 		}
 
-        [HttpGet("{availabilityId:guid}")]
-        public IActionResult Edit(Guid availabilityId)
-        {
-            var availability = availabilityQuery.GetAvailability(club.Guid, availabilityId);
-            var model = new EditAvailabilityViewModel
-            {
-                AvailabilityId = availability.AvailabilityId,
-                AvailabilityStatus = availability.AvailabilityStatus,
-                DateFrom = availability.DateFrom,
-                DateTo = availability.DateTo,
-                Notes = availability.Notes,
-                PlayerId = availability.PlayerId,
-                SelectedPlayer = JsonConvert.SerializeObject(
-                     new { Id = availability.PlayerId, Text = availability.PlayerName },
-                    new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() }
-                ),
-                PlayerName = availability.PlayerName
-            };
-            return View(model);
-        }
+		[HttpGet("{availabilityId:guid}")]
+		public IActionResult Edit(Guid availabilityId) {
+			var availability = availabilityQuery.GetAvailability(club.Guid, availabilityId);
+			var model = new EditAvailabilityViewModel {
+				AvailabilityId = availability.AvailabilityId,
+				AvailabilityStatus = availability.AvailabilityStatus,
+				DateFrom = availability.DateFrom,
+				DateTo = availability.DateTo,
+				Notes = availability.Notes,
+				PlayerId = availability.PlayerId,
+				SelectedPlayer = JsonConvert.SerializeObject(
+					 new { Id = availability.PlayerId, Text = availability.PlayerName },
+					new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() }
+				),
+				PlayerName = availability.PlayerName
+			};
+			return View(model);
+		}
 
-        [HttpPost("delete")]
+		[HttpPost("{availabilityId:guid}")]
+		public IActionResult Edit(EditAvailabilityViewModel model) {
+			if(!ModelState.IsValid)
+				return View(model);
+
+			var request = new UpdateAvailabilityRequest {
+				AvailabilityStatus = model.AvailabilityStatus.Value,
+				AvailabilityId = model.AvailabilityId,
+				ClubId = club.Guid,
+				DateFrom = model.DateFrom.Value,
+				DateTo = model.DateTo,
+				Notes = model.Notes,
+				PlayerId = model.PlayerId
+			};
+
+			var response = availabilityService.UpdateAvailability(request);
+			if (!response.RequestIsFulfilled) {
+				foreach (var error in response.Errors)
+					ModelState.AddModelError("", error);
+
+				return View(model);
+			}
+
+			return RedirectToAction(nameof(Index));
+		}
+
+		[HttpPost("delete")]
         public IActionResult Delete(DeleteAvailabilityViewModel model)
         {
             var response = availabilityService.DeleteAvailability(new DeleteAvailabilityRequest { AvailabilityId=model.AvailabilityId, ClubId = club.Guid, PlayerId = model.PlayerId });

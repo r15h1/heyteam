@@ -5,5 +5,6 @@ namespace HeyTeam.Core.Services
     public interface IAvailabilityService {
 		Response AddAvailability(NewAvailabilityRequest request);
         Response DeleteAvailability(DeleteAvailabilityRequest request);
-    }
+		Response UpdateAvailability(UpdateAvailabilityRequest request);
+	}
 }

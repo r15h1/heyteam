@@ -4,15 +4,13 @@
 <h3>Details</h3>
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="New" method="post">
+        <form asp-action="Edit" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="AvailabilityId" />
+            <input type="hidden" asp-for="PlayerId" />
             <div class="form-group">
-                <label asp-for="PlayerId" class="control-label">Player</label>
-                <select id="PlayerId" name="PlayerId" class="form-control" required disabled>
-                    <option value="@Model.PlayerId" selected>@Model.PlayerName</option>
-                </select>
-                <span asp-validation-for="PlayerId" class="text-danger"></span>
+                <label class="control-label">Player</label>
+                <input asp-for="PlayerName" class="form-control" disabled />
             </div>
             <div class="form-group">
                 <label asp-for="DateFrom" class="control-label">From</label>
@@ -49,28 +47,4 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    @*<script src="~/lib/select2/dist/js/select2.min.js"></script>
-    <script>
-        var playerDropDown = $('#PlayerId').select2({            
-            ajax: {
-                url: '/api/players?',
-                data: function (params) {
-                    var query = {
-                        q:params.term
-                    };
-                    return query;
-                },
-                processResults: function (data) {return {results: data};}
-            },
-            escapeMarkup: function (markup) { return markup; },
-            minimumInputLength: 1,
-            placeholder: 'select...'
-        });
-
-        playerDropDown.trigger("change");
-    </script>*@
 }
-
-@*@section CSS {
-    <link href="~/lib/select2/dist/css/select2.min.css" rel="stylesheet" />
-}*@
