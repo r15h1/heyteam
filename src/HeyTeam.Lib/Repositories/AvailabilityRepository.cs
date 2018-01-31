@@ -3,12 +3,8 @@ using HeyTeam.Core.Models;
 using HeyTeam.Core.Repositories;
 using HeyTeam.Lib.Data;
 using HeyTeam.Util;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace HeyTeam.Lib.Repositories
-{
+namespace HeyTeam.Lib.Repositories {
 	public class AvailabilityRepository : IAvailabilityRepository {
 		private readonly IDbConnectionFactory connectionFactory;
 

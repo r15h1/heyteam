@@ -13,6 +13,7 @@ namespace HeyTeam.Core.Queries
 	public class GetAvailabilityRequest{
 		public Guid ClubId{ get; set; }
 		public Guid? SquadId { get; set; }
-		public Guid? PlayerId { get; set; }		
+		public Guid? PlayerId { get; set; }
+		public int? Year { get; set; }
 	}
 }

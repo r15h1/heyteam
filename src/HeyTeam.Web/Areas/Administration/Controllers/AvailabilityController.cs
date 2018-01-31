@@ -120,5 +120,11 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 
             return RedirectToAction(nameof(Index));
         }
-    }
+
+		[HttpGet("history")]
+		public IActionResult History() {
+			var availabilities = availabilityQuery.GetAvailabilities(new GetAvailabilityRequest { ClubId = club.Guid });
+			return View(availabilities);
+		}
+	}
 }
