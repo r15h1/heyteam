@@ -1,103 +1,107 @@
 ﻿@model HeyTeam.Web.Areas.Coaches.Models.EventsViewModel
 <h1>Events</h1>
-<h3>Manage Players Attendance</h3>
+<h3>Manage Reviews & Attendance</h3>
 
-<div>
-    <div class="form-group">
-        <label for="month">Month:</label>
-        <input id="month" type="month" value=@($"{DateTime.Now.Year}-{(DateTime.Now.Month < 10 ? "0" : "")}{DateTime.Now.Month}")>
-    </div>
-    <div class="form-group">
-        <label for="Squad" class="control-label">Squads:</label>
-        <select id="Squad" name="Month" asp-items="Model.Squads"></select>
+<div class="row">
+    <div class="col-md-12" style="margin-bottom:15px;">
+        <div class="form-inline">
+            <div class="form-group">
+                <label for="month">Month:</label>
+                <input id="month" type="month" class="form-control" value=@($"{DateTime.Now.Year}-{(DateTime.Now.Month < 10 ? "0" : "")}{DateTime.Now.Month}")>
+            </div>
+            <div class="form-group">
+                <label for="Squad" class="control-label">Squads:</label>
+                <select id="Squad" name="Month" asp-items="Model.Squads" class="form-control"></select>
+            </div>
+        </div>
     </div>
 </div>
-
-
-<div class="table-responsive">
-    <table id="eventsTable" class="table table-bordered table-hover">
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>Squads</th>
-                <th>Starts</th>
-                <th>Ends</th>
-                <th>Location</th>
-                <th>Docs</th>
-                <th>Attendance</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.EventSummary) {
-                <tr data-id="@item.Guid">
-                    <td>
-                        <a asp-area="Coaches" asp-controller="Events" asp-action="Details" asp-route-eventId="@Html.ValueFor(modelItem => item.Guid)">@Html.DisplayFor(modelItem => item.Title)</a>
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Squads)
-                    </td>
-                    <td class="text-center">
-                        @item.StartDate.ToString("dd-MMM-yyyy")<br />@item.StartDate.ToString("ddd h:mm t")M
-                    </td>
-                    <td class="text-center">
-                        @item.EndDate.ToString("dd-MMM-yyyy")<br />@item.EndDate.ToString("ddd h:mm t")M
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Location)
-                    </td>
-                    <td>
-                        @(item.TrainingMaterialsCount > 0 ? item.TrainingMaterialsCount : null)
-                    </td>
-                    <td class="text-center"><a asp-area="Coaches" asp-controller="Events" asp-action="Attendance" asp-route-eventId="@Html.ValueFor(modelItem => item.Guid)"><span class="glyphicon glyphicon-hand-up" title="Attendance"></span></a></td>
+<div id="message" style="display:none"></div>
+    <div class="table-responsive">
+        <table id="eventsTable" class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Squads</th>
+                    <th>Starts</th>
+                    <th>Ends</th>
+                    <th>Location</th>
+                    <th>Docs</th>
+                    <th>Attendance</th>
+                    <th>Review</th>
                 </tr>
-            }
-        </tbody>
-    </table>
-</div>
-@section Scripts {
-    <script src="~/lib/select2/dist/js/select2.min.js"></script>
-    <script type="text/javascript">
-        //$('#Squads').select2();
-    </script>
-    <script type="text/javascript">
-        $("#month").change(updateTable);
-        $("#Squad").change(updateTable);
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
 
-        function updateTable() {
-            var date = $('#month').val().split('-');
-            $("#eventsTable > tbody").empty();
-            var url = "/api/events?month=" + date[1] + "&year=" + date[0];
-            if ($('#Squad').val()) {
-                url = url + "&squad=" + $('#Squad').val();                
-            }
+    @section Scripts {
+        <script src="~/lib/select2/dist/js/select2.min.js"></script>
+        <script type="text/javascript">
+            //$('#Squads').select2();
+        </script>
+        <script type="text/javascript">
+            $("#month").change(updateTable);
+            $("#Squad").change(updateTable);
 
-            $.ajax({
-                method: "GET",
-                url: url
-            })
-                .done(function (data) {
-                    //console.log(data);
-                    if (data.length > 0) {
-                        for (var i = 0; i < data.length; i++) {
-                            var entry = data[i];
-                            //console.log(entry);
-                            var row = "<tr dataid='" + entry.guid + "'>";
-                            row = row + "<td><a href='events/" + entry.guid + "'>" + entry.title + "</a></td>";
-                            row = row + "<td>" + entry.squads + "</td>";
-                            row = row + "<td>" + entry.startDate + "</td>";
-                            row = row + "<td>" + entry.endDate + "</td>";
-                            row = row + "<td>" + entry.location + "</td>";
-                            row = row + "<td>" + entry.trainingMaterialsCount + "</td>";
-                            row = row + "<td class='text-center'><a href='events/" + entry.guid + "/attendance'><span class='glyphicon glyphicon-hand-up' title='Attendance'></span></a></td>";
-                            row = row + "</tr>";
-                            $("#eventsTable > tbody").append(row);
+            function updateTable() {
+                var date = $('#month').val().split('-');
+                $(".table-responsive").hide();
+                $("#eventsTable > tbody").empty();
+                $("#message").text("Fetching data, please wait...");
+                $("#message").show();                
+
+                var url = "/api/events?month=" + date[1] + "&year=" + date[0];
+                if ($('#Squad').val()) {
+                    url = url + "&squad=" + $('#Squad').val();
+                }
+
+                $.ajax({
+                    method: "GET",
+                    url: url
+                })
+                    .done(function (data) {
+
+                        //console.log(data);
+                        if (data.length > 0) {
+                            $(".table-responsive").show();
+                            $("#message").hide();
+                            for (var i = 0; i < data.length; i++) {
+                                var entry = data[i];
+                                //console.log(entry);
+                                var row = "<tr dataid='" + entry.eventId + "'>";
+                                row = row + "<td><a href='events/" + entry.eventId + "'>" + entry.title + "</a></td>";
+                                row = row + "<td>" + entry.squads + "</td>";
+                                row = row + "<td>" + entry.formattedStartDate + "</td>";
+                                row = row + "<td>" + entry.formattedEndDate + "</td>";
+                                row = row + "<td>" + entry.location + "</td>";
+                                row = row + "<td>" + entry.trainingMaterialsCount + "</td>";
+                                row = row + "<td class='text-center'><a href='events/" + entry.guid + "/attendance'><span class='glyphicon glyphicon-hand-up' title='Attendance'></span></a></td>";
+
+                                var date = new Date(entry.formattedEndDate);
+                                var now = new Date();
+                                var twoWeeksAgo = new Date(now.getTime() - (1000 * 60 * 60 * 24 * 14));
+                                if (now > date && date >= twoWeeksAgo) {
+                                    row = row + "<td class='text-center'><a href='events/" + entry.guid + "/attendance'><span class='glyphicon glyphicon-hand-up' title='Attendance'></span></a></td>";
+                                } else {
+                                    row = row + "<td></td>";
+                                }
+
+                                row = row + "</tr>";
+                                $("#eventsTable > tbody").append(row);
+                            }
+                        } else {
+                            $(".table-responsive").hide();
+                            $("#message").show();
+                            $("#message").text("No records found"); 
                         }
-                    }
-                });
-        }
-    </script>
-}
+                    });
+            }
+            console.log(new Date());
+            updateTable();
+        </script>
+    }
 
-@section CSS {
-    <link href="~/lib/select2/dist/css/select2.min.css" rel="stylesheet" />
-}
+    @section CSS {
+        <link href="~/lib/select2/dist/css/select2.min.css" rel="stylesheet" />
+    }

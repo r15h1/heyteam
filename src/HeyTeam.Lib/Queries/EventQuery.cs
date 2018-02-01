@@ -144,7 +144,7 @@ namespace HeyTeam.Lib.Queries {
 										) AS Squads
 								FROM Events E
 								INNER JOIN Clubs C ON E.ClubId = C.ClubId AND C.Guid = @ClubGuid
-								WHERE (E.Deleted IS NULL OR E.Deleted = 0);";
+								WHERE E.StartDate >= GetDate() AND (E.Deleted IS NULL OR E.Deleted = 0);";
 				DynamicParameters p = new DynamicParameters();
 				p.Add("@ClubGuid", clubId.ToString());
 				connection.Open();

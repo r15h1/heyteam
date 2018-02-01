@@ -29,7 +29,7 @@ namespace HeyTeam.Web.Controllers
 		}
 
 		[HttpGet("")]
-		public IEnumerable<EventSummary> GetEvents(Guid? squad, int month, int year) {
+		public IActionResult GetEvents(Guid? squad, int month, int year) {
 			var eventRequest = new EventsRequest() { 
 				ClubId = club.Guid,
 				Month = month,
@@ -38,7 +38,14 @@ namespace HeyTeam.Web.Controllers
 			};
 
 			var events = eventsQuery.GetEventsSummary(eventRequest);
-			return events;
+			var response = events.Select(e => new { 
+				EventId = e.Guid, Title = e.Title, TrainingMaterialsCount = e.TrainingMaterialsCount ,
+				Squads = e.Squads, Location = e.Location, FormattedStartDate = $"{e.StartDate.ToString("dd MMM yyyy h:mm tt")}",
+				FormattedEndDate = $"{e.EndDate.ToString("dd MMM yyyy h:mm tt")}",
+				StartDate = e.StartDate, EndDate = e.EndDate
+			}).ToList();
+
+			return Json(response);
 		}
 
 		[HttpPost("attendance")]

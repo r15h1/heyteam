@@ -11,12 +11,11 @@
             <div class="form-group">                
                 <input id="year" type="number" placeholder="year" min="@DateTime.Today.AddYears(-10).Year" max="@DateTime.Today.Year" class="form-control input-sm " value="@DateTime.Today.Year" style="width:100px" />
             </div>
-            <div class="form-group">
-                <div id="availabilitiesMessage" class="table-responsive" style="display:none"></div>
-            </div>
         </div>
     </div>
 </div>
+
+<div id="message" style="display:none"></div>
 
 <div id="availabilitiesTable" class="table-responsive">
         <table class="table table-bordered table-hover">
@@ -37,7 +36,7 @@
             $(document).ready(function () {
                 $('[data-toggle="tooltip"]').tooltip();
                 $("#availabilitiesTable").hide();
-                $("#availabilitiesMessage").hide();                
+                $("#message").hide();                
             });
 
             $('#playerId').select2({
@@ -68,8 +67,8 @@
                 var playerid = $('#playerId').val();
                 var year = $('#year').val();
  
-                $("#availabilitiesMessage").text("Fetching data, please wait...");  
-                $("#availabilitiesMessage").show();
+                $("#message").text("Fetching data, please wait...");  
+                $("#message").show();
 
                 if (playerid != null) {
                     $.ajax({
@@ -82,15 +81,15 @@
                             $("#availabilitiesTableBody").empty();
                             if (data.length > 0) {
                                 $("#availabilitiesTable").show();
-                                $("#availabilitiesMessage").hide();
+                                $("#message").hide();
                                 for (var i = 0; i < data.length; i++) {
                                     var row = $("<tr><td>" + data[i].formattedDateFrom + "</td><td>" + data[i].formattedDateTo + "</td><td>" + data[i].availabilityStatusDescription + "</td><td>" + data[i].notes + "</td></tr>");
                                     $("#availabilitiesTableBody").append(row);
                                 }
                             } else {
                                 $("#availabilitiesTable").hide();
-                                $("#availabilitiesMessage").show();
-                                $("#availabilitiesMessage").text("No record found");  
+                                $("#message").show();
+                                $("#message").text("No record found");  
                             }
                         })
                         .fail(function (jqXHR, textStatus, errorThrown) {

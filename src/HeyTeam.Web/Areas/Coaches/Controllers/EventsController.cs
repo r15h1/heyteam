@@ -30,9 +30,8 @@ namespace HeyTeam.Web.Areas.Coaches.Controllers {
 
 		[HttpGet("")]
 		public ActionResult Index() {
-			var events = eventsQuery.GetEventsSummary(new EventsRequest { ClubId=club.Guid });
 			var squads = GetSquadList();
-			var model = new EventsViewModel { EventSummary = events.OrderBy(e => e.StartDate).ThenBy(e => e.EndDate), Squads = squads };
+			var model = new EventsViewModel { Squads = squads };
 			return View(model);
 		}
 
@@ -76,6 +75,11 @@ namespace HeyTeam.Web.Areas.Coaches.Controllers {
 				EventPlayers = eventPlayers
 			};
 			return View(model);
+		}
+
+		[HttpGet("{eventId:guid}/review")]
+		public ActionResult Review() {
+			return View();
 		}
 	}
 }
