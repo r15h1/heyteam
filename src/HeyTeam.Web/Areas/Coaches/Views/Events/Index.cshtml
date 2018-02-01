@@ -69,20 +69,20 @@
                             for (var i = 0; i < data.length; i++) {
                                 var entry = data[i];
                                 //console.log(entry);
-                                var row = "<tr dataid='" + entry.eventId + "'>";
+                                var row = "<tr data-id='" + entry.eventId + "'>";
                                 row = row + "<td><a href='events/" + entry.eventId + "'>" + entry.title + "</a></td>";
                                 row = row + "<td>" + entry.squads + "</td>";
                                 row = row + "<td>" + entry.formattedStartDate + "</td>";
                                 row = row + "<td>" + entry.formattedEndDate + "</td>";
                                 row = row + "<td>" + entry.location + "</td>";
                                 row = row + "<td>" + entry.trainingMaterialsCount + "</td>";
-                                row = row + "<td class='text-center'><a href='events/" + entry.guid + "/attendance'><span class='glyphicon glyphicon-hand-up' title='Attendance'></span></a></td>";
+                                row = row + "<td class='text-center'><a href='events/" + entry.eventId + "/attendance'><span class='glyphicon glyphicon-hand-up' title='Attendance'></span></a></td>";
 
                                 var date = new Date(entry.formattedEndDate);
                                 var now = new Date();
                                 var twoWeeksAgo = new Date(now.getTime() - (1000 * 60 * 60 * 24 * 14));
                                 if (now > date && date >= twoWeeksAgo) {
-                                    row = row + "<td class='text-center'><a href='events/" + entry.guid + "/attendance'><span class='glyphicon glyphicon-hand-up' title='Attendance'></span></a></td>";
+                                    row = row + "<td class='text-center'><a href='events/" + entry.eventId + "/review'><span class='glyphicon glyphicon-star' title='review'></span></a></td>";
                                 } else {
                                     row = row + "<td></td>";
                                 }
