@@ -9,12 +9,15 @@
                 <select id="playerId" class="form-control" style="width:250px"></select>
             </div>
             <div class="form-group">                
-                <input id="year" type="number" placeholder="year" min="@DateTime.Today.AddYears(-5).Year" max="@DateTime.Today.Year" class="form-control input-sm " value="@DateTime.Today.Year" style="width:100px" />
+                <input id="year" type="number" placeholder="year" min="@DateTime.Today.AddYears(-10).Year" max="@DateTime.Today.Year" class="form-control input-sm " value="@DateTime.Today.Year" style="width:100px" />
+            </div>
+            <div class="form-group">
+                <div id="availabilitiesMessage" class="table-responsive" style="display:none"></div>
             </div>
         </div>
     </div>
 </div>
-<div id="availabilitiesMessage" class="table-responsive" style="display:none"></div>
+
 <div id="availabilitiesTable" class="table-responsive">
         <table class="table table-bordered table-hover">
             <thead>
@@ -64,12 +67,11 @@
             function updateHistory() {
                 var playerid = $('#playerId').val();
                 var year = $('#year').val();
-
-                console.log(playerid);
-                console.log(year);
+ 
+                $("#availabilitiesMessage").text("Fetching data, please wait...");  
+                $("#availabilitiesMessage").show();
 
                 if (playerid != null) {
-
                     $.ajax({
                         method: "GET",
                         contentType: 'application/json',

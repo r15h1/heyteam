@@ -5,7 +5,7 @@
     <div class="col-md-4">
         <form asp-action="New" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" id="PlayerId" asp-for="PlayerId" class="form-control"/>
+            <input type="hidden" id="PlayerId" asp-for="PlayerId" class="form-control" />
             <div class="form-group">
                 <label asp-for="DateFrom" class="control-label">From</label>
                 <input asp-for="DateFrom" type="date" class="form-control" min="@DateTime.Today.AddDays(-30).ToString("yyyy-MM-dd")" max="@DateTime.Today.AddMonths(3).ToString("yyyy-MM-dd")" required />
@@ -38,3 +38,8 @@
         </form>
     </div>
 </div>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

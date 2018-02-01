@@ -5,17 +5,21 @@
 <div class="row">
     <div class="col-md-12" style="margin-bottom:15px;">
         <div class="form-inline">
-            <div class="form-group">                
-                <input id="year" type="number" placeholder="year" min="@DateTime.Today.AddYears(-5).Year" max="@DateTime.Today.Year" class="form-control input-sm " value="@DateTime.Today.Year" style="width:100px" />
+            <div class="form-group">
+                <input id="year" type="number" placeholder="year" min="@DateTime.Today.AddYears(-10).Year" max="@DateTime.Today.Year" class="form-control input-sm " value="@DateTime.Today.Year" style="width:100px" />
+            </div>
+            <div class="form-group">
+                <div id="availabilitiesMessage" class="table-responsive" style="display:none"></div>
             </div>
         </div>
     </div>
 </div>
-<div id="availabilitiesMessage" class="table-responsive" style="display:none"></div>
+<input type="hidden" id="playerId" value="@ViewData["playerid"]" />
 <div id="availabilitiesTable" class="table-responsive">
         <table class="table table-bordered table-hover">
             <thead>
                 <tr>
+                    <th>Name</th>
                     <th>Date From</th>
                     <th>Date To</th>
                     <th>Status</th>
@@ -31,7 +35,8 @@
             $(document).ready(function () {
                 $('[data-toggle="tooltip"]').tooltip();
                 $("#availabilitiesTable").hide();
-                $("#availabilitiesMessage").hide();                
+                $("#availabilitiesMessage").hide();      
+                updateHistory();
             });            
 
             $("#year").change(function (e) {
@@ -40,11 +45,11 @@
             });
 
             function updateHistory() {
-                //var playerid = $('#playerId').val();
+                var playerid = $('#playerId').val();
                 var year = $('#year').val();
 
-                console.log(playerid);
-                console.log(year);
+                $("#availabilitiesMessage").text("Fetching data, please wait...");
+                $("#availabilitiesMessage").show();
 
                 if (playerid != null) {
 
@@ -57,10 +62,10 @@
                             console.log(data);
                             $("#availabilitiesTableBody").empty();
                             if (data.length > 0) {
-                                $("#availabilitiesTable").show();
                                 $("#availabilitiesMessage").hide();
+                                $("#availabilitiesTable").show();                               
                                 for (var i = 0; i < data.length; i++) {
-                                    var row = $("<tr><td>" + data[i].formattedDateFrom + "</td><td>" + data[i].formattedDateTo + "</td><td>" + data[i].availabilityStatusDescription + "</td><td>" + data[i].notes + "</td></tr>");
+                                    var row = $("<tr><td>" + data[i].playerName  + "</td><td>" + data[i].formattedDateFrom + "</td><td>" + data[i].formattedDateTo + "</td><td>" + data[i].availabilityStatusDescription + "</td><td>" + data[i].notes + "</td></tr>");
                                     $("#availabilitiesTableBody").append(row);
                                 }
                             } else {

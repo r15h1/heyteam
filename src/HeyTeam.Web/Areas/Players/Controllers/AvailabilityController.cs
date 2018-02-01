@@ -32,8 +32,9 @@ namespace HeyTeam.Web.Areas.Players.Controllers {
         }
 
 		[HttpGet("new")]
-		public IActionResult New() {
-			return View();
+		public IActionResult New(Guid memberId) {
+			var model = new NewAvailabilityViewModel { PlayerId = memberId };
+			return View(model);
 		}
 
 		[HttpPost("new")]
@@ -122,9 +123,9 @@ namespace HeyTeam.Web.Areas.Players.Controllers {
         }
 
 		[HttpGet("history")]
-		public IActionResult History() {
-			var availabilities = availabilityQuery.GetAvailabilities(new GetAvailabilityRequest { ClubId = club.Guid });
-			return View(availabilities);
+		public IActionResult History(Guid memberId) {			
+			ViewData["playerid"] = memberId;
+			return View();
 		}
 	}
 }

@@ -83,7 +83,8 @@ namespace HeyTeam.Lib.Queries {
 					"WHERE C.Guid = @ClubGuid " +
 					(year.HasValue ? "AND (YEAR(PA.DateFrom) = @Year OR YEAR(PA.DateTo) = @Year) " : "AND PA.DateTo IS NULL OR PA.DateTo >= GetDate() ") +
 					(includeSquadId ? "AND S.Guid = @SquadGuid " : string.Empty) +
-					(includePlayerId ? "AND P.Guid = @PlayerGuid " : string.Empty);
+					(includePlayerId ? "AND P.Guid = @PlayerGuid " : string.Empty) +
+					"ORDER BY \"PlayerName\", PA.DateFrom"; 
 		}
 
         private string GetSingleAvailabilitySql()
@@ -96,7 +97,8 @@ namespace HeyTeam.Lib.Queries {
                     "INNER JOIN Players P ON P.PlayerId = PA.PlayerId " +
                     "INNER JOIN Squads S ON S.SquadId = P.SquadId " +
                     "INNER JOIN Clubs C ON C.ClubId= S.ClubId " +
-                    "WHERE C.Guid = @ClubGuid AND PA.Guid = @AvailabilityGuid ";
+                    "WHERE C.Guid = @ClubGuid AND PA.Guid = @AvailabilityGuid " +
+					"ORDER BY PA.DateFrom";
         }
 
     }
