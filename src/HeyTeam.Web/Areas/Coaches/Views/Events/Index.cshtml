@@ -80,9 +80,9 @@
 
                                 var date = new Date(entry.formattedEndDate);
                                 var now = new Date();
-                                var twoWeeksAgo = new Date(now.getTime() - (1000 * 60 * 60 * 24 * 14));
-                                if (now > date && date >= twoWeeksAgo) {
-                                    row = row + "<td class='text-center'><a href='events/" + entry.eventId + "/review'><span class='glyphicon glyphicon-star' title='review'></span></a></td>";
+                                var minDate = new Date(now.getTime() - (1000 * 60 * 60 * 24 * 30));
+                                if (now > date && date >= minDate) {
+                                    row = row + "<td class='text-center'><a href='events/" + entry.eventId + "/reviews'><span class='glyphicon glyphicon-star' title='review'></span></a></td>";
                                 } else {
                                     row = row + "<td></td>";
                                 }

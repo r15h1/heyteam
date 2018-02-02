@@ -10,6 +10,7 @@ namespace HeyTeam.Core.Queries {
 		IEnumerable<EventSummary> GetEventsSummary(Guid clubId);
 		IEnumerable<EventSummary> GetEventsSummary(EventsRequest request);
 		IEnumerable<EventPlayer> GetPlayersByEvent(Guid eventId);
+		IEnumerable<EventReview> GetEventReviews(Guid eventId);
 	}
 
 	public class EventsRequest {

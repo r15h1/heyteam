@@ -12,10 +12,14 @@ namespace HeyTeam.Lib.Queries {
 	public class EventQuery : IEventQuery {
 
 		private readonly IDbConnectionFactory connectionFactory;
+		private readonly ISquadQuery squadQuery;
+		private readonly IMemberQuery memberQuery;
 
-		public EventQuery(IDbConnectionFactory factory) {
+		public EventQuery(IDbConnectionFactory factory, ISquadQuery squadQuery, IMemberQuery memberQuery) {
 			ThrowIf.ArgumentIsNull(factory);
 			this.connectionFactory = factory;
+			this.squadQuery = squadQuery;
+			this.memberQuery = memberQuery;
 		}
 
 		public Event GetEvent(Guid eventId) {
@@ -232,6 +236,47 @@ namespace HeyTeam.Lib.Queries {
 							Attendance = (Attendance?) row.AttendanceId
 						}).ToList();
 				return players;
+			}
+		}
+
+		public IEnumerable<EventReview> GetEventReviews(Guid eventId) {
+			string sql = @" SELECT E.Guid AS EventGuid, ER.Guid AS EventReviewGuid, CO.Guid AS CoachGuid,
+								ER.LastReviewedDate, ER.Successes, ER.Opportunities, ER.DifferentNextTime
+							FROM EventReviews ER
+							INNER JOIN Events E ON E.EventId = ER.EventId
+							INNER JOIN Coaches CO ON ER.CoachId = CO.CoachId							
+							WHERE E.Guid = @EventGuid AND (E.Deleted IS NULL OR E.Deleted = 0)
+
+							SELECT ER.Guid AS EventReviewGuid, S.Guid AS SquadGuid
+							FROM EventReviews ER
+							INNER JOIN Events E ON E.EventId = ER.EventId
+							INNER JOIN EventReviewSquads ERS ON ER.EventReviewId = ERS.EventReviewId
+							INNER JOIN Squads S ON ERS.SquadId = S.SquadId
+							WHERE E.Guid = @EventGuid AND (E.Deleted IS NULL OR E.Deleted = 0)";
+
+			DynamicParameters p = new DynamicParameters();
+			p.Add("@EventGuid", eventId.ToString());
+			using (var connection = connectionFactory.Connect()) {
+				connection.Open();
+				var reader = connection.QueryMultiple(sql, p);
+				var eventReviews = reader.Read().Cast<IDictionary<string, object>>().Select<dynamic, EventReview>(
+					row => new EventReview(Guid.Parse(row.EventGuid.ToString()), Guid.Parse(row.EventReviewGuid.ToString())) {
+							Coach = memberQuery.GetCoach(Guid.Parse(row.CoachGuid.ToString())),
+							DifferentNextTime = row.DifferentNextTime,
+							LastReviewedOn = row.LastReviewedDate, Opportunities = row.Opportunities, Successes = row.Successes
+					}).ToList();
+
+				var squads = reader.Read().Cast<dynamic>().ToList();
+
+				foreach (var review in eventReviews) {
+					var squadGuids = squads.Where(r => r.EventReviewGuid == review.EventReviewId)
+										.Select<dynamic, Guid>(row => Guid.Parse(row.SquadGuid.ToString())).ToList();
+
+					foreach (var guid in squadGuids)
+						review.Squads.Add(squadQuery.GetSquad(guid));
+				}
+
+				return eventReviews;
 			}
 		}
 	}

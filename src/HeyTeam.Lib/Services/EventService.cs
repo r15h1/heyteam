@@ -164,5 +164,9 @@ namespace HeyTeam.Lib.Services {
 			}
 			return Response.CreateSuccessResponse();
 		}
+
+		public Response AddEventReview(AddEventReviewRequest review) {
+			return Response.CreateResponse(new NotImplementedException());
+		}
 	}
 }

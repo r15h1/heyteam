@@ -1,0 +1,39 @@
+﻿@model HeyTeam.Web.Models.EventsViewModels.EventReviewViewModel
+
+<h2>Event Reviews</h2>
+<h3>@Model.EventTitle </h3>
+<h4><small>@Html.Raw(Model.EventDetails)</small></h4>
+<h3>Submitted Reviews</h3>
+<div>
+    <div class="btn-group" role="group" aria-label="...">
+        <a class="btn btn-primary" id="AddReviewButton" asp-area="Coaches" asp-controller="Events" asp-action="NewReview">Add Review</a>
+    </div>
+</div>
+
+@if (Model.Reviews.Count() == 0) {
+    <div>No review submitted yet</div>
+} else {
+
+    @foreach (var review in Model.Reviews) {
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Submitted by @($"{review.Coach?.FirstName} {review.Coach?.LastName}") on @review.LastReviewedOn.Value.ToString("dd MMM yyyy hh:mm tt") for @string.Join(", ", review.Squads.Select(s => s.Name))
+            </div>
+
+            <div class="panel-body">
+                <p>
+                    <strong>What Went Well?</strong>
+                    <div>@review.Successes</div>
+                </p>
+                <p>
+                    <strong>What Did Not Go Well?</strong>
+                    <div>@review.Opportunities</div>
+                </p>
+                <p>
+                    <strong>What Could Be Done Differently?</strong>
+                    <div>@review.DifferentNextTime</div>
+                </p>
+            </div>
+        </div>
+    }
+}
