@@ -8,7 +8,7 @@ namespace HeyTeam.Core.Services {
 		Response UpdateEvent(EventSetupRequest request);
 		Response DeleteEvent(EventDeleteRequest request);
 		Response UpdateAttendance(EventAttendanceRequest request);
-		Response AddEventReview(AddEventReviewRequest review);
+		Response AddEventReview(NewEventReviewRequest review);
 	}
 
 	public class EventSetupRequest {
@@ -35,7 +35,7 @@ namespace HeyTeam.Core.Services {
 		public Attendance? Attendance{ get; set; }
 	}
 
-	public class AddEventReviewRequest {
+	public class NewEventReviewRequest {
 		public Guid ClubId { get; set; }
 		public Guid EventId { get; set; }
 		public IEnumerable<Guid> Squads { get; set; }

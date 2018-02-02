@@ -121,6 +121,7 @@ namespace HeyTeam.Web {
 			services.AddScoped<IValidator<CoachRequest>, CoachRequestValidator>();
 			services.AddScoped<ICoachService, CoachService>();
 
+			services.AddScoped<IValidator<NewEventReviewRequest>, NewEventReviewRequestValidator>();
 			services.AddScoped<IValidator<EventSetupRequest>, EventSetupRequestValidator>();
 			services.AddScoped<IValidator<EventDeleteRequest>, EventDeleteRequestValidator>();
 			services.AddScoped<IEventQuery, EventQuery>();
@@ -142,7 +143,6 @@ namespace HeyTeam.Web {
 			services.AddScoped<IValidator<NewAvailabilityRequest>, NewAvailabilityRequestValidator>();
 			services.AddScoped<IAvailabilityRepository, AvailabilityRepository>();
 			services.AddScoped<IAvailabilityService, AvailabilityService>();
-
 		}
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,4 +1,5 @@
 ﻿using System;
+using HeyTeam.Core.Services;
 
 namespace HeyTeam.Core.Repositories {
 	public interface IEventRepository {
@@ -6,5 +7,6 @@ namespace HeyTeam.Core.Repositories {
 		void UpdateEvent(Event @event);
 		void DeleteEvent(Guid clubId, Guid eventId);
 		void UpdateAttendance(Guid squadId, Guid eventId, Guid playerId, Attendance? attendance);
+		void AddEventReview(NewEventReviewRequest request);
 	}
 }

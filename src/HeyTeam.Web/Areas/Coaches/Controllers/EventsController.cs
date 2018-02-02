@@ -124,7 +124,7 @@ namespace HeyTeam.Web.Areas.Coaches.Controllers {
 				UpdateReviewModel(model);
 				return View(model);
 			}
-			var eventReviewRequest = new AddEventReviewRequest {
+			var eventReviewRequest = new NewEventReviewRequest {
 				ClubId = club.Guid,
 				CoachId = model.MemberId,
 				DifferentNextTime = model.DifferentNextTime,

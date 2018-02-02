@@ -279,5 +279,33 @@ namespace HeyTeam.Lib.Queries {
 				return eventReviews;
 			}
 		}
+
+		public IEnumerable<Squad> GetUnReviewedSquads(Guid eventId) {
+			string sql = @" SELECT S.Guid AS SquadGuid
+							FROM SquadEvents SE 
+							INNER JOIN Events E ON SE.EventId = E.EventId 
+							INNER JOIN Squads S ON S.SquadId = SE.SquadId 
+							WHERE (E.Deleted IS NULL OR E.Deleted = 0) AND E.Guid = @EventGuid 
+								AND SE.SquadId NOT IN (
+									SELECT ERS.SquadId
+									FROM EventReviewSquads ERS 
+									INNER JOIN EventReviews ER ON ERS.EventReviewId = ER.EventReviewId
+									INNER JOIN Events E ON ER.EventId = E.EventId AND  E.Guid = @EventGuid
+								)";
+
+			DynamicParameters p = new DynamicParameters();
+			p.Add("@EventGuid", eventId.ToString());
+			using (var connection = connectionFactory.Connect()) {
+				connection.Open();
+				var reader = connection.Query(sql, p).Cast<IDictionary<string, object>>(); ;
+				var squadGuids = reader.Select<dynamic, Guid>(row => Guid.Parse(row.SquadGuid.ToString())).ToList();
+
+				List<Squad> squads = new List<Squad>();
+				foreach (var guid in squadGuids)
+					squads.Add(squadQuery.GetSquad(guid));
+
+				return squads;
+			}
+		}
 	}
 }

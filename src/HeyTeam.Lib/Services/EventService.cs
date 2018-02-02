@@ -20,10 +20,12 @@ namespace HeyTeam.Lib.Services {
 		private readonly ILibraryQuery libraryQuery;
 		private readonly IMemberQuery memberQuery;
 		private readonly IValidator<EventAttendanceRequest> eventAttendanceRequestValidator;
+		private readonly IValidator<NewEventReviewRequest> newEventReviewValidator;
 
 		public EventService(IEventRepository eventRepository, IEventQuery eventQuery, IValidator<EventSetupRequest> setUpRequestValidator, 			
 								IValidator<EventDeleteRequest> deleteRequestValidator, IClubQuery clubQuery, ISquadQuery squadQuery, ILibraryQuery libraryQuery, IMemberQuery memberQuery,
-								IValidator<EventAttendanceRequest> eventAttendanceRequestValidator
+								IValidator<EventAttendanceRequest> eventAttendanceRequestValidator,
+								IValidator<NewEventReviewRequest> newEventReviewValidator
 		) {
 			ThrowIf.ArgumentIsNull(eventRepository);
 			ThrowIf.ArgumentIsNull(eventQuery);
@@ -39,6 +41,7 @@ namespace HeyTeam.Lib.Services {
 			this.libraryQuery = libraryQuery;
 			this.memberQuery = memberQuery;
 			this.eventAttendanceRequestValidator = eventAttendanceRequestValidator;
+			this.newEventReviewValidator = newEventReviewValidator;
 		}
 
 		public Response CreateEvent(EventSetupRequest request) {
@@ -165,8 +168,36 @@ namespace HeyTeam.Lib.Services {
 			return Response.CreateSuccessResponse();
 		}
 
-		public Response AddEventReview(AddEventReviewRequest review) {
-			return Response.CreateResponse(new NotImplementedException());
+		public Response AddEventReview(NewEventReviewRequest request) {
+			var validationResult = newEventReviewValidator.Validate(request);
+			if (!validationResult.IsValid)
+				return Response.CreateResponse(validationResult.Messages);
+
+			var club = clubQuery.GetClub(request.ClubId);
+			if (club == null)
+				return Response.CreateResponse(new EntityNotFoundException("The specified club does not exist"));
+
+			var @event = eventQuery.GetEvent(request.EventId);
+			if (@event == null)
+				return Response.CreateResponse(new EntityNotFoundException("The specified event does not exist"));
+			else if (@event.ClubId != request.ClubId)
+				return Response.CreateResponse(new IllegalOperationException("The specified event does not belong to this club"));
+
+			var coach = memberQuery.GetCoach(request.CoachId);
+			if (coach == null)
+				return Response.CreateResponse(new EntityNotFoundException("The specified event does not exist"));
+			else if  (coach.ClubId != request.ClubId)
+				return Response.CreateResponse(new IllegalOperationException("The specified coach does not belong to this club"));
+
+			var unreviewedSquads = eventQuery.GetUnReviewedSquads(request.EventId);
+			if (request.Squads.Except(unreviewedSquads.Select(s => s.Guid)).Any())
+				return Response.CreateResponse(new IllegalOperationException("The specified squads are not associated with this event"));
+			
+			try {
+				eventRepository.AddEventReview(request);
+			} catch(Exception ex) {
+				return Response.CreateResponse(ex);
+			}
 		}
 	}
 }

@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using HeyTeam.Core;
 using HeyTeam.Core.Repositories;
+using HeyTeam.Core.Services;
 using HeyTeam.Lib.Data;
 using HeyTeam.Util;
 using System;
@@ -158,6 +159,10 @@ namespace HeyTeam.Lib.Repositories {
 					}
 				}
 			}
+		}
+
+		public void AddEventReview(NewEventReviewRequest request) {
+			throw new NotImplementedException();
 		}
 	}
 }
