@@ -1,10 +1,8 @@
 ﻿using HeyTeam.Core.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace HeyTeam.Web.Areas.Coaches.Models
+namespace HeyTeam.Web.Models
 {
     public class EventAttendanceModel
     {

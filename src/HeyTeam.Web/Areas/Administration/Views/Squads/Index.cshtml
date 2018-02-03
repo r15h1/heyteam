@@ -46,7 +46,7 @@
             <h3>Players</h3>
             <div class="btn-group" role="group" aria-label="...">
                 @*<a type="button" class="btn btn-default" href='/'>Dashboard</a>*@
-                <a type="button" class="btn btn-primary" id="AddPlayerButton" data-toggle="modal" -area="Administration" asp-controller="Players" asp-action="New" asp-route-squadid="@Model.SquadId">Add New Player</a>
+                <a class="btn btn-primary" id="AddPlayerButton" data-toggle="modal" -area="Administration" asp-controller="Players" asp-action="New" asp-route-squadid="@Model.SquadId">Add New Player</a>
             </div>
 
             @if (Model.Players != null && Model.Players.Count() > 0) {

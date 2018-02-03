@@ -1,0 +1,52 @@
+﻿@model HeyTeam.Web.Models.EventsViewModels.NewEventReviewViewModel
+
+<h2>Event Reviews</h2>
+<h3>@Model.EventTitle </h3>
+<h4><small>@Html.Raw(Model.EventDetails)</small></h4>
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="NewReview" method="post">
+            
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Squads" class="control-label">Squads</label>
+                <select id="Squads" asp-for="Squads" class="form-control" required multiple asp-items="Model.SquadsNotYetReviewed"></select>
+                <span asp-validation-for="Squads" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Successes" class="control-label">What Went Well?</label>
+                <textarea asp-for="Successes" class="form-control" required rows="5"></textarea>
+                <span asp-validation-for="Successes" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Opportunities" class="control-label">What Did Not Go Well?</label>
+                <textarea asp-for="Opportunities" class="form-control" required rows="5"></textarea>
+                <span asp-validation-for="Opportunities" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DifferentNextTime" class="control-label">What Could Have Been Done Differently?</label>
+                <textarea asp-for="DifferentNextTime" class="form-control" required rows="5"></textarea>
+                <span asp-validation-for="DifferentNextTime" class="text-danger"></span>
+            </div>
+            <div class="modal-footer">
+                <a asp-area="Coaches" asp-controller="Events" asp-action="Reviews" class="btn btn-default">Cancel</a>
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/lib/select2/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#Squads').select2();
+        });
+    </script>
+}
+
+@section CSS {
+    <link href="~/lib/select2/dist/css/select2.min.css" rel="stylesheet" />
+}

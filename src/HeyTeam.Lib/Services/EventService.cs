@@ -195,6 +195,7 @@ namespace HeyTeam.Lib.Services {
 			
 			try {
 				eventRepository.AddEventReview(request);
+                return Response.CreateSuccessResponse();
 			} catch(Exception ex) {
 				return Response.CreateResponse(ex);
 			}

@@ -5,6 +5,8 @@ using HeyTeam.Core.Services;
 using HeyTeam.Lib.Data;
 using HeyTeam.Util;
 using System;
+using System.Data;
+using System.Linq;
 
 namespace HeyTeam.Lib.Repositories {
 	public class EventRepository : IEventRepository {
@@ -162,7 +164,42 @@ namespace HeyTeam.Lib.Repositories {
 		}
 
 		public void AddEventReview(NewEventReviewRequest request) {
-			throw new NotImplementedException();
-		}
+            var sql = @"INSERT INTO EventReviews 
+                            (Guid, EventId, CoachId, LastReviewedDate, Successes, Opportunities, DifferentNextTime)
+                      VALUES (
+		                    @EventReviewGuid, 
+		                    (SELECT EventId FROM Events WHERE Guid = @EventGuid),
+		                    (SELECT CoachId FROM Coaches WHERE Guid = @CoachGuid),
+		                    GetDate(), @Successes, @Opportunities, @DifferentNextTime
+	                    )
+
+	                    INSERT INTO EventReviewSquads (EventReviewId, SquadId)
+	                    SELECT (SELECT EventReviewId FROM EventReviews WHERE Guid = @EventReviewGuid), SquadId 
+                        FROM Squads WHERE Guid in @SquadGuids
+	                    ";
+            var parameters = new DynamicParameters();
+            parameters.Add("@EventGuid", request.EventId.ToString());
+            parameters.Add("@EventReviewGuid", Guid.NewGuid().ToString());
+            parameters.Add("@CoachGuid", request.CoachId.ToString());
+            parameters.Add("@Successes", request.Successes);
+            parameters.Add("@Opportunities", request.Opportunities);
+            parameters.Add("@DifferentNextTime", request.DifferentNextTime);
+            parameters.Add("@SquadGuids", request.Squads.ToArray());
+
+            using (var connection = connectionFactory.Connect()) {
+                connection.Open();
+                using (var transaction = connection.BeginTransaction()) {
+                    try {
+                        connection.Execute(sql, parameters, transaction);
+                        transaction.Commit();
+                    }
+                    catch (Exception ex) {
+                        transaction.Rollback();
+                        throw ex;
+                    }
+                }
+            }
+
+        }
 	}
 }

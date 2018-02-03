@@ -2,6 +2,7 @@
 using HeyTeam.Core.Queries;
 using HeyTeam.Core.Services;
 using HeyTeam.Web.Areas.Coaches.Models;
+using HeyTeam.Web.Models;
 using HeyTeam.Web.Models.EventsViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -81,14 +82,13 @@ namespace HeyTeam.Web.Areas.Coaches.Controllers {
 		public ActionResult Reviews(Guid eventId) {			
 			var @event = eventsQuery.GetEvent(eventId);
 			var reviews = eventsQuery.GetEventReviews(eventId);
-			//var notYetReviewed = @event.Squads.Select(s => s.Guid).Except(reviews.SelectMany(r => r.Squads));
-			//var squadsNotYetReviewed = @event.Squads.Where(s => notYetReviewed.Contains(s.Guid));
+            var squadsNotYetReviewed = eventsQuery.GetUnReviewedSquads(eventId);
 
 			var model = new EventReviewViewModel {
 				EventTitle = @event.Title,
 				EventDetails = $"{@event.StartDate.ToString("ddd dd-MMM-yyyy h:mm tt")}<br/>{@event.Location}<br/>{string.Join(", ", @event.Squads.Select(s => s.Name))}",
 				Reviews = reviews,
-				//SquadsNotYetReviewed = squadsNotYetReviewed
+				SquadsNotYetReviewed = squadsNotYetReviewed
 			};
 
 			return View(model);
@@ -99,7 +99,10 @@ namespace HeyTeam.Web.Areas.Coaches.Controllers {
 			var @event = eventsQuery.GetEvent(eventId);
 			var squadsNotYetReviewed = GetNotYetReviewedSquads(@event);
 
-			var model = new NewEventReviewViewModel {
+            if(squadsNotYetReviewed?.Count() == 0)
+                return RedirectToAction(nameof(Reviews));
+
+            var model = new NewEventReviewViewModel {
 				EventTitle = @event.Title,
 				EventDetails = $"{@event.StartDate.ToString("ddd dd-MMM-yyyy h:mm tt")}<br/>{@event.Location}<br/>{string.Join(", ", @event.Squads.Select(s => s.Name))}",
 				SquadsNotYetReviewed = squadsNotYetReviewed

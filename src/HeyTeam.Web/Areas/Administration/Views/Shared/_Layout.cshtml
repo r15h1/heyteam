@@ -43,15 +43,20 @@
                     </button>
                     @*<a asp-area="" asp-controller="Dashboard" asp-action="Index" class="navbar-brand">HeyTeam</a>*@
                 </div>
-                 <div class="navbar-collapse collapse">
-                     <ul class="nav navbar-nav">
-                         <li><a asp-area="Administration" asp-controller="Home" asp-action="Index">Home</a></li>
-                         <li><a asp-area="Administration" asp-controller="Events" asp-action="Index">Events</a></li>
-                         <li><a asp-area="Administration" asp-controller="Availability" asp-action="Index">Availability</a></li>
-                         <li><a asp-area="Administration" asp-controller="Library" asp-action="Index">Library</a></li>
-                     </ul>
-                     
+                <div class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li><a asp-area="Administration" asp-controller="Home" asp-action="Index">Squads</a></li>
+                        <li><a asp-area="Administration" asp-controller="Events" asp-action="Index">Events</a></li>
+                        <li><a asp-area="Administration" asp-controller="Availability" asp-action="Index">Availability</a></li>
+                        <li><a asp-area="Administration" asp-controller="Library" asp-action="Index">Library</a></li>
+                        <li><a asp-area="Administration" asp-controller="Coaches" asp-action="Index">Coaches</a></li>
+                        
+                    </ul>
+
                     @await Html.PartialAsync("_LoginPartial")
+                    <ul class="nav navbar-nav navbar-right">
+                        <li><a asp-controller="Accounts" asp-action="Index">Accounts</a></li>
+                    </ul>
                 </div> 
             </div>
         </nav>
