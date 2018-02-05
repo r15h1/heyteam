@@ -29,12 +29,13 @@ namespace HeyTeam.Web.Controllers
 		}
 
 		[HttpGet("")]
-		public IActionResult GetEvents(Guid? squad, int month, int year) {
+		public IActionResult GetEvents(Guid? squad, Guid? playerId, int month, int year) {
 			var eventRequest = new EventsRequest() { 
 				ClubId = club.Guid,
 				Month = month,
 				Year = year,
-				Squad = squad
+				SquadId = squad,
+				PlayerId = playerId
 			};
 
 			var events = eventsQuery.GetEventsSummary(eventRequest);
@@ -42,7 +43,8 @@ namespace HeyTeam.Web.Controllers
 				EventId = e.Guid, Title = e.Title, TrainingMaterialsCount = e.TrainingMaterialsCount ,
 				Squads = e.Squads, Location = e.Location, FormattedStartDate = $"{e.StartDate.ToString("dd MMM yyyy h:mm tt")}",
 				FormattedEndDate = $"{e.EndDate.ToString("dd MMM yyyy h:mm tt")}",
-				StartDate = e.StartDate, EndDate = e.EndDate
+				StartDate = e.StartDate, EndDate = e.EndDate,
+				Attendance = e.Attendance
 			}).ToList();
 
 			return Json(response);

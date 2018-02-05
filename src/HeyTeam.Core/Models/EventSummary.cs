@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace HeyTeam.Core.Models
-{
-    public class EventSummary
+namespace HeyTeam.Core.Models {
+	public class EventSummary
     {
 		public EventSummary(Guid clubId, Guid? eventId = null) {
 			ClubId = clubId;
@@ -20,5 +17,7 @@ namespace HeyTeam.Core.Models
 		public string Location { get; set; }
 		public DateTime StartDate { get; set; }
 		public DateTime EndDate { get; set; }
+		public Attendance? Attendance{ get; set; }
+
 	}
 }

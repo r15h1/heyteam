@@ -17,6 +17,7 @@ namespace HeyTeam.Core
 		public string Phone { get; set; }
 		public DateTime DateOfBirth { get; set; }
 		public Membership Membership{ get; set; }
+		public Guid? SquadId { get; set; }
 	}
 
 	public enum Membership {

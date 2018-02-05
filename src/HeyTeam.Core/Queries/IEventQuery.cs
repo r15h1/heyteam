@@ -16,7 +16,8 @@ namespace HeyTeam.Core.Queries {
 
 	public class EventsRequest {
 		public Guid ClubId { get; set; }
-		public Guid? Squad { get; set; }
+		public Guid? SquadId { get; set; }
+		public Guid? PlayerId { get; set; }
 		public int Month { get; set; } = DateTime.Today.Month;
 		public int Year { get; set; } = DateTime.Today.Year;
 	}

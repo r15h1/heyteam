@@ -39,13 +39,13 @@ namespace HeyTeam.Web.Areas.Administration.Controllers
 
 		[HttpGet("new")]
         public IActionResult Create(string returnurl) {
-			ViewData["ReturnUrl"] = returnurl ?? "/coaches";
+			ViewData["ReturnUrl"] = returnurl ?? "/administration/coaches";
             return View();
         }
 
 		[HttpPost("new")]
 		public IActionResult Create(CoachViewModel model, string returnurl) {
-			ViewData["ReturnUrl"] = returnurl ?? "/coaches";
+			ViewData["ReturnUrl"] = returnurl ?? "/administration/coaches";
 
 			if (!ModelState.IsValid)
 				return View(model);

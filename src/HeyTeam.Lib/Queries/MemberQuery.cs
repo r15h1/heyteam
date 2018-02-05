@@ -147,13 +147,15 @@ namespace HeyTeam.Lib.Queries {
 
 		public IEnumerable<Member> GetMembersByEmail(Guid clubId, string email) {
 			using (var connection = connectionFactory.Connect()) {
-				string sql = @"	SELECT P.Guid, P.FirstName, P.LastName, P.Email, P.DateOfBirth, 'Player' AS Membership
+				string sql = @"	SELECT P.Guid, P.FirstName, P.LastName, P.Email, P.DateOfBirth, 'Player' AS Membership,
+								S.Guid AS SquadGuid
 								FROM Players P
 								INNER JOIN Squads S ON P.SquadId = S.SquadId
 								INNER JOIN Clubs C ON C.ClubId = S.ClubId
 								WHERE C.Guid = @Guid AND P.Email = @Email
 									UNION ALL
-								SELECT CO.Guid, CO.FirstName, CO.LastName, CO.Email, CO.DateOfBirth, 'Coach' AS Membership
+								SELECT CO.Guid, CO.FirstName, CO.LastName, CO.Email, CO.DateOfBirth, 'Coach' AS Membership,
+								NULL AS SquadGuid
 								FROM Coaches CO
 								INNER JOIN Clubs CL ON CO.ClubId = CL.ClubId
 								WHERE CL.Guid = @Guid AND CO.Email = @Email";
@@ -169,7 +171,8 @@ namespace HeyTeam.Lib.Queries {
 								DateOfBirth = row.DateOfBirth,
 								Email = row.Email,
 								Membership = Enum.Parse<Membership>(row.Membership),
-								Phone = row.Phone
+								Phone = row.Phone,
+								SquadId = row.SquadGuid
 							}
 						).ToList();
 			}

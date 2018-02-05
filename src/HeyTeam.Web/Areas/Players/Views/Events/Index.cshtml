@@ -1,13 +1,98 @@
-﻿<h1>My Forthcoming Events</h1>
+﻿@model HeyTeam.Web.Models.EventsViewModel
+<h1>Events</h1>
+<h3>Manage Reviews & Attendance</h3>
+<input id="playerId" type="hidden" asp-for="PlayerId" />
+<div class="row">
+    <div class="col-md-12" style="margin-bottom:15px;">
+        <div class="form-inline">
+            <div class="form-group">
+                <label for="month">Month:</label>
+                <input id="month" type="month" class="form-control" value=@($"{DateTime.Now.Year}-{(DateTime.Now.Month < 10 ? "0" : "")}{DateTime.Now.Month}")>
+            </div>
+            <div class="form-group">
+                <label for="Squad" class="control-label">Squads:</label>
+                <select id="Squad" name="Month" asp-items="Model.Squads" class="form-control"></select>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="message" style="display:none"></div>
+    <div class="table-responsive">
+        <table id="eventsTable" class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Squads</th>
+                    <th>Starts</th>
+                    <th>Ends</th>
+                    <th>Location</th>
+                    <th>Docs</th>
+                    <th>Attendance</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
 
-<p>Show a list of events with filters:</p>
-<ul>
-    <li>forthcoming</li>
-    <li>evaluated</li>
-    <li>evaluation pending</li>
-</ul>
-<p>create layout page for membership area</p>
-<ul>
-    <li>every player should only see his own evaluations</li>
-    <li>coach and admin should see all evaluations</li>
-</ul>
+    @section Scripts {        
+        <script type="text/javascript">
+            $("#month").change(updateTable);
+            $("#Squad").change(updateTable);
+
+            function updateTable() {
+                var date = $('#month').val().split('-');
+                $(".table-responsive").hide();
+                $("#eventsTable > tbody").empty();
+                $("#message").text("Fetching data, please wait...");
+                $("#message").show();                
+
+                var url = "/api/events?month=" + date[1] + "&year=" + date[0] + "&playerId=" + $('#playerId').val();
+                if ($('#Squad').val()) {
+                    url = url + "&squad=" + $('#Squad').val();
+                }
+
+                $.ajax({
+                    method: "GET",
+                    url: url
+                })
+                    .done(function (data) {
+                        
+                        if (data.length > 0) {
+                            $(".table-responsive").show();
+                            $("#message").hide();
+                            for (var i = 0; i < data.length; i++) {
+                                var entry = data[i];
+                                var attendanceid = entry.attendance;
+                                var attendanceStyle = (attendanceid == 1 ? "btn-success" : (attendanceid == 2 ? "btn-danger" : (attendanceid == 3 ? "btn-warning" : (attendanceid == 4 ? "btn-info" : "label-default"))));
+                                var attendance = (attendanceid == 1 ? "<span class='glyphicon glyphicon-ok-sign' title='Present'></span> Present" :
+                                    (attendanceid == 2 ? "<span class='glyphicon glyphicon-remove-sign' title='No Show'></span> No Show" :
+                                        (attendanceid == 3 ? "<span class='glyphicon glyphicon-time' title='Late'></span> Late" :
+                                            (attendanceid == 4 ? "<span class='glyphicon glyphicon-exclamation-sign' title='Left Early'></span> Left Early" : "Not Recorded"))));
+
+                                
+                                var row = "<tr data-id='" + entry.eventId + "'>";
+                                row = row + "<td><a href='events/" + entry.eventId + "'>" + entry.title + "</a></td>";
+                                row = row + "<td>" + entry.squads + "</td>";
+                                row = row + "<td>" + entry.formattedStartDate + "</td>";
+                                row = row + "<td>" + entry.formattedEndDate + "</td>";
+                                row = row + "<td>" + entry.location + "</td>";
+                                row = row + "<td>" + entry.trainingMaterialsCount + "</td>";
+                                row = row + "<td class='text-center'><label class='label " + attendanceStyle + "'>" + attendance + "</label></td>";
+                                row = row + "</tr>";
+                                $("#eventsTable > tbody").append(row);
+                            }
+                        } else {
+                            $(".table-responsive").hide();
+                            $("#message").show();
+                            $("#message").text("No records found"); 
+                        }
+                    });
+            }
+            console.log(new Date());
+            updateTable();
+        </script>
+    }
+
+    @section CSS {
+        <link href="~/lib/select2/dist/css/select2.min.css" rel="stylesheet" />
+    }
