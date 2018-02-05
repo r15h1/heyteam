@@ -1,11 +1,10 @@
 ﻿using HeyTeam.Core;
 using HeyTeam.Core.Queries;
 using HeyTeam.Core.Services;
-using HeyTeam.Web.Areas.Administration.Models;
 using HeyTeam.Web.Models;
 using HeyTeam.Web.Models.EventsViewModels;
+using HeyTeam.Util;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
@@ -15,7 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace HeyTeam.Web.Areas.Administration.Controllers {
-    [Authorize(Policy = "Administrator")]
+	[Authorize(Policy = "Administrator")]
     [Area("Administration")]
     [Route("[area]/[controller]")]
     public class EventsController : Controller {
@@ -23,12 +22,15 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 		private readonly IEventService eventService;
 		private readonly IEventQuery eventsQuery;
 		private readonly ISquadQuery squadQuery;
+		private readonly IMemberQuery memberQuery;
+		private const string Temp_Data_Error = "Temp_Data_Error";
 
-		public EventsController(Club club, IEventService eventService, IEventQuery eventsQuery, ISquadQuery squadQuery) {
+		public EventsController(Club club, IEventService eventService, IEventQuery eventsQuery, ISquadQuery squadQuery, IMemberQuery memberQuery) {
 			this.club = club;
 			this.eventService = eventService;
 			this.eventsQuery = eventsQuery;
 			this.squadQuery = squadQuery;
+			this.memberQuery = memberQuery;
 		}
 
 		[HttpGet("")]
@@ -190,16 +192,27 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
         public ActionResult NewReview(Guid eventId)
         {
             var @event = eventsQuery.GetEvent(eventId);
-            var squadsNotYetReviewed = GetNotYetReviewedSquads(@event);
+            var squadsNotYetReviewed = GetNotYetReviewedSquads(@event);			
 
-            if (squadsNotYetReviewed?.Count() == 0)
+			if (squadsNotYetReviewed?.Count() == 0)
                 return RedirectToAction(nameof(Reviews));
 
-            var model = new NewEventReviewViewModel
+			var email = User.Identity.Name;
+			var members = memberQuery.GetMembersByEmail(club.Guid, email);
+			var coach = members?.FirstOrDefault(m => m.Membership == Membership.Coach);			
+
+			if(coach == null || coach.Guid.IsEmpty()) {
+				TempData[Temp_Data_Error] = "This user has not been setup as a coach. To submit reviews, add this user as a coach";
+				return RedirectToAction(nameof(Reviews));
+			}
+
+
+			var model = new NewEventReviewViewModel
             {
                 EventTitle = @event.Title,
                 EventDetails = $"{@event.StartDate.ToString("ddd dd-MMM-yyyy h:mm tt")}<br/>{@event.Location}<br/>{string.Join(", ", @event.Squads.Select(s => s.Name))}",
-                SquadsNotYetReviewed = squadsNotYetReviewed
+                SquadsNotYetReviewed = squadsNotYetReviewed,
+				MemberId = coach.Guid 
             };
 
             return View(model);
@@ -224,6 +237,7 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
                 UpdateReviewModel(model);
                 return View(model);
             }
+
             var eventReviewRequest = new NewEventReviewRequest
             {
                 ClubId = club.Guid,
