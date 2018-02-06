@@ -1,7 +1,7 @@
 ﻿@model HeyTeam.Web.Models.EventsViewModels.NewEventReviewViewModel
 
 <h2>Event Reviews</h2>
-<h3>@Model.EventTitle </h3>
+<h3>@($"{Model.EventTitle}")</h3>
 <h4><small>@Html.Raw(Model.EventDetails)</small></h4>
 <div class="row">
     <div class="col-md-4">
@@ -29,7 +29,7 @@
                 <span asp-validation-for="DifferentNextTime" class="text-danger"></span>
             </div>
             <div class="modal-footer">
-                <a asp-area="Coaches" asp-controller="Events" asp-action="Reviews" class="btn btn-default">Cancel</a>
+                <a asp-area="Administration" asp-controller="Events" asp-action="Reviews" class="btn btn-default">Cancel</a>
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
         </form>

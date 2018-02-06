@@ -23,6 +23,7 @@ namespace HeyTeam.Web.Areas.Coaches.Models
 		public Guid? EventId { get; set; }
 
 		public IEnumerable<TrainingMaterial> TrainingMaterials { get; set; }
-		
+		public EventType EventType { get; internal set; }
+		public string EventTypeDescription { get; internal set; }
 	}
 }

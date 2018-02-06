@@ -42,7 +42,7 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 
 		[HttpGet("new")]
 		public ActionResult Create() {
-			var model = new EventViewModel { SquadList = GetSquadList() };
+			var model = new EventViewModel { SquadList = GetSquadList(), EventTypes = GetEventTypeList() };
 			return View(model);
 		}
 
@@ -63,6 +63,7 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 						ModelState.AddModelError("", error);
 
 					model.SquadList = GetSquadList();
+					model.EventTypes = GetEventTypeList();
 					return View(model);
 				}
 
@@ -80,6 +81,14 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 			return squadList;
 		}
 
+		private List<SelectListItem> GetEventTypeList() {
+			List<SelectListItem> eventTypes = new List<SelectListItem>();
+			foreach(var e in Enum.GetValues(typeof(EventType)))
+				eventTypes.Add(new SelectListItem { Text = ((EventType)e).GetDescription(), Value = ((byte)(EventType)e).ToString() });
+
+			return eventTypes;
+		}
+
 		private EventSetupRequest Map(EventViewModel model) => new EventSetupRequest {
 			ClubId = club.Guid,
 			EndDate = model.EndDate,
@@ -88,7 +97,8 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 			Title = model.Title,
 			Squads = model.Squads,
 			TrainingMaterials = model.TrainingMaterials,
-			EventId = model.EventId
+			EventId = model.EventId,
+			EventType = model.EventType
 		};
 
 		[HttpGet("{eventId:guid}")]
@@ -101,11 +111,13 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 		private EventViewModel MapEvent(Event @event) => new EventViewModel {
 			EndDate = @event.EndDate,
 			EventId = @event.Guid,
+			EventType = @event.EventType,
 			Location = @event.Location,
 			StartDate = @event.StartDate,
 			Title = @event.Title,
 			Squads = @event.Squads.Select(s => s.Guid),
 			SquadList = GetSquadList(),
+			EventTypes = GetEventTypeList(),
 			TrainingMaterials = @event.TrainingMaterials?.Select(t => t.Guid),
 			SelectedTrainingMaterialList = JsonConvert.SerializeObject(
 					@event.TrainingMaterials?.Select(t => new { Id = t.Guid, Text = t.Title, Thumbnail = t.ThumbnailUrl, ContentType = t.ShortContentType }).ToList(),
@@ -119,6 +131,7 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
         public ActionResult Edit(EventViewModel model) {
 			if (!ModelState.IsValid) {
 				model.SquadList = GetSquadList();
+				model.EventTypes = GetEventTypeList();
 				return View(model);
 			}
 
@@ -130,6 +143,7 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 						ModelState.AddModelError("", error);
 
 					model.SquadList = GetSquadList();
+					model.EventTypes = GetEventTypeList();
 					return View(model);
 				}
 
@@ -165,7 +179,8 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
                 Location = @event.Location,
                 StartDate = @event.StartDate,
                 Title = @event.Title,
-                EventPlayers = eventPlayers
+                EventPlayers = eventPlayers,
+				EventType = @event.EventType.GetDescription()
             };
             return View(model);
         }
@@ -180,7 +195,7 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
             var model = new EventReviewViewModel
             {
                 EventTitle = @event.Title,
-                EventDetails = $"{@event.StartDate.ToString("ddd dd-MMM-yyyy h:mm tt")}<br/>{@event.Location}<br/>{string.Join(", ", @event.Squads.Select(s => s.Name))}",
+                EventDetails = $"{@event.EventType.GetDescription()} {@event.StartDate.ToString("ddd dd-MMM-yyyy h:mm tt")}<br/>{@event.Location}<br/>{string.Join(", ", @event.Squads.Select(s => s.Name))}",
                 Reviews = reviews,
                 SquadsNotYetReviewed = squadsNotYetReviewed
             };
@@ -210,7 +225,7 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 			var model = new NewEventReviewViewModel
             {
                 EventTitle = @event.Title,
-                EventDetails = $"{@event.StartDate.ToString("ddd dd-MMM-yyyy h:mm tt")}<br/>{@event.Location}<br/>{string.Join(", ", @event.Squads.Select(s => s.Name))}",
+                EventDetails = $"{@event.EventType.GetDescription()}<br/>{@event.StartDate.ToString("ddd dd-MMM-yyyy h:mm tt")}<br/>{@event.Location}<br/>{string.Join(", ", @event.Squads.Select(s => s.Name))}",
                 SquadsNotYetReviewed = squadsNotYetReviewed,
 				MemberId = coach.Guid 
             };
@@ -267,7 +282,7 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
             var @event = eventsQuery.GetEvent(model.EventId);
             var squadsNotYetReviewed = GetNotYetReviewedSquads(@event);
             model.EventTitle = @event.Title;
-            model.EventDetails = $"{@event.StartDate.ToString("ddd dd-MMM-yyyy h:mm tt")}<br/>{@event.Location}<br/>{string.Join(", ", @event.Squads.Select(s => s.Name))}";
+            model.EventDetails = $"{@event.EventType.GetDescription()}<br/>{@event.StartDate.ToString("ddd dd-MMM-yyyy h:mm tt")}<br/>{@event.Location}<br/>{string.Join(", ", @event.Squads.Select(s => s.Name))}";
             model.SquadsNotYetReviewed = squadsNotYetReviewed;
         }
     }

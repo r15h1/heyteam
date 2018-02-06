@@ -116,7 +116,8 @@ namespace HeyTeam.Lib.Services {
 			StartDate = request.StartDate.Value,
 			Title = request.Title,
 			Squads = squads,
-			TrainingMaterials = trainingMaterials
+			TrainingMaterials = trainingMaterials,
+			EventType = request.EventType.Value
 		};
 
 		public Response DeleteEvent(EventDeleteRequest request) {

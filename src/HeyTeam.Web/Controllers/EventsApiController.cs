@@ -39,12 +39,13 @@ namespace HeyTeam.Web.Controllers
 			};
 
 			var events = eventsQuery.GetEventsSummary(eventRequest);
-			var response = events.Select(e => new { 
+			var response = events.OrderBy(e => e.StartDate).ThenBy(e => e.EndDate).Select(e => new { 
 				EventId = e.Guid, Title = e.Title, TrainingMaterialsCount = e.TrainingMaterialsCount ,
 				Squads = e.Squads, Location = e.Location, FormattedStartDate = $"{e.StartDate.ToString("dd MMM yyyy h:mm tt")}",
 				FormattedEndDate = $"{e.EndDate.ToString("dd MMM yyyy h:mm tt")}",
 				StartDate = e.StartDate, EndDate = e.EndDate,
-				Attendance = e.Attendance
+				Attendance = e.Attendance,
+				EventType = e.EventType.GetDescription()
 			}).ToList();
 
 			return Json(response);

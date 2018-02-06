@@ -20,6 +20,7 @@ namespace HeyTeam.Core.Services {
 		public DateTime? StartDate { get; set; }
 		public DateTime? EndDate { get; set; }
 		public string Location { get; set; }
+		public EventType? EventType { get; set; }
 	}
 
 	public class EventDeleteRequest {

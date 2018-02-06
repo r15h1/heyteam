@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations;
 namespace HeyTeam.Web.Models.EventsViewModels {
 	public class EventViewModel {
 		public List<SelectListItem> SquadList { get; set; } = new List<SelectListItem>();
+		public List<SelectListItem> EventTypes { get; set; } = new List<SelectListItem>();
 
 		[Required]
 		[StringLength(100)]
@@ -31,6 +32,10 @@ namespace HeyTeam.Web.Models.EventsViewModels {
 		public string Location { get; set; }
 
 		public Guid? EventId { get; set; }
+
+		[Required(ErrorMessage = "Event type is required")]
+		[Display(Name = "Event Type")]
+		public EventType? EventType{ get; set; }
 
 		public IEnumerable<Guid> TrainingMaterials { get; set; }
 		public string SelectedTrainingMaterialList { get; set; }

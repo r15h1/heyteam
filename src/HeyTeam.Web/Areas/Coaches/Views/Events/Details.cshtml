@@ -6,6 +6,10 @@
         <input type="hidden" asp-for="EventId" />
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="form-group">
+            <label asp-for="EventTypeDescription" class="control-label">Event Type</label>
+            <input asp-for="EventTypeDescription" class="form-control" readonly/>
+        </div>
+        <div class="form-group">
             <label asp-for="Title" class="control-label"></label>
             <input asp-for="Title" class="form-control" readonly />
         </div>
@@ -27,18 +31,18 @@
         </div>
 
         @if (Model.TrainingMaterials != null && Model.TrainingMaterials.Count() > 0) {
-            <div class="form-group">
-                <label asp-for="TrainingMaterials" class="control-label"></label>
-            
-                    @foreach (var tm in Model.TrainingMaterials) {
-                        string item = "<div class='media' style='margin-top:10px; padding-bottom:10px'>" +
-                                            "<div class='media-left'><a href='" + tm.Url + "' target='_blank'><img class='media-object' style='max-height:40px;' src='" + tm.ThumbnailUrl + "' alt=''></a></div>" +
-                                            "<div class='media-body'><div class='img-changer-text'><a href='" + tm.Url + "' target='_blank'>" + tm.Title + "</a></div>(" + tm.ShortContentType + ")</div >" +
-                                        "</div>";
-                        @Html.Raw(item);
-                    }            
-            </div>
-        }
+        <div class="form-group">
+            <label asp-for="TrainingMaterials" class="control-label"></label>
+
+            @foreach (var tm in Model.TrainingMaterials) {
+            string item = "<div class='media' style='margin-top:10px; padding-bottom:10px'>" +
+                                "<div class='media-left'><a href='" + tm.Url + "' target='_blank'><img class='media-object' style='max-height:40px;' src='" + tm.ThumbnailUrl + "' alt=''></a></div>" +
+                                "<div class='media-body'><div class='img-changer-text'><a href='" + tm.Url + "' target='_blank'>" + tm.Title + "</a></div>(" + tm.ShortContentType + ")</div >" +
+                            "</div>";
+            @Html.Raw(item);
+    }
+        </div>
+}
         <div class="modal-footer">
             <a asp-action="Index" class="btn btn-default">Back to List</a>
             <a asp-action="Attendance" class="btn btn-primary">Attendance</a>

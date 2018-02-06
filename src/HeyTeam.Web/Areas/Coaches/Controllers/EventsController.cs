@@ -51,7 +51,9 @@ namespace HeyTeam.Web.Areas.Coaches.Controllers {
 			Title = @event.Title,
 			Squads = @event.Squads.Select(s => s.Guid),
 			SquadList = GetSquadList(),
-			TrainingMaterials = @event.TrainingMaterials
+			TrainingMaterials = @event.TrainingMaterials,
+			EventType = @event.EventType,
+			EventTypeDescription = @event.EventType.GetDescription()
 		};
 
 		private List<SelectListItem> GetSquadList() {
@@ -73,7 +75,8 @@ namespace HeyTeam.Web.Areas.Coaches.Controllers {
 				Location = @event.Location,
 				StartDate = @event.StartDate,
 				Title = @event.Title,
-				EventPlayers = eventPlayers
+				EventPlayers = eventPlayers,
+				EventType = @event.EventType.GetDescription()
 			};
 			return View(model);
 		}
@@ -86,7 +89,7 @@ namespace HeyTeam.Web.Areas.Coaches.Controllers {
 
 			var model = new EventReviewViewModel {
 				EventTitle = @event.Title,
-				EventDetails = $"{@event.StartDate.ToString("ddd dd-MMM-yyyy h:mm tt")}<br/>{@event.Location}<br/>{string.Join(", ", @event.Squads.Select(s => s.Name))}",
+				EventDetails = $"{@event.EventType.GetDescription()} {@event.StartDate.ToString("ddd dd-MMM-yyyy h:mm tt")}<br/>{@event.Location}<br/>{string.Join(", ", @event.Squads.Select(s => s.Name))}",
 				Reviews = reviews,
 				SquadsNotYetReviewed = squadsNotYetReviewed
 			};
@@ -104,7 +107,7 @@ namespace HeyTeam.Web.Areas.Coaches.Controllers {
 
             var model = new NewEventReviewViewModel {
 				EventTitle = @event.Title,
-				EventDetails = $"{@event.StartDate.ToString("ddd dd-MMM-yyyy h:mm tt")}<br/>{@event.Location}<br/>{string.Join(", ", @event.Squads.Select(s => s.Name))}",
+				EventDetails = $"{@event.EventType.GetDescription()}<br/>{@event.StartDate.ToString("ddd dd-MMM-yyyy h:mm tt")}<br/>{@event.Location}<br/>{string.Join(", ", @event.Squads.Select(s => s.Name))}",
 				SquadsNotYetReviewed = squadsNotYetReviewed
 			};
 
@@ -153,7 +156,7 @@ namespace HeyTeam.Web.Areas.Coaches.Controllers {
 			var @event = eventsQuery.GetEvent(model.EventId);
 			var squadsNotYetReviewed = GetNotYetReviewedSquads(@event);
 			model.EventTitle = @event.Title;
-			model.EventDetails = $"{@event.StartDate.ToString("ddd dd-MMM-yyyy h:mm tt")}<br/>{@event.Location}<br/>{string.Join(", ", @event.Squads.Select(s => s.Name))}";
+			model.EventDetails = $"{@event.EventType.GetDescription()}<br/>{@event.StartDate.ToString("ddd dd-MMM-yyyy h:mm tt")}<br/>{@event.Location}<br/>{string.Join(", ", @event.Squads.Select(s => s.Name))}";
 			model.SquadsNotYetReviewed = squadsNotYetReviewed;			
 		}
 	}

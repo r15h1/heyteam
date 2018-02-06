@@ -52,7 +52,8 @@ namespace HeyTeam.Web.Areas.Players.Controllers {
 			Title = @event.Title,
 			Squads = @event.Squads.Select(s => s.Guid),
 			SquadList = GetSquadList(),
-			TrainingMaterials = @event.TrainingMaterials
+			TrainingMaterials = @event.TrainingMaterials,
+			EventTypeDescription = @event.EventType.GetDescription()
 		};
 
 		private List<SelectListItem> GetSquadList(Guid? memberId = null) {

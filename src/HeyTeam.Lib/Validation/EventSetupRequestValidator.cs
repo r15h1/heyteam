@@ -33,6 +33,9 @@ namespace HeyTeam.Lib.Validation {
 			if (request.Title.IsEmpty())
 				result.AddMessage("Title cannot be empty");
 
+			if (!request.EventType.HasValue)
+				result.AddMessage("Event Type cannot be empty");
+
 			if (request.Squads == null || request.Squads.Count() == 0)
 				result.AddMessage("Squads cannot be empty");
 			else if(request.Squads.Any(s => s.IsEmpty()))

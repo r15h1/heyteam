@@ -48,8 +48,8 @@ namespace HeyTeam.Lib.Repositories {
 		}
 
 		private static void CreateEvent(Event @event, System.Data.IDbConnection connection, System.Data.IDbTransaction transaction) {
-			string insertEventSql = @"INSERT INTO Events(ClubId, Guid, Title, StartDate, EndDate, Location) 
-                                SELECT C.ClubId, @EventGuid, @Title, @StartDate, @EndDate, @Location
+			string insertEventSql = @"INSERT INTO Events(ClubId, Guid, Title, StartDate, EndDate, Location, EventTypeId) 
+                                SELECT C.ClubId, @EventGuid, @Title, @StartDate, @EndDate, @Location, @EventTypeId
 								FROM CLUBS C  
                                 WHERE C.Guid = @ClubGuid";
 
@@ -60,6 +60,7 @@ namespace HeyTeam.Lib.Repositories {
 			insertEventParameters.Add("@StartDate", @event.StartDate);
 			insertEventParameters.Add("@EndDate", @event.EndDate);
 			insertEventParameters.Add("@Location", @event.Location);
+			insertEventParameters.Add("@EventTypeId", (byte) @event.EventType);
 			connection.Execute(insertEventSql, insertEventParameters, transaction);
 		}
 
@@ -67,7 +68,7 @@ namespace HeyTeam.Lib.Repositories {
 			string updateEventSql = @" 
 								DELETE SquadEvents WHERE EventId = (SELECT EventId FROM Events WHERE Guid = @EventGuid);
 								DELETE EventTrainingMaterials WHERE EventId = (SELECT EventId FROM Events WHERE Guid = @EventGuid);
-								UPDATE Events SET Title = @Title, StartDate = @StartDate, EndDate = @EndDate, Location = @Location
+								UPDATE Events SET Title = @Title, StartDate = @StartDate, EndDate = @EndDate, Location = @Location, EventTypeId = @EventTypeId
 								WHERE Guid = @EventGuid;";
 
 			var updateParameters = new DynamicParameters();
@@ -77,6 +78,7 @@ namespace HeyTeam.Lib.Repositories {
 			updateParameters.Add("@StartDate", @event.StartDate);
 			updateParameters.Add("@EndDate", @event.EndDate);
 			updateParameters.Add("@Location", @event.Location);
+			updateParameters.Add("@EventTypeId", (byte)@event.EventType);
 			connection.Execute(updateEventSql, updateParameters, transaction);
 		}
 

@@ -27,7 +27,7 @@ namespace HeyTeam.Lib.Queries {
 				return null;
 
 			using (var connection = connectionFactory.Connect()) {
-				string sql = @"SELECT C.Guid AS ClubGuid, E.Guid AS EventGuid, E.Title, E.StartDate, E.EndDate, E.Location
+				string sql = @"SELECT C.Guid AS ClubGuid, E.Guid AS EventGuid, E.Title, E.StartDate, E.EndDate, E.Location, E.EventTypeId
 								FROM Events E
 								INNER JOIN Clubs C ON E.ClubId = C.ClubId AND E.Guid = @EventGuid
 								WHERE E.Deleted IS NULL OR E.Deleted = 0;
@@ -50,7 +50,8 @@ namespace HeyTeam.Lib.Queries {
 				var reader = connection.QueryMultiple(sql, p);
 				var @event = reader.Read().Cast<IDictionary<string, object>>().Select<dynamic, Event>(
 						row => new Event(Guid.Parse(row.ClubGuid.ToString()), Guid.Parse(row.EventGuid.ToString())) {
-							EndDate = row.EndDate, Location = row.Location, StartDate = row.StartDate, Title = row.Title
+							EndDate = row.EndDate, Location = row.Location, StartDate = row.StartDate, Title = row.Title,
+							EventType = (EventType) row.EventTypeId
 						}).FirstOrDefault();
 				
 				if(@event != null)
@@ -79,7 +80,7 @@ namespace HeyTeam.Lib.Queries {
 				return null;
 
 			using (var connection = connectionFactory.Connect()) {
-				string sql = @"SELECT C.Guid AS ClubGuid, E.Guid AS EventGuid, E.Title, E.StartDate, E.EndDate, E.Location
+				string sql = @"SELECT C.Guid AS ClubGuid, E.Guid AS EventGuid, E.Title, E.StartDate, E.EndDate, E.Location, E.EventTypeId
 								FROM Events E
 								INNER JOIN Clubs C ON E.ClubId = C.ClubId AND C.Guid = @ClubGuid
 								WHERE E.StartDate >= GetDate() AND (E.Deleted IS NULL OR E.Deleted = 0);
@@ -105,7 +106,8 @@ namespace HeyTeam.Lib.Queries {
 				var reader = connection.QueryMultiple(sql, p);
 				var events = reader.Read().Cast<IDictionary<string, object>>().Select<dynamic, Event>(
 						row => new Event(Guid.Parse(row.ClubGuid.ToString()), Guid.Parse(row.EventGuid.ToString())) {
-							EndDate = row.EndDate, Location = row.Location, StartDate = row.StartDate, Title = row.Title
+							EndDate = row.EndDate, Location = row.Location, StartDate = row.StartDate, Title = row.Title,
+							EventType = (EventType)row.EventTypeId
 						}).ToList();
 
 				var squads = reader.Read().Cast<dynamic>();
@@ -134,7 +136,7 @@ namespace HeyTeam.Lib.Queries {
 
 			using (var connection = connectionFactory.Connect()) {
 				string sql = @"SELECT	C.Guid AS ClubGuid, E.Guid AS EventGuid, E.Title, 
-										E.StartDate, E.EndDate, E.Location,
+										E.StartDate, E.EndDate, E.Location, E.EventTypeId,
 										(SELECT COUNT(1) FROM EventTrainingMaterials ETM 
 											INNER JOIN TrainingMaterials T ON ETM.TrainingMaterialId = T.TrainingMaterialId
 											WHERE ETM.EventId = E.EventId AND (T.Deleted IS NULL OR T.Deleted = 0)
@@ -155,7 +157,9 @@ namespace HeyTeam.Lib.Queries {
 				var reader = connection.Query(sql, p).Cast<IDictionary<string, object>>();
 				var events = reader.Select<dynamic, EventSummary>(
 						row => new EventSummary(Guid.Parse(row.ClubGuid.ToString()), Guid.Parse(row.EventGuid.ToString())) {
-							EndDate = row.EndDate, Location = row.Location, StartDate = row.StartDate, Title = row.Title, Squads = row.Squads, TrainingMaterialsCount = row.TrainingMaterialCount
+							EndDate = row.EndDate, Location = row.Location, StartDate = row.StartDate, Title = row.Title, 
+							Squads = row.Squads, TrainingMaterialsCount = row.TrainingMaterialCount,
+							EventType = (EventType)row.EventTypeId
 						}).ToList();
 
 				return events;
@@ -168,7 +172,7 @@ namespace HeyTeam.Lib.Queries {
 
 			using (var connection = connectionFactory.Connect()) {
 				string sql = @"SELECT DISTINCT C.Guid AS ClubGuid, E.Guid AS EventGuid, E.Title, 
-										E.StartDate, E.EndDate, E.Location,
+										E.StartDate, E.EndDate, E.Location, E.EventTypeId,
 										(SELECT COUNT(1) FROM EventTrainingMaterials ETM 
 											INNER JOIN TrainingMaterials T ON ETM.TrainingMaterialId = T.TrainingMaterialId
 											WHERE ETM.EventId = E.EventId AND (T.Deleted IS NULL OR T.Deleted = 0)
@@ -216,7 +220,7 @@ namespace HeyTeam.Lib.Queries {
 						row => new EventSummary(Guid.Parse(row.ClubGuid.ToString()), Guid.Parse(row.EventGuid.ToString())) {
 							EndDate = row.EndDate, Location = row.Location, StartDate = row.StartDate, 
 							Title = row.Title, Squads = row.Squads, TrainingMaterialsCount = row.TrainingMaterialCount,
-							Attendance = (Attendance?) row.AttendanceId
+							Attendance = (Attendance?) row.AttendanceId, EventType = (EventType)row.EventTypeId
 						}).ToList();
 
 				return events;

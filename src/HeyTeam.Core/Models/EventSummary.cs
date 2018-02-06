@@ -18,6 +18,6 @@ namespace HeyTeam.Core.Models {
 		public DateTime StartDate { get; set; }
 		public DateTime EndDate { get; set; }
 		public Attendance? Attendance{ get; set; }
-
+		public EventType EventType { get; set; }
 	}
 }
