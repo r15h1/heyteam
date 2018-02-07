@@ -27,8 +27,7 @@
                     <th>Ends</th>
                     <th>Location</th>
                     <th>Docs</th>
-                    <th>Attendance</th>
-                    <th>Review</th>
+                    <th>Action</th>                    
                 </tr>
             </thead>
             <tbody></tbody>
@@ -61,7 +60,7 @@
                     url: url
                 })
                     .done(function (data) {
-
+                        var gameEventTypes = [2, 3, 4, 5];
                         //console.log(data);
                         if (data.length > 0) {
                             $(".table-responsive").show();
@@ -70,24 +69,42 @@
                                 var entry = data[i];
                                 //console.log(entry);
                                 var row = "<tr data-id='" + entry.eventId + "'>";
-                                row = row + "<td><a href='events/" + entry.eventId + "'><span class='label label-default'>" + entry.eventType + "</span><br/>" +  entry.title + "</a></td>";
+                                row = row + "<td><a href='events/" + entry.eventId + "'><span class='label label-default'>" + entry.eventTypeDescription + "</span><br/>" +  entry.title + "</a></td>";
                                 row = row + "<td>" + entry.squads + "</td>";
                                 row = row + "<td>" + entry.formattedStartDate + "</td>";
                                 row = row + "<td>" + entry.formattedEndDate + "</td>";
                                 row = row + "<td>" + entry.location + "</td>";
                                 row = row + "<td>" + entry.trainingMaterialsCount + "</td>";
-                                row = row + "<td class='text-center'><a href='events/" + entry.eventId + "/attendance'><span class='glyphicon glyphicon-hand-up' title='Attendance'></span></a></td>";
-
-                                var date = new Date(entry.formattedEndDate);
+                                
+                                var endDate = new Date(entry.formattedEndDate);
                                 var now = new Date();
                                 var minDate = new Date(now.getTime() - (1000 * 60 * 60 * 24 * 30));
-                                if (now > date && date >= minDate) {
-                                    row = row + "<td class='text-center'><a href='events/" + entry.eventId + "/reviews'><span class='glyphicon glyphicon-star' title='review'></span></a></td>";
-                                } else {
-                                    row = row + "<td></td>";
+
+                                row = row + "<td class='text-center'>";
+                                var dropdown = "<div class='dropdown'><button class='btn btn-default dropdown-toggle btn-sm' type='button' id='dropdownMenu1' data-toggle='dropdown' aria- haspopup='true' aria-expanded='true' >" +
+                                    "<span class='caret'></span>" +
+                                    "</button>" +
+                                    "<ul class='dropdown-menu dropdown-menu-right' aria-labelledby='dropdownMenu1'>";
+
+                                if (now > endDate) {
+                                    dropdown = dropdown + "<li><a href='events/" + entry.eventId + "/attendance'><span class='text-primary glyphicon glyphicon-hand-up'></span> Attendance</a></li>";
                                 }
 
-                                row = row + "</tr>";
+                                if (gameEventTypes.includes(entry.eventType) && now > endDate && endDate >= minDate) {
+                                    dropdown = dropdown + "<li><a href='events/" + entry.eventId + "/report'><span class='text-primary glyphicon glyphicon-list-alt'></span> Game Report</a></li>";
+                                }
+
+                                if (now > endDate && endDate >= minDate) {
+                                    dropdown = dropdown + "<li><a href='events/" + entry.eventId + "/reviews'><span class='text-primary glyphicon glyphicon-star'></span> Review</a></li>";
+                                }                                 
+                                dropdown = dropdown + "</ul></div>";
+
+                                var hasDropdownElements = $(dropdown).find("li").length > 0;
+                                if (hasDropdownElements) {
+                                    row = row + dropdown;
+                                }
+                                
+                                row = row + "</td><tr>";
                                 $("#eventsTable > tbody").append(row);
                             }
                         } else {

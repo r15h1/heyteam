@@ -45,7 +45,8 @@ namespace HeyTeam.Web.Controllers
 				FormattedEndDate = $"{e.EndDate.ToString("dd MMM yyyy h:mm tt")}",
 				StartDate = e.StartDate, EndDate = e.EndDate,
 				Attendance = e.Attendance,
-				EventType = e.EventType.GetDescription()
+				EventType = (byte) e.EventType,
+				EventTypeDescription = e.EventType.GetDescription()
 			}).ToList();
 
 			return Json(response);
