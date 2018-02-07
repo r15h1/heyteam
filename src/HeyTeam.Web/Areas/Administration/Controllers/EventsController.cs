@@ -285,5 +285,12 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
             model.EventDetails = $"{@event.EventType.GetDescription()}<br/>{@event.StartDate.ToString("ddd dd-MMM-yyyy h:mm tt")}<br/>{@event.Location}<br/>{string.Join(", ", @event.Squads.Select(s => s.Name))}";
             model.SquadsNotYetReviewed = squadsNotYetReviewed;
         }
-    }
+
+		[HttpGet("{eventId:guid}/reports")]
+		public ActionResult Reports(Guid eventId) {
+			var @event = eventsQuery.GetEvent(eventId);
+			
+			return View();
+		}
+	}
 }
