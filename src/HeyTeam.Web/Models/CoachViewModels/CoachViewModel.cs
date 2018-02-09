@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using HeyTeam.Web.ValidationAttributes;
+using System;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace HeyTeam.Web.Models.CoachViewModels
-{
-    public class CoachViewModel
+namespace HeyTeam.Web.Models.CoachViewModels {
+	public class CoachViewModel
     {
 		public Guid? CoachId { get; set; }
 
@@ -24,7 +21,7 @@ namespace HeyTeam.Web.Models.CoachViewModels
 		public string LastName { get; set; }
 
 		[Required]
-		[CoachDateOfBirth(ErrorMessage = "Coach must be at least 15 years old")]
+		[MinimumAge(15, ErrorMessage = "Coach must be at least 15 years old")]
 		[Display(Name = "Date of Birth")]
 		public DateTime DateOfBirth { get; set; }
 
@@ -41,13 +38,5 @@ namespace HeyTeam.Web.Models.CoachViewModels
 
 		[Display(Name = "Qualifications")]
 		public string Qualifications { get; set; }
-	}
-
-	public class CoachDateOfBirthAttribute : ValidationAttribute {
-		public override bool IsValid(object value) {
-			DateTime d = Convert.ToDateTime(value);
-			return d <= DateTime.Now.AddYears(-15);
-
-		}
 	}
 }

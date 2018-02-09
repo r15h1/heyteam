@@ -1,9 +1,9 @@
+using HeyTeam.Web.ValidationAttributes;
 using System;
 using System.ComponentModel.DataAnnotations;
-using HeyTeam.Util;
 
 namespace HeyTeam.Web.Models.PlayerViewModels {
-    public class PlayerViewModel {
+	public class PlayerViewModel {
 		public Guid? PlayerId { get; set; }
 
 		[Required]
@@ -53,14 +53,5 @@ namespace HeyTeam.Web.Models.PlayerViewModels {
 			return d <= DateTime.Now.AddYears(-4);
 
 		}
-	}
-
-	public class DominantFootAttribute : ValidationAttribute
-	{
-		public override bool IsValid(object value)
-		{
-			string foot = value.ToString().ToUpper();
-			return !foot.IsEmpty() && (foot.Equals("R") || foot.Equals("L"));
-		}
-	}
+	}	
 }

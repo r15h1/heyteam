@@ -1,4 +1,5 @@
 ﻿using HeyTeam.Core;
+using HeyTeam.Web.ValidationAttributes;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
@@ -6,6 +7,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace HeyTeam.Web.Models.EventsViewModels {
 	public class EventViewModel {
+		
 		public List<SelectListItem> SquadList { get; set; } = new List<SelectListItem>();
 		public List<SelectListItem> EventTypes { get; set; } = new List<SelectListItem>();
 
@@ -40,12 +42,5 @@ namespace HeyTeam.Web.Models.EventsViewModels {
 		public IEnumerable<Guid> TrainingMaterials { get; set; }
 		public string SelectedTrainingMaterialList { get; set; }
 
-	}
-
-	public class FutureDateAttribute : ValidationAttribute {
-		public override bool IsValid(object value) {
-			DateTime d = Convert.ToDateTime(value);
-			return d > DateTime.Now;
-		}
 	}
 }
