@@ -15,9 +15,13 @@ namespace HeyTeam.Web.Models.EventsViewModels {
 		public string Result { get; set; }
 
 		[Required]
-		[Display(Name = "Final Score")]
-		public string FinalScore { get; set; }
-		
+		[Display(Name = "Goals Scored")]
+		public byte GoalsScored { get; set; }
+
+		[Required]
+		[Display(Name = "Goals Conceeded")]
+		public byte GoalsConceeded { get; set; }
+
 		public IEnumerable<string> Scorers { get; set; }
 
 		[Display(Name = "Coach's Remarks")]
