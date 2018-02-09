@@ -286,11 +286,20 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
             model.SquadsNotYetReviewed = squadsNotYetReviewed;
         }
 
-		[HttpGet("{eventId:guid}/reports")]
-		public ActionResult Reports(Guid eventId) {
+		[HttpGet("{eventId:guid}/report")]
+		public ActionResult Report(Guid eventId) {
 			var @event = eventsQuery.GetEvent(eventId);
 			
 			return View();
+		}
+
+		[HttpGet("{eventId:guid}/report/new")]
+		public ActionResult NewReport(Guid eventId) {
+			var @event = eventsQuery.GetEvent(eventId);
+			var model = new GameReportViewModel() {
+
+			};
+			return View(model);
 		}
 	}
 }

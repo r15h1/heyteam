@@ -116,13 +116,11 @@
                             row = row + "<td>" + entry.formattedEndDate + "</td>";
                             row = row + "<td>" + entry.location + "</td>";
                             row = row + "<td>" + entry.trainingMaterialsCount + "</td>";
-                            //row = row + "<td class='text-center'><a href='events/" + entry.eventId + "/attendance'><span class='glyphicon glyphicon-hand-up' title='Attendance'></span></a></td>";
 
                             var endDate = new Date(entry.formattedEndDate);
                             var now = new Date();
-                            var minDate = new Date(now.getTime() - (1000 * 60 * 60 * 24 * 30));
-                            
-                            //row = row + "<td><a href='#' class='deleteButton text-danger'><span class='glyphicon glyphicon-remove' aria-hidden='true'></span></a></td>";
+                            var minDate = new Date(now.getTime() - (1000 * 60 * 60 * 24 * 30));                       
+
                             row = row + "<td class='text-center'><div class='dropdown'>" +
                                 "<button class='btn btn-default dropdown-toggle btn-sm' type='button' id='dropdownMenu1' data-toggle='dropdown' aria- haspopup='true' aria-expanded='true' >" +
                                 "<span class='caret'></span>" +

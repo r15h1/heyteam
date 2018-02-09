@@ -1,0 +1,57 @@
+﻿@model HeyTeam.Web.Models.EventsViewModels.GameReportViewModel
+
+@{
+    ViewData["Title"] = "NewReport";
+}
+
+<h2>New Report</h2>
+<h3>Game Report View Model</h3>
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="NewReport">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>            
+            <div class="form-group">
+                <label asp-for="Opponent" class="control-label"></label>
+                <input asp-for="Opponent" class="form-control" />
+                <span asp-validation-for="Opponent" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Result" class="control-label"></label>
+                <input asp-for="Result" class="form-control" />
+                <span asp-validation-for="Result" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FinalScore" class="control-label"></label>
+                <input asp-for="FinalScore" class="form-control" />
+                <span asp-validation-for="FinalScore" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Remarks" class="control-label"></label>
+                <input asp-for="Remarks" class="form-control" />
+                <span asp-validation-for="Remarks" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/lib/select2/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            //$('#Squads').select2();
+        });
+    </script>
+}
+
+@section CSS {
+    <link href="~/lib/select2/dist/css/select2.min.css" rel="stylesheet" />
+}
