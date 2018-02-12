@@ -118,8 +118,11 @@
                             row = row + "<td>" + entry.trainingMaterialsCount + "</td>";
 
                             var endDate = new Date(entry.formattedEndDate);
+                            var startDate = new Date(entry.formattedStartDate);
                             var now = new Date();
-                            var minDate = new Date(now.getTime() - (1000 * 60 * 60 * 24 * 30));                       
+                            var lastReviewDate = new Date(now.getTime() - (1000 * 60 * 60 * 24 * 30)); //close review 30 days after event
+                            var attendanceStartDate = new Date(startDate.getTime() - (1000 * 60 * 60 * 1)); //display attendance  option 1 hour before game 
+                            var attendanceEndDate = new Date(startDate.getTime() + (1000 * 60 * 60 * 24 * 15)); //hide attendance  option 15 days after game 
 
                             row = row + "<td class='text-center'><div class='dropdown'>" +
                                 "<button class='btn btn-default dropdown-toggle btn-sm' type='button' id='dropdownMenu1' data-toggle='dropdown' aria- haspopup='true' aria-expanded='true' >" +
@@ -127,15 +130,15 @@
                                 "</button>" +
                                 "<ul class='dropdown-menu dropdown-menu-right' aria-labelledby='dropdownMenu1'>";
 
-                            if (now > endDate) {
+                            if (now >= attendanceStartDate && now <= attendanceEndDate) {
                                 row = row + "<li><a href='events/" + entry.eventId + "/attendance'><span class='text-primary glyphicon glyphicon-hand-up'></span> Attendance</a></li>";
                             }
 
-                            if (gameEventTypes.includes(entry.eventType) && now > endDate && endDate >= minDate) {
+                            if (gameEventTypes.includes(entry.eventType) && now > endDate && endDate >= lastReviewDate) {
                                 row = row + "<li><a href='events/" + entry.eventId + "/report'><span class='text-primary glyphicon glyphicon-list-alt'></span> Game Report</a></li>";
                             }
                             
-                            if (now > endDate && endDate >= minDate) {
+                            if (now > endDate && endDate >= lastReviewDate) {
                                 row = row + "<li><a href='events/" + entry.eventId + "/reviews'><span class='text-primary glyphicon glyphicon-star'></span> Review</a></li>";
                             } 
                                 

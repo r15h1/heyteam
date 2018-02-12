@@ -297,9 +297,21 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 		public ActionResult NewReport(Guid eventId) {
 			var @event = eventsQuery.GetEvent(eventId);
 			var model = new GameReportViewModel() {
-
+				EventTitle = @event.Title,
+				EventDetails = $"{@event.EventType.GetDescription()} {@event.StartDate.ToString("ddd dd-MMM-yyyy h:mm tt")}<br/>{@event.Location}<br/>{string.Join(", ", @event.Squads.Select(s => s.Name))}",
+				SquadPlayers = GetSquadPlayersForEvent(@event)
 			};
 			return View(model);
+		}
+
+		private List<SelectListItem> GetSquadPlayersForEvent(Event @event) {
+			List<SelectListItem> playerList = new List<SelectListItem>();
+			foreach(var squad in @event.Squads) {
+				var players = memberQuery.GetPlayers(squad.Guid);
+				playerList.AddRange(players.Select(p => new SelectListItem { Value = p.Guid.ToString(), Text = $"{p.FirstName} {p.LastName}: {p.Email}" }));
+			}
+
+			return playerList.OrderBy(s => s.Text).ToList();
 		}
 	}
 }

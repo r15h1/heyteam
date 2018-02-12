@@ -1,21 +1,28 @@
 ﻿@model HeyTeam.Web.Models.EventsViewModels.GameReportViewModel
 
-@{
-    ViewData["Title"] = "NewReport";
-}
-
-<h2>Game Report</h2>
-<h3>Event</h3>
+<h2>New Game Report</h2>
+<h3>@Model.EventTitle </h3>
+<h4><small>@Html.Raw(Model.EventDetails)</small></h4>
 
 <div class="row">
     <div class="col-md-4">
         <form asp-action="NewReport">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
+                <label asp-for="Recipients" class="control-label">Email These Players</label>
+                <div>
+                    <a href="#" id="selectAllButton">Select All</a>
+                    <a href="#" id="clearButton" class="btn-link" style="margin-left:15px;">Clear</a>
+                </div>
+                <select asp-for="Recipients" class="form-control" multiple asp-items="Model.SquadPlayers"></select>            
+                <input id="SendMeACopy" type="checkbox" checked />
+                <label class="control-label" for="SendMeACopy">Send me a copy</label>
+            </div>
+            <div class="form-group">
                 <label asp-for="Opponent" class="control-label"></label>
                 <input asp-for="Opponent" class="form-control" />
                 <span asp-validation-for="Opponent" class="text-danger"></span>
-            </div>            
+            </div>
             <div class="form-group">
                 <label asp-for="GoalsScored" class="control-label">Goals</label>
                 <div class="form-inline">
@@ -36,24 +43,44 @@
                 </div>
             </div>
             <div class="form-group">
+                <label asp-for="Scorers" class="control-label"></label>
+                <textarea asp-for="Scorers" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Scorers" class="text-danger"></span>
+            </div>
+            <div class="form-group">
                 <label asp-for="Remarks" class="control-label"></label>
                 <textarea asp-for="Remarks" class="form-control" rows="3"></textarea>
                 <span asp-validation-for="Remarks" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-default" />
+            <div class="modal-footer">
+                <a asp-area="Administration" asp-controller="Events" asp-action="Reports" class="btn btn-default">Cancel</a>
+                <input type="submit" value="Submit" class="btn btn-primary" />
             </div>
+
         </form>
     </div>
 </div>
-
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script src="~/lib/select2/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function () {
-            //$('#Squads').select2();
+            $('#Recipients').select2();
         });
+
+        $("#selectAllButton").click(selectAllPlayers);
+
+        $("#clearButton").click(function () {
+            $("#Recipients > option").removeAttr("selected");
+            $("#Recipients").trigger("change");
+        });
+
+        function selectAllPlayers() {
+            $("#Recipients > option").prop("selected", "selected");
+            $("#Recipients").trigger("change");
+        }
+
+        selectAllPlayers();
     </script>
 }
 
