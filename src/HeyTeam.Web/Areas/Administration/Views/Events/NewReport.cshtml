@@ -15,8 +15,8 @@
                     <a href="#" id="clearButton" class="btn-link" style="margin-left:15px;">Clear</a>
                 </div>
                 <select asp-for="Recipients" class="form-control" multiple asp-items="Model.SquadPlayers"></select>            
-                <input id="SendMeACopy" type="checkbox" checked />
-                <label class="control-label" for="SendMeACopy">Send me a copy</label>
+                <input id="SendMeACopy" type="checkbox" checked/>
+                <label class="control-label" for="SendMeACopy" >Send me a copy</label>
             </div>
             <div class="form-group">
                 <label asp-for="Opponent" class="control-label"></label>
@@ -30,13 +30,13 @@
                         <div class="form-group">
                             <div class="input-group">
                                 <span class="input-group-addon">Scored</span>
-                                <input type="number" id="income" class="form-control" placeholder="0" style="width:60px" min="0" max="10">
+                                <input type="number" id="goalsScored" class="form-control" placeholder="0" style="width:60px" min="0" max="10">
                             </div>
                         </div>
                         vs
                         <div class="form-group">
                             <div class="input-group">
-                                <input type="number" id="mortgagepayment" class="form-control" style="width:60px" placeholder="0" min="0" max="10"> <span class="input-group-addon">Conceeded</span>
+                                <input type="number" id="goalsConceeded" class="form-control" style="width:60px" placeholder="0" min="0" max="10"> <span class="input-group-addon">Conceeded</span>
                             </div>
                         </div>
                     </div>
