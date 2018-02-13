@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using HeyTeam.Core;
+using HeyTeam.Core.Models;
 using HeyTeam.Core.Repositories;
 using HeyTeam.Core.Services;
 using HeyTeam.Lib.Data;
@@ -203,5 +204,31 @@ namespace HeyTeam.Lib.Repositories {
             }
 
         }
+
+		public void SaveEventReport(EventReport report) {
+			var sql = @"DELETE FROM EventReports WHERE EventId = (SELECT EventId FROM Events WHERE Guid = @EventGuid);			
+					  INSERT INTO EventReports
+                            (EventId, Report)
+                      VALUES (		                    
+		                    (SELECT EventId FROM Events WHERE Guid = @EventGuid),
+		                    @ReportXml
+	                    )";
+			var parameters = new DynamicParameters();
+			parameters.Add("@EventGuid", report.EventId.ToString());
+			parameters.Add("@ReportXml", report.Report);
+
+			using (var connection = connectionFactory.Connect()) {
+				connection.Open();
+				using (var transaction = connection.BeginTransaction()) {
+					try {
+						connection.Execute(sql, parameters, transaction);
+						transaction.Commit();
+					} catch (Exception ex) {
+						transaction.Rollback();
+						throw ex;
+					}
+				}
+			}
+		}
 	}
 }

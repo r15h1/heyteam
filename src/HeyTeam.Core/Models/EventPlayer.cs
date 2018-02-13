@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using HeyTeam.Util;
+﻿using HeyTeam.Util;
+using System;
 
-namespace HeyTeam.Core.Models
-{
-    public class EventPlayer
+namespace HeyTeam.Core.Models {
+	public class EventPlayer
     {
 
 		public EventPlayer(Guid squadGuid, Guid eventGuid, Guid playerGuid) {

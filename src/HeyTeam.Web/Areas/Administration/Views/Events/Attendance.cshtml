@@ -1,6 +1,6 @@
 ﻿@model HeyTeam.Web.Models.EventAttendanceModel
-<h1>Attendance</h1>
-<h3>@($"{Model.Title}")</h3>
+<h1>@($"{Model.Title}")</h1>
+<h3>Attendance</h3>
 <span class="text-info">@($"{Model.EventType} {Model.StartDate.ToString("ddd dd-MMM-yyyy h:mm t")}M")<br />@($"{Model.Location}")</span>
 <div class="table-responsive">
     <table class="table table-bordered table-hover">

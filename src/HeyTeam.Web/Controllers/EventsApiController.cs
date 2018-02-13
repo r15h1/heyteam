@@ -65,7 +65,7 @@ namespace HeyTeam.Web.Controllers
 				Attendance = attendance.Attendance
 			};
 
-			var response = eventService.UpdateAttendance(request);
+			var response = eventService.UpdateEventAttendance(request);
 
 			if (!response.RequestIsFulfilled) {
 				foreach (var error in response.Errors)

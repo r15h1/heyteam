@@ -12,6 +12,7 @@ using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using HeyTeam.Core.Models;
 
 namespace HeyTeam.Web.Areas.Administration.Controllers {
 	[Authorize(Policy = "Administrator")]
@@ -289,19 +290,48 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 		[HttpGet("{eventId:guid}/report")]
 		public ActionResult Report(Guid eventId) {
 			var @event = eventsQuery.GetEvent(eventId);
-			
-			return View();
-		}
+			var eventReport = eventsQuery.GetEventReport(eventId);
+			var matchReport = eventService.DeserializeReport<MatchReport>(eventReport?.Report);
 
-		[HttpGet("{eventId:guid}/report/new")]
-		public ActionResult NewReport(Guid eventId) {
-			var @event = eventsQuery.GetEvent(eventId);
 			var model = new GameReportViewModel() {
 				EventTitle = @event.Title,
 				EventDetails = $"{@event.EventType.GetDescription()} {@event.StartDate.ToString("ddd dd-MMM-yyyy h:mm tt")}<br/>{@event.Location}<br/>{string.Join(", ", @event.Squads.Select(s => s.Name))}",
-				SquadPlayers = GetSquadPlayersForEvent(@event)
+				CoachsRemarks = matchReport?.CoachsRemarks,
+				GoalsConceeded = matchReport?.GoalsConceeded,
+				GoalsScored = matchReport?.GoalsScored,
+				Opponent = matchReport?.Opponent,
+				Scorers = matchReport?.Scorers
 			};
+			
 			return View(model);
+		}
+
+		[HttpPost("{eventId:guid}/report")]
+		public ActionResult Report(GameReportViewModel model) {
+			if(!ModelState.IsValid)
+				return View(model);
+
+			var request = new EventReportRequest {
+				ClubId = club.Guid,
+				CoachsRemarks = model.CoachsRemarks,
+				EventId = model.EventId,
+				GoalsConceeded = model.GoalsConceeded.Value,
+				GoalsScored = model.GoalsScored.Value,
+				Opponent = model.Opponent,
+				Scorers = model.Scorers
+			};
+
+			var response = eventService.UpdateEventReport(request);
+			if(!response.RequestIsFulfilled) {
+				foreach (var error in response.Errors)
+					ModelState.AddModelError("", error);
+
+				var @event = eventsQuery.GetEvent(model.EventId);
+				model.EventTitle = @event.Title;
+				model.EventDetails = $"{@event.EventType.GetDescription()} {@event.StartDate.ToString("ddd dd-MMM-yyyy h:mm tt")}<br/>{@event.Location}<br/>{string.Join(", ", @event.Squads.Select(s => s.Name))}";
+				return View(model);
+			}
+			return RedirectToAction(nameof(Report));
 		}
 
 		private List<SelectListItem> GetSquadPlayersForEvent(Event @event) {

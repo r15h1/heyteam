@@ -13,23 +13,17 @@ namespace HeyTeam.Web.Models.EventsViewModels {
 		public string Opponent { get; set; }
 
 		[Required]
-		[Display(Name = "Goals Scored")]
-		public byte GoalsScored { get; set; }
+		[Display(Name = "Goals scored by our team")]
+		public byte? GoalsScored { get; set; }
 
 		[Required]
-		[Display(Name = "Goals Conceeded")]
-		public byte GoalsConceeded { get; set; }
+		[Display(Name = "Goals scored by opponent")]
+		public byte? GoalsConceeded { get; set; }
 
-		public IEnumerable<string> Scorers { get; set; }
+		public string Scorers { get; set; }
 
 		[Display(Name = "Coach's Remarks")]
-		public string Remarks { get; set; }
-
-		[Display(Name = "Send Email To")]
-		public IEnumerable<string> EmailTo { get; set; }
-
-		public IEnumerable<Guid> Recipients{ get; set; }
-		public List<SelectListItem> SquadPlayers { get; set; }
+		public string CoachsRemarks { get; set; }
 
 		public string EventTitle { get; set; }
 		public string EventDetails { get; set; }

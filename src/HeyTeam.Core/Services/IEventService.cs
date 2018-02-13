@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Xml;
 
 namespace HeyTeam.Core.Services {
 
@@ -7,8 +8,11 @@ namespace HeyTeam.Core.Services {
 		Response CreateEvent(EventSetupRequest request);
 		Response UpdateEvent(EventSetupRequest request);
 		Response DeleteEvent(EventDeleteRequest request);
-		Response UpdateAttendance(EventAttendanceRequest request);
+		Response UpdateEventAttendance(EventAttendanceRequest request);
 		Response AddEventReview(NewEventReviewRequest review);
+		Response UpdateEventReport(EventReportRequest request);
+		T DeserializeReport<T>(XmlDocument report);
+		XmlDocument SerializeReport<T>(T report);
 	}
 
 	public class EventSetupRequest {
@@ -44,6 +48,16 @@ namespace HeyTeam.Core.Services {
 		public string Successes { get; set; }//What went well
 		public string Opportunities { get; set; }//What did not go well
 		public string DifferentNextTime { get; set; }//What could have been done differently
+	}
+
+	public class EventReportRequest {
+		public Guid ClubId { get; set; }
+		public Guid EventId { get; set; }
+		public string Opponent{ get; set; }
+		public string Scorers { get; set; }
+		public string CoachsRemarks { get; set; }
+		public byte GoalsScored { get; set; }
+		public byte GoalsConceeded { get; set; }
 	}
 
 }

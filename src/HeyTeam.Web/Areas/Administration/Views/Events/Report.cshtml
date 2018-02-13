@@ -1,12 +1,60 @@
-﻿
-@{
-    ViewData["Title"] = "Reports";
-}
+﻿@model HeyTeam.Web.Models.EventsViewModels.GameReportViewModel
 
-<h2>Reports</h2>
-<h3>List</h3>
-<div>
-    <div class="btn-group" role="group" aria-label="...">
-        <a class="btn btn-primary" asp-action="NewReport">Send Report</a>
+<h2>@Model.EventTitle</h2>
+<h3>Match Report</h3>
+<h4><small>@Html.Raw(Model.EventDetails)</small></h4>
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Report">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Opponent" class="control-label"></label>
+                <input asp-for="Opponent" class="form-control"/>
+                <span asp-validation-for="Opponent" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="GoalsScored" class="control-label">Score</label>
+                <div class="form-inline text-center">
+                    <div class="form-group">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <span class="input-group-addon">Our Team</span>
+                                <input type="number" asp-for="GoalsScored" class="form-control" placeholder="0" style="width:60px" min="0" max="10">
+                            </div>
+                        </div>
+                        vs
+                        <div class="form-group">
+                            <div class="input-group">
+                                <input type="number" asp-for="GoalsConceeded" class="form-control" style="width:60px" placeholder="0" min="0" max="10"> <span class="input-group-addon">Opponent</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="Scorers" class="control-label"></label>
+                <textarea asp-for="Scorers" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Scorers" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CoachsRemarks" class="control-label"></label>
+                <textarea asp-for="CoachsRemarks" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="CoachsRemarks" class="text-danger"></span>
+            </div>
+            <div class="modal-footer">
+                <a asp-area="Administration" asp-controller="Events" asp-action="Reports" class="btn btn-default">Cancel</a>
+                <input type="submit" value="Submit" class="btn btn-primary" />
+            </div>
+
+        </form>
     </div>
 </div>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+}
+
+@section CSS {
+    <link href="~/lib/select2/dist/css/select2.min.css" rel="stylesheet" />
+}

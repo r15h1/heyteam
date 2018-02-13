@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using HeyTeam.Core.Models;
+using System.Xml;
 
 namespace HeyTeam.Lib.Queries {
 	public class EventQuery : IEventQuery {
@@ -323,6 +324,34 @@ namespace HeyTeam.Lib.Queries {
 
 				return squads;
 			}
+		}
+
+		public EventReport GetEventReport(Guid eventId) {
+			if (eventId.IsEmpty())
+				return null;
+
+			using (var connection = connectionFactory.Connect()) {
+				string sql = @"SELECT E.Guid, ER.Report, ER.LastUpdatedOn
+								FROM EventReports ER								
+								INNER JOIN Events E ON ER.EventId = E.EventId
+								WHERE E.Guid = @Guid";
+								
+				DynamicParameters p = new DynamicParameters();
+				p.Add("@Guid", eventId.ToString());
+				connection.Open();
+				var reader = connection.Query(sql, p).Cast<IDictionary<string, object>>();
+				var report = reader.Select<dynamic, EventReport>(
+						row => new EventReport(Guid.Parse(row.Guid.ToString())) {
+							LastUpdatedOn = row.LastUpdatedOn, Report = GetXmlDocument(row.Report)
+						}).FirstOrDefault();
+				return report;
+			}
+		}
+
+		private XmlDocument GetXmlDocument(string report) {
+			var document = new XmlDocument();
+			document.LoadXml(report);
+			return document;
 		}
 	}
 }

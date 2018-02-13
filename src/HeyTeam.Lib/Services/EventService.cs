@@ -1,5 +1,6 @@
 ﻿using HeyTeam.Core;
 using HeyTeam.Core.Exceptions;
+using HeyTeam.Core.Models;
 using HeyTeam.Core.Queries;
 using HeyTeam.Core.Repositories;
 using HeyTeam.Core.Services;
@@ -7,7 +8,10 @@ using HeyTeam.Core.Validation;
 using HeyTeam.Util;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace HeyTeam.Lib.Services {
 	public class EventService : IEventService {
@@ -140,7 +144,7 @@ namespace HeyTeam.Lib.Services {
 			return Response.CreateSuccessResponse();
 		}
 
-		public Response UpdateAttendance(EventAttendanceRequest request) {
+		public Response UpdateEventAttendance(EventAttendanceRequest request) {
 			var validationResult = eventAttendanceRequestValidator.Validate(request);
 			if (!validationResult.IsValid)
 				return Response.CreateResponse(validationResult.Messages);
@@ -200,6 +204,54 @@ namespace HeyTeam.Lib.Services {
 			} catch(Exception ex) {
 				return Response.CreateResponse(ex);
 			}
+		}
+
+		public Response UpdateEventReport(EventReportRequest request) {
+			var report = new EventReport(request.EventId) {
+				Report = SerializeReport<MatchReport>(new MatchReport { 
+					ClubId = request.ClubId,
+					CoachsRemarks = request.CoachsRemarks,
+					EventId = request.EventId,
+					GoalsConceeded = request.GoalsConceeded,
+					GoalsScored = request.GoalsScored,
+					Opponent = request.Opponent,
+					Scorers = request.Scorers
+				})
+			};
+			try {
+				eventRepository.SaveEventReport(report);
+				return Response.CreateSuccessResponse();
+			} catch (Exception ex) {
+				return Response.CreateResponse(ex);
+			}
+		}
+
+		public T DeserializeReport<T>(XmlDocument report) {
+			if (report == null) return default(T);
+
+			XmlSerializer serializer = new XmlSerializer(typeof(T));
+			var reader = new XmlNodeReader(report);
+			return serializer.CanDeserialize(reader) ? (T)serializer.Deserialize(reader) : default(T);
+		}
+
+		public XmlDocument SerializeReport<T>(T report) {
+			XmlSerializer serializer = new XmlSerializer(typeof(T));
+			XmlDocument document = null;
+
+			using (MemoryStream stream = new MemoryStream()) {
+				serializer.Serialize(stream, report);
+				stream.Position = 0;
+
+				XmlReaderSettings settings = new XmlReaderSettings();
+				settings.IgnoreWhitespace = true;
+
+				using (var reader = XmlReader.Create(stream, settings)) {
+					document = new XmlDocument();
+					document.Load(reader);
+				}
+			}
+
+			return document;
 		}
 	}
 }
