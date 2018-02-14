@@ -59,7 +59,7 @@
         <!-- Modal content-->
         <div class="modal-content">
             <form method="post" id="emailForm">
-                <input type="hidden" id="eventId" name="eventId" />
+                <input type="hidden" asp-for="EventId" />
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                     <h4 class="modal-title">Email This Report</h4>
@@ -114,23 +114,17 @@
 
         $('#emailButton').on('click', function (e) {
             e.preventDefault();
-            var id = $(this).closest('tr').data('id');
             $("#anotherEmailDiv").empty();
             $('#emailModalWindow').modal('show');
-        });
-
-        $('#sendEmailButton').click(function (e) {            
-            var id = $('#emailModalWindow').data('id');
-            $("#eventId").val(id);            
-            //$('#emailModalWindow').modal('hide');
-        });
+        });        
 
         $("#emailForm").submit(function (e) {
-            e.preventDefault();            
+            e.preventDefault();
+            sendEmail();
         });
 
         $("#addAnotherEmail").click(function () {
-            var emailControl = '<div class="form-group"><div class="input-group"><input type="email" name="CC" class="form-control" placeholder="email address"/><a id="removeEmail" href="#" class="input-group-addon"><span class="text-danger glyphicon glyphicon-remove"></span></a></div></div>';
+            var emailControl = '<div class="form-group"><div class="input-group"><input type="email" name="emailAddress" class="form-control" placeholder="email address"/><a id="removeEmail" href="#" class="input-group-addon"><span class="text-danger glyphicon glyphicon-remove"></span></a></div></div>';
             $("#anotherEmailDiv").append($(emailControl));            
         });
 
@@ -140,15 +134,37 @@
 
         $("#clearEmails").click(function () {
             selectAllEmails(false);
-        });        
+        });
+        
+        $("body").on('click', "#removeEmail", function () {
+            $(this).closest(".form-group").remove();            
+        });
 
         function selectAllEmails(selected) {
             $('#emailAddress > option').prop("selected", selected).change();
         }
 
-        $("body").on('click', "#removeEmail", function () {
-            $(this).closest(".form-group").remove();            
-        });
+        function sendEmail() {
+            $.ajax({
+                method: "POST",
+                contentType: 'application/json',
+                url: "/api/events/emailReport",
+                data: JSON.stringify(getEmailFormData())
+            })
+            .done(function (data) {
+                console.log("OK");
+            })
+            .fail(function (jqXHR, textStatus, errorThrown) {
+                console.log(textStatus);
+            });
+        }
+
+        function getEmailFormData() {
+            return {
+                eventId: $("#EventId").val(),
+                emailAddress: $("#emailForm[name^='emailAddress']").val()
+            };
+        }
 
     </script>
 }

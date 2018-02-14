@@ -76,5 +76,13 @@ namespace HeyTeam.Web.Controllers
 
 			return Ok();
 		}
+
+		[HttpPost("emailReport")]
+		public IActionResult EmailReport([FromBody] EmailReportViewModel model) {
+			if (!ModelState.IsValid)
+				return BadRequest();			
+
+			return Ok();
+		}
 	}
 }
