@@ -47,11 +47,32 @@
                 <input id="submitButton" type="submit" value="Submit" class="btn btn-primary hidden" />
 
                 <a id="backToListButton" asp-area="Administration" asp-controller="Events" asp-action="Index" class="btn btn-default">Back To List</a>
-                <button type="button" id="emailButton" class="btn btn-primary hidden"><span class="glyphicon glyphicon-envelope"></span> Email</button>
                 <button type="button" id="editButton" class="btn btn-default">Edit</button>
+                <button type="button" id="emailButton" class="btn btn-primary hidden"><span class="glyphicon glyphicon-envelope"></span> Email</button>
             </div>
-
         </form>
+    </div>
+</div>
+
+<div class="modal fade" id="emailModalWindow" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <form method="post" id="emailForm">
+                <input type="hidden" id="eventId" name="eventId" />
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Email Report</h4>
+                </div>
+                <div class="modal-body">
+                    <p></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="submit" id="sendEmailButton" class="btn btn-primary">Send</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 @section Scripts {
@@ -59,6 +80,8 @@
 
     <script>
         var reportExists = @Model.ReportExists.ToString().ToLowerInvariant();
+        toggleEmailButton();
+
         $("#editButton, #cancelButton").click(function () {
             $("#editButton, #backToListButton, #cancelButton, #submitButton").toggleClass("hidden");
             var disabled = $("#Opponent").prop("disabled");
@@ -70,8 +93,18 @@
             if (reportExists)
                 $("#emailButton").toggleClass("hidden");
         }
+        
+        $('#emailButton').on('click', function (e) {
+            e.preventDefault();
+            var id = $(this).closest('tr').data('id');
+            $('#emailModalWindow').data('id', id).modal('show');
+        });
 
-        toggleEmailButton();
+        $('#sendEmailButton').click(function () {
+            var id = $('#emailModalWindow').data('id');
+            $("#eventId").val(id);
+            $('#emailModalWindow').modal('hide');
+        });
     </script>
 }
 
