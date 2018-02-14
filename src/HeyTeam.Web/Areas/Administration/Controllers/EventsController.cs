@@ -292,6 +292,7 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 			var @event = eventsQuery.GetEvent(eventId);
 			var eventReport = eventsQuery.GetEventReport(eventId);
 			var matchReport = eventService.DeserializeReport<MatchReport>(eventReport?.Report);
+			
 
 			var model = new MatchReportViewModel() {
 				EventTitle = @event.Title,
@@ -301,7 +302,8 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 				GoalsScored = matchReport?.GoalsScored,
 				Opponent = matchReport?.Opponent,
 				Scorers = matchReport?.Scorers,
-				ReportExists = (eventReport != null && matchReport != null)
+				ReportExists = (eventReport != null && matchReport != null),
+				Players = GetSquadPlayersForEvent(@event)
 			};
 			
 			return View(model);
@@ -330,6 +332,7 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 				var @event = eventsQuery.GetEvent(model.EventId);
 				model.EventTitle = @event.Title;
 				model.EventDetails = $"{@event.EventType.GetDescription()} {@event.StartDate.ToString("ddd dd-MMM-yyyy h:mm tt")}<br/>{@event.Location}<br/>{string.Join(", ", @event.Squads.Select(s => s.Name))}";
+				model.Players = GetSquadPlayersForEvent(@event);
 				return View(model);
 			}
 			return RedirectToAction(nameof(Report));
@@ -339,7 +342,7 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 			List<SelectListItem> playerList = new List<SelectListItem>();
 			foreach(var squad in @event.Squads) {
 				var players = memberQuery.GetPlayers(squad.Guid);
-				playerList.AddRange(players.Select(p => new SelectListItem { Value = p.Guid.ToString(), Text = $"{p.FirstName} {p.LastName}: {p.Email}" }));
+				playerList.AddRange(players.Select(p => new SelectListItem { Value = p.Email, Text = $"{p.FirstName} {p.LastName}: {p.Email}" }));
 			}
 
 			return playerList.OrderBy(s => s.Text).ToList();

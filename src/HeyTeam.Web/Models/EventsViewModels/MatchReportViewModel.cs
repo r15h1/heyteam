@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace HeyTeam.Web.Models.EventsViewModels {
 	public class MatchReportViewModel
@@ -25,5 +27,6 @@ namespace HeyTeam.Web.Models.EventsViewModels {
 		public bool ReportExists { get; set; } = false;
 		public string EventTitle { get; set; }
 		public string EventDetails { get; set; }
+		public List<SelectListItem> Players { get; internal set; }
 	}
 }
