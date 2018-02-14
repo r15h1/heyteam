@@ -1,4 +1,4 @@
-﻿@model HeyTeam.Web.Models.EventsViewModels.GameReportViewModel
+﻿@model HeyTeam.Web.Models.EventsViewModels.MatchReportViewModel
 
 <h2>@Model.EventTitle</h2>
 <h3>Match Report</h3>
@@ -10,7 +10,7 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Opponent" class="control-label"></label>
-                <input asp-for="Opponent" class="form-control" readonly/>
+                <input asp-for="Opponent" class="form-control" disabled/>
                 <span asp-validation-for="Opponent" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -20,13 +20,13 @@
                         <div class="form-group">
                             <div class="input-group">
                                 <span class="input-group-addon">Our Team</span>
-                                <input type="number" asp-for="GoalsScored" class="form-control" placeholder="0" style="width:60px" min="0" max="10" readonly>
+                                <input type="number" asp-for="GoalsScored" class="form-control" placeholder="0" style="width:60px" min="0" max="10" disabled>
                             </div>
                         </div>
                         vs
                         <div class="form-group">
                             <div class="input-group">
-                                <input type="number" asp-for="GoalsConceeded" class="form-control" style="width:60px" placeholder="0" min="0" max="10" readonly> <span class="input-group-addon">Opponent</span>
+                                <input type="number" asp-for="GoalsConceeded" class="form-control" style="width:60px" placeholder="0" min="0" max="10" disabled> <span class="input-group-addon">Opponent</span>
                             </div>
                         </div>
                     </div>
@@ -34,12 +34,12 @@
             </div>
             <div class="form-group">
                 <label asp-for="Scorers" class="control-label"></label>
-                <textarea asp-for="Scorers" class="form-control" rows="3" readonly></textarea>
+                <textarea asp-for="Scorers" class="form-control" rows="3" disabled></textarea>
                 <span asp-validation-for="Scorers" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="CoachsRemarks" class="control-label"></label>
-                <textarea asp-for="CoachsRemarks" class="form-control" rows="3" readonly></textarea>
+                <textarea asp-for="CoachsRemarks" class="form-control" rows="3" disabled></textarea>
                 <span asp-validation-for="CoachsRemarks" class="text-danger"></span>
             </div>
             <div class="modal-footer">
@@ -47,8 +47,8 @@
                 <input id="submitButton" type="submit" value="Submit" class="btn btn-primary hidden" />
 
                 <a id="backToListButton" asp-area="Administration" asp-controller="Events" asp-action="Index" class="btn btn-default">Back To List</a>
-                <button id="emailButton" class="btn btn-primary"><span class="glyphicon glyphicon-envelope"></span> Email</button>
-                <input id="editButton" type="button" value="Edit" class="btn btn-default" />
+                <button type="button" id="emailButton" class="btn btn-primary hidden"><span class="glyphicon glyphicon-envelope"></span> Email</button>
+                <button type="button" id="editButton" class="btn btn-default">Edit</button>
             </div>
 
         </form>
@@ -58,11 +58,20 @@
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 
     <script>
+        var reportExists = @Model.ReportExists.ToString().ToLowerInvariant();
         $("#editButton, #cancelButton").click(function () {
-            $("#editButton, #emailButton, #backToListButton, #cancelButton, #submitButton").toggleClass("hidden");
-            var readonly = $("#Opponent").prop("readonly");
-            $("input, textarea").prop("readonly", !readonly);
+            $("#editButton, #backToListButton, #cancelButton, #submitButton").toggleClass("hidden");
+            var disabled = $("#Opponent").prop("disabled");
+            $("input, textarea").prop("disabled", !disabled);
+            toggleEmailButton();            
         });
+
+        function toggleEmailButton() {
+            if (reportExists)
+                $("#emailButton").toggleClass("hidden");
+        }
+
+        toggleEmailButton();
     </script>
 }
 

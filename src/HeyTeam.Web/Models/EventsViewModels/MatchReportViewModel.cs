@@ -1,10 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace HeyTeam.Web.Models.EventsViewModels {
-	public class GameReportViewModel
+	public class MatchReportViewModel
     {
 		[Required]
 		public Guid EventId { get; set; }
@@ -24,7 +22,7 @@ namespace HeyTeam.Web.Models.EventsViewModels {
 
 		[Display(Name = "Coach's Remarks")]
 		public string CoachsRemarks { get; set; }
-
+		public bool ReportExists { get; set; } = false;
 		public string EventTitle { get; set; }
 		public string EventDetails { get; set; }
 	}

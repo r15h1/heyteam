@@ -293,21 +293,22 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 			var eventReport = eventsQuery.GetEventReport(eventId);
 			var matchReport = eventService.DeserializeReport<MatchReport>(eventReport?.Report);
 
-			var model = new GameReportViewModel() {
+			var model = new MatchReportViewModel() {
 				EventTitle = @event.Title,
 				EventDetails = $"{@event.EventType.GetDescription()} {@event.StartDate.ToString("ddd dd-MMM-yyyy h:mm tt")}<br/>{@event.Location}<br/>{string.Join(", ", @event.Squads.Select(s => s.Name))}",
 				CoachsRemarks = matchReport?.CoachsRemarks,
 				GoalsConceeded = matchReport?.GoalsConceeded,
 				GoalsScored = matchReport?.GoalsScored,
 				Opponent = matchReport?.Opponent,
-				Scorers = matchReport?.Scorers
+				Scorers = matchReport?.Scorers,
+				ReportExists = (eventReport != null && matchReport != null)
 			};
 			
 			return View(model);
 		}
 
 		[HttpPost("{eventId:guid}/report")]
-		public ActionResult Report(GameReportViewModel model) {
+		public ActionResult Report(MatchReportViewModel model) {
 			if(!ModelState.IsValid)
 				return View(model);
 
