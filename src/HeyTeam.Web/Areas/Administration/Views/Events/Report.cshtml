@@ -10,7 +10,7 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Opponent" class="control-label"></label>
-                <input asp-for="Opponent" class="form-control"/>
+                <input asp-for="Opponent" class="form-control" readonly/>
                 <span asp-validation-for="Opponent" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -20,13 +20,13 @@
                         <div class="form-group">
                             <div class="input-group">
                                 <span class="input-group-addon">Our Team</span>
-                                <input type="number" asp-for="GoalsScored" class="form-control" placeholder="0" style="width:60px" min="0" max="10">
+                                <input type="number" asp-for="GoalsScored" class="form-control" placeholder="0" style="width:60px" min="0" max="10" readonly>
                             </div>
                         </div>
                         vs
                         <div class="form-group">
                             <div class="input-group">
-                                <input type="number" asp-for="GoalsConceeded" class="form-control" style="width:60px" placeholder="0" min="0" max="10"> <span class="input-group-addon">Opponent</span>
+                                <input type="number" asp-for="GoalsConceeded" class="form-control" style="width:60px" placeholder="0" min="0" max="10" readonly> <span class="input-group-addon">Opponent</span>
                             </div>
                         </div>
                     </div>
@@ -34,17 +34,21 @@
             </div>
             <div class="form-group">
                 <label asp-for="Scorers" class="control-label"></label>
-                <textarea asp-for="Scorers" class="form-control" rows="3"></textarea>
+                <textarea asp-for="Scorers" class="form-control" rows="3" readonly></textarea>
                 <span asp-validation-for="Scorers" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="CoachsRemarks" class="control-label"></label>
-                <textarea asp-for="CoachsRemarks" class="form-control" rows="3"></textarea>
+                <textarea asp-for="CoachsRemarks" class="form-control" rows="3" readonly></textarea>
                 <span asp-validation-for="CoachsRemarks" class="text-danger"></span>
             </div>
             <div class="modal-footer">
-                <a asp-area="Administration" asp-controller="Events" asp-action="Reports" class="btn btn-default">Cancel</a>
-                <input type="submit" value="Submit" class="btn btn-primary" />
+                <a id="cancelButton" class="btn btn-default hidden">Cancel</a>
+                <input id="submitButton" type="submit" value="Submit" class="btn btn-primary hidden" />
+
+                <a id="backToListButton" asp-area="Administration" asp-controller="Events" asp-action="Index" class="btn btn-default">Back To List</a>
+                <button id="emailButton" class="btn btn-primary"><span class="glyphicon glyphicon-envelope"></span> Email</button>
+                <input id="editButton" type="button" value="Edit" class="btn btn-default" />
             </div>
 
         </form>
@@ -53,6 +57,13 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 
+    <script>
+        $("#editButton, #cancelButton").click(function () {
+            $("#editButton, #emailButton, #backToListButton, #cancelButton, #submitButton").toggleClass("hidden");
+            var readonly = $("#Opponent").prop("readonly");
+            $("input, textarea").prop("readonly", !readonly);
+        });
+    </script>
 }
 
 @section CSS {

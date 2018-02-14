@@ -331,7 +331,7 @@ namespace HeyTeam.Lib.Queries {
 				return null;
 
 			using (var connection = connectionFactory.Connect()) {
-				string sql = @"SELECT E.Guid, ER.Report, ER.LastUpdatedOn
+				string sql = @"SELECT E.Guid, ER.Report
 								FROM EventReports ER								
 								INNER JOIN Events E ON ER.EventId = E.EventId
 								WHERE E.Guid = @Guid";
@@ -342,7 +342,7 @@ namespace HeyTeam.Lib.Queries {
 				var reader = connection.Query(sql, p).Cast<IDictionary<string, object>>();
 				var report = reader.Select<dynamic, EventReport>(
 						row => new EventReport(Guid.Parse(row.Guid.ToString())) {
-							LastUpdatedOn = row.LastUpdatedOn, Report = GetXmlDocument(row.Report)
+							Report = GetXmlDocument(row.Report)
 						}).FirstOrDefault();
 				return report;
 			}
