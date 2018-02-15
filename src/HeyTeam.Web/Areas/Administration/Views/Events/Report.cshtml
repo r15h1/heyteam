@@ -58,35 +58,34 @@
     <div class="modal-dialog">
         <!-- Modal content-->
         <div class="modal-content">
-            <form method="post" id="emailForm">
+            <form method="post" id="emailForm">                
                 <input type="hidden" asp-for="EventId" />
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                     <h4 class="modal-title">Email This Report</h4>
                 </div>
                 <div class="modal-body">
+                    @*<div class="error">
+                        <span></span>
+                    </div>*@
                     <div class="form-group">
-                        <input type="checkbox" name="sendMeACopy" id="sendMeACopy"checked />
+                        <input type="checkbox" name="sendMeACopy" id="sendMeACopy" checked />
                         <label class="control-label" for="sendMeACopy">Send me a copy</label>
                     </div>
                     <div class="form-group">
                         <label class="control-label" for="emailAddress">Players</label>
                         <div><a href="#" id="selectAllEmails">Select All</a><a href="#" id="clearEmails" style="margin-left:15px;">Clear</a></div>
                         <select id="emailAddress" name="emailAddress" class="form-control" asp-items="@Model.Players" multiple style="width:100%;"></select>
-                    </div>
-                    <div id="anotherEmailDiv">
-                        @*<label>Other Recipient</label>
-                        <div class="form-group">
-                            <input type="email" name="CC" class="form-control" placeholder="other email address" />
-                        </div>*@
-                    </div>
+                    </div>                    
+                    <div id="anotherEmailDiv"></div>
                     <a id="addAnotherEmail" href="#"><span class="glyphicon glyphicon-plus"></span> Add another recipient</a>
                 </div>
+                    
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                    <button type="submit" id="sendEmailButton" class="btn btn-primary">Send</button>
-                </div>
-            </form>            
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <button type="submit" id="sendEmailButton" class="btn btn-primary">Send</button>
+                    </div>
+</form>            
         </div>
     </div>
 </div>
@@ -115,17 +114,37 @@
         $('#emailButton').on('click', function (e) {
             e.preventDefault();
             $("#anotherEmailDiv").empty();
+            resetFormValidator("#emailForm");
             $('#emailModalWindow').modal('show');
         });        
 
-        $("#emailForm").submit(function (e) {
+        $("#emailForm").on("submit", function (e) {
             e.preventDefault();
-            sendEmail();
+            if ($("#emailForm").valid()) {
+                sendEmail();
+            }
+        });
+
+        $("#emailForm").validate({
+            invalidHandler: function (event, validator) {
+                var errors = validator.numberOfInvalids();
+                if (errors) {
+                    $("div.error").show();
+                } else {
+                    $("div.error").hide();
+                }
+            }
         });
 
         $("#addAnotherEmail").click(function () {
-            var emailControl = '<div class="form-group"><div class="input-group"><input type="email" name="emailAddress" class="form-control" placeholder="email address"/><a id="removeEmail" href="#" class="input-group-addon"><span class="text-danger glyphicon glyphicon-remove"></span></a></div></div>';
-            $("#anotherEmailDiv").append($(emailControl));            
+            var id = "additionaEmail" + ($("input[type='email']").length + 1);
+            var emailControl =
+                '<div class="form-group text-right">'+
+                    '<input type="email" name="' + id + '" class="form-control" placeholder= "email address" required/>' +
+                        '<a id="removeEmail" href="#" >Remove</a>' +                
+                '</div>';
+
+            $("#anotherEmailDiv").append($(emailControl));                
         });
 
         $("#selectAllEmails").click(function () { 
@@ -138,7 +157,13 @@
         
         $("body").on('click', "#removeEmail", function () {
             $(this).closest(".form-group").remove();            
-        });
+        });        
+
+        function resetFormValidator(formId) {
+            $(formId).removeData('validator');
+            $(formId).removeData('unobtrusiveValidation');
+            $.validator.unobtrusive.parse(formId);
+        }
 
         function selectAllEmails(selected) {
             $('#emailAddress > option').prop("selected", selected).change();
@@ -166,13 +191,14 @@
                 emailAddresses = $.merge([], selectedPlayerEmails);
             }
             
-            $("input[name='emailAddress']").each(function () {
+            $("input[type='email']").each(function () {
                 emailAddresses.push($(this).val());
             });
 
             return {
                 eventId: $("#EventId").val(),
-                emailAddress: emailAddresses
+                emailAddress: emailAddresses,
+                sendMeACopy: $("#sendMeACopy").prop('checked')
             };
         }
 
@@ -181,4 +207,11 @@
 
 @section CSS {
     <link href="~/lib/select2/dist/css/select2.min.css" rel="stylesheet" />
+    <style type="text/css">
+        .error{
+            color:rgb(200, 0, 0);
+            display:inline-block;
+            float:left;
+        }
+    </style>
 }

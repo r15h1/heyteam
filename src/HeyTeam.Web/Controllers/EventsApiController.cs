@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using HeyTeam.Core;
-using HeyTeam.Core.Models;
+﻿using HeyTeam.Core;
 using HeyTeam.Core.Queries;
 using HeyTeam.Core.Services;
 using HeyTeam.Web.Models.EventsViewModels;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Linq;
 
-namespace HeyTeam.Web.Controllers
-{
+namespace HeyTeam.Web.Controllers {
 	[Authorize]
     [Produces("application/json")]
     [Route("api/events")]
