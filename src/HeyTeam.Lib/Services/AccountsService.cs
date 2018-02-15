@@ -72,7 +72,13 @@ namespace HeyTeam.Lib.Services
 									"<p>You're invited to join Mapola Online - a platform that Mapola FC uses to manage team's activity, sessions, games and track player performance.</p>" +
 									"<p>Please click on the link below to register.</p>" +
 									$"<p><a href='http://localhost:5000/accounts/register?token={token}' target='_blank'>Register Now</a></p><p>Thank you</p><p>Mapola Admin</p></body></html>";
-				Task.Run(()=> emailSender.SendEmailAsync(request.Email, "Invitation To Use Mapola Online", message));
+
+				var emailRequest = new EmailRequest {
+					Subject = "Invitation To Use Mapola Online", 
+					Message = message
+				};
+				emailRequest.AddEmailAddress(request.Email, Recipient.To);
+				Task.Run(() => emailSender.EmailAsync(emailRequest));				
 				return Response.CreateSuccessResponse();
 			} catch(Exception ex) {
 				return Response.CreateResponse(ex);

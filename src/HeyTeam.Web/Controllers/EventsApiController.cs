@@ -75,7 +75,9 @@ namespace HeyTeam.Web.Controllers {
 		[HttpPost("emailReport")]
 		public IActionResult EmailReport([FromBody] EmailReportViewModel model) {
 			if (!ModelState.IsValid)
-				return BadRequest();			
+				return BadRequest();
+				
+			
 
 			return Ok();
 		}

@@ -428,8 +428,12 @@ namespace HeyTeam.Web.Controllers {
                 // visit https://go.microsoft.com/fwlink/?LinkID=532713
                 var code = await userManager.GeneratePasswordResetTokenAsync(user);
                 var callbackUrl = Url.ResetPasswordCallbackLink(user.Id, code, Request.Scheme);
-                await emailSender.SendEmailAsync(model.Email, "Reset Password",
-                   $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>");
+				var emailRequest = new EmailRequest {
+					Subject = "Reset Password",
+					Message = $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>"
+				};
+				emailRequest.AddEmailAddress(model.Email, Recipient.To);
+				await emailSender.EmailAsync(emailRequest);                   
                 return RedirectToAction(nameof(ForgotPasswordConfirmation));
             }
 
