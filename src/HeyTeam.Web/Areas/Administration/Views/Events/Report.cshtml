@@ -160,9 +160,19 @@
         }
 
         function getEmailFormData() {
+            var emailAddresses = [];
+            var selectedPlayerEmails = $("select[name='emailAddress']").val();
+            if (selectedPlayerEmails != null && selectedPlayerEmails.length > 0) {
+                emailAddresses = $.merge([], selectedPlayerEmails);
+            }
+            
+            $("input[name='emailAddress']").each(function () {
+                emailAddresses.push($(this).val());
+            });
+
             return {
                 eventId: $("#EventId").val(),
-                emailAddress: $("#emailForm[name^='emailAddress']").val()
+                emailAddress: emailAddresses
             };
         }
 
