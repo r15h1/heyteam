@@ -9,7 +9,7 @@ namespace HeyTeam.Web.Models.EventsViewModels {
 		public Guid EventId { get; set; }
 
 		[Required]
-		public IEnumerable<string> EmailAddress { get; set; }
+		public List<string> EmailAddress { get; set; }
 
 		public bool? SendMeACopy { get; set; }
 	}

@@ -144,6 +144,8 @@ namespace HeyTeam.Web {
 			services.AddScoped<IValidator<NewAvailabilityRequest>, NewAvailabilityRequestValidator>();
 			services.AddScoped<IAvailabilityRepository, AvailabilityRepository>();
 			services.AddScoped<IAvailabilityService, AvailabilityService>();
+
+			services.AddScoped<IValidator<EmailReportRequest>, EmailReportRequestValidator>();
 		}
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

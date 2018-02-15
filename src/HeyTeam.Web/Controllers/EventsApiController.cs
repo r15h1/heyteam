@@ -1,8 +1,10 @@
 ﻿using HeyTeam.Core;
 using HeyTeam.Core.Queries;
 using HeyTeam.Core.Services;
+using HeyTeam.Identity;
 using HeyTeam.Web.Models.EventsViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
@@ -16,11 +18,15 @@ namespace HeyTeam.Web.Controllers {
 		private readonly Club club;
 		private readonly IEventQuery eventsQuery;
 		private readonly IEventService eventService;
+		private readonly UserManager<ApplicationUser> userManager;
+		private readonly IMemberQuery memberQuery;
 
-		public EventsApiController(Club club, IEventQuery eventsQuery, IEventService eventService) {
+		public EventsApiController(Club club, IEventQuery eventsQuery, IEventService eventService, UserManager<ApplicationUser> userManager, IMemberQuery memberQuery) {
 			this.club = club;
 			this.eventsQuery = eventsQuery;
 			this.eventService = eventService;
+			this.userManager = userManager;
+			this.memberQuery = memberQuery;
 		}
 
 		[HttpGet("")]
@@ -75,9 +81,26 @@ namespace HeyTeam.Web.Controllers {
 		[HttpPost("emailReport")]
 		public IActionResult EmailReport([FromBody] EmailReportViewModel model) {
 			if (!ModelState.IsValid)
-				return BadRequest();
-				
-			
+				return BadRequest(ModelState);
+
+			var request = new EmailReportRequest {
+				ClubId = club.Guid,
+				EventId = model.EventId,
+				EmailAddresses = model.EmailAddress
+			};
+
+			if (model.SendMeACopy.HasValue && model.SendMeACopy.Value) {
+				var user = userManager.GetUserAsync(User).Result;
+				request.EmailAddresses.Add(user.Email);
+			}
+
+			var response = eventService.EmailEventReport(request);
+			if(!response.RequestIsFulfilled){
+				foreach (var error in response.Errors)
+					ModelState.AddModelError("", error);
+
+				return BadRequest(ModelState);
+			}
 
 			return Ok();
 		}

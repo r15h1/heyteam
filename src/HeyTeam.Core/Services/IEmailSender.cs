@@ -33,7 +33,7 @@ namespace HeyTeam.Core.Services {
 
 		public string Subject{ get; set; }
 
-		public string Message { get; set; }
+		public string Body { get; set; }
 	}
 
 	public enum Recipient{

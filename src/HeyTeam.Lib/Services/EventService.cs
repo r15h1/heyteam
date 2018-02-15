@@ -25,11 +25,15 @@ namespace HeyTeam.Lib.Services {
 		private readonly IMemberQuery memberQuery;
 		private readonly IValidator<EventAttendanceRequest> eventAttendanceRequestValidator;
 		private readonly IValidator<NewEventReviewRequest> newEventReviewValidator;
+		private readonly IEmailSender emailSender;
+		private readonly IValidator<EmailReportRequest> emailReportRequestValidator;
 
 		public EventService(IEventRepository eventRepository, IEventQuery eventQuery, IValidator<EventSetupRequest> setUpRequestValidator, 			
 								IValidator<EventDeleteRequest> deleteRequestValidator, IClubQuery clubQuery, ISquadQuery squadQuery, ILibraryQuery libraryQuery, IMemberQuery memberQuery,
 								IValidator<EventAttendanceRequest> eventAttendanceRequestValidator,
-								IValidator<NewEventReviewRequest> newEventReviewValidator
+								IValidator<NewEventReviewRequest> newEventReviewValidator,
+								IEmailSender emailSender,
+								IValidator<EmailReportRequest> emailReportRequestValidator
 		) {
 			ThrowIf.ArgumentIsNull(eventRepository);
 			ThrowIf.ArgumentIsNull(eventQuery);
@@ -46,6 +50,8 @@ namespace HeyTeam.Lib.Services {
 			this.memberQuery = memberQuery;
 			this.eventAttendanceRequestValidator = eventAttendanceRequestValidator;
 			this.newEventReviewValidator = newEventReviewValidator;
+			this.emailSender = emailSender;
+			this.emailReportRequestValidator = emailReportRequestValidator;
 		}
 
 		public Response CreateEvent(EventSetupRequest request) {
@@ -252,6 +258,52 @@ namespace HeyTeam.Lib.Services {
 			}
 
 			return document;
+		}
+
+		public Response EmailEventReport(EmailReportRequest request) {
+			var validationResult = emailReportRequestValidator.Validate(request);
+			if (!validationResult.IsValid)
+				return Response.CreateResponse(validationResult.Messages);
+
+
+			var club = clubQuery.GetClub(request.ClubId);
+			if (club == null)
+				return Response.CreateResponse(new EntityNotFoundException("The specified club does not exist"));
+
+			var @event = eventQuery.GetEvent(request.EventId);
+			if (@event == null)
+				return Response.CreateResponse(new EntityNotFoundException("The specified event does not exist"));
+			else if (@event.ClubId != request.ClubId)
+				return Response.CreateResponse(new IllegalOperationException("The specified event does not belong to this club"));
+
+			var report = eventQuery.GetEventReport(request.EventId);
+			var matchReport = DeserializeReport<MatchReport>(report.Report);
+			if(matchReport == null)
+				return Response.CreateResponse(new IllegalOperationException("The specified report does not have a body"));
+
+			var result = matchReport.GoalsScored > matchReport.GoalsConceeded ? "WON " : (matchReport.GoalsScored < matchReport.GoalsConceeded ? "LOST " : "TIED at");
+			result = $"{result} {matchReport.GoalsScored} - {matchReport.GoalsConceeded}";
+			var emailBody = $@"<html>
+				<body>
+					<h2>Match Report {@event.Title}</h2>
+					<p>{@event.EventType.GetDescription()}<p><p>{@event.StartDate.ToString("ddd dd-MMM-yyyy h:mm tt")}</p><p>{@event.Location}</p><p>{string.Join(", ", @event.Squads.Select(s => s.Name))}</p>
+					<p>Opponent: {matchReport.Opponent}</p>
+					<p>Score: {result}</p>
+					<p>Scorers:{matchReport.Scorers}</p>
+					<p>Coach's Remarks: {matchReport.CoachsRemarks}</p>
+				</body>
+			</html>";
+
+			var emailRequest = new EmailRequest {
+				Subject = $"Match Report {@event.Title}",
+				Body = emailBody
+			};
+
+			foreach (var email in request.EmailAddresses)
+				emailRequest.BCC.Add(email);
+
+			emailSender.EmailAsync(emailRequest);
+			return Response.CreateSuccessResponse();
 		}
 	}
 }

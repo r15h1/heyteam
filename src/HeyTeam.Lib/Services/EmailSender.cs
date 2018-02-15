@@ -26,7 +26,7 @@ namespace HeyTeam.Lib.Services {
 
 			MailMessage message = new MailMessage() {
 				Subject = request.Subject,
-				Body = request.Message,
+				Body = request.Body,
 				From = new MailAddress(smtpSettings.FromEmailAddress),
 				IsBodyHtml = true
 			};

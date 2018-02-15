@@ -35,10 +35,8 @@ namespace HeyTeam.Web.Controllers {
         private readonly IEmailSender emailSender;
         private readonly ILogger logger;
         private readonly IIdentityInitializer initializer;
-		private readonly IDataProtectionProvider dataProtectionProvider;
 		private readonly IAccountsService accountService;
 		private readonly IIdentityManager identityManager;
-		private readonly CryptographicSettings cryptographicSettings;
 
 		public AccountsController(
 			Club club, 
@@ -430,7 +428,7 @@ namespace HeyTeam.Web.Controllers {
                 var callbackUrl = Url.ResetPasswordCallbackLink(user.Id, code, Request.Scheme);
 				var emailRequest = new EmailRequest {
 					Subject = "Reset Password",
-					Message = $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>"
+					Body = $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>"
 				};
 				emailRequest.AddEmailAddress(model.Email, Recipient.To);
 				await emailSender.EmailAsync(emailRequest);                   

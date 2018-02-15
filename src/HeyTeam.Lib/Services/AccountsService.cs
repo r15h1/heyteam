@@ -75,7 +75,7 @@ namespace HeyTeam.Lib.Services
 
 				var emailRequest = new EmailRequest {
 					Subject = "Invitation To Use Mapola Online", 
-					Message = message
+					Body = message
 				};
 				emailRequest.AddEmailAddress(request.Email, Recipient.To);
 				Task.Run(() => emailSender.EmailAsync(emailRequest));				

@@ -13,6 +13,13 @@ namespace HeyTeam.Core.Services {
 		Response UpdateEventReport(EventReportRequest request);
 		T DeserializeReport<T>(XmlDocument report);
 		XmlDocument SerializeReport<T>(T report);
+		Response EmailEventReport(EmailReportRequest request);
+	}
+
+	public class EmailReportRequest {		
+		public Guid ClubId { get; set; }
+		public Guid EventId { get; set; }
+		public List<string> EmailAddresses { get; set; } = new List<string>();
 	}
 
 	public class EventSetupRequest {
@@ -59,5 +66,7 @@ namespace HeyTeam.Core.Services {
 		public byte GoalsScored { get; set; }
 		public byte GoalsConceeded { get; set; }
 	}
+
+
 
 }
