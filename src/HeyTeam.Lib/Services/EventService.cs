@@ -285,12 +285,14 @@ namespace HeyTeam.Lib.Services {
 			result = $"{result} {matchReport.GoalsScored} - {matchReport.GoalsConceeded}";
 			var emailBody = $@"<html>
 				<body>
-					<h2>Match Report {@event.Title}</h2>
-					<p>{@event.EventType.GetDescription()}<p><p>{@event.StartDate.ToString("ddd dd-MMM-yyyy h:mm tt")}</p><p>{@event.Location}</p><p>{string.Join(", ", @event.Squads.Select(s => s.Name))}</p>
-					<p>Opponent: {matchReport.Opponent}</p>
-					<p>Score: {result}</p>
-					<p>Scorers:{matchReport.Scorers}</p>
-					<p>Coach's Remarks: {matchReport.CoachsRemarks}</p>
+					<h1>Match Report {@event.Title}</h1>
+					<div>{@event.EventType.GetDescription()}<div>
+                    <div>{@event.StartDate.ToString("ddd dd-MMM-yyyy h:mm tt")}</div>
+                    <div>{@event.Location}</div>
+                    <h3>{string.Join(", ", @event.Squads.Select(s => s.Name))} vs {matchReport.Opponent}</h3>
+					<div><strong>Score:</strong> {result}</div>
+					<div><strong>Scorers:</strong> {matchReport.Scorers}</div>
+					<div><strong>Coach's Remarks:</strong>  {matchReport.CoachsRemarks}</div>
 				</body>
 			</html>";
 
