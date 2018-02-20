@@ -3,6 +3,7 @@ using HeyTeam.Core.Validation;
 using HeyTeam.Util;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace HeyTeam.Lib.Validation
@@ -18,6 +19,9 @@ namespace HeyTeam.Lib.Validation
 
 				if (request.EventId.IsEmpty())
 					result.AddMessage("EventId cannot be null");
+
+				if(request.EmailAddresses == null || !request.EmailAddresses.Any())
+					result.AddMessage($"At least one recipient (player, email address or send me a copy) must be specified.");
 
 				foreach (var email in request.EmailAddresses)
 					if(!email.IsEmpty() && !email.IsValidEmail())

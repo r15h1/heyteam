@@ -65,9 +65,11 @@
                     <h4 class="modal-title">Email This Report</h4>
                 </div>
                 <div class="modal-body">
-                    @*<div class="error">
-                        <span></span>
-                    </div>*@
+                    <div id="messagePopup" style="display:none;" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <span id="messageText"></span><br />
+                        <span id="messageDesc"></span>
+                    </div>
                     <div class="form-group">
                         <input type="checkbox" name="sendMeACopy" id="sendMeACopy" checked />
                         <label class="control-label" for="sendMeACopy">Send me a copy</label>
@@ -82,9 +84,9 @@
                 </div>
                     
                 <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                        <button type="submit" id="sendEmailButton" class="btn btn-primary">Send</button>
-                    </div>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="submit" id="sendEmailButton" class="btn btn-primary">Send</button>
+                </div>
 </form>            
         </div>
     </div>
@@ -102,7 +104,7 @@
         $("#editButton, #cancelButton").click(function () {
             $("#editButton, #backToListButton, #cancelButton, #submitButton").toggleClass("hidden");
             var disabled = $("#Opponent").prop("disabled");
-            $("input, textarea").prop("disabled", !disabled);
+            $("input[type=text], textarea").prop("disabled", !disabled);
             toggleEmailButton();
         });
 
@@ -121,6 +123,7 @@
         $("#emailForm").on("submit", function (e) {
             e.preventDefault();
             if ($("#emailForm").valid()) {
+                //enableEmailForm(false);
                 sendEmail();
             }
         });
@@ -162,6 +165,9 @@
         function resetFormValidator(formId) {
             $(formId).removeData('validator');
             $(formId).removeData('unobtrusiveValidation');
+            $('#messageText').empty();
+            $('#messageDesc').empty();
+            $('#messagePopup').removeAttr("class");
             $.validator.unobtrusive.parse(formId);
         }
 
@@ -176,13 +182,34 @@
                 url: "/api/events/emailReport",
                 data: JSON.stringify(getEmailFormData())
             })
-            .done(function (data) {
-                console.log("OK");
-            })
-            .fail(function (jqXHR, textStatus, errorThrown) {
-                console.log(textStatus);
-            });
+                .done(function (data) {
+                    $('#messageText').text("Email sent successfully");
+                    $('#messagePopup').removeAttr("class");
+                    $('#messagePopup').addClass("alert alert-success alert-dismissible").fadeIn().delay(500).fadeOut(function () { $('#emailModalWindow').modal('hide'); });
+
+                })
+                .fail(function (message) {
+                    $('#messageText').html("<strong>Error sending email</strong>");
+                    var errors = JSON.parse(message.responseText);
+                    var formattedError = "";
+                    if (errors && errors.length > 0) {
+                        for (var i = 0; i < errors.length; i++) {
+                            formattedError += errors[i] + (i == errors.length - 1 ? "" : "<br/>");
+                        }
+                    }
+
+                    $('#messageDesc').html(formattedError);
+                    $('#messagePopup').removeAttr("class");
+                    $('#messagePopup').addClass("alert alert-danger alert-dismissible").fadeIn().delay(10000).fadeOut();
+                });
+            //.always(function () {
+            //        enableEmailForm(true);
+            //    });
         }
+
+        //function enableEmailForm(enabled) {
+        //    $("#emailForm > input").prop("disabled", !enabled);
+        //}
 
         function getEmailFormData() {
             var emailAddresses = [];

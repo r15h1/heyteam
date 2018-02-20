@@ -95,14 +95,7 @@ namespace HeyTeam.Web.Controllers {
 			}
 
 			var response = eventService.EmailEventReport(request);
-			if(!response.RequestIsFulfilled){
-				foreach (var error in response.Errors)
-					ModelState.AddModelError("", error);
-
-				return BadRequest(ModelState);
-			}
-
-			return Ok();
+			return response.RequestIsFulfilled ? Ok() : BadRequest(response.Errors) as IActionResult;
 		}
 	}
 }
