@@ -36,8 +36,8 @@
 
             @foreach (var tm in Model.TrainingMaterials) {
             string item = "<div class='media' style='margin-top:10px; padding-bottom:10px'>" +
-                                "<div class='media-left'><a href='" + tm.Url + "' target='_blank'><img class='media-object' style='max-height:40px;' src='" + tm.ThumbnailUrl + "' alt=''></a></div>" +
-                                "<div class='media-body'><div class='img-changer-text'><a href='" + tm.Url + "' target='_blank'>" + tm.Title + "</a></div>(" + tm.ShortContentType + ")</div >" +
+                                "<div class='media-left'><a href='/tracking/library/" + tm.Guid + "' target='_blank'><img class='media-object' style='max-height:40px;' src='" + tm.ThumbnailUrl + "' alt=''></a></div>" +
+                                "<div class='media-body'><div class='img-changer-text'><a href='/tracking/library/" + tm.Guid + "' target='_blank'>" + tm.Title + "</a></div>(" + tm.ShortContentType + ")</div >" +
                             "</div>";
             @Html.Raw(item);
     }

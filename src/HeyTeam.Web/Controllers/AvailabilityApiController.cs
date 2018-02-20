@@ -7,7 +7,7 @@ using System.Linq;
 namespace HeyTeam.Web.Controllers {
 	[Produces("application/json")]
     [Route("api/availabilities")]
-    public class AvailabilityApiController : Controller
+    public class AvailabilityApiController : Microsoft.AspNetCore.Mvc.Controller
     {
 		private readonly Club club;
 		private readonly IAvailabilityQuery availabilityQuery;

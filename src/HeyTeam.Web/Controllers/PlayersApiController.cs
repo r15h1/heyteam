@@ -15,7 +15,7 @@ namespace HeyTeam.Web.Controllers
 	[Authorize]
 	[Produces("application/json")]
     [Route("api/players")]
-    public class PlayersApiController : Controller
+    public class PlayersApiController : Microsoft.AspNetCore.Mvc.Controller
     {
 		private readonly Club club;
 		private readonly IMemberQuery memberQuery;

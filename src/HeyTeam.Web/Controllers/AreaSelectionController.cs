@@ -12,7 +12,7 @@ namespace HeyTeam.Web.Controllers
 {
     [Authorize]     
     [Route("")]
-    public class AreaSelectionController : Controller
+    public class AreaSelectionController : Microsoft.AspNetCore.Mvc.Controller
     {
         private readonly Club club;
         private readonly UserManager<ApplicationUser> userManager;

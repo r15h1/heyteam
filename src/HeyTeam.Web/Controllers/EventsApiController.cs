@@ -13,7 +13,7 @@ namespace HeyTeam.Web.Controllers {
 	[Authorize]
     [Produces("application/json")]
     [Route("api/events")]
-    public class EventsApiController : Controller
+    public class EventsApiController : Microsoft.AspNetCore.Mvc.Controller
     {
 		private readonly Club club;
 		private readonly IEventQuery eventsQuery;
