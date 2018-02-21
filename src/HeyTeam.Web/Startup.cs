@@ -146,7 +146,8 @@ namespace HeyTeam.Web {
 			services.AddScoped<IAvailabilityService, AvailabilityService>();
 
 			services.AddScoped<IValidator<EmailReportRequest>, EmailReportRequestValidator>();
-		}
+            services.AddScoped<ITracker, Tracker>();
+        }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public  void Configure(IApplicationBuilder app, IHostingEnvironment env)
