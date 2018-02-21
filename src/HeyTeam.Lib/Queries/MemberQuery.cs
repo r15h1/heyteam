@@ -86,17 +86,25 @@ namespace HeyTeam.Lib.Queries {
                                     CO.Email, CO.Qualifications, CO.Phone
                                 FROM Coaches CO
                                 INNER JOIN Clubs CB ON CO.ClubId = CB.ClubId
-                                WHERE CO.Guid = @Guid";
+                                WHERE CO.Guid = @Guid;
+
+                                SELECT S.Guid AS SquadGuid
+                                FROM SquadCoaches SC
+                                INNER JOIN Coaches C ON SC.CoachId = C.CoachId AND C.Guid = @Guid
+                                INNER JOIN Squads S ON SC.SquadId = S.SquadId;";
 				DynamicParameters p = new DynamicParameters();
 				p.Add("@Guid", coachId.ToString());
 				connection.Open();
-				var reader = connection.Query(sql, p).Cast<IDictionary<string, object>>();
-				var coach = reader.Select<dynamic, Coach>(
+				var reader = connection.QueryMultiple(sql, p);
+				var coach = reader.Read().Select<dynamic, Coach>(
 						row => new Coach(Guid.Parse(row.ClubGuid.ToString()), Guid.Parse(row.CoachGuid.ToString())) {
 							DateOfBirth = DateTime.Parse(row.DateOfBirth.ToString()), FirstName = row.FirstName, LastName = row.LastName, Email = row.Email,
 							Phone = row.Phone, Qualifications = row.Qualifications
-						}).FirstOrDefault();
-				return coach;
+						}).SingleOrDefault();
+
+                coach.Squads = reader.Read().Select<dynamic, Guid>(row => Guid.Parse(row.SquadGuid.ToString())).ToList();
+
+                return coach;
 			}
 		}
 
@@ -171,8 +179,8 @@ namespace HeyTeam.Lib.Queries {
 								DateOfBirth = row.DateOfBirth,
 								Email = row.Email,
 								Membership = Enum.Parse<Membership>(row.Membership),
-								Phone = row.Phone,
-								SquadId = row.SquadGuid
+								Phone = row.Phone
+								//Squads = row.SquadGuid.IsEmpty() ? new List<Guid>() : new List<Guid> { row.Guid }
 							}
 						).ToList();
 			}

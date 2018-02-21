@@ -147,6 +147,8 @@ namespace HeyTeam.Web {
 
 			services.AddScoped<IValidator<EmailReportRequest>, EmailReportRequestValidator>();
             services.AddScoped<ITracker, Tracker>();
+            services.AddScoped<IValidator<EventTrainingMaterialViewRequest>, EventTrainingMaterialViewValidator>();
+            services.AddScoped<ITrackerRepository, TrackerRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -6,11 +6,12 @@ namespace HeyTeam.Core.Services
 {
     public interface ITracker
     {
-        Response Track(TrackLibraryRequest request);
+        Response Track(EventTrainingMaterialViewRequest request);
     }
 
-    public class TrackLibraryRequest
+    public class EventTrainingMaterialViewRequest
     {
+        public Guid ClubId { get; set; }
         public Guid MemberId { get; set; }
         public Membership? Membership { get; set; } 
         public Guid EventId { get; set; }
