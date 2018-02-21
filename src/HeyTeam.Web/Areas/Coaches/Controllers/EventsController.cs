@@ -30,39 +30,39 @@ namespace HeyTeam.Web.Areas.Coaches.Controllers {
 		}
 
 		[HttpGet("")]
-		public ActionResult Index() {
-			var squads = GetSquadList();
+		public ActionResult Index(Guid memberId) {
+			var squads = GetSquadList(memberId);
 			var model = new EventsViewModel { Squads = squads };
 			return View(model);
 		}
 
 		[HttpGet("{eventId:guid}")]
-		public ActionResult Details(Guid eventId) {
+		public ActionResult Details(Guid memberId, Guid eventId) {
 			var @event = eventsQuery.GetEvent(eventId);
-			var model = MapEvent(@event);
+			var model = MapEvent(@event, memberId);
 			return View(model);
 		}
 
-		private EventDetailsViewModel MapEvent(Event @event) => new EventDetailsViewModel {
+		private EventDetailsViewModel MapEvent(Event @event, Guid memberId) => new EventDetailsViewModel {
 			EndDate = @event.EndDate,
 			EventId = @event.Guid,
 			Location = @event.Location,
 			StartDate = @event.StartDate,
 			Title = @event.Title,
 			Squads = @event.Squads.Select(s => s.Guid),
-			SquadList = GetSquadList(),
+			SquadList = GetSquadList(memberId),
 			TrainingMaterials = @event.TrainingMaterials,
 			EventType = @event.EventType,
 			EventTypeDescription = @event.EventType.GetDescription()
 		};
 
-		private List<SelectListItem> GetSquadList() {
-			var clubSquads = squadQuery.GetSquads(club.Guid);
-			var squadList = clubSquads.Select(s => new SelectListItem { Text = $"{s.Name}", Value = s.Guid.ToString() })
-									.OrderBy(s => s.Text)
-                                    .Prepend(new SelectListItem { Text = "All", Value = "" })
-									.ToList();
-			return squadList;
+		private List<SelectListItem> GetSquadList(Guid memberId) {
+			var memberSquads = squadQuery.GetMemberSquads(memberId, Membership.Coach);
+            var squadList = memberSquads.Select(s => new SelectListItem { Text = $"{s.Name}", Value = s.Guid.ToString() });									
+            if (squadList.Count() > 1)
+                squadList = squadList.Prepend(new SelectListItem { Text = "All", Value = "" });
+
+            return squadList.OrderBy(s => s.Text).ToList();
 		}
 
 		[HttpGet("{eventId:guid}/attendance")]

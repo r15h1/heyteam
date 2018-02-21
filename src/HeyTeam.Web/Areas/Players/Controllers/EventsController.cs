@@ -38,30 +38,30 @@ namespace HeyTeam.Web.Areas.Players.Controllers {
 		}
 
 		[HttpGet("{eventId:guid}")]
-		public ActionResult Details(Guid eventId) {
+		public ActionResult Details(Guid memberId, Guid eventId) {
 			var @event = eventsQuery.GetEvent(eventId);
-			var model = MapEvent(@event);
+			var model = MapEvent(@event, memberId);
 			return View(model);
 		}
 
-		private EventDetailsViewModel MapEvent(Event @event) => new EventDetailsViewModel {
+		private EventDetailsViewModel MapEvent(Event @event, Guid memberId) => new EventDetailsViewModel {
 			EndDate = @event.EndDate,
 			EventId = @event.Guid,
 			Location = @event.Location,
 			StartDate = @event.StartDate,
 			Title = @event.Title,
 			Squads = @event.Squads.Select(s => s.Guid),
-			SquadList = GetSquadList(),
+			SquadList = GetSquadList(memberId),
 			TrainingMaterials = @event.TrainingMaterials,
 			EventTypeDescription = @event.EventType.GetDescription()
 		};
 
-		private List<SelectListItem> GetSquadList(Guid? memberId = null) {
+		private List<SelectListItem> GetSquadList(Guid memberId) {
 			var squads = squadQuery.GetSquads(club.Guid);
 
 			if (!memberId.IsEmpty()) {
-				var player = memberQuery.GetPlayer(memberId.Value);
-				squads = squadQuery.GetSquads(club.Guid).Where(s => player.SquadId == s.Guid);
+				var player = memberQuery.GetPlayer(memberId);
+                squads = squadQuery.GetMemberSquads(memberId, Membership.Player);
 			}
 			
 			var squadList = squads.Select(s => new SelectListItem { Text = $"{s.Name}", Value = s.Guid.ToString() })
