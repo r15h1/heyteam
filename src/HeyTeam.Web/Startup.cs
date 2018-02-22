@@ -149,7 +149,11 @@ namespace HeyTeam.Web {
             services.AddScoped<ITracker, Tracker>();
             services.AddScoped<IValidator<EventTrainingMaterialViewRequest>, EventTrainingMaterialViewValidator>();
             services.AddScoped<ITrackerRepository, TrackerRepository>();
-        }
+
+			services.AddScoped<IEvaluationService, EvaluationService>();
+			services.AddScoped<IEvaluationRepository, EvaluationRepository>();
+			services.AddScoped<IEvaluationQuery, EvaluationQuery>();
+		}
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public  void Configure(IApplicationBuilder app, IHostingEnvironment env)
