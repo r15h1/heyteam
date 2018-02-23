@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using HeyTeam.Core;
+using HeyTeam.Lib.Queries;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 
@@ -8,11 +10,21 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 	[Route("[area]/[controller]")]
 	public class EvaluationsController : Controller
     {
+        private readonly Club club;
+        private readonly IEvaluationQuery evaluationQuery;
+
+        public EvaluationsController(Club club, IEvaluationQuery evaluationQuery)
+        {
+            this.club = club;
+            this.evaluationQuery = evaluationQuery;
+        }
+
         [HttpGet("")]
 		[HttpGet("terms")]
 		public IActionResult Terms()
         {
-            return View();
+            var terms = evaluationQuery.GetTerms(club.Guid);
+            return View(terms);
         }
 
 		[HttpGet("terms/new")]

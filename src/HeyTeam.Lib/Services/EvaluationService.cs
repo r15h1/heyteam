@@ -78,6 +78,6 @@ namespace HeyTeam.Lib.Services {
 			throw new NotImplementedException();
 		}
 
-		private bool IsTermClosed(Term term) => term.TermStatus == TermStatus.CLOSED;
+		private bool IsTermClosed(Term term) => term.TermStatus == TermStatus.Closed;
 	}
 }

@@ -17,8 +17,8 @@ namespace HeyTeam.Core {
 	}
 
 	public enum TermStatus {
-		OPEN,
-		CLOSED
+		Open = 1,
+		Closed = 2
 	}
 
 	public struct TermPeriod {
