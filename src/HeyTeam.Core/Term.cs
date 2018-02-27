@@ -5,11 +5,11 @@ namespace HeyTeam.Core {
     {
 		public Term (Guid clubId, Guid? termId){
 			ClubId = clubId;
-			TermId = termId ?? Guid.NewGuid();
+			Guid = termId ?? System.Guid.NewGuid();
 		}
 
 		public Guid ClubId { get; }
-		public Guid? TermId { get; }
+		public Guid? Guid { get; }
 		public TermPeriod PeriodStart { get; set; } = new TermPeriod { Month = DateTime.Today.Month, Year = DateTime.Today.Year };
 		public TermPeriod PeriodEnd { get; set; } = new TermPeriod { Month = DateTime.Today.Month, Year = DateTime.Today.Year };
 		public string Title { get; set; }

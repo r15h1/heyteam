@@ -1,14 +1,14 @@
 ﻿using Dapper;
 using HeyTeam.Core;
+using HeyTeam.Core.Queries;
 using HeyTeam.Lib.Data;
 using HeyTeam.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace HeyTeam.Lib.Queries
-{
-    public class EvaluationQuery : IEvaluationQuery {
+namespace HeyTeam.Lib.Queries {
+	public class EvaluationQuery : IEvaluationQuery {
         private readonly IDbConnectionFactory factory;
 
         public EvaluationQuery(IDbConnectionFactory factory)

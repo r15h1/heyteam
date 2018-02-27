@@ -1,5 +1,5 @@
 ﻿using HeyTeam.Core;
-using HeyTeam.Lib.Queries;
+using HeyTeam.Core.Queries;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;

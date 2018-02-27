@@ -1,9 +1,9 @@
 ﻿using HeyTeam.Core;
 using HeyTeam.Core.Exceptions;
+using HeyTeam.Core.Queries;
 using HeyTeam.Core.Repositories;
 using HeyTeam.Core.Services;
 using HeyTeam.Core.Validation;
-using HeyTeam.Lib.Queries;
 using HeyTeam.Util;
 using System;
 
