@@ -25,7 +25,7 @@ namespace HeyTeam.Core.Services {
 		public Guid ClubId{ get; set; }
 		public Guid? TermId{ get; set; }
 		public string Title { get; set; }
-		public TermPeriod PeriodStart { get; set; }
-		public TermPeriod PeriodEnd { get; set; }
+		public DateTime	StartDate { get; set; }
+		public DateTime EndDate { get; set; }
 	}
 }

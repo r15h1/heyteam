@@ -1,5 +1,7 @@
 ﻿using HeyTeam.Core;
 using HeyTeam.Core.Queries;
+using HeyTeam.Core.Services;
+using HeyTeam.Web.Models.EvaluationViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -11,12 +13,14 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 	public class EvaluationsController : Controller
     {
         private readonly Club club;
-        private readonly IEvaluationQuery evaluationQuery;
+		private readonly IEvaluationService evaluationService;
+		private readonly IEvaluationQuery evaluationQuery;
 
-        public EvaluationsController(Club club, IEvaluationQuery evaluationQuery)
+        public EvaluationsController(Club club, IEvaluationService evaluationService, IEvaluationQuery evaluationQuery)
         {
             this.club = club;
-            this.evaluationQuery = evaluationQuery;
+			this.evaluationService = evaluationService;
+			this.evaluationQuery = evaluationQuery;
         }
 
         [HttpGet("")]
@@ -30,6 +34,32 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 		[HttpGet("terms/new")]
 		public IActionResult NewTerm() {
 			return View();
+		}
+
+		[HttpPost("terms/new")]
+		public IActionResult NewTerm(TermModel model) {
+			if (!ModelState.IsValid) {
+				return View(model);
+			} else if (model.EndDate <= model.StartDate) {
+				ModelState.AddModelError("", "End Date must be greater than the Start Date");
+				return View(model);
+			}
+
+			var response = evaluationService.CreateTerm (
+				new TermSetupRequest { 
+					ClubId = club.Guid, EndDate = model.EndDate, 
+					StartDate = model.StartDate, Title = model.Title 
+				}
+			);
+			
+			if(!response.RequestIsFulfilled) {
+				foreach(var error in response.Errors)
+					ModelState.AddModelError("", error);
+
+				return View(model);
+			}
+
+			return RedirectToAction(nameof(Terms));
 		}
 
 		[HttpGet("terms/{termId:guid}")]

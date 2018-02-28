@@ -1,34 +1,24 @@
-﻿@model HeyTeam.Core.Term
-<h1>NewTerm</h1>
+﻿@model HeyTeam.Web.Models.EvaluationViewModels.TermModel
+<h1>New Term</h1>
 <h3>Term Details</h3>
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="New">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>            
+        <form asp-action="NewTerm">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Title" class="control-label"></label>
-                <input asp-for="Title" class="form-control" />
+                <input asp-for="Title" class="form-control" required maxlength="100" />
                 <span asp-validation-for="Title" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="PeriodStart" class="control-label">Starting Period</label>
-                <input asp-for="StartDate" class="form-control" />
+                <label asp-for="StartDate" class="control-label">Start Date</label>
+                <input asp-for="StartDate" class="form-control" style="width:160px" type="date" required />
                 <span asp-validation-for="StartDate" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="EndDate" class="control-label"></label>
-                <input asp-for="EndDate" class="form-control" />
+                <label asp-for="EndDate" class="control-label">End Date</label>
+                <input asp-for="EndDate" class="form-control" style="width:160px" type="date" required />
                 <span asp-validation-for="EndDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Location" class="control-label"></label>
-                <input asp-for="Location" class="form-control" />
-                <span asp-validation-for="Location" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TrainingMaterials" class="control-label"></label>
-                <select asp-for="TrainingMaterials" class="form-control" multiple></select>
-                <span asp-validation-for="TrainingMaterials" class="text-danger"></span>
             </div>
             <div class="modal-footer">
                 <a asp-action="Index" class="btn btn-default">Cancel</a>
@@ -37,3 +27,6 @@
         </form>
     </div>
 </div>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

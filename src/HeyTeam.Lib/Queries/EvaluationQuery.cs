@@ -20,33 +20,36 @@ namespace HeyTeam.Lib.Queries {
 			throw new NotImplementedException();
 		}
 
-		public IEnumerable<Term> GetTerms(Guid clubId) {
-            if (clubId.IsEmpty())
-                return null;
-
-            string sql = @"SELECT E.Guid AS TermGuid, E.ClubId AS ClubGuid, E.Title, E.TermStatusId,
-                                E.MonthStart, E.YearStart, E.MonthEnd, E.YearEnd
+		public IEnumerable<Term> GetTerms(Guid clubId, DateTime? startDate = null, DateTime? endDate = null, TermStatus? status = null) {
+			string sql = $@"SELECT E.Guid AS TermGuid, E.ClubId AS ClubGuid, E.Title, E.TermStatusId,
+                                E.StartDate, E.EndDate
                             FROM EvaluationTerms E
                             INNER JOIN Clubs C ON E.ClubId = C.ClubId AND C.Guid = @ClubGuid
-                            WHERE E.Deleted IS NULL OR E.Deleted = 0";
-            DynamicParameters p = new DynamicParameters();
-            p.Add("@ClubGuid", clubId.ToString());
+                            WHERE (E.Deleted IS NULL OR E.Deleted = 0) 
+									{(startDate.IsEmpty() ? "" : " AND @StartDate <= E.EndDate ")} 
+									{(endDate.IsEmpty() ? "" : " AND @EndDate >= E.StartDate ")}
+									{(status.HasValue ? " AND TermStatusId = @TermStatus" : "")}
+							;";
 
-            using (var connection = factory.Connect())
-            {
-                
-                connection.Open();
-                var terms = connection.Query(sql, p).Cast<IDictionary<string, object>>().Select<dynamic, Term>(
-                        row => new Term(Guid.Parse(row.ClubGuid.ToString()), Guid.Parse(row.TermGuid.ToString()))
-                        {
-                            PeriodEnd = new TermPeriod { Month = row.MonthEnd, Year = row.YearEnd },
-                            PeriodStart = new TermPeriod { Month = row.MonthStart, Year = row.YearStart },
-                            TermStatus = (TermStatus) row.TermStatusId,
-                            Title = row.Title
-                        }).ToList();
+			DynamicParameters p = new DynamicParameters();
+			p.Add("@ClubGuid", clubId.ToString());
 
-                return terms;
-            }
+			if(startDate.HasValue) p.Add("@StartDate", startDate);
+			if(endDate.HasValue) p.Add("@EndDate", endDate);
+			if(status.HasValue) p.Add("@TermStatus", status);
+
+			using (var connection = factory.Connect()) {
+				connection.Open();
+				var terms = connection.Query(sql, p).Cast<IDictionary<string, object>>().Select<dynamic, Term>(
+						row => new Term(Guid.Parse(row.ClubGuid.ToString()), Guid.Parse(row.TermGuid.ToString())) {
+							EndDate = row.EndDate,
+							StartDate = row.StartDate,
+							TermStatus = (TermStatus)row.TermStatusId,
+							Title = row.Title
+						}).ToList();
+
+				return terms;
+			}
 		}
 	}
 }

@@ -12,18 +12,19 @@
 <table class="table">
     <thead>
         <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.ClubId)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.TermId)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Title)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.TermStatus)
-                </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.StartDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EndDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TermStatus)
+            </th>
+
             <th></th>
         </tr>
     </thead>
@@ -31,13 +32,13 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.ClubId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TermId)
-            </td>
-            <td>
                 @Html.DisplayFor(modelItem => item.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StartDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EndDate)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.TermStatus)

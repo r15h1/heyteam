@@ -6,6 +6,7 @@ using HeyTeam.Core.Services;
 using HeyTeam.Core.Validation;
 using HeyTeam.Util;
 using System;
+using System.Linq;
 
 namespace HeyTeam.Lib.Services {
 	public class EvaluationService : IEvaluationService {
@@ -28,23 +29,28 @@ namespace HeyTeam.Lib.Services {
 			if(!request.TermId.IsEmpty())
 				return Response.CreateResponse(new IllegalOperationException("No term id must be specified when creating new terms"));
 
-			if(HasOverlappingPeriods(request.PeriodStart, request.PeriodEnd)){
+			if(HasOverlappingPeriods(request.ClubId, request.StartDate, request.EndDate))
 				return Response.CreateResponse(new IllegalOperationException("This term overlaps with another one"));
-			}
-
-			if (HasExistingOpenTerms()) {
+			
+			if (HasExistingOpenTerms(request.ClubId))
 				return Response.CreateResponse(new IllegalOperationException("There can only be one open term at any given time. Please close any existing open term."));
-			}
-
-			throw new NotImplementedException();
+			
+			try{
+				termRepository.AddTerm(request);
+				return Response.CreateSuccessResponse();
+			} catch(Exception ex) {
+				return Response.CreateResponse(ex);
+			}		
 		}
 
-		private bool HasExistingOpenTerms(Guid? ignoredTermId = null) {
-			throw new NotImplementedException();
+		private bool HasExistingOpenTerms(Guid clubId, Guid? ignoredTermId = null) {
+			var openTerms = evaluationQuery.GetTerms(clubId, status:TermStatus.Open);
+			return ignoredTermId.HasValue ? openTerms.Any(t => t.Guid != ignoredTermId.Value) : openTerms.Any();
 		}
 
-		private bool HasOverlappingPeriods(TermPeriod periodStart, TermPeriod periodEnd, Guid? ignoredTermId = null) {
-			throw new NotImplementedException();
+		private bool HasOverlappingPeriods(Guid clubId, DateTime startDate, DateTime endDate, Guid? ignoredTermId = null) {
+			var overlappingTerms = evaluationQuery.GetTerms(clubId, startDate, endDate);
+			return overlappingTerms.Count() > 0;			
 		}
 
 		public Response DeleteTerm(TermDeleteRequest request) {
@@ -72,7 +78,7 @@ namespace HeyTeam.Lib.Services {
 			if (IsTermClosed(term)) 
 				return Response.CreateResponse(new IllegalOperationException("A closed term cannot be updated"));
 			
-			if (HasOverlappingPeriods(request.PeriodStart, request.PeriodEnd, request.TermId))
+			if (HasOverlappingPeriods(request.ClubId, request.StartDate, request.EndDate, request.TermId))
 				return Response.CreateResponse(new IllegalOperationException("This term overlaps with another one"));			
 
 			throw new NotImplementedException();

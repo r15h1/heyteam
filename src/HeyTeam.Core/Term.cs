@@ -10,8 +10,8 @@ namespace HeyTeam.Core {
 
 		public Guid ClubId { get; }
 		public Guid? Guid { get; }
-		public TermPeriod PeriodStart { get; set; } = new TermPeriod { Month = DateTime.Today.Month, Year = DateTime.Today.Year };
-		public TermPeriod PeriodEnd { get; set; } = new TermPeriod { Month = DateTime.Today.Month, Year = DateTime.Today.Year };
+		public DateTime StartDate { get; set; }
+		public DateTime EndDate { get; set; }
 		public string Title { get; set; }
 		public TermStatus TermStatus{ get; set; }
 	}
@@ -19,10 +19,5 @@ namespace HeyTeam.Core {
 	public enum TermStatus {
 		Open = 1,
 		Closed = 2
-	}
-
-	public struct TermPeriod {
-		public int Month{ get; set; }
-		public int Year{ get; set; } 
 	}
 }
