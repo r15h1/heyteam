@@ -25,8 +25,12 @@ namespace HeyTeam.Lib.Repositories {
 			
 			DynamicParameters p = new DynamicParameters();
 			p.Add("@TermGuid", Guid.NewGuid().ToString());
+            p.Add("@ClubGuid", request.ClubId.ToString());
+            p.Add("@Title", request.Title);
+            p.Add("@StartDate", request.StartDate);
+            p.Add("@EndDate", request.EndDate);
 
-			using (var connection = connectionFactory.Connect()) {				
+            using (var connection = connectionFactory.Connect()) {				
 				
 				connection.Open();
 				connection.Execute(sql, p);

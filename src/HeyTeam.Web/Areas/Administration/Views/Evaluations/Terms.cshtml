@@ -35,10 +35,10 @@
                 @Html.DisplayFor(modelItem => item.Title)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.StartDate)
+                @item.StartDate.ToString("dd-MMM-yyyy")
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.EndDate)
+                @item.EndDate.ToString("dd-MMM-yyyy")
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.TermStatus)

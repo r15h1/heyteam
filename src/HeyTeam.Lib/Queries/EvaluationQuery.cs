@@ -21,7 +21,7 @@ namespace HeyTeam.Lib.Queries {
 		}
 
 		public IEnumerable<Term> GetTerms(Guid clubId, DateTime? startDate = null, DateTime? endDate = null, TermStatus? status = null) {
-			string sql = $@"SELECT E.Guid AS TermGuid, E.ClubId AS ClubGuid, E.Title, E.TermStatusId,
+			string sql = $@"SELECT E.Guid AS TermGuid, C.Guid AS ClubGuid, E.Title, E.TermStatusId,
                                 E.StartDate, E.EndDate
                             FROM EvaluationTerms E
                             INNER JOIN Clubs C ON E.ClubId = C.ClubId AND C.Guid = @ClubGuid
