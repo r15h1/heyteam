@@ -50,7 +50,15 @@
                         <li><a asp-area="Administration" asp-controller="Availability" asp-action="Index">Availability</a></li>
                         <li><a asp-area="Administration" asp-controller="Library" asp-action="Index">Library</a></li>
                         <li><a asp-area="Administration" asp-controller="Coaches" asp-action="Index">Coaches</a></li>
-                        <li><a asp-area="Administration" asp-controller="Evaluations" asp-action="Index">Evaluations</a></li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Evaluations <b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a asp-area="Administration" asp-controller="Evaluations" asp-action="ReportCards">Report Cards</a></li>
+                                <li class="divider"></li>
+                                <li><a asp-area="Administration" asp-controller="Evaluations" asp-action="Terms">Terms</a></li>
+                            </ul>
+                        </li>
+
                     </ul>
 
                     @await Html.PartialAsync("_LoginPartial")
