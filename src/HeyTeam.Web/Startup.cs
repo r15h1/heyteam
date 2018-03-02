@@ -154,7 +154,9 @@ namespace HeyTeam.Web {
 			services.AddScoped<IEvaluationRepository, EvaluationRepository>();
 			services.AddScoped<IEvaluationQuery, EvaluationQuery>();
 			services.AddScoped<IValidator<TermSetupRequest>, TermSetupRequestValidator>();
-		}
+
+            services.AddScoped<IReportDesigner, ReportDesigner>();
+        }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public  void Configure(IApplicationBuilder app, IHostingEnvironment env)

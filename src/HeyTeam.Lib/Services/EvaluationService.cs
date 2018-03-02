@@ -84,11 +84,6 @@ namespace HeyTeam.Lib.Services {
 			throw new NotImplementedException();
 		}
 
-		private bool IsTermClosed(Term term) => term.TermStatus == TermStatus.Closed;
-
-        public (Guid Guid, Response Response) CreateReportCardDesign(NewReportCardDesignRequest request)
-        {
-            return (Guid.Empty, Response.CreateResponse(new NotImplementedException()));
-        }
+		private bool IsTermClosed(Term term) => term.TermStatus == TermStatus.Closed;        
     }
 }

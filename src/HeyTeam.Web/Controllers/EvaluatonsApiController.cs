@@ -12,12 +12,12 @@ namespace HeyTeam.Web.Controllers
     public class EvaluatonsApiController : Controller
     {
         private readonly Club club;
-        private readonly IEvaluationService evaluationService;
+        private readonly IReportDesigner reportDesigner;
 
-        public EvaluatonsApiController(Club club, IEvaluationService evaluationService)
+        public EvaluatonsApiController(Club club, IReportDesigner reportDesigner)
         {
             this.club = club;
-            this.evaluationService = evaluationService;
+            this.reportDesigner = reportDesigner;
         }
 
         [HttpPost("terms/{termId:guid}/designs/new")]
@@ -29,7 +29,12 @@ namespace HeyTeam.Web.Controllers
                 return BadRequest(errors);
             }
 
-            var result = evaluationService.CreateReportCardDesign(new NewReportCardDesignRequest { ClubId = club.Guid, Name = model.ReporCardDesignName, TermId = model.TermId });
+            var result = reportDesigner.CreateReportCardDesign(new NewReportCardDesignRequest {
+                ClubId = club.Guid,
+                Name = model.ReporCardDesignName,
+                TermId = model.TermId
+            });
+
             if(!result.Response.RequestIsFulfilled)
                 return BadRequest(result.Response.Errors);
 
