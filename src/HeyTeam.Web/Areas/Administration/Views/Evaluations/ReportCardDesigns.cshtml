@@ -20,7 +20,7 @@
                 @foreach (var design in Model)
                 {
                     <tr>
-                        <td><a asp-area="Administration" asp-controller="Evaluations" asp-action="ReportDesigner" asp-route-reportCardDesignId="@design.Guid">@design.Name</a></td>
+                        <td><a asp-area="Administration" asp-controller="Evaluations" asp-action="ReportCardDesigner" asp-route-reportCardDesignId="@design.Guid">@design.Name</a></td>
                     </tr>
                 }
             </tbody>
@@ -100,8 +100,11 @@ else
                     data: JSON.stringify({ "reporCardDesignName": $("#ReporCardDesignName").val() })
                 })
                 .done(function (data) {
-                    console.log("done");
+                    console.log(data);
                     $('#myModal').modal('hide');
+                    window.location = "report-card-designer/" + data;
+                    //var anchor = "<a href='" + data + "'></a>";
+                    //$(anchor).trigger("click");
                 })
                 .fail(function (message) {
                 console.log("request failed");

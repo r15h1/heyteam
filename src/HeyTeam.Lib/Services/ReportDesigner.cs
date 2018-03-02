@@ -53,13 +53,11 @@ namespace HeyTeam.Lib.Services
                 var design = new ReportDesign(request.ClubId) {
                     Name = request.Name
                 };
-
                 reportDesignerRepository.AddReportDesign(design);
+                return (design.Guid.Value, Response.CreateSuccessResponse());
             } catch(Exception ex) {
                 return (Guid.Empty, Response.CreateResponse(ex));
-            }
-
-            return (Guid.Empty, Response.CreateResponse(new NotImplementedException()));
+            }           
         }
     }
 }

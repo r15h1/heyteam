@@ -1,15 +1,50 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Dapper;
 using HeyTeam.Core;
 using HeyTeam.Core.Queries;
+using HeyTeam.Lib.Data;
+using HeyTeam.Util;
 
 namespace HeyTeam.Lib.Queries
 {
     public class ReportDesignerQuery : IReportDesignerQuery
     {
+        private readonly IDbConnectionFactory connectionFactory;
+
+        public ReportDesignerQuery(IDbConnectionFactory factory)
+        {
+            ThrowIf.ArgumentIsNull(factory);
+            this.connectionFactory = factory;
+        }
+
         public IEnumerable<ReportDesign> GetReportCardDesigns(Guid clubId, string name = null)
         {
-            return new List<ReportDesign>();
+            string sql = $@"SELECT R.Guid AS DesignGuid, C.Guid AS ClubGuid, R.Name
+                            FROM ReportCardDesigns R 
+                            INNER JOIN Clubs C ON R.ClubId = C.ClubId AND C.Guid = @ClubGuid
+                            WHERE (R.Deleted IS NULL OR R.Deleted = 0)
+                                {(name.IsEmpty() ? "" : " AND LOWER(R.Name) = @Name")}";
+
+            DynamicParameters p = new DynamicParameters();
+            p.Add("@ClubGuid", clubId.ToString());
+
+            if(!name.IsEmpty())
+                p.Add("@Name", name);
+
+            using (var connection = connectionFactory.Connect())
+            {
+                connection.Open();
+                var reader = connection.Query(sql, p).Cast<IDictionary<string, object>>();
+                var designs = reader.Select<dynamic, ReportDesign>(
+                        row => new ReportDesign(Guid.Parse(row.ClubGuid.ToString()), Guid.Parse(row.DesignGuid.ToString()))
+                        {
+                            Name = row.Name
+                        }).ToList();
+
+                return designs;
+            }
         }
     }
 }

@@ -1,12 +1,13 @@
 ﻿using HeyTeam.Core;
 using HeyTeam.Core.Services;
 using HeyTeam.Web.Models.EvaluationViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace HeyTeam.Web.Controllers
 {
+    [Authorize]
     [Produces("application/json")]
     [Route("api/evaluations")]
     public class EvaluatonsApiController : Controller

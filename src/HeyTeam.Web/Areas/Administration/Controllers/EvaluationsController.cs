@@ -70,14 +70,14 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 			return View();
 		}
 
-		[HttpGet("reportdesigner")]
-		public IActionResult ReportDesigns() {
+		[HttpGet("report-card-designer")]
+		public IActionResult ReportCardDesigns() {
             var reportDesigns = reportDesignerQuery.GetReportCardDesigns(club.Guid);
-            return View("ReportCardDesigns", reportDesigns);
+            return View(reportDesigns);
 		}
 
-        [HttpGet("reportdesigner/{reportDesignId:guid}")]
-        public IActionResult ReportDesigner(Guid reportDesignId)
+        [HttpGet("report-card-designer/{reportDesignId:guid}")]
+        public IActionResult ReportCardDesigner(Guid reportDesignId)
         {
             return View();
         }
