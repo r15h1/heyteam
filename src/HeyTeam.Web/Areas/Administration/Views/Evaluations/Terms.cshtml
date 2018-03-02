@@ -1,54 +1,57 @@
 ﻿@model IEnumerable<HeyTeam.Core.Term>
 <h1>Terms</h1>
 <h3>List</h3>
-<p>
-    
-</p>
 <div>
     <div class="btn-group" role="group" aria-label="...">
         <a asp-area="Administration" asp-controller="Evaluations" asp-action="NewTerm" class="btn btn-primary">Add New Term</a>
     </div>
 </div>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.StartDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.EndDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TermStatus)
-            </th>
+<div class="table-responsive">
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Title)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.StartDate)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.EndDate)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.TermStatus)
+                </th>
 
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
-                @item.StartDate.ToString("dd-MMM-yyyy")
-            </td>
-            <td>
-                @item.EndDate.ToString("dd-MMM-yyyy")
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TermStatus)
-            </td>
-            <td>
-                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var term in Model)
+            {
+                <tr>
+                    <td><a asp-area="Administration" asp-controller="Evaluations" asp-action="TermDetails" asp-route-termId="@term.Guid">@term.Title</a></td>
+                    <td>
+                        @term.StartDate.ToString("dd-MMM-yyyy")
+                    </td>
+                    <td>
+                        @term.EndDate.ToString("dd-MMM-yyyy")
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => term.TermStatus)
+                    </td>
+                    <td class='text-center'>
+                        <div class='dropdown'>
+                            <button class='btn btn-default dropdown-toggle btn-sm' type='button' id='dropdownMenu1' data-toggle='dropdown' aria- haspopup='true' aria-expanded='true'>                                
+                                <span class='caret'></span>                                
+                            </button>
+                            <ul class='dropdown-menu dropdown-menu-right' aria-labelledby='dropdownMenu1'>
+                                <li><a asp-area="Administration" asp-controller="Evaluations" asp-action="ReportCardDesigns" asp-route-termId="@term.Guid">Report Card Designs</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

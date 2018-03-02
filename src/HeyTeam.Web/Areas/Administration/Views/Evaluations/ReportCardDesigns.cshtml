@@ -1,0 +1,138 @@
+﻿@model HeyTeam.Web.Models.EvaluationViewModels.ReportCardDesignListViewModel
+
+<h2>@($"{Model.TermInfo.Title}") <small>(@($"{Model.TermInfo.StartDate.ToString("dd-MMM-yyyy")} to {Model.TermInfo.EndDate.ToString("dd-MMM-yyyy")}"))</small></h2>
+<h3>Report Card Designs</h3>
+<div>
+    <div class="btn-group" role="group" aria-label="...">
+        <a id="NewReportDesignButton" asp-area="Administration" asp-controller="Evaluations" asp-action="NewReportCardDesign" class="btn btn-primary">Design New Report Card</a>
+    </div>
+</div>
+
+@if (Model.ReportCardDesigns != null && Model.ReportCardDesigns.Count > 0)
+{
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var design in Model.ReportCardDesigns)
+                {
+                    <tr>
+                        <td><a asp-area="Administration" asp-controller="Evaluations" asp-action="ReportDesigner" asp-route-reportCardDesignId="@design.ReportCardDesignId">@design.Name</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <p>No records found</p>
+}
+
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <form id="NewDesignForm" method="post">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">New Report Card Design</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="messagePopup" style="display:none;" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <span id="messageText"></span><br />
+                        <span id="messageDesc"></span>
+                    </div>
+
+                    <input id="ReporCardDesignName" name="ReporCardDesignName" class="form-control" required maxlength="100" placeholder="type a name" />
+                    <span class="text-danger"></span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <input type="submit" id="SubmitNewReportCardDesignButton" class="btn btn-primary" value="Submit" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+<script type="text/javascript">
+        jQuery.validator.addClassRules("required", {
+            required: true,
+            normalizer: function (value) {
+                return $.trim(value);
+            }
+        });
+
+        $('#NewReportDesignButton').on('click', function (e) {
+            e.preventDefault();
+            $('#myModal').modal('show');
+        });
+
+        $('#SubmitNewReportCardDesignButton').click(function (e) {
+            $("#ReporCardDesignName").val($.trim($("#ReporCardDesignName").val()));
+        });
+
+        $("#NewDesignForm").validate({
+            invalidHandler: function (event, validator) {
+                var errors = validator.numberOfInvalids();
+                if (errors) {
+                    $("div.error").show();
+                } else {
+                    $("div.error").hide();
+                }
+            }
+        });
+
+        $("#NewDesignForm").on("submit", function (e) {
+            e.preventDefault();
+            console.log("default prevented");
+            if ($("#NewDesignForm").valid()) {
+                $.ajax({
+                    method: "POST",
+                    contentType: 'application/json',
+                    url: "/api/evaluations/terms/@($"{Model.TermInfo.TermId}")/designs/new",
+                    data: JSON.stringify({ "reporCardDesignName": $("#ReporCardDesignName").val(), "termId" : "@($"{Model.TermInfo.TermId}")" })
+                })
+                .done(function (data) {
+                    console.log("done");
+                    $('#myModal').modal('hide');
+                })
+                .fail(function (message) {
+                console.log("request failed");
+                $('#messageText').html("<strong>Error Creating Report Card Design</strong>");
+                var errors = JSON.parse(message.responseText);
+                var formattedError = "";
+                if (errors && errors.length > 0) {
+                    for (var i = 0; i < errors.length; i++) {
+                        formattedError += errors[i] + (i == errors.length - 1 ? "" : "<br/>");
+                    }
+                }
+
+                $('#messageDesc').html(formattedError);
+                $('#messagePopup').removeAttr("class");
+                $('#messagePopup').addClass("alert alert-danger alert-dismissible").fadeIn().delay(10000).fadeOut();
+            });
+            }
+       });
+
+</script>
+}
+
+@section CSS {
+    <link href="~/lib/select2/dist/css/select2.min.css" rel="stylesheet" />
+    <style type="text/css">
+        .error {
+            color: rgb(200, 0, 0);
+            display: inline-block;
+            float: left;
+        }
+    </style>
+}

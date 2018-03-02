@@ -67,9 +67,11 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 			return View();
 		}
 
-		[HttpGet("terms/{termId:guid}/designer")]
-		public IActionResult Designer() {
-			return View();
-		}
-	}
+		[HttpGet("terms/{termId:guid}/designs")]
+		public IActionResult ReportCardDesigns(Guid termId) {
+            var term = evaluationQuery.GetTerm(termId);
+            var model = new ReportCardDesignListViewModel { TermInfo = new TermInfoModel { TermId = term.Guid, EndDate = term.EndDate, StartDate = term.StartDate, Title = term.Title } };
+            return View(model);
+		}     
+    }
 }

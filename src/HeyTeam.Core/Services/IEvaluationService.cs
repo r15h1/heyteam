@@ -7,6 +7,8 @@ namespace HeyTeam.Core.Services {
 		Response UpdateTerm(TermSetupRequest request);
 		Response DeleteTerm(TermDeleteRequest request);
 		Response UpdateStatus(TermStatusUpdateRequest request);
+
+        (Guid Guid, Response Response) CreateReportCardDesign(NewReportCardDesignRequest request);
 	}
 
 	public class TermStatusUpdateRequest {
@@ -28,4 +30,11 @@ namespace HeyTeam.Core.Services {
 		public DateTime	StartDate { get; set; }
 		public DateTime EndDate { get; set; }
 	}
+
+    public class NewReportCardDesignRequest
+    {
+        public Guid ClubId { get; set; }
+        public Guid TermId { get; set; }
+        public string Name { get; set; }
+    }
 }

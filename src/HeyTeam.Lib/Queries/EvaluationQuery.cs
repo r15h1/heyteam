@@ -17,8 +17,30 @@ namespace HeyTeam.Lib.Queries {
         }
 
 		public Term GetTerm(Guid termId) {
-			throw new NotImplementedException();
-		}
+            string sql = $@"SELECT E.Guid AS TermGuid, C.Guid AS ClubGuid, E.Title, E.TermStatusId,
+                                E.StartDate, E.EndDate
+                            FROM EvaluationTerms E   
+                            INNER JOIN Clubs C ON E.ClubId = C.ClubId
+                            WHERE (E.Deleted IS NULL OR E.Deleted = 0) AND E.Guid = @TermGuid;";
+
+            DynamicParameters p = new DynamicParameters();
+            p.Add("@TermGuid", termId.ToString());           
+
+            using (var connection = factory.Connect())
+            {
+                connection.Open();
+                var term = connection.Query(sql, p).Cast<IDictionary<string, object>>().Select<dynamic, Term>(
+                        row => new Term(Guid.Parse(row.ClubGuid.ToString()), Guid.Parse(row.TermGuid.ToString()))
+                        {
+                            EndDate = row.EndDate,
+                            StartDate = row.StartDate,
+                            TermStatus = (TermStatus)row.TermStatusId,
+                            Title = row.Title
+                        }).SingleOrDefault();
+
+                return term;
+            }
+        }
 
 		public IEnumerable<Term> GetTerms(Guid clubId, DateTime? startDate = null, DateTime? endDate = null, TermStatus? status = null) {
 			string sql = $@"SELECT E.Guid AS TermGuid, C.Guid AS ClubGuid, E.Title, E.TermStatusId,
