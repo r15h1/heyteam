@@ -15,12 +15,15 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
         private readonly Club club;
 		private readonly IEvaluationService evaluationService;
 		private readonly IEvaluationQuery evaluationQuery;
+        private readonly IReportDesignerQuery reportDesignerQuery;
 
-        public EvaluationsController(Club club, IEvaluationService evaluationService, IEvaluationQuery evaluationQuery)
+        public EvaluationsController(Club club, IEvaluationService evaluationService, 
+            IEvaluationQuery evaluationQuery, IReportDesignerQuery reportDesignerQuery)
         {
             this.club = club;
 			this.evaluationService = evaluationService;
 			this.evaluationQuery = evaluationQuery;
+            this.reportDesignerQuery = reportDesignerQuery;
         }
 
         [HttpGet("")]
@@ -67,11 +70,16 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 			return View();
 		}
 
-		[HttpGet("terms/{termId:guid}/designs")]
-		public IActionResult ReportCardDesigns(Guid termId) {
-            var term = evaluationQuery.GetTerm(termId);
-            var model = new ReportCardDesignListViewModel { TermInfo = new TermInfoModel { TermId = term.Guid, EndDate = term.EndDate, StartDate = term.StartDate, Title = term.Title } };
-            return View(model);
-		}     
+		[HttpGet("reportdesigner")]
+		public IActionResult ReportDesigns() {
+            var reportDesigns = reportDesignerQuery.GetReportCardDesigns(club.Guid);
+            return View("ReportCardDesigns", reportDesigns);
+		}
+
+        [HttpGet("reportdesigner/{reportDesignId:guid}")]
+        public IActionResult ReportDesigner(Guid reportDesignId)
+        {
+            return View();
+        }
     }
 }

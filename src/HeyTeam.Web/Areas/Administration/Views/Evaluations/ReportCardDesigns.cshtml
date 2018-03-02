@@ -1,14 +1,13 @@
-﻿@model HeyTeam.Web.Models.EvaluationViewModels.ReportCardDesignListViewModel
-
-<h2>@($"{Model.TermInfo.Title}") <small>(@($"{Model.TermInfo.StartDate.ToString("dd-MMM-yyyy")} to {Model.TermInfo.EndDate.ToString("dd-MMM-yyyy")}"))</small></h2>
-<h3>Report Card Designs</h3>
+﻿@model IEnumerable<HeyTeam.Core.ReportDesign>
+<h2>Report Card Designs</h2>
+<h3>List</h3>
 <div>
     <div class="btn-group" role="group" aria-label="...">
         <a id="NewReportDesignButton" asp-area="Administration" asp-controller="Evaluations" asp-action="NewReportCardDesign" class="btn btn-primary">Design New Report Card</a>
     </div>
 </div>
 
-@if (Model.ReportCardDesigns != null && Model.ReportCardDesigns.Count > 0)
+@if (Model.Count() > 0)
 {
     <div class="table-responsive">
         <table class="table table-bordered table-hover">
@@ -18,10 +17,10 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var design in Model.ReportCardDesigns)
+                @foreach (var design in Model)
                 {
                     <tr>
-                        <td><a asp-area="Administration" asp-controller="Evaluations" asp-action="ReportDesigner" asp-route-reportCardDesignId="@design.ReportCardDesignId">@design.Name</a></td>
+                        <td><a asp-area="Administration" asp-controller="Evaluations" asp-action="ReportDesigner" asp-route-reportCardDesignId="@design.Guid">@design.Name</a></td>
                     </tr>
                 }
             </tbody>
@@ -97,8 +96,8 @@ else
                 $.ajax({
                     method: "POST",
                     contentType: 'application/json',
-                    url: "/api/evaluations/terms/@($"{Model.TermInfo.TermId}")/designs/new",
-                    data: JSON.stringify({ "reporCardDesignName": $("#ReporCardDesignName").val(), "termId" : "@($"{Model.TermInfo.TermId}")" })
+                    url: "/api/evaluations/reportdesigner/new",
+                    data: JSON.stringify({ "reporCardDesignName": $("#ReporCardDesignName").val() })
                 })
                 .done(function (data) {
                     console.log("done");

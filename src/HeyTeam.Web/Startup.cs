@@ -155,6 +155,9 @@ namespace HeyTeam.Web {
 			services.AddScoped<IEvaluationQuery, EvaluationQuery>();
 			services.AddScoped<IValidator<TermSetupRequest>, TermSetupRequestValidator>();
 
+            services.AddScoped<IReportDesignerQuery, ReportDesignerQuery>();
+            services.AddScoped<IReportDesignerRepository, ReportDesignerRepository>();
+            services.AddScoped<IValidator<NewReportDesignRequest>, NewReportDesignRequestValidator>();
             services.AddScoped<IReportDesigner, ReportDesigner>();
         }
 

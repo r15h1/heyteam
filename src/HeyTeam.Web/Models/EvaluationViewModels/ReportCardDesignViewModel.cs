@@ -11,8 +11,5 @@ namespace HeyTeam.Web.Models.EvaluationViewModels
         [Required]
         [MaxLength(100)]
         public string ReporCardDesignName { get; set; }
-
-        [Required]
-        public Guid TermId { get; set; }
     }
 }

@@ -6,14 +6,13 @@ namespace HeyTeam.Core.Services
 {
     public interface IReportDesigner
     {
-        (Guid Guid, Response Response) CreateReportCardDesign(NewReportCardDesignRequest request);
+        (Guid Guid, Response Response) CreateReportCardDesign(NewReportDesignRequest request);
 
     }
 
-    public class NewReportCardDesignRequest
+    public class NewReportDesignRequest
     {
         public Guid ClubId { get; set; }
-        public Guid TermId { get; set; }
         public string Name { get; set; }
     }
 }
