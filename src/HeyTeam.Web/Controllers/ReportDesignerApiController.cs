@@ -9,19 +9,19 @@ namespace HeyTeam.Web.Controllers
 {
     [Authorize]
     [Produces("application/json")]
-    [Route("api/evaluations")]
-    public class EvaluatonsApiController : Controller
+    [Route("api/report-card-designer")]
+    public class ReportDesignerApiController : Controller
     {
         private readonly Club club;
         private readonly IReportDesigner reportDesigner;
 
-        public EvaluatonsApiController(Club club, IReportDesigner reportDesigner)
+        public ReportDesignerApiController(Club club, IReportDesigner reportDesigner)
         {
             this.club = club;
             this.reportDesigner = reportDesigner;
         }
 
-        [HttpPost("reportdesigner/new")]
+        [HttpPost("new")]
         public IActionResult NewReportCardDesign([FromBody] ReportCardDesignViewModel model)
         {
             if(!ModelState.IsValid)
@@ -39,6 +39,6 @@ namespace HeyTeam.Web.Controllers
                 return BadRequest(result.Response.Errors);
 
             return Ok(result.Guid);
-        }
+        }        
     }
 }

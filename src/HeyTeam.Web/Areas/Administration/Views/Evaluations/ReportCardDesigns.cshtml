@@ -20,7 +20,7 @@
                 @foreach (var design in Model)
                 {
                     <tr>
-                        <td><a asp-area="Administration" asp-controller="Evaluations" asp-action="ReportCardDesigner" asp-route-reportCardDesignId="@design.Guid">@design.Name</a></td>
+                        <td><a asp-area="Administration" asp-controller="Evaluations" asp-action="ReportCardDesigner" asp-route-reportDesignId="@design.Guid">@design.Name</a></td>
                     </tr>
                 }
             </tbody>
@@ -96,7 +96,7 @@ else
                 $.ajax({
                     method: "POST",
                     contentType: 'application/json',
-                    url: "/api/evaluations/reportdesigner/new",
+                    url: "/api/report-card-designer/new",
                     data: JSON.stringify({ "reporCardDesignName": $("#ReporCardDesignName").val() })
                 })
                 .done(function (data) {
