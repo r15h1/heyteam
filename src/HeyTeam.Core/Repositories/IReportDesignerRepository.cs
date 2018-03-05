@@ -2,6 +2,6 @@
 {
     public interface IReportDesignerRepository
     {
-        void AddReportDesign(ReportDesign reportDesign);
+        void AddReportDesign(ReportCardDesign reportDesign);
     }
 }

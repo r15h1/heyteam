@@ -4,9 +4,9 @@ using System.Linq;
 
 namespace HeyTeam.Core
 {
-    public class ReportHeadline
+    public class ReportCardHeadline
     {
-        public ReportHeadline(Guid reportDesignGuid, Guid? reportCardHeadlineId)
+        public ReportCardHeadline(Guid reportDesignGuid, Guid? reportCardHeadlineId)
         {
             ReportDesignGuid = reportDesignGuid;
             Guid = reportCardHeadlineId ?? System.Guid.NewGuid();
@@ -16,9 +16,9 @@ namespace HeyTeam.Core
         public Guid? Guid { get; }
         public string Title { get; set; }
         public short SortOrder { get; set; }
-        public ICollection<ReportArea> ReportAreas{ get; } = new List<ReportArea>();
+        public ICollection<ReportCardArea> ReportAreas{ get; } = new List<ReportCardArea>();
 
-        public void AddReportArea(ReportArea reportArea)
+        public void AddReportArea(ReportCardArea reportArea)
         {
             if (reportArea != null && !ReportAreas.Any(h => h.Guid == reportArea.Guid))
                 ReportAreas.Add(reportArea);

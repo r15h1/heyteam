@@ -2,9 +2,9 @@
 
 namespace HeyTeam.Core
 {
-    public class ReportSkill
+    public class ReportCardSkill
     {
-        public ReportSkill(Guid reportAreaId, Guid? reportSkillId = null)
+        public ReportCardSkill(Guid reportAreaId, Guid? reportSkillId = null)
         {
             this.ReportCardHeadlineId = reportAreaId;
             Guid = reportSkillId ?? System.Guid.NewGuid();

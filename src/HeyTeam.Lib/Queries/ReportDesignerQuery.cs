@@ -19,7 +19,7 @@ namespace HeyTeam.Lib.Queries
             this.connectionFactory = factory;
         }
 
-        public ReportDesign GetReportCardDesign(Guid reportDesignId)
+        public ReportCardDesign GetReportCardDesign(Guid reportDesignId)
         {
             string sql = $@"SELECT R.Guid AS DesignGuid, C.Guid AS ClubGuid, R.Name
                             FROM ReportCardDesigns R 
@@ -33,8 +33,8 @@ namespace HeyTeam.Lib.Queries
             {
                 connection.Open();
                 var reader = connection.Query(sql, p).Cast<IDictionary<string, object>>();
-                var design = reader.Select<dynamic, ReportDesign>(
-                        row => new ReportDesign(Guid.Parse(row.ClubGuid.ToString()), Guid.Parse(row.DesignGuid.ToString()))
+                var design = reader.Select<dynamic, ReportCardDesign>(
+                        row => new ReportCardDesign(Guid.Parse(row.ClubGuid.ToString()), Guid.Parse(row.DesignGuid.ToString()))
                         {
                             Name = row.Name
                         }).SingleOrDefault();
@@ -43,7 +43,7 @@ namespace HeyTeam.Lib.Queries
             }
         }
 
-        public IEnumerable<ReportDesign> GetReportCardDesigns(Guid clubId, string name = null)
+        public IEnumerable<ReportCardDesign> GetReportCardDesigns(Guid clubId, string name = null)
         {
             string sql = $@"SELECT R.Guid AS DesignGuid, C.Guid AS ClubGuid, R.Name
                             FROM ReportCardDesigns R 
@@ -61,8 +61,8 @@ namespace HeyTeam.Lib.Queries
             {
                 connection.Open();
                 var reader = connection.Query(sql, p).Cast<IDictionary<string, object>>();
-                var designs = reader.Select<dynamic, ReportDesign>(
-                        row => new ReportDesign(Guid.Parse(row.ClubGuid.ToString()), Guid.Parse(row.DesignGuid.ToString()))
+                var designs = reader.Select<dynamic, ReportCardDesign>(
+                        row => new ReportCardDesign(Guid.Parse(row.ClubGuid.ToString()), Guid.Parse(row.DesignGuid.ToString()))
                         {
                             Name = row.Name
                         }).ToList();

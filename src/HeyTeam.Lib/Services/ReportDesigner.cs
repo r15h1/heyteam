@@ -50,7 +50,7 @@ namespace HeyTeam.Lib.Services
                 return (Guid.Empty, Response.CreateResponse(new IllegalOperationException("There is already a report design with this name")));
 
             try {
-                var design = new ReportDesign(request.ClubId) {
+                var design = new ReportCardDesign(request.ClubId) {
                     Name = request.Name
                 };
                 reportDesignerRepository.AddReportDesign(design);

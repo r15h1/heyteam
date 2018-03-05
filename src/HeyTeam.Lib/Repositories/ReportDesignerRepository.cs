@@ -16,7 +16,7 @@ namespace HeyTeam.Lib.Repositories
             this.connectionFactory = factory;
         }
 
-        public void AddReportDesign(ReportDesign reportDesign)
+        public void AddReportDesign(ReportCardDesign reportDesign)
         {
             string sql = @"INSERT INTO ReportCardDesigns(Guid, Name, ClubId) 
                     VALUES( @ReportCardDesignGuid, @Name, 
