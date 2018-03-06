@@ -3,6 +3,7 @@ using HeyTeam.Core.Identity;
 using HeyTeam.Core.Models;
 using HeyTeam.Core.Queries;
 using HeyTeam.Core.Repositories;
+using HeyTeam.Core.Search;
 using HeyTeam.Core.Services;
 using HeyTeam.Core.Validation;
 using HeyTeam.Identity;
@@ -11,6 +12,7 @@ using HeyTeam.Identity.Seeding;
 using HeyTeam.Lib.Data;
 using HeyTeam.Lib.Queries;
 using HeyTeam.Lib.Repositories;
+using HeyTeam.Lib.Search;
 using HeyTeam.Lib.Services;
 using HeyTeam.Lib.Settings;
 using HeyTeam.Lib.Validation;
@@ -159,6 +161,8 @@ namespace HeyTeam.Web {
             services.AddScoped<IReportDesignerRepository, ReportDesignerRepository>();
             services.AddScoped<IValidator<NewReportDesignRequest>, NewReportDesignRequestValidator>();
             services.AddScoped<IReportDesigner, ReportDesigner>();
+
+			//services.AddScoped<ISearchEngine>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

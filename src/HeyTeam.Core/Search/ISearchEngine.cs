@@ -1,5 +1,5 @@
 ﻿namespace HeyTeam.Core.Search {
-	public interface ISearchService
+	public interface ISearchEngine
     {
 		SearchResults Search(SearchCriteria criteria);
     }	

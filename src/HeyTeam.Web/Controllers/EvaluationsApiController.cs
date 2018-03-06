@@ -1,5 +1,6 @@
 ﻿using HeyTeam.Core;
 using HeyTeam.Core.Queries;
+using HeyTeam.Core.Search;
 using HeyTeam.Core.Services;
 using HeyTeam.Web.Models.ApiModels;
 using HeyTeam.Web.Models.EvaluationViewModels;
@@ -16,13 +17,13 @@ namespace HeyTeam.Web.Controllers
     {
         private readonly Club club;
         private readonly IReportDesigner reportDesigner;
-		private readonly IEvaluationQuery evaluationQuery;
+		private readonly ISearchEngine searchEngine;
 
-		public EvaluationsApiController(Club club, IReportDesigner reportDesigner, IEvaluationQuery evaluationQuery)
+		public EvaluationsApiController(Club club, IReportDesigner reportDesigner, ISearchEngine searchEngine)
         {
             this.club = club;
             this.reportDesigner = reportDesigner;
-			this.evaluationQuery = evaluationQuery;
+			this.searchEngine = searchEngine;
 		}
 
         [HttpPost("report-designer/new")]
