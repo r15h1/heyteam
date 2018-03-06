@@ -9,19 +9,19 @@ namespace HeyTeam.Web.Controllers
 {
     [Authorize]
     [Produces("application/json")]
-    [Route("api/report-card-designer")]
-    public class ReportDesignerApiController : Controller
+    [Route("api/reportcard")]
+    public class ReportCardApiController : Controller
     {
         private readonly Club club;
         private readonly IReportDesigner reportDesigner;
 
-        public ReportDesignerApiController(Club club, IReportDesigner reportDesigner)
+        public ReportCardApiController(Club club, IReportDesigner reportDesigner)
         {
             this.club = club;
             this.reportDesigner = reportDesigner;
         }
 
-        [HttpPost("new")]
+        [HttpPost("designer/new")]
         public IActionResult NewReportCardDesign([FromBody] ReportCardDesignViewModel model)
         {
             if(!ModelState.IsValid)

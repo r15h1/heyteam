@@ -82,5 +82,11 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
             var reportDesign = reportDesignerQuery.GetReportCardDesign(reportDesignId);
             return View(reportDesign);
         }
+
+        [HttpGet("player-report-cards")]
+        public IActionResult PlayerReportCards()
+        {            
+            return View();
+        }
     }
 }
