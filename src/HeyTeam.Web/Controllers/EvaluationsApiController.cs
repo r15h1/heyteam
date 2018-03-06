@@ -1,5 +1,7 @@
 ﻿using HeyTeam.Core;
+using HeyTeam.Core.Queries;
 using HeyTeam.Core.Services;
+using HeyTeam.Web.Models.ApiModels;
 using HeyTeam.Web.Models.EvaluationViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,19 +11,21 @@ namespace HeyTeam.Web.Controllers
 {
     [Authorize]
     [Produces("application/json")]
-    [Route("api/reportcard")]
-    public class ReportCardApiController : Controller
+    [Route("api/evaluations")]
+    public class EvaluationsApiController : Controller
     {
         private readonly Club club;
         private readonly IReportDesigner reportDesigner;
+		private readonly IEvaluationQuery evaluationQuery;
 
-        public ReportCardApiController(Club club, IReportDesigner reportDesigner)
+		public EvaluationsApiController(Club club, IReportDesigner reportDesigner, IEvaluationQuery evaluationQuery)
         {
             this.club = club;
             this.reportDesigner = reportDesigner;
-        }
+			this.evaluationQuery = evaluationQuery;
+		}
 
-        [HttpPost("designer/new")]
+        [HttpPost("report-designer/new")]
         public IActionResult NewReportCardDesign([FromBody] ReportCardDesignViewModel model)
         {
             if(!ModelState.IsValid)
@@ -40,5 +44,12 @@ namespace HeyTeam.Web.Controllers
 
             return Ok(result.Guid);
         }        
+
+		[HttpGet("terms")]
+		public IActionResult GetTerms(GenericSearchModel model)
+		{
+			
+			return Ok();
+		}
     }
 }

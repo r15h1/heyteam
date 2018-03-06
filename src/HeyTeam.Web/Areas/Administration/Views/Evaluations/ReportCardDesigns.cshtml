@@ -96,7 +96,7 @@ else
                 $.ajax({
                     method: "POST",
                     contentType: 'application/json',
-                    url: "/api/reportcard/designer/new",
+                    url: "/api/evaluations/report-designer/new",
                     data: JSON.stringify({ "reporCardDesignName": $("#ReporCardDesignName").val() })
                 })
                 .done(function (data) {
