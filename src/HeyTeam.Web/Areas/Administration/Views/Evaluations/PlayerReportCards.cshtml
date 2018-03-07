@@ -1,26 +1,47 @@
-﻿
+﻿@model IEnumerable<SelectListItem>
 <h1>Player Report Cards</h1>
 <h3>Select Term and Squad</h3>
 <div class="row">
     <div class="col-md-12" style="margin-bottom:15px;">
         <div class="form-inline">
             <div class="form-group">
-                <label for="term">Term:</label>
-                <select id="Terms" name="Terms" @*asp-items="Model.Terms" *@ class="form-control"></select>
+                @*<label for="term">Term:</label>*@
+                <select id="terms" name="terms" class="form-control" style="width:200px;"></select>
             </div>
             <div class="form-group">
-                <label for="Squad" class="control-label">Squads:</label>
-                <select id="Squad" name="Month" @*asp-items="Model.Squads" *@ class="form-control"></select>
+                @*<label for="Squad" class="control-label">Squads:</label>*@
+                <select id="squads" name="squads" asp-items="Model" class="form-control" style="width:200px;"></select>
             </div>
         </div>
     </div>
+</div>
+
+<div id="message">No records found</div>
+<div class="table-responsive" style="display:none">
+    <table id="termsTable" class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Squads</th>
+                <th>Starts</th>
+                <th>Ends</th>
+                <th>Location</th>
+                <th>Docs</th>
+                @*<th>Attendance</th>
+                    <th>Review</th>*@
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
 </div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script src="~/lib/select2/dist/js/select2.min.js"></script>
     <script>
-        $('#Terms').select2({
+        $('#squads').select2({ placeholder: 'select squad...' });
+        $('#terms').select2({
             ajax: {
                 url: '/api/evaluations/terms?',
                 data: function (params) {
@@ -30,17 +51,53 @@
                     };
                     return query;
                 },
-                processResults: function (data) { return { results: data }; }
+                processResults: function (data) { return { results: data.results.hits }; }
             },
             minimumInputLength: 1,
-            placeholder: 'select...',
+            placeholder: 'select term...',
             templateResult: resultStyles,
             templateSelection: resultStyles
         });
 
-        function resultStyles(selection) {            
-            return selection.text;            
+        function resultStyles(selection) {
+            if (selection.status && selection.status == "Closed") {
+                return $("<span style='text-decoration: line-through;'>" + selection.text + "</span>");
+            }               
+
+            return selection.text;
         }
+
+        $("#terms").change(updateTable);
+        $("#squads").change(updateTable);
+
+        function updateTable() {
+            var termId = $("#terms").val();    
+            var squadId = $("#squads").val();
+
+            if (squadId != null && termId != null) {
+                $(".table-responsive").hide();
+                $("#termsTable > tbody").empty();
+                $("#message").text("Fetching data, please wait...");
+                $("#message").show();
+                fetchReportCards(termId, squadId);
+            } else {
+                $("#message").text("No records found");
+                $("#message").show();
+            }
+        }
+
+        function fetchReportCards(termId, squadId) {
+            var url = "/api/evaluations/report-cards?termId=" + termId + "&squadId=" + squadId;
+            
+            $.ajax({
+                method: "GET",
+                url: url
+            })
+            .done(function (data) { 
+
+            }
+        }
+
     </script>
 }
 

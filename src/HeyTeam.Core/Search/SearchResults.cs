@@ -1,18 +1,17 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace HeyTeam.Core.Search {
 	public class SearchResults
     {
-		public SearchResults(SearchCriteria searchCriteria){
+		public SearchResults(SearchCriteria searchCriteria, IEnumerable<Hit> hits){
 			SearchCriteria = searchCriteria;
+			Hits = hits ?? new List<Hit>();
 		}
 
 		public SearchCriteria SearchCriteria { get; }
-		public int TotalHitsCount { get; set; }
-		public ICollection<Hit> Hits { get; } = new List<Hit>();
-		public void AddSearchResult(Hit hit) {
-			if (hit != null)
-				Hits.Add(hit);
-		}
+		public int DocumentsFound { get; set; }
+		public int DocumentsReturned { get => Hits.Count(); }
+		public IEnumerable<Hit> Hits { get; }		
 	}
 }

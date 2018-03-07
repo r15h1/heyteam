@@ -6,6 +6,7 @@ using HeyTeam.Web.Models.ApiModels;
 using HeyTeam.Web.Models.EvaluationViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Linq;
 
 namespace HeyTeam.Web.Controllers
@@ -17,13 +18,16 @@ namespace HeyTeam.Web.Controllers
     {
         private readonly Club club;
         private readonly IReportDesigner reportDesigner;
-		private readonly ISearchEngine searchEngine;
+		private readonly ITermSearchEngine termSearchEngine;
+		private readonly IEvaluationQuery evaluationQuery;
 
-		public EvaluationsApiController(Club club, IReportDesigner reportDesigner, ISearchEngine searchEngine)
+		public EvaluationsApiController(Club club, IReportDesigner reportDesigner, 
+			ITermSearchEngine termSearchEngine, IEvaluationQuery evaluationQuery)
         {
             this.club = club;
             this.reportDesigner = reportDesigner;
-			this.searchEngine = searchEngine;
+			this.termSearchEngine = termSearchEngine;
+			this.evaluationQuery = evaluationQuery;
 		}
 
         [HttpPost("report-designer/new")]
@@ -49,8 +53,17 @@ namespace HeyTeam.Web.Controllers
 		[HttpGet("terms")]
 		public IActionResult GetTerms(GenericSearchModel model)
 		{
-			
-			return Ok();
+			var results = termSearchEngine.Search(new SearchCriteria(club.Guid) {
+				Limit = model.Limit, Page = model.Page, 
+				SearchEntity = "term", SearchTerm = model.Query
+			});
+			return Ok(new { results });
 		}
-    }
+
+		[HttpGet("report-cards")]
+		public IActionResult GetReportCards(Guid termId, Guid squadId) {
+			var reportCards = evaluationQuery.GetPlayerReportCards(club.Guid, termId, squadId);
+			return Ok(new { results = reportCards });
+		}
+	}
 }

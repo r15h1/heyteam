@@ -2,6 +2,7 @@
 using HeyTeam.Core.Exceptions;
 using HeyTeam.Core.Queries;
 using HeyTeam.Core.Repositories;
+using HeyTeam.Core.Search;
 using HeyTeam.Core.Services;
 using HeyTeam.Core.Validation;
 using HeyTeam.Util;
@@ -13,12 +14,14 @@ namespace HeyTeam.Lib.Services {
 		private readonly IValidator<TermSetupRequest> setupRequestValidator;
 		private readonly IEvaluationQuery evaluationQuery;
 		private readonly IEvaluationRepository termRepository;
+		private readonly ITermSearchEngine termSearchEngine;
 
 		public EvaluationService(IValidator<TermSetupRequest> setupRequestValidator, IEvaluationQuery evaluationQuery,
-				IEvaluationRepository termRepository) {
+				IEvaluationRepository termRepository, ITermSearchEngine termSearchEngine) {
 			this.setupRequestValidator = setupRequestValidator;
 			this.evaluationQuery = evaluationQuery;
 			this.termRepository = termRepository;
+			this.termSearchEngine = termSearchEngine;
 		}	
 
 		public Response CreateTerm(TermSetupRequest request) {
@@ -37,6 +40,7 @@ namespace HeyTeam.Lib.Services {
 			
 			try{
 				termRepository.AddTerm(request);
+				termSearchEngine.UpdateCache();
 				return Response.CreateSuccessResponse();
 			} catch(Exception ex) {
 				return Response.CreateResponse(ex);

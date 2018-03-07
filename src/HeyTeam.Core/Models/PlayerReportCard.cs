@@ -17,19 +17,23 @@ namespace HeyTeam.Core.Models
         public Guid PlayerId { get; }
         public Guid TermId { get; }
         public Guid ReportCardDesignId { get; }
-        public Guid PlayerReportCardId { get; }
-        public ICollection<PlayerReportCardGrade> PlayerReportCardGrades { get; } = new List<PlayerReportCardGrade>();
-        public void AddReportCardGrade(Guid reportCardSkillId, ReportCardGrade grade)
-        {
-            if(PlayerReportCardGrades.Any(g => g.ReportCardSkillId == reportCardSkillId))
-            {
-                PlayerReportCardGrades.Where(g => g.ReportCardSkillId == reportCardSkillId).Single().ReportCardGrade = grade;
-            } else
-            {
-                PlayerReportCardGrades.Add(new PlayerReportCardGrade(PlayerReportCardId, reportCardSkillId) { ReportCardGrade = grade });
-            }
-        }
+        public Guid PlayerReportCardId { get; }        
     }
+
+	public class PlayerReportCardWithGrades : PlayerReportCard {
+		public PlayerReportCardWithGrades(Guid playerId, Guid termId, Guid reportCardDesignId, Guid? playerReportCardId = null) 
+			: base(playerId, termId, reportCardDesignId, playerReportCardId) {
+		}
+
+		public ICollection<PlayerReportCardGrade> PlayerReportCardGrades { get; } = new List<PlayerReportCardGrade>();
+		public void AddReportCardGrade(Guid reportCardSkillId, ReportCardGrade grade) {
+			if (PlayerReportCardGrades.Any(g => g.ReportCardSkillId == reportCardSkillId)) {
+				PlayerReportCardGrades.Where(g => g.ReportCardSkillId == reportCardSkillId).Single().ReportCardGrade = grade;
+			} else {
+				PlayerReportCardGrades.Add(new PlayerReportCardGrade(PlayerReportCardId, reportCardSkillId) { ReportCardGrade = grade });
+			}
+		}
+	}
 
     public class PlayerReportCardGrade
     {

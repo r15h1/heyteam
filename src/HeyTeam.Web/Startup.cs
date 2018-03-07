@@ -162,7 +162,7 @@ namespace HeyTeam.Web {
             services.AddScoped<IValidator<NewReportDesignRequest>, NewReportDesignRequestValidator>();
             services.AddScoped<IReportDesigner, ReportDesigner>();
 
-			//services.AddScoped<ISearchEngine>();
+			services.AddScoped<ITermSearchEngine, TermSearchEngine>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

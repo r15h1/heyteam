@@ -8,5 +8,6 @@ namespace HeyTeam.Lib
     {
 		public static readonly string LIBRARY_TRAINING_MATERIALS = "LIBRARY_TRAINING_MATERIALS";
 		public static readonly string PLAYERS_SEACH_BY_NAME = "PLAYERS_SEACH_BY_NAME";
+		public static readonly string TERM_LIST = "TERM_LIST";
 	}
 }

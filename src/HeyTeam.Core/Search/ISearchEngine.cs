@@ -2,5 +2,6 @@
 	public interface ISearchEngine
     {
 		SearchResults Search(SearchCriteria criteria);
+		void UpdateCache();
     }	
 }

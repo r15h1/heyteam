@@ -4,7 +4,10 @@ using HeyTeam.Core.Services;
 using HeyTeam.Web.Models.EvaluationViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace HeyTeam.Web.Areas.Administration.Controllers {
 	[Authorize(Policy = "Administrator")]
@@ -16,15 +19,17 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 		private readonly IEvaluationService evaluationService;
 		private readonly IEvaluationQuery evaluationQuery;
         private readonly IReportDesignerQuery reportDesignerQuery;
+		private readonly ISquadQuery squadQuery;
 
-        public EvaluationsController(Club club, IEvaluationService evaluationService, 
-            IEvaluationQuery evaluationQuery, IReportDesignerQuery reportDesignerQuery)
+		public EvaluationsController(Club club, IEvaluationService evaluationService, 
+            IEvaluationQuery evaluationQuery, IReportDesignerQuery reportDesignerQuery, ISquadQuery squadQuery)
         {
             this.club = club;
 			this.evaluationService = evaluationService;
 			this.evaluationQuery = evaluationQuery;
             this.reportDesignerQuery = reportDesignerQuery;
-        }
+			this.squadQuery = squadQuery;
+		}
 
         [HttpGet("")]
 		[HttpGet("terms")]
@@ -85,8 +90,17 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 
         [HttpGet("player-report-cards")]
         public IActionResult PlayerReportCards()
-        {            
-            return View();
+        {
+			var squads = GetSquadList().OrderBy(s => s.Text).Prepend(new SelectListItem { Text = "select squad...", Value = "", Selected = true, Disabled = true}).ToList();
+			return View(squads);
         }
-    }
+
+		private IEnumerable<SelectListItem> GetSquadList() {
+			var clubSquads = squadQuery.GetSquads(club.Guid);
+			var squadList = clubSquads.Select(s => new SelectListItem { Text = $"{s.Name}", Value = s.Guid.ToString() })
+									.OrderBy(s => s.Text)
+									.ToList();
+			return squadList;
+		}
+	}
 }

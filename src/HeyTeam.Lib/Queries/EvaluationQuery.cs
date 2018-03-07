@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using HeyTeam.Core;
+using HeyTeam.Core.Models;
 using HeyTeam.Core.Queries;
 using HeyTeam.Lib.Data;
 using HeyTeam.Util;
@@ -15,6 +16,10 @@ namespace HeyTeam.Lib.Queries {
         {
             this.factory = factory;
         }
+
+		public IEnumerable<PlayerReportCard> GetPlayerReportCards(Guid clubId, Guid termId, Guid squadId) {
+			throw new NotImplementedException();
+		}
 
 		public Term GetTerm(Guid termId) {
             string sql = $@"SELECT E.Guid AS TermGuid, C.Guid AS ClubGuid, E.Title, E.TermStatusId,
