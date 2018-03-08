@@ -18,7 +18,33 @@ namespace HeyTeam.Lib.Queries {
         }
 
 		public IEnumerable<PlayerReportCard> GetPlayerReportCards(Guid clubId, Guid termId, Guid squadId) {
-			throw new NotImplementedException();
+			string sql = @"SELECT P.FirstName, P.LastName, P.SquadNumber, P.Guid AS PlayerGuid, 
+						PRC.[Guid] AS PlayerReportCardGuid
+						FROM Players P
+						INNER JOIN Squads S ON P.SquadId = S.SquadId
+						INNER JOIN Clubs C ON C.ClubId = S.ClubId
+						LEFT JOIN[PlayerReportCards] PRC ON P.PlayerId = PRC.PlayerId
+						LEFT JOIN EvaluationTerms ET ON ET.TermId = PRC.TermId AND(ET.Deleted IS NULL OR ET.Deleted = 0) AND ET.Guid = @TermGuid
+						WHERE C.Guid = @ClubGuid AND S.Guid = @SquadGuid";
+
+			DynamicParameters p = new DynamicParameters();
+			p.Add("@ClubGuid", clubId.ToString());
+			p.Add("@SquadGuid", squadId.ToString());
+			p.Add("@TermGuid", termId.ToString());
+
+			using (var connection = factory.Connect()) {
+				connection.Open();
+				var reportCards = connection.Query(sql, p).Cast<IDictionary<string, object>>().Select<dynamic, PlayerReportCard>(
+						row => new PlayerReportCard(
+								Guid.Parse(row.PlayerGuid.ToString()),
+								(row.PlayerReportCardGuid != null ? Guid.Parse(row.PlayerReportCardGuid.ToString()) : null )) 
+						{
+							PlayerName = $"{row.FirstName} {row.LastName}",
+							SquadNumber = row.SquadNumber
+						}).ToList();
+
+				return reportCards;
+			}
 		}
 
 		public Term GetTerm(Guid termId) {

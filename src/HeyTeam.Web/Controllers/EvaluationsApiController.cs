@@ -61,9 +61,14 @@ namespace HeyTeam.Web.Controllers
 		}
 
 		[HttpGet("report-cards")]
-		public IActionResult GetReportCards(Guid termId, Guid squadId) {
+		public IActionResult GetReportCards(Guid termId, Guid squadId) {			
+			var term = evaluationQuery.GetTerm(termId);
 			var reportCards = evaluationQuery.GetPlayerReportCards(club.Guid, termId, squadId);
-			return Ok(new { results = reportCards });
+			return Ok(new { term = new { startDate = term.StartDate, endDate = term.EndDate, 
+										title = term.Title,  status = term.TermStatus.ToString()
+									},
+						results = reportCards }
+					);
 		}
 	}
 }

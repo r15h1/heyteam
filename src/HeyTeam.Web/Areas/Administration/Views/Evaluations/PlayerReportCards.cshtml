@@ -18,22 +18,36 @@
 
 <div id="message">No records found</div>
 <div class="table-responsive" style="display:none">
-    <table id="termsTable" class="table table-bordered table-hover">
+    <table id="reportCardsTable" class="table table-bordered table-hover">
         <thead>
             <tr>
-                <th>Title</th>
-                <th>Squads</th>
-                <th>Starts</th>
-                <th>Ends</th>
-                <th>Location</th>
-                <th>Docs</th>
-                @*<th>Attendance</th>
-                    <th>Review</th>*@
-                <th>Action</th>
+                <th class="col-md-5">Player Name</th>
+                <th class="text-center col-md-1">Squad#</th>
+                <th class="text-center col-md-1">Report Card</th>
+                <th class="text-center col-md-3">Action</th>
             </tr>
         </thead>
         <tbody></tbody>
     </table>
+</div>
+
+<div class="modal fade" id="reportModal" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Modal Header</h4>
+            </div>
+            <div class="modal-body">
+                <p>Some text in the modal.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
 </div>
 
 @section Scripts {
@@ -76,7 +90,7 @@
 
             if (squadId != null && termId != null) {
                 $(".table-responsive").hide();
-                $("#termsTable > tbody").empty();
+                $("#reportCardsTable > tbody").empty();
                 $("#message").text("Fetching data, please wait...");
                 $("#message").show();
                 fetchReportCards(termId, squadId);
@@ -94,8 +108,70 @@
                 url: url
             })
             .done(function (data) {
-
+                if (data.results.length == 0) {
+                    $(".table-responsive").hide();
+                    $("#message").show();
+                    $("#message").text("No records found");
+                } else {
+                    displayReportCards(data);    
+                }                
             });
+        }
+
+        function displayReportCards(data) {
+            var reportCards = data.results;
+            var term = data.term;
+            var isTermOpen = (data.term.status == "Open");
+
+            for (var i = 0; i < reportCards.length; i++) {
+                var reportCard = reportCards[i];
+                var actionDropdown = "", actionDropDownOptions = "";              
+
+                if (reportCard.reportCardExists) {
+                    actionDropDownOptions += "<li><a href='#' class='viewReport'><span class='glyphicon glyphicon glyphicon glyphicon-eye-open' aria-hidden='true'></span> View</a></li>";
+                    actionDropDownOptions += "<li><a href='#' class='printReport'><span class='glyphicon glyphicon glyphicon-print' aria-hidden='true'></span> Print</a></li>";                    
+                }
+                if (isTermOpen == true && reportCard.reportCardExists == false) {
+                    actionDropDownOptions += "<li><a href='#' class='generateReport' data-toggle='modal' data-target='#reportModal' ><span class='text-default glyphicon glyphicon glyphicon-cog' aria-hidden='true'></span> Generate</a></li>";
+                }
+                if (isTermOpen == true && reportCard.reportCardExists == true) {
+                    actionDropDownOptions += "<li><a href='#' class='deleteReport'><span class='text-danger glyphicon glyphicon glyphicon-remove' aria-hidden='true'></span> Delete</a></li>";
+                }                
+
+                if (actionDropDownOptions.length > 0) {
+                    actionDropdown = "<div class='dropdown'>" +
+                        "<button class='btn btn-default dropdown-toggle btn-sm' type='button' id='dropdownMenu1' data-toggle='dropdown' aria- haspopup='true' aria-expanded='true' >" +
+                        "<span class='caret'></span></button><ul class='dropdown-menu dropdown-menu-right' aria-labelledby='dropdownMenu1'>" + actionDropDownOptions + "</ul>";
+                }
+
+                var row = "<tr data-playerid='" + reportCard.playerId + "' data-reportcardid = '" + reportCard.playerReportCardId + "'>";
+
+                if (reportCard.reportCardExists) {
+                    row = row + "<td><a href='#'>" + reportCard.playerName + "</a></td>";
+                } else {
+                    row = row + "<td>" + reportCard.playerName + "</td>";
+                }
+
+                row = row + "<td class='text-center'>" + reportCard.squadNumber + "</td>"; 
+                row = row + "<td class='text-center'>" + (reportCard.reportCardExists ? "<span class='glyphicon glyphicon-ok-circle text-success'></span>" : "") + "</td>";
+                row = row + "<td class='text-center'>" + actionDropdown + "</td></tr>";
+                $("#reportCardsTable > tbody").append(row);
+            }
+            $(".table-responsive").show();
+            $("#message").hide();
+            attachEvents();
+        }
+
+        function attachEvents() {
+            $('a.generateReport').on('click', function (e) {
+                console.log("clicked");
+                var context = getReportCardContext($(this.closest("tr")));
+                console.log(context.playerId + " - " + context.reportCardId);
+            });
+        }        
+
+        function getReportCardContext(record) {
+            return { playerId: record.data('playerid'), reportCardId: record.data('reportcardid') };
         }
 
     </script>
