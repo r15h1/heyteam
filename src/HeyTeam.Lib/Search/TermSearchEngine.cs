@@ -29,9 +29,11 @@ namespace HeyTeam.Lib.Search {
 			}
 
 			var hits = terms?.Where(t => t.Title.ToLowerInvariant().Contains(criteria.SearchTerm.ToLowerInvariant()))
+				.OrderBy(t => t.TermStatus).ThenBy(t => t.Title)
 				.Skip((criteria.Page - 1) * criteria.Limit)
 				.Take(criteria.Limit)
 				.Select(t => new TermHit { Id = t.Guid, Text = t.Title, Status = t.TermStatus.ToString() });
+				
 
 			return new SearchResults(criteria, hits) {
 				DocumentsFound = terms?.Where(t => t.Title.ToLowerInvariant().Contains(criteria.SearchTerm.ToLowerInvariant())).Count() ?? 0
