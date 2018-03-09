@@ -88,6 +88,10 @@ namespace HeyTeam.Lib.Services {
 			throw new NotImplementedException();
 		}
 
-		private bool IsTermClosed(Term term) => term.TermStatus == TermStatus.Closed;        
-    }
+		private bool IsTermClosed(Term term) => term.TermStatus == TermStatus.Closed;
+
+		public (Guid Guid, Response Response) GeneratePlayerReportCard(PlayerReportCardGenerationRequest request) {
+			throw new NotImplementedException();
+		}
+	}
 }

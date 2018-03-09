@@ -21,15 +21,17 @@ namespace HeyTeam.Web.Controllers
 		private readonly IReportDesignerQuery reportDesignerQuery;
 		private readonly ITermSearchEngine termSearchEngine;
 		private readonly IEvaluationQuery evaluationQuery;
+		private readonly IEvaluationService evaluationService;
 
 		public EvaluationsApiController(Club club, IReportDesigner reportDesigner, IReportDesignerQuery reportDesignerQuery,
-			ITermSearchEngine termSearchEngine, IEvaluationQuery evaluationQuery)
+			ITermSearchEngine termSearchEngine, IEvaluationQuery evaluationQuery, IEvaluationService evaluationService)
         {
             this.club = club;
             this.reportDesigner = reportDesigner;
 			this.reportDesignerQuery = reportDesignerQuery;
 			this.termSearchEngine = termSearchEngine;
 			this.evaluationQuery = evaluationQuery;
+			this.evaluationService = evaluationService;
 		}
 
 		[HttpGet("report-designs")]
@@ -80,8 +82,24 @@ namespace HeyTeam.Web.Controllers
 		}
 
 		[HttpPost("report-cards/new")]
-		public IActionResult GenerateReportCards(Guid termId, Guid squadId, Guid playerId, Guid reportDesignId) {
-			return Ok();
+		public IActionResult GenerateReportCards(ReportGenerationModel model) {
+			if(!ModelState.IsValid)
+				return BadRequest(ModelState.Values.SelectMany(e => e.Errors).Select(e => e.ErrorMessage).ToList());
+
+			var result = evaluationService.GeneratePlayerReportCard(
+				new PlayerReportCardGenerationRequest{ 
+					ClubId = club.Guid, 
+					PlayerId=model.PlayerId, 
+					ReportDesignId = model.ReportDesignId,
+					SquadId = model.SquadId,
+					TermId = model.TermId
+				}
+			);
+
+			if (!result.Response.RequestIsFulfilled)
+				return BadRequest(result.Response.Errors);
+
+			return Ok(new { id = result.Guid });
 		}
 	}
 }
