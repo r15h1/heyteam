@@ -78,5 +78,10 @@ namespace HeyTeam.Web.Controllers
 						results = reportCards }
 					);
 		}
+
+		[HttpPost("report-cards/new")]
+		public IActionResult GenerateReportCards(Guid termId, Guid squadId, Guid playerId, Guid reportDesignId) {
+			return Ok();
+		}
 	}
 }

@@ -103,12 +103,10 @@
             }
         }
 
-        function fetchReportCards(termId, squadId) {
-            var url = "/api/evaluations/report-cards?termId=" + termId + "&squadId=" + squadId;
-            
+        function fetchReportCards(termId, squadId) {            
             $.ajax({
                 method: "GET",
-                url: url
+                url: "/api/evaluations/report-cards?termId=" + termId + "&squadId=" + squadId
             })
             .done(function (data) {
                 if (data.results.length == 0) {
@@ -185,10 +183,9 @@
             $('#reportModal').modal({ show: true });
 
             var playerContext = context;
-            var url = "/api/evaluations/report-designs";
             $.ajax({
                 method: "GET",
-                url: url
+                url: "/api/evaluations/report-designs"
             })
             .done(function (data) {
                 if (data.results.length == 0) {
@@ -205,7 +202,6 @@
             console.log("player " + context.playerId);
             if (data.results.length > 0) {
                 dialogBody.empty()
-                    .append("<p class='modal-message'>" + data.results.length + " report template(s) found</p>")
                     .append("<table class='table table-borderless report-template-list'></table>");
 
                 for (var i = 0; i < data.results.length; i++) {
@@ -223,11 +219,28 @@
             }
         }
 
-        function generateReportCard(playerId, reportTemplateId) {
+        function generateReportCard(playerId, reportDesignId) {
             //console.log("player: " + playerId + ", report design id: " + reportTemplateId);
             var termId = termDropdown.val();
             var squadId = squadDropdown.val();
-            $.ajax()
+            updateDialogStatus("Generating report. Please wait...");
+
+            $.ajax({
+                method: "POST",
+                url: "/api/evaluations/report-cards/new",
+                data: { squadId: squadId, termId: termId, playerId: playerId, reportDesignId: reportDesignId }
+            })
+            .done(function (data) {
+                console.log("done generating report");
+                })
+            .fail(function () {
+                updateDialogStatus("There was an error generating the report. Please contact your administrator");
+            });
+        }
+
+        function updateDialogStatus(message) {
+            $("p.status").remove();
+            dialogBody.append("<p class='status'>" + message + "</p>");
         }
 
     </script>
