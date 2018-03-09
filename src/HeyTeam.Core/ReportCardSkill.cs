@@ -14,5 +14,6 @@ namespace HeyTeam.Core
         public Guid? Guid { get; }
         public string Title { get; set; }
         public short SortOrder { get; set; }
+        public ReportCardGrade? Grade { get; set; }
     }
 }

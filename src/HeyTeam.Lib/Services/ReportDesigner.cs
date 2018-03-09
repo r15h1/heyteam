@@ -51,7 +51,7 @@ namespace HeyTeam.Lib.Services
 
             try {
                 var design = new ReportCardDesign(request.ClubId) {
-                    Name = request.Name
+                    DesignName = request.Name
                 };
                 reportDesignerRepository.AddReportDesign(design);
                 return (design.Guid.Value, Response.CreateSuccessResponse());

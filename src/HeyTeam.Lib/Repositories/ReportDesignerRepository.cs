@@ -24,7 +24,7 @@ namespace HeyTeam.Lib.Repositories
 
             DynamicParameters p = new DynamicParameters();
             p.Add("@ReportCardDesignGuid", reportDesign.Guid.ToString());
-            p.Add("@Name", reportDesign.Name);
+            p.Add("@Name", reportDesign.DesignName);
             p.Add("@ClubGuid", reportDesign.ClubId.ToString());
 
             using (var connection = connectionFactory.Connect())

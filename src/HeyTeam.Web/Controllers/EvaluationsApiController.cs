@@ -2,6 +2,7 @@
 using HeyTeam.Core.Queries;
 using HeyTeam.Core.Search;
 using HeyTeam.Core.Services;
+using HeyTeam.Util;
 using HeyTeam.Web.Models.ApiModels;
 using HeyTeam.Web.Models.EvaluationViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -37,7 +38,7 @@ namespace HeyTeam.Web.Controllers
 		[HttpGet("report-designs")]
 		public IActionResult GetReportDesigns() {
 			var reportDesigns = reportDesignerQuery.GetReportCardDesigns(club.Guid);			
-			return Ok(new { results = reportDesigns.Select(r => new { ReportDesignId = r.Guid, Name = r.Name }) });
+			return Ok(new { results = reportDesigns.Select(r => new { ReportDesignId = r.Guid, Name = r.DesignName }) });
 		}
 
 		[HttpPost("report-designs/new")]
@@ -101,5 +102,14 @@ namespace HeyTeam.Web.Controllers
 
 			return Ok(new { id = result.Guid });
 		}
-	}
+
+        [HttpPost("report-cards/{reportCardid:guid}")]
+        public IActionResult GetReportCard(Guid reportCardId)
+        {
+            if (!reportCardId.IsEmpty())
+                return BadRequest("ReportCardId is invalid");            
+
+            return Ok();
+        }
+    }
 }

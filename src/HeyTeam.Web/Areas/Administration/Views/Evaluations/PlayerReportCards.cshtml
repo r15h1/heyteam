@@ -114,12 +114,12 @@
                     $("#message").show();
                     $("#message").text("No records found");
                 } else {
-                    displayReportCards(data);    
+                    displayReportCardList(data);    
                 }                
             });
         }
 
-        function displayReportCards(data) {
+        function displayReportCardList(data) {
             var reportCards = data.results;
             var term = data.term;
             var isTermOpen = (data.term.status == "Open");
@@ -159,10 +159,10 @@
             }
             $(".table-responsive").show();
             $("#message").hide();
-            attachEvents();
+            attachActionDropdownEvents();
         }
 
-        function attachEvents() {
+        function attachActionDropdownEvents() {
             $('a.generateReport').on('click', function (e) {
                 console.log("clicked");
                 var context = getReportCardContext($(this.closest("tr")));
@@ -231,15 +231,26 @@
             })
             .done(function (data) {
                 console.log("done generating report");
-                })
-            .fail(function () {
-                updateDialogStatus("There was an error generating the report. Please contact your administrator");
+                var reportCardContext = { termId: termId, squadId: squadId, playerId: playerId, reportCardId: data.id };
+                displayReportCard(reportCardContext);
+             })
+            .fail(function (jqXHR, textStatus, errorThrown) {
+                updateDialogStatus("There was an error generating the report. Please contact your administrator.\n" + textStatus);
             });
         }
 
+        function displayReportCard(reportCardContext) {
+            dialogHeader.text("Player Report Card");
+            dialogBody.empty();
+            dialog.removeClass("modal-lg").removeClass("modal-sm").addClass("modal-lg");;
+            updateDialogStatus("showing report card for: " + reportCardContext.termId + "<br/>" + reportCardContext.squadId);
+        }
+
+
+
         function updateDialogStatus(message) {
-            $("p.status").remove();
-            dialogBody.append("<p class='status'>" + message + "</p>");
+            $("p.dialogstatus").remove();
+            dialogBody.append("<p class='dialogstatus'>" + message + "</p>");
         }
 
     </script>

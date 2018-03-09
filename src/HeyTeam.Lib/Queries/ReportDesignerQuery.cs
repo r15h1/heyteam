@@ -36,7 +36,7 @@ namespace HeyTeam.Lib.Queries
                 var design = reader.Select<dynamic, ReportCardDesign>(
                         row => new ReportCardDesign(Guid.Parse(row.ClubGuid.ToString()), Guid.Parse(row.DesignGuid.ToString()))
                         {
-                            Name = row.Name
+                            DesignName = row.Name
                         }).SingleOrDefault();
 
                 return design;
@@ -64,7 +64,7 @@ namespace HeyTeam.Lib.Queries
                 var designs = reader.Select<dynamic, ReportCardDesign>(
                         row => new ReportCardDesign(Guid.Parse(row.ClubGuid.ToString()), Guid.Parse(row.DesignGuid.ToString()))
                         {
-                            Name = row.Name
+                            DesignName = row.Name
                         }).ToList();
 
                 return designs;

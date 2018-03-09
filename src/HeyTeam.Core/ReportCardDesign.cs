@@ -6,15 +6,15 @@ namespace HeyTeam.Core
 {
     public class ReportCardDesign
     {
-        public ReportCardDesign(Guid ClubId, Guid? reportCardId = null)
+        public ReportCardDesign(Guid ClubId, Guid? reportCardDesignId = null)
         {
             this.ClubId = ClubId;
-            Guid = reportCardId ?? System.Guid.NewGuid();
+            Guid = reportCardDesignId ?? System.Guid.NewGuid();
         }
 
         public Guid ClubId { get; }
         public Guid? Guid { get; }
-        public string Name { get; set; }
+        public string DesignName { get; set; }
         public ICollection<ReportCardHeadline> ReportHeadlines { get; } = new List<ReportCardHeadline>();
 
         public void AddReportHeadline(ReportCardHeadline headline)
