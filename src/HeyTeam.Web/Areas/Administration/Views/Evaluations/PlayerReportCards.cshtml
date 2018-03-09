@@ -32,7 +32,7 @@
 </div>
 
 <div class="modal fade" id="reportModal" role="dialog">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-sm">
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
@@ -40,7 +40,7 @@
                 <h4 class="modal-title">Modal Header</h4>
             </div>
             <div class="modal-body">
-                <p>Some text in the modal.</p>
+                
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -54,8 +54,11 @@
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script src="~/lib/select2/dist/js/select2.min.js"></script>
     <script>
-        $('#squads').select2({ placeholder: 'select squad...' });
-        $('#terms').select2({
+        var dialogBody = $('#reportModal div.modal-body');
+        var dialogHeader = $('#reportModal h4.modal-title');
+        var dialog = $('#reportModal > div.modal-dialog');
+        var squadDropdown = $('#squads').select2({ placeholder: 'select squad...' });
+        var termDropdown = $('#terms').select2({
             ajax: {
                 url: '/api/evaluations/terms?',
                 data: function (params) {
@@ -81,10 +84,10 @@
             return selection.text;
         }
 
-        $("#terms").change(updateTable);
-        $("#squads").change(updateTable);
+        $("#terms").change(refreshReportCardTable);
+        $("#squads").change(refreshReportCardTable);
 
-        function updateTable() {
+        function refreshReportCardTable() {
             var termId = $("#terms").val();    
             var squadId = $("#squads").val();
 
@@ -132,7 +135,7 @@
                     actionDropDownOptions += "<li><a href='#' class='printReport'><span class='glyphicon glyphicon glyphicon-print' aria-hidden='true'></span> Print</a></li>";                    
                 }
                 if (isTermOpen == true && reportCard.reportCardExists == false) {
-                    actionDropDownOptions += "<li><a href='#' class='generateReport' data-toggle='modal' data-target='#reportModal' ><span class='text-default glyphicon glyphicon glyphicon-cog' aria-hidden='true'></span> Generate</a></li>";
+                    actionDropDownOptions += "<li><a href='#' class='generateReport'><span class='text-default glyphicon glyphicon glyphicon-cog' aria-hidden='true'></span> Generate</a></li>";
                 }
                 if (isTermOpen == true && reportCard.reportCardExists == true) {
                     actionDropDownOptions += "<li><a href='#' class='deleteReport'><span class='text-danger glyphicon glyphicon glyphicon-remove' aria-hidden='true'></span> Delete</a></li>";
@@ -166,12 +169,65 @@
             $('a.generateReport').on('click', function (e) {
                 console.log("clicked");
                 var context = getReportCardContext($(this.closest("tr")));
-                console.log(context.playerId + " - " + context.reportCardId);
+                console.log(context.playerId + " - " + context.reportCardId);  
+                promptTemplateSelection(context);
             });
         }        
 
         function getReportCardContext(record) {
             return { playerId: record.data('playerid'), reportCardId: record.data('reportcardid') };
+        }
+
+        function promptTemplateSelection(context) {
+            dialog.removeClass("modal-lg").removeClass("modal-sm");
+            dialogHeader.text("Select Report Template");
+            dialogBody.empty().append("<p class='modal-message'>Fetching report templates, please wait....</p>");
+            $('#reportModal').modal({ show: true });
+
+            var playerContext = context;
+            var url = "/api/evaluations/report-designs";
+            $.ajax({
+                method: "GET",
+                url: url
+            })
+            .done(function (data) {
+                if (data.results.length == 0) {
+                    $(".table-responsive").hide();
+                    $("#message").show();
+                    $("#message").text("No records found");
+                } else {
+                    displayReportDesigns(data, playerContext);
+                }
+            });
+        }
+
+        function displayReportDesigns(data, context) {
+            console.log("player " + context.playerId);
+            if (data.results.length > 0) {
+                dialogBody.empty()
+                    .append("<p class='modal-message'>" + data.results.length + " report template(s) found</p>")
+                    .append("<table class='table table-borderless report-template-list'></table>");
+
+                for (var i = 0; i < data.results.length; i++) {
+                    var template = data.results[i];
+                    $('.report-template-list').append("<tr data-reporttemplateid='" + template.reportDesignId + "'><td><button type='button' class='btn btn-link report-template-button'>" + template.name + "</button></td></tr>");
+                }
+
+                $(".report-template-button").on("click", function (e) {
+                    var reportTemplateId = $(this).closest('tr').data('reporttemplateid');
+                    generateReportCard(context.playerId, reportTemplateId);
+                });
+
+            } else { 
+                dialogBody.empty().append("<p class='modal-message'>No report template found. Please create a report template.</div>");
+            }
+        }
+
+        function generateReportCard(playerId, reportTemplateId) {
+            //console.log("player: " + playerId + ", report design id: " + reportTemplateId);
+            var termId = termDropdown.val();
+            var squadId = squadDropdown.val();
+            $.ajax()
         }
 
     </script>

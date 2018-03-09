@@ -18,19 +18,27 @@ namespace HeyTeam.Web.Controllers
     {
         private readonly Club club;
         private readonly IReportDesigner reportDesigner;
+		private readonly IReportDesignerQuery reportDesignerQuery;
 		private readonly ITermSearchEngine termSearchEngine;
 		private readonly IEvaluationQuery evaluationQuery;
 
-		public EvaluationsApiController(Club club, IReportDesigner reportDesigner, 
+		public EvaluationsApiController(Club club, IReportDesigner reportDesigner, IReportDesignerQuery reportDesignerQuery,
 			ITermSearchEngine termSearchEngine, IEvaluationQuery evaluationQuery)
         {
             this.club = club;
             this.reportDesigner = reportDesigner;
+			this.reportDesignerQuery = reportDesignerQuery;
 			this.termSearchEngine = termSearchEngine;
 			this.evaluationQuery = evaluationQuery;
 		}
 
-        [HttpPost("report-designer/new")]
+		[HttpGet("report-designs")]
+		public IActionResult GetReportDesigns() {
+			var reportDesigns = reportDesignerQuery.GetReportCardDesigns(club.Guid);			
+			return Ok(new { results = reportDesigns.Select(r => new { ReportDesignId = r.Guid, Name = r.Name }) });
+		}
+
+		[HttpPost("report-designs/new")]
         public IActionResult NewReportCardDesign([FromBody] ReportCardDesignViewModel model)
         {
             if(!ModelState.IsValid)
