@@ -129,7 +129,6 @@
                 var actionDropdown = "", actionDropDownOptions = "";              
 
                 if (reportCard.reportCardExists) {
-                    actionDropDownOptions += "<li><a href='#' class='viewReport'><span class='glyphicon glyphicon glyphicon glyphicon-eye-open' aria-hidden='true'></span> View</a></li>";
                     actionDropDownOptions += "<li><a href='#' class='printReport'><span class='glyphicon glyphicon glyphicon-print' aria-hidden='true'></span> Print</a></li>";                    
                 }
                 if (isTermOpen == true && reportCard.reportCardExists == false) {
@@ -148,13 +147,13 @@
                 var row = "<tr data-playerid='" + reportCard.playerId + "' data-reportcardid = '" + reportCard.playerReportCardId + "'>";
 
                 if (reportCard.reportCardExists) {
-                    row = row + "<td><a href='#'>" + reportCard.playerName + "</a></td>";
+                    row = row + "<td>" + reportCard.playerName + "</td>";
                 } else {
                     row = row + "<td>" + reportCard.playerName + "</td>";
                 }
 
                 row = row + "<td class='text-center'>" + reportCard.squadNumber + "</td>"; 
-                row = row + "<td class='text-center'>" + (reportCard.reportCardExists ? "<span class='glyphicon glyphicon-ok-circle text-success'></span>" : "") + "</td>";
+                row = row + "<td class='text-center'>" + (reportCard.reportCardExists ? "<a href='#'><span class='glyphicon glyphicon glyphicon-file'></span></a>" : "") + "</td>";
                 row = row + "<td class='text-center'>" + actionDropdown + "</td></tr>";
                 $("#reportCardsTable > tbody").append(row);
             }

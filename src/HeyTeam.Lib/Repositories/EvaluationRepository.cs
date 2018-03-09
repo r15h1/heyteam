@@ -41,6 +41,33 @@ namespace HeyTeam.Lib.Repositories {
 			throw new System.NotImplementedException();
 		}
 
+		public Guid GeneratePlayerReportCard(PlayerReportCardGenerationRequest request) {
+			ThrowIf.ArgumentIsNull(request);
+			string sql = @"INSERT INTO PlayerReportCards (
+								TermId, ReportCardDesignId, PlayerId,
+								Guid, CreatedOn, lastModifiedOn)
+							VALUES(	
+								(SELECT TermId FROM EvaluationTerms WHERE Guid = @TermGuid),
+								(SELECT ReportCardDesignId FROM ReportCardDesigns WHERE Guid = @ReportCardDesignGuid),
+								(SELECT PlayerId FROM Players WHERE Guid = @PlayerGuid),
+								@ReportCardGuid, GetDate(), GetDate()
+							);";
+
+			var reportCardGuid = Guid.NewGuid();
+			DynamicParameters p = new DynamicParameters();
+			p.Add("@TermGuid", request.TermId.ToString());			
+			p.Add("@ReportCardDesignGuid", request.ReportDesignId.ToString());
+			p.Add("@ReportCardGuid", reportCardGuid.ToString());
+			p.Add("@PlayerGuid", request.PlayerId.ToString());
+
+			using (var connection = connectionFactory.Connect()) {
+				connection.Open();
+				connection.ExecuteScalar(sql, p);
+			}
+
+			return reportCardGuid;
+		}
+
 		public void UpdateTerm(TermSetupRequest request) {
 			throw new System.NotImplementedException();
 		}

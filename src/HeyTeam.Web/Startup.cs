@@ -161,6 +161,7 @@ namespace HeyTeam.Web {
             services.AddScoped<IReportDesignerRepository, ReportDesignerRepository>();
             services.AddScoped<IValidator<NewReportDesignRequest>, NewReportDesignRequestValidator>();
             services.AddScoped<IReportDesigner, ReportDesigner>();
+			services.AddScoped<IValidator<PlayerReportCardGenerationRequest>, PlayerReportCardGenerationRequestValidator>();
 
 			services.AddScoped<ITermSearchEngine, TermSearchEngine>();
         }

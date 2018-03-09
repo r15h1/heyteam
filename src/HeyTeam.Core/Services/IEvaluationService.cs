@@ -7,7 +7,7 @@ namespace HeyTeam.Core.Services {
 		Response UpdateTerm(TermSetupRequest request);
 		Response DeleteTerm(TermDeleteRequest request);
 		Response UpdateStatus(TermStatusUpdateRequest request);
-		(Guid Guid, Response Response) GeneratePlayerReportCard(PlayerReportCardGenerationRequest request);
+		(Guid? Guid, Response Response) GeneratePlayerReportCard(PlayerReportCardGenerationRequest request);
 	}
 
 	public class PlayerReportCardGenerationRequest {
