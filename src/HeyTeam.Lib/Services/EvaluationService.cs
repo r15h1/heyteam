@@ -133,7 +133,7 @@ namespace HeyTeam.Lib.Services {
 			else if (player.SquadId!= squad.Guid)
 				return (null, Response.CreateResponse(new IllegalOperationException("The specified player does not belong to this squad")));
 
-			var reportDesign = reportDesignerQuery.GetReportCardDesign(request.ReportDesignId);
+			var reportDesign = reportDesignerQuery.GetReportCardDesign(request.ClubId, request.ReportDesignId);
 			if (reportDesign == null)
 				return (null, Response.CreateResponse(new EntityNotFoundException("The specified report design does not exist")));
 			else if(reportDesign.ClubId != club.Guid)

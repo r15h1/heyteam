@@ -6,6 +6,6 @@ namespace HeyTeam.Core.Queries
     public interface IReportDesignerQuery
     {
         IEnumerable<ReportCardDesign> GetReportCardDesigns(Guid clubId, string name = null);
-        ReportCardDesign GetReportCardDesign(Guid reportDesignId);
+        ReportCardDesign GetReportCardDesign(Guid clubId, Guid reportDesignId);
     }
 }

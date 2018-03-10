@@ -84,7 +84,7 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
         [HttpGet("report-card-designer/{reportDesignId:guid}")]
         public IActionResult ReportCardDesigner(Guid reportDesignId)
         {
-            var reportDesign = reportDesignerQuery.GetReportCardDesign(reportDesignId);
+            var reportDesign = reportDesignerQuery.GetReportCardDesign(club.Guid, reportDesignId);
             return View(reportDesign);
         }
 

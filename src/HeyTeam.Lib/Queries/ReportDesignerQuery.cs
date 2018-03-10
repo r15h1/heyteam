@@ -19,16 +19,17 @@ namespace HeyTeam.Lib.Queries
             this.connectionFactory = factory;
         }
 
-        public ReportCardDesign GetReportCardDesign(Guid reportDesignId)
+        public ReportCardDesign GetReportCardDesign(Guid clubId, Guid reportDesignId)
         {
             string sql = $@"SELECT R.Guid AS DesignGuid, C.Guid AS ClubGuid, R.Name
                             FROM ReportCardDesigns R 
-                            INNER JOIN Clubs C ON R.ClubId = C.ClubId
+                            INNER JOIN Clubs C ON R.ClubId = C.ClubId AND C.Guid = @ClubGuid
                             WHERE (R.Deleted IS NULL OR R.Deleted = 0) AND R.Guid = @ReportDesignGuid";
 
             DynamicParameters p = new DynamicParameters();
+            p.Add("@ClubGuid", clubId.ToString());
             p.Add("@ReportDesignGuid", reportDesignId.ToString());
-                        
+
             using (var connection = connectionFactory.Connect())
             {
                 connection.Open();

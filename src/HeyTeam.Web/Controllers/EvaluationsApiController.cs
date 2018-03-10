@@ -103,13 +103,14 @@ namespace HeyTeam.Web.Controllers
 			return Ok(new { id = result.Guid });
 		}
 
-        [HttpPost("report-cards/{reportCardid:guid}")]
+        [HttpGet("report-cards/{reportCardid:guid}")]
         public IActionResult GetReportCard(Guid reportCardId)
         {
-            if (!reportCardId.IsEmpty())
-                return BadRequest("ReportCardId is invalid");            
+            if (reportCardId.IsEmpty())
+                return BadRequest("ReportCardId is invalid");
 
-            return Ok();
+            var evaluation = evaluationQuery.GetPlayerReportCardDetails(club.Guid, reportCardId);
+            return Ok(new { results = evaluation });
         }
     }
 }

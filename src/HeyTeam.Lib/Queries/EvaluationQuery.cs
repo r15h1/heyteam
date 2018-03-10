@@ -1,11 +1,13 @@
 ﻿using Dapper;
 using HeyTeam.Core;
 using HeyTeam.Core.Models;
+using HeyTeam.Core.Models.Mini;
 using HeyTeam.Core.Queries;
 using HeyTeam.Lib.Data;
 using HeyTeam.Util;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 
 namespace HeyTeam.Lib.Queries {
@@ -47,7 +49,49 @@ namespace HeyTeam.Lib.Queries {
 			}
 		}
 
-		public IEnumerable<PlayerReportCard> GetPlayerReportCards(Guid clubId, Guid termId, Guid squadId) {
+        public PlayerEvaluation GetPlayerReportCardDetails(Guid clubId, Guid playerReportCardId)
+        {
+            DynamicParameters p = new DynamicParameters();
+            p.Add("@ClubGuid", clubId.ToString());
+            p.Add("@PlayerReportCardGuid", playerReportCardId.ToString());
+
+            using (var connection = factory.Connect())
+            {
+                connection.Open();
+                var evaluation = FetchReportCardDetails(connection, p);
+
+                return evaluation;
+            }
+        }
+
+        private PlayerEvaluation FetchReportCardDetails(IDbConnection connection, DynamicParameters p)
+        {
+            string sql = @"SELECT P.Guid AS PlayerGuid, P.FirstName, P.LastName, S.Guid AS SquadGuid, S.Name AS SquadName,
+		                            PR.Guid AS PlayerReportCardGuid, C.Name AS ClubName, C.Guid AS ClubGuid, 
+                                    ET.Guid AS TermGuid, ET.Title AS TermName, ET.TermStatusId AS TermStatus      
+                            FROM PlayerReportCards PR
+                            INNER JOIN Players P ON PR.PlayerId = P.PlayerId
+                            INNER JOIN Squads S ON P.SquadId = S.SquadId
+                            INNER JOIN EvaluationTerms ET ON ET.TermId = PR.TermId AND (ET.Deleted IS NULL OR ET.Deleted = 0)                            
+                            INNER JOIN Clubs C ON C.ClubId = ET.ClubId                            
+                            WHERE C.Guid = @ClubGuid AND PR.Guid = @PlayerReportCardGuid";
+
+            var reader = connection.Query(sql, p).Cast<IDictionary<string, object>>();
+            var evaluation = reader.Select<dynamic, PlayerEvaluation>(
+                        row => new PlayerEvaluation()
+                        {
+                            Club = new MiniModel (Guid.Parse(row.ClubGuid.ToString()), row.ClubName),
+                            Player = new MiniModel(Guid.Parse(row.PlayerGuid.ToString()), $"{row.FirstName} {row.LastName}"),
+                            Term = new MiniTerm(Guid.Parse(row.TermGuid.ToString()), row.TermName)
+                            {
+                                Status = ((TermStatus)row.TermStatus).ToString()
+                            }                                                        
+                        }).SingleOrDefault();            
+
+            return evaluation;
+        }
+
+        public IEnumerable<PlayerReportCard> GetPlayerReportCards(Guid clubId, Guid termId, Guid squadId) {
 			string sql = @"SELECT P.FirstName, P.LastName, P.SquadNumber, P.Guid AS PlayerGuid, 
 						PRC.[Guid] AS PlayerReportCardGuid
 						FROM Players P
