@@ -10,7 +10,7 @@ namespace HeyTeam.Core.Models.Mini
             Name = name;
         }
 
-        public Guid Guid { get; private set; }
-        public string Name { get; private set; }
+        public Guid Guid { get; }
+        public string Name { get; }
     }
 }

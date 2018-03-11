@@ -1,5 +1,4 @@
 ﻿using HeyTeam.Core.Models.Mini;
-using System;
 
 namespace HeyTeam.Core.Models
 {

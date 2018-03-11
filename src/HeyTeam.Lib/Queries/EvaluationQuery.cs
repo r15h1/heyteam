@@ -58,18 +58,29 @@ namespace HeyTeam.Lib.Queries {
             using (var connection = factory.Connect())
             {
                 connection.Open();
-                var evaluation = FetchReportCardDetails(connection, p);
+                var evaluation = GetEvaluationContext(connection, p);
+
+                foreach (var headline in GetReportCardHeadlines(connection, p))
+                    evaluation.ReportCard.AddHeadline(headline);
+
+                foreach (var area in GetReportCardAreas(connection, p))
+                    evaluation.ReportCard.AddArea(area);
+
+                foreach(var skill in GetReportCardSkills(connection, p))
+                    evaluation.ReportCard.AddSkill(skill);
 
                 return evaluation;
             }
         }
 
-        private PlayerEvaluation FetchReportCardDetails(IDbConnection connection, DynamicParameters p)
+        private PlayerEvaluation GetEvaluationContext(IDbConnection connection, DynamicParameters p)
         {
             string sql = @"SELECT P.Guid AS PlayerGuid, P.FirstName, P.LastName, S.Guid AS SquadGuid, S.Name AS SquadName,
 		                            PR.Guid AS PlayerReportCardGuid, C.Name AS ClubName, C.Guid AS ClubGuid, 
-                                    ET.Guid AS TermGuid, ET.Title AS TermName, ET.TermStatusId AS TermStatus      
+                                    ET.Guid AS TermGuid, ET.Title AS TermName, ET.TermStatusId AS TermStatus,
+                                    PR.Guid AS PlayerReportCardGuid, RCD.Name AS ReportDesignName, RCD.Guid AS ReportDesignGuid
                             FROM PlayerReportCards PR
+                            INNER JOIN ReportCardDesigns RCD ON RCD.ReportCardDesignId = PR.ReportCardDesignId
                             INNER JOIN Players P ON PR.PlayerId = P.PlayerId
                             INNER JOIN Squads S ON P.SquadId = S.SquadId
                             INNER JOIN EvaluationTerms ET ON ET.TermId = PR.TermId AND (ET.Deleted IS NULL OR ET.Deleted = 0)                            
@@ -85,10 +96,83 @@ namespace HeyTeam.Lib.Queries {
                             Term = new MiniTerm(Guid.Parse(row.TermGuid.ToString()), row.TermName)
                             {
                                 Status = ((TermStatus)row.TermStatus).ToString()
-                            }                                                        
+                            },
+                            ReportCard = new ReportCard(Guid.Parse(row.PlayerReportCardGuid.ToString()))
+                            {
+                                Design = new MiniModel(Guid.Parse(row.ReportDesignGuid.ToString()), row.ReportDesignName)
+                            }
+                            
                         }).SingleOrDefault();            
 
             return evaluation;
+        }
+
+        private IEnumerable<MiniReportCardHeadline> GetReportCardHeadlines(IDbConnection connection, DynamicParameters p)
+        {
+            string sql = @"SELECT RCH.Guid AS HeadlineGuid, RCH.Title AS HeadlineTitle, RCH.SortOrder
+                            FROM PlayerReportCards PR
+                            INNER JOIN ReportCardDesigns RCD ON RCD.ReportCardDesignId = PR.ReportCardDesignId
+                            INNER JOIN Clubs C ON RCD.ClubId = C.ClubId
+                            INNER JOIN ReportCardHeadlines RCH ON RCH.ReportCardDesignId = RCD.ReportCardDesignId AND (RCH.Deleted IS NULL OR RCH.Deleted = 0)
+                            WHERE C.Guid = @ClubGuid AND PR.Guid = @PlayerReportCardGuid
+                            ORDER BY RCH.SortOrder, RCH.Title";
+
+            var reader = connection.Query(sql, p).Cast<IDictionary<string, object>>();
+            var headlines = reader.Select<dynamic, MiniReportCardHeadline>(
+                row => new MiniReportCardHeadline(Guid.Parse(row.HeadlineGuid.ToString()))
+                {
+                    SortOrder = row.SortOrder,
+                    Title = row.HeadlineTitle
+                }
+            );
+            return headlines;
+        }
+
+        private IEnumerable<MiniReportCardArea> GetReportCardAreas(IDbConnection connection, DynamicParameters p)
+        {
+            string sql = @"SELECT	RCH.Guid AS HeadlineGuid, RCA.Guid AS AreaGuid, RCA.SortOrder AS SortOrder, RCA.Title AS AreaTitle
+                            FROM PlayerReportCards PR
+                            INNER JOIN ReportCardDesigns RCD ON RCD.ReportCardDesignId = PR.ReportCardDesignId
+                            INNER JOIN Clubs C ON RCD.ClubId = C.ClubId
+                            INNER JOIN ReportCardHeadlines RCH ON RCH.ReportCardDesignId = RCD.ReportCardDesignId AND (RCH.Deleted IS NULL OR RCH.Deleted = 0)
+                            INNER JOIN ReportCardAreas RCA ON RCH.ReportCardHeadlineId = RCA.ReportCardHeadlineId AND (RCA.Deleted IS NULL OR RCA.Deleted = 0)
+                            WHERE C.Guid = @ClubGuid AND PR.Guid = @PlayerReportCardGuid
+                            ORDER BY RCA.SortOrder, RCA.Title";
+
+            var reader = connection.Query(sql, p).Cast<IDictionary<string, object>>();
+            var areas = reader.Select<dynamic, MiniReportCardArea>(
+                row => new MiniReportCardArea(Guid.Parse(row.AreaGuid.ToString()), Guid.Parse(row.HeadlineGuid.ToString()))
+                {
+                    SortOrder = row.SortOrder,
+                    Title = row.AreaTitle
+                }
+            );
+            return areas;
+        }
+
+        private IEnumerable<MiniReportCardSkill> GetReportCardSkills(IDbConnection connection, DynamicParameters p)
+        {
+            string sql = @"SELECT	RCS.Guid AS SkillGuid, RCA.Guid AS AreaGuid, RCS.Title AS SkillTitle, PRG.ReportCardGradeId
+                            FROM PlayerReportCards PR
+                            INNER JOIN ReportCardDesigns RCD ON RCD.ReportCardDesignId = PR.ReportCardDesignId
+                            INNER JOIN Clubs C ON RCD.ClubId = C.ClubId
+                            INNER JOIN ReportCardHeadlines RCH ON RCH.ReportCardDesignId = RCD.ReportCardDesignId AND (RCH.Deleted IS NULL OR RCH.Deleted = 0)
+                            INNER JOIN ReportCardAreas RCA ON RCH.ReportCardHeadlineId = RCA.ReportCardHeadlineId AND (RCA.Deleted IS NULL OR RCA.Deleted = 0)
+                            INNER JOIN ReportCardSkills RCS ON RCS.ReportCardAreaId = RCA.ReportCardAreaId AND (RCS.Deleted IS NULL OR RCS.Deleted = 0)
+                            LEFT JOIN PlayerReportCardGrades PRG ON PRG.PlayerReportCardId = PR.PlayerReportCardId AND PRG.ReportCardSkillId = RCS.ReportCardSkillId
+                            WHERE C.Guid = @ClubGuid AND PR.Guid = @PlayerReportCardGuid
+                            ORDER BY RCS.Title";
+
+            var reader = connection.Query(sql, p).Cast<IDictionary<string, object>>();
+            var skills = reader.Select<dynamic, MiniReportCardSkill>(
+                row => new MiniReportCardSkill(Guid.Parse(row.SkillGuid.ToString()), Guid.Parse(row.AreaGuid.ToString()))
+                {
+                    //SortOrder = row.SortOrder,
+                    Title = row.SkillTitle,
+                    Grade = row.ReportCardGradeId
+                }
+            );
+            return skills;
         }
 
         public IEnumerable<PlayerReportCard> GetPlayerReportCards(Guid clubId, Guid termId, Guid squadId) {
