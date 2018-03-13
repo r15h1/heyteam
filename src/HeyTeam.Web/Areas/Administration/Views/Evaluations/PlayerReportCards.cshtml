@@ -295,7 +295,11 @@
                         }                        
                     }
                 }
-                attachGradeButtonEvents(playerReportCard);
+                if (playerReportCard.results.term.status == "Open") {
+                    attachGradeButtonEvents(playerReportCard);
+                } else {
+                    $("button.gradeButton").attr("disabled", true);
+                }
 
             } else {
                 dialogBody.empty().append("<p class='modal-message'>Report data could not be retrieved</div>");
