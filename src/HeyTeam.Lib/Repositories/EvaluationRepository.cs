@@ -30,8 +30,7 @@ namespace HeyTeam.Lib.Repositories {
             p.Add("@StartDate", request.StartDate);
             p.Add("@EndDate", request.EndDate);
 
-            using (var connection = connectionFactory.Connect()) {				
-				
+            using (var connection = connectionFactory.Connect()) {
 				connection.Open();
 				connection.Execute(sql, p);
 			}
@@ -41,7 +40,7 @@ namespace HeyTeam.Lib.Repositories {
 			throw new System.NotImplementedException();
 		}
 
-		public Guid GeneratePlayerReportCard(PlayerReportCardGenerationRequest request) {
+		public Guid GeneratePlayerReportCard(GenerateReportCardRequest request) {
 			ThrowIf.ArgumentIsNull(request);
 			string sql = @"INSERT INTO PlayerReportCards (
 								TermId, ReportCardDesignId, PlayerId,
@@ -68,7 +67,46 @@ namespace HeyTeam.Lib.Repositories {
 			return reportCardGuid;
 		}
 
-		public void UpdateTerm(TermSetupRequest request) {
+        public void UpdatePlayerReportCard(UpdateReportCardRequest request)
+        {
+            ThrowIf.ArgumentIsNull(request);
+            string sql = $@"DELETE PlayerReportCardGrades 
+                            WHERE PlayerReportCardId = (SELECT PlayerReportCardId FROM PlayerReportCards WHERE Guid = @PlayerReportCardId)
+                                AND ReportCardSkillId = (SELECT ReportCardSkillId FROM ReportCardSkills WHERE Guid = @ReportCardSkillId);
+                            {(request.ReportCardGrade.HasValue?
+                                @"INSERT INTO PlayerReportCardGrades (PlayerReportCardId, ReportCardSkillId, ReportCardGradeId)
+							    VALUES( (SELECT PlayerReportCardId FROM PlayerReportCards WHERE Guid = @PlayerReportCardId), 
+                                        (SELECT ReportCardSkillId FROM ReportCardSkills WHERE Guid = @ReportCardSkillId), 
+                                        @ReportCardGradeId)"
+                                : "")
+                            };";
+
+            var reportCardGuid = Guid.NewGuid();
+            DynamicParameters p = new DynamicParameters();            
+            p.Add("@PlayerReportCardId", request.ReportCardId.ToString());
+            p.Add("@ReportCardSkillId", request.SkillId.ToString());
+            p.Add("@ReportCardGradeId", (request.ReportCardGrade.HasValue ? (int?)request.ReportCardGrade : null));
+
+            using (var connection = connectionFactory.Connect())
+            {
+                connection.Open();
+                using (var transaction = connection.BeginTransaction())
+                {
+                    try
+                    {                        
+                        connection.Execute(sql, p, transaction);
+                        transaction.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        throw ex;
+                    }
+                }
+            }
+        }
+
+        public void UpdateTerm(TermSetupRequest request) {
 			throw new System.NotImplementedException();
 		}
 	}

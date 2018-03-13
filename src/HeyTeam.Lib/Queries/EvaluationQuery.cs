@@ -19,7 +19,37 @@ namespace HeyTeam.Lib.Queries {
             this.factory = factory;
         }
 
-		public PlayerReportCard GetPlayerReportCard(Guid clubId, Guid termId, Guid squadId, Guid playerId) {
+        public PlayerReportCard GetPlayerReportCard(Guid clubId, Guid reportCardId)
+        {
+            string sql = @"SELECT P.FirstName, P.LastName, P.SquadNumber, P.Guid AS PlayerGuid, 
+						PRC.[Guid] AS PlayerReportCardGuid
+						FROM Players P
+						INNER JOIN Squads S ON P.SquadId = S.SquadId
+						INNER JOIN Clubs C ON C.ClubId = S.ClubId						
+						LEFT JOIN[PlayerReportCards] PRC ON P.PlayerId = PRC.PlayerId
+						WHERE C.Guid = @ClubGuid AND PRC.Guid = @ReportCardId";
+
+            DynamicParameters p = new DynamicParameters();
+            p.Add("@ClubGuid", clubId.ToString());
+            p.Add("@ReportCardId", reportCardId.ToString());
+
+            using (var connection = factory.Connect())
+            {
+                connection.Open();
+                var reportCard = connection.Query(sql, p).Cast<IDictionary<string, object>>().Select<dynamic, PlayerReportCard>(
+                        row => new PlayerReportCard(
+                                Guid.Parse(row.PlayerGuid.ToString()),
+                                (row.PlayerReportCardGuid != null ? Guid.Parse(row.PlayerReportCardGuid.ToString()) : null))
+                        {
+                            PlayerName = $"{row.FirstName} {row.LastName}",
+                            SquadNumber = row.SquadNumber
+                        }).SingleOrDefault();
+
+                return reportCard;
+            }
+        }
+
+        public PlayerReportCard GetPlayerReportCard(Guid clubId, Guid termId, Guid squadId, Guid playerId) {
 			string sql = @"SELECT P.FirstName, P.LastName, P.SquadNumber, P.Guid AS PlayerGuid, 
 						PRC.[Guid] AS PlayerReportCardGuid
 						FROM Players P
@@ -169,7 +199,7 @@ namespace HeyTeam.Lib.Queries {
                 {
                     //SortOrder = row.SortOrder,
                     Title = row.SkillTitle,
-                    Grade = row.ReportCardGradeId
+                    Grade = (ReportCardGrade?)row.ReportCardGradeId
                 }
             );
             return skills;
@@ -262,5 +292,6 @@ namespace HeyTeam.Lib.Queries {
 				return terms;
 			}
 		}
-	}
+         
+    }
 }

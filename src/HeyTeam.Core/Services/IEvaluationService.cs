@@ -7,10 +7,11 @@ namespace HeyTeam.Core.Services {
 		Response UpdateTerm(TermSetupRequest request);
 		Response DeleteTerm(TermDeleteRequest request);
 		Response UpdateStatus(TermStatusUpdateRequest request);
-		(Guid? Guid, Response Response) GeneratePlayerReportCard(PlayerReportCardGenerationRequest request);
-	}
+		(Guid? Guid, Response Response) GeneratePlayerReportCard(GenerateReportCardRequest request);
+        Response UpdatePlayerReportCard(UpdateReportCardRequest request);
+    }
 
-	public class PlayerReportCardGenerationRequest {
+	public class GenerateReportCardRequest {
 		public Guid ClubId { get; set; }
 		public Guid TermId { get; set; }
 		public Guid SquadId{ get; set; }
@@ -18,7 +19,19 @@ namespace HeyTeam.Core.Services {
 		public Guid ReportDesignId { get; set; }
 	}
 
-	public class TermStatusUpdateRequest {
+    public class UpdateReportCardRequest
+    {
+        public Guid ClubId { get; set; }
+        public Guid TermId { get; set; }
+        public Guid SquadId { get; set; }
+        public Guid PlayerId { get; set; }
+        public Guid ReportCardId { get; set; }
+        public Guid? SkillId { get; set; }
+        public ReportCardGrade? ReportCardGrade { get; set; }
+        public string Comments { get; set; }
+    }
+
+    public class TermStatusUpdateRequest {
 		public Guid ClubId { get; set; }
 		public Guid TermId { get; set; }
 		public TermStatus TermStatus { get; set; }

@@ -13,30 +13,32 @@ namespace HeyTeam.Lib.Services {
 	public class EvaluationService : IEvaluationService {
 		private readonly IValidator<TermSetupRequest> setupRequestValidator;
 		private readonly IEvaluationQuery evaluationQuery;
-		private readonly IEvaluationRepository termRepository;
+		private readonly IEvaluationRepository evaluationRepository;
 		private readonly ITermSearchEngine termSearchEngine;
-		private readonly IValidator<PlayerReportCardGenerationRequest> playerReportCardValidator;
+		private readonly IValidator<GenerateReportCardRequest> generateRequestValidator;
 		private readonly IClubQuery clubQuery;
 		private readonly ISquadQuery squadQuery;
 		private readonly IMemberQuery memberQuery;
-		private readonly IEvaluationRepository evaluationRepository;
 		private readonly IReportDesignerQuery reportDesignerQuery;
+        private readonly IValidator<UpdateReportCardRequest> updateReportCardRequestValidator;
 
-		public EvaluationService(IValidator<TermSetupRequest> setupRequestValidator, IEvaluationQuery evaluationQuery,
+        public EvaluationService(IValidator<TermSetupRequest> setupRequestValidator, IEvaluationQuery evaluationQuery,
 				IEvaluationRepository termRepository, ITermSearchEngine termSearchEngine, 
-				IValidator<PlayerReportCardGenerationRequest> playerReportCardValidator, IClubQuery clubQuery,
-				ISquadQuery squadQuery, IMemberQuery memberQuery, IEvaluationRepository evaluationRepository, IReportDesignerQuery reportDesignerQuery) {
+				IValidator<GenerateReportCardRequest> generateRequestValidator, IClubQuery clubQuery,
+				ISquadQuery squadQuery, IMemberQuery memberQuery, IReportDesignerQuery reportDesignerQuery,
+                IValidator<UpdateReportCardRequest> updateReportCardRequestValidator
+        ) {
 			this.setupRequestValidator = setupRequestValidator;
 			this.evaluationQuery = evaluationQuery;
-			this.termRepository = termRepository;
+			this.evaluationRepository = termRepository;
 			this.termSearchEngine = termSearchEngine;
-			this.playerReportCardValidator = playerReportCardValidator;
+			this.generateRequestValidator = generateRequestValidator;
 			this.clubQuery = clubQuery;
 			this.squadQuery = squadQuery;
 			this.memberQuery = memberQuery;
-			this.evaluationRepository = evaluationRepository;
 			this.reportDesignerQuery = reportDesignerQuery;
-		}	
+            this.updateReportCardRequestValidator = updateReportCardRequestValidator;
+        }	
 
 		public Response CreateTerm(TermSetupRequest request) {
 			var evaluationResult = setupRequestValidator.Validate(request);
@@ -53,7 +55,7 @@ namespace HeyTeam.Lib.Services {
 				return Response.CreateResponse(new IllegalOperationException("There can only be one open term at any given time. Please close any existing open term."));
 			
 			try{
-				termRepository.AddTerm(request);
+				evaluationRepository.AddTerm(request);
 				termSearchEngine.UpdateCache();
 				return Response.CreateSuccessResponse();
 			} catch(Exception ex) {
@@ -104,39 +106,19 @@ namespace HeyTeam.Lib.Services {
 
 		private bool IsTermClosed(Term term) => term.TermStatus == TermStatus.Closed;
 
-		public (Guid? Guid, Response Response) GeneratePlayerReportCard(PlayerReportCardGenerationRequest request) {
-			var evaluationResult = playerReportCardValidator.Validate(request);
+		public (Guid? Guid, Response Response) GeneratePlayerReportCard(GenerateReportCardRequest request) {
+			var evaluationResult = generateRequestValidator.Validate(request);
 			if (!evaluationResult.IsValid)
 				return (null, Response.CreateResponse(evaluationResult.Messages));
 
-			var club = clubQuery.GetClub(request.ClubId);
-			if (club == null)
-				return (null, Response.CreateResponse(new EntityNotFoundException("The specified club does not exist")));
+            var response = CheckReportCardRequestIntegrity(request.ClubId, request.SquadId, request.TermId, request.PlayerId);
+            if (!response.RequestIsFulfilled)
+                return (null, response);
 
-			var squad = squadQuery.GetSquad(request.SquadId);
-			if (squad == null)
-				return (null, Response.CreateResponse(new EntityNotFoundException("The specified squad does not exist")));
-			else if(club.Guid != squad.ClubId)
-				return (null, Response.CreateResponse(new IllegalOperationException("The specified squad does not belong to this club")));
-
-			var term = evaluationQuery.GetTerm(request.TermId);
-			if(term == null)
-				return (null, Response.CreateResponse(new EntityNotFoundException("The specified term does not exist")));
-			else if(term.ClubId != club.Guid)
-				return (null, Response.CreateResponse(new IllegalOperationException("The specified term does not belong to this club")));
-			else if (term.TermStatus == TermStatus.Closed)
-				return (null, Response.CreateResponse(new IllegalOperationException("Report cards cannot be generated for closed terms")));
-
-			var player = memberQuery.GetPlayer(request.PlayerId);
-			if (player == null)
-				return (null, Response.CreateResponse(new EntityNotFoundException("The specified player does not exist")));
-			else if (player.SquadId!= squad.Guid)
-				return (null, Response.CreateResponse(new IllegalOperationException("The specified player does not belong to this squad")));
-
-			var reportDesign = reportDesignerQuery.GetReportCardDesign(request.ClubId, request.ReportDesignId);
+            var reportDesign = reportDesignerQuery.GetReportCardDesign(request.ClubId, request.ReportDesignId);
 			if (reportDesign == null)
 				return (null, Response.CreateResponse(new EntityNotFoundException("The specified report design does not exist")));
-			else if(reportDesign.ClubId != club.Guid)
+			else if(reportDesign.ClubId != request.ClubId)
 				return (null, Response.CreateResponse(new IllegalOperationException("The specified report design does not belong to this club")));
 
 			var reportCard = evaluationQuery.GetPlayerReportCard(request.ClubId, request.TermId, request.SquadId, request.PlayerId);
@@ -150,5 +132,60 @@ namespace HeyTeam.Lib.Services {
 				return (null, Response.CreateResponse(ex));
 			}
 		}
-	}
+
+        public Response UpdatePlayerReportCard(UpdateReportCardRequest request)
+        {
+            var evaluationResult = updateReportCardRequestValidator.Validate(request);
+            if (!evaluationResult.IsValid)
+                return Response.CreateResponse(evaluationResult.Messages);
+
+            var response = CheckReportCardRequestIntegrity(request.ClubId, request.SquadId, request.TermId, request.PlayerId);
+            if (response.Errors.Any())
+                return response;
+
+            var reportCard = evaluationQuery.GetPlayerReportCard(request.ClubId, request.ReportCardId);
+            if (reportCard == null || !reportCard.ReportCardExists)
+                return Response.CreateResponse(new EntityNotFoundException("The specified report card does not exist"));
+            else if(reportCard.PlayerId != request.PlayerId)
+                return Response.CreateResponse(new IllegalOperationException("The specified report card does not belong to this player"));
+
+            try
+            {
+                evaluationRepository.UpdatePlayerReportCard(request);
+                return Response.CreateSuccessResponse();
+            }catch(Exception ex)
+            {
+                return Response.CreateResponse(ex);
+            }
+        }
+
+        private Response CheckReportCardRequestIntegrity(Guid clubId, Guid squadId, Guid termId, Guid playerId)
+        {
+            var club = clubQuery.GetClub(clubId);
+            if (club == null)
+                return Response.CreateResponse(new EntityNotFoundException("The specified club does not exist"));
+
+            var squad = squadQuery.GetSquad(squadId);
+            if (squad == null)
+                return Response.CreateResponse(new EntityNotFoundException("The specified squad does not exist"));
+            else if (club.Guid != squad.ClubId)
+                return Response.CreateResponse(new IllegalOperationException("The specified squad does not belong to this club"));
+
+            var term = evaluationQuery.GetTerm(termId);
+            if (term == null)
+                return Response.CreateResponse(new EntityNotFoundException("The specified term does not exist"));
+            else if (term.ClubId != club.Guid)
+                return Response.CreateResponse(new IllegalOperationException("The specified term does not belong to this club"));
+            else if (term.TermStatus == TermStatus.Closed)
+                return Response.CreateResponse(new IllegalOperationException("Report cards cannot be generated for closed terms"));
+
+            var player = memberQuery.GetPlayer(playerId);
+            if (player == null)
+                return Response.CreateResponse(new EntityNotFoundException("The specified player does not exist"));
+            else if (player.SquadId != squad.Guid)
+                return Response.CreateResponse(new IllegalOperationException("The specified player does not belong to this squad"));
+
+            return Response.CreateSuccessResponse();
+        }
+    }
 }

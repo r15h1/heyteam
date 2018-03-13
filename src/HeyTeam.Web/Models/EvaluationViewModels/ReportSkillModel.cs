@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace HeyTeam.Web.Models.EvaluationViewModels
 {
-    public class ReportGenerationModel
+    public class ReportSkillModel
     {
 		[Required]
 		[NotEmpty(ErrorMessage ="SquadId cannot be an empty guid")]
@@ -19,7 +19,9 @@ namespace HeyTeam.Web.Models.EvaluationViewModels
 		public Guid PlayerId { get; set; }
 
 		[Required]
-		[NotEmpty(ErrorMessage = "ReportDesignId cannot be an empty guid")]
-		public Guid ReportDesignId { get; set; }
-	}
+		[NotEmpty(ErrorMessage = "SkillId cannot be an empty guid")]
+		public Guid SkillId { get; set; }
+
+        public int? ReportCardGradeId { get; set; }
+    }
 }

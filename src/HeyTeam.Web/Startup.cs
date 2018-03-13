@@ -161,9 +161,10 @@ namespace HeyTeam.Web {
             services.AddScoped<IReportDesignerRepository, ReportDesignerRepository>();
             services.AddScoped<IValidator<NewReportDesignRequest>, NewReportDesignRequestValidator>();
             services.AddScoped<IReportDesigner, ReportDesigner>();
-			services.AddScoped<IValidator<PlayerReportCardGenerationRequest>, PlayerReportCardGenerationRequestValidator>();
+			services.AddScoped<IValidator<GenerateReportCardRequest>, GenerateReportCardRequestValidator>();
+            services.AddScoped<IValidator<UpdateReportCardRequest>, UpdateReportCardRequestValidator>();
 
-			services.AddScoped<ITermSearchEngine, TermSearchEngine>();
+            services.AddScoped<ITermSearchEngine, TermSearchEngine>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -7,6 +7,7 @@ namespace HeyTeam.Core.Repositories {
 		void AddTerm(TermSetupRequest request);
 		void UpdateTerm(TermSetupRequest request);
 		void DeleteTerm(TermDeleteRequest request);
-		Guid GeneratePlayerReportCard(PlayerReportCardGenerationRequest request);
-	}
+		Guid GeneratePlayerReportCard(GenerateReportCardRequest request);
+        void UpdatePlayerReportCard(UpdateReportCardRequest request);
+    }
 }

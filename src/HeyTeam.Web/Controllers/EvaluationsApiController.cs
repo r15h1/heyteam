@@ -88,7 +88,7 @@ namespace HeyTeam.Web.Controllers
 				return BadRequest(ModelState.Values.SelectMany(e => e.Errors).Select(e => e.ErrorMessage).ToList());
 
 			var result = evaluationService.GeneratePlayerReportCard(
-				new PlayerReportCardGenerationRequest{ 
+				new GenerateReportCardRequest{ 
 					ClubId = club.Guid, 
 					PlayerId=model.PlayerId, 
 					ReportDesignId = model.ReportDesignId,
@@ -103,7 +103,7 @@ namespace HeyTeam.Web.Controllers
 			return Ok(new { id = result.Guid });
 		}
 
-        [HttpGet("report-cards/{reportCardid:guid}")]
+        [HttpGet("report-cards/{reportCardId:guid}")]
         public IActionResult GetReportCard(Guid reportCardId)
         {
             if (reportCardId.IsEmpty())
@@ -111,6 +111,25 @@ namespace HeyTeam.Web.Controllers
 
             var evaluation = evaluationQuery.GetPlayerReportCardDetails(club.Guid, reportCardId);
             return Ok(new { results = evaluation });
+        }
+
+        [HttpPost("report-cards/{reportCardId:guid}")]
+        public IActionResult ReportCardSkill(Guid reportCardId, [FromBody]ReportSkillModel model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState.Values.SelectMany(e => e.Errors).Select(e => e.ErrorMessage).ToList());
+
+            var response = evaluationService.UpdatePlayerReportCard(
+                new UpdateReportCardRequest {
+                    ClubId = club.Guid, SquadId = model.SquadId, TermId = model.TermId,
+                    PlayerId = model.PlayerId, ReportCardId = reportCardId, SkillId = model.SkillId,
+                    ReportCardGrade = (ReportCardGrade?) model.ReportCardGradeId
+            });
+
+            if (!response.RequestIsFulfilled)
+                return BadRequest(response.Errors);
+
+            return Ok();
         }
     }
 }

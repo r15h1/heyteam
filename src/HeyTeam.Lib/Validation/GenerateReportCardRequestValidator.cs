@@ -3,9 +3,9 @@ using HeyTeam.Core.Validation;
 using HeyTeam.Util;
 
 namespace HeyTeam.Lib.Validation {
-	public class PlayerReportCardGenerationRequestValidator : IValidator<PlayerReportCardGenerationRequest> {
-		public ValidationResult<PlayerReportCardGenerationRequest> Validate(PlayerReportCardGenerationRequest request) {
-			var validationResult = new ValidationResult<PlayerReportCardGenerationRequest>(request);
+	public class GenerateReportCardRequestValidator : IValidator<GenerateReportCardRequest> {
+		public ValidationResult<GenerateReportCardRequest> Validate(GenerateReportCardRequest request) {
+			var validationResult = new ValidationResult<GenerateReportCardRequest>(request);
 			if(request == null){
 				validationResult.AddMessage("Request cannot be null");
 				return validationResult;
