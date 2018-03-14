@@ -57,6 +57,7 @@
         var dialogBody = $('#reportModal div.modal-body');
         var dialogHeader = $('#reportModal h4.modal-title');
         var dialog = $('#reportModal > div.modal-dialog');
+        var reportCardTableHtml = "<div class='table-responsive'><table class='table table-bordered table-hover'><tbody class='report-card-table-body'></tbody></table></div>";        
         var squadDropdown = $('#squads').select2({ placeholder: 'select squad...' });
         var termDropdown = $('#terms').select2({
             ajax: {
@@ -74,10 +75,9 @@
             placeholder: 'select term...',
             templateResult: resultStyles,
             templateSelection: resultStyles
-        });
+        });        
 
-        var reportCardTableHtml = "<div class='table-responsive'><table class='table table-bordered table-hover'><tbody class='report-card-table-body'></tbody></table></div>";
-        
+        initialize();
 
         function resultStyles(selection) {
             if (selection.status && selection.status == "Closed") {
@@ -87,8 +87,10 @@
             return selection.text;
         }
 
-        $("#terms").change(refreshReportCardTable);
-        $("#squads").change(refreshReportCardTable);
+        function initialize() {
+            $("#terms").change(refreshReportCardTable);
+            $("#squads").change(refreshReportCardTable);
+        }
 
         function refreshReportCardTable() {
             var termId = $("#terms").val();    
@@ -132,13 +134,13 @@
                 var actionDropdown = "", actionDropDownOptions = "";              
 
                 if (reportCard.reportCardExists) {
-                    actionDropDownOptions += "<li><a href='#' class='printReport'><span class='glyphicon glyphicon glyphicon-print' aria-hidden='true'></span> Print</a></li>";                    
+                    actionDropDownOptions += "<li><button class='btn btn-link printReport'><span class='glyphicon glyphicon glyphicon-print' aria-hidden='true'></span> Print</button></li>";                    
                 }
                 if (isTermOpen == true && reportCard.reportCardExists == false) {
-                    actionDropDownOptions += "<li><a href='#' class='generateReport'><span class='text-default glyphicon glyphicon glyphicon-cog' aria-hidden='true'></span> Generate</a></li>";
+                    actionDropDownOptions += "<li><button class='btn btn-link generateReport'><span class='text-default glyphicon glyphicon glyphicon-cog' aria-hidden='true'></span> Generate</button></li>";
                 }
                 if (isTermOpen == true && reportCard.reportCardExists == true) {
-                    actionDropDownOptions += "<li><a href='#' class='deleteReport'><span class='text-danger glyphicon glyphicon glyphicon-remove' aria-hidden='true'></span> Delete</a></li>";
+                    actionDropDownOptions += "<li><button class='btn btn-link deleteReport'><span class='text-danger glyphicon glyphicon glyphicon-remove' aria-hidden='true'></span> Delete</button></li>";
                 }                
 
                 if (actionDropDownOptions.length > 0) {
@@ -151,7 +153,7 @@
 
                 row = row + "<td>" + reportCard.playerName + "</td>";
                 row = row + "<td class='text-center'>" + reportCard.squadNumber + "</td>"; 
-                row = row + "<td class='text-center'>" + (reportCard.reportCardExists ? "<a href='#' class='showReportCard'><span class='glyphicon glyphicon glyphicon-file'></span></a>" : "") + "</td>";
+                row = row + "<td class='text-center'>" + (reportCard.reportCardExists ? "<button class='btn btn-link showReportCard'><span class='glyphicon glyphicon glyphicon-file'></span></button>" : "") + "</td>";
                 row = row + "<td class='text-center'>" + actionDropdown + "</td></tr>";
                 $("#reportCardsTable > tbody").append(row);
             }
@@ -162,7 +164,7 @@
         }
 
         function attachActionDropdownEvents() {
-            $('a.generateReport').on('click', function (e) {
+            $('button.generateReport').on('click', function (e) {
                 console.log("clicked");
                 var context = getReportCardContext($(this.closest("tr")));
                 console.log(context.playerId + " - " + context.reportCardId);  
@@ -171,7 +173,7 @@
         }      
 
         function attachShowReportCardEvents() {
-            $('a.showReportCard').on('click', function (e) {
+            $('button.showReportCard').on('click', function (e) {
                 console.log("clicked");
                 var context = getReportCardContext($(this.closest("tr")));
                 console.log(context.playerId + " - " + context.reportCardId);
@@ -252,7 +254,7 @@
 
         function showReportIcon(context, reportCardId) {
             context.tableRow.data("reportcardid", reportCardId);
-            context.tableRow.find("td:nth-child(3)").append("<a href='#' class='showReportCard'><span class='glyphicon glyphicon glyphicon-file'></span></a>");
+            context.tableRow.find("td:nth-child(3)").append("<button class='btn btn-link showReportCard'><span class='glyphicon glyphicon glyphicon-file'></span></button>");
             attachShowReportCardEvents();
         }
 
@@ -280,7 +282,9 @@
         function displayReportCard(playerReportCard) {
             $('#reportModal').modal({ show: true });
             if (playerReportCard.results && playerReportCard.results.reportCard.headlines.length > 0) {                 
-                dialogBody.empty().append(reportCardTableHtml);
+                dialogBody.empty().append("<div class='text-right'><a href='print' target='_blank' class='btn btn-default printButton' title='print'><span class='glyphicon glyphicon glyphicon-print'></span></a></div>").append(reportCardTableHtml);
+                dialogHeader.text("Report Card: " + playerReportCard.results.player.name + ", " + playerReportCard.results.term.name);                
+
                 var reportCardTableBody = $(".report-card-table-body");
                 var headlines = playerReportCard.results.reportCard.headlines;                
                 for (var i = 0; i < headlines.length; i++) {
