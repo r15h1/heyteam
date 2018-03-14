@@ -67,46 +67,61 @@ namespace HeyTeam.Lib.Repositories {
 			return reportCardGuid;
 		}
 
-        public void UpdatePlayerReportCard(UpdateReportCardRequest request)
-        {
-            ThrowIf.ArgumentIsNull(request);
-            string sql = $@"DELETE PlayerReportCardGrades 
+        public void UpdatePlayerReportCard(UpdateReportCardRequest request) {
+			ThrowIf.ArgumentIsNull(request);						
+			var command = GetReportCardUpdateCommand(request);
+
+			using (var connection = connectionFactory.Connect()) {
+				connection.Open();
+				using (var transaction = connection.BeginTransaction()) {
+					try {
+						connection.Execute(command.Sql, command.Parameters, transaction);
+						transaction.Commit();
+					} catch (Exception ex) {
+						transaction.Rollback();
+						throw ex;
+					}
+				}
+			}
+		}
+
+		private (string Sql, DynamicParameters Parameters) GetReportCardUpdateCommand(UpdateReportCardRequest request) {
+			string sql = null;
+			DynamicParameters parameters = new DynamicParameters();
+			parameters.Add("@PlayerReportCardId", request.ReportCardId.ToString());
+
+			if (request.SkillId.HasValue) {
+				sql = $@"DELETE PlayerReportCardGrades 
                             WHERE PlayerReportCardId = (SELECT PlayerReportCardId FROM PlayerReportCards WHERE Guid = @PlayerReportCardId)
                                 AND ReportCardSkillId = (SELECT ReportCardSkillId FROM ReportCardSkills WHERE Guid = @ReportCardSkillId);
-                            {(request.ReportCardGrade.HasValue?
-                                @"INSERT INTO PlayerReportCardGrades (PlayerReportCardId, ReportCardSkillId, ReportCardGradeId)
+                            {(request.ReportCardGrade.HasValue ?
+								@"INSERT INTO PlayerReportCardGrades (PlayerReportCardId, ReportCardSkillId, ReportCardGradeId)
 							    VALUES( (SELECT PlayerReportCardId FROM PlayerReportCards WHERE Guid = @PlayerReportCardId), 
                                         (SELECT ReportCardSkillId FROM ReportCardSkills WHERE Guid = @ReportCardSkillId), 
                                         @ReportCardGradeId)"
-                                : "")
-                            };";
+												: "")
+											};";							
+				
+				parameters.Add("@ReportCardSkillId", request.SkillId.ToString());
+				parameters.Add("@ReportCardGradeId", (request.ReportCardGrade.HasValue ? (int?)request.ReportCardGrade : null));
+			} else if(request.Facet != null && !request.Facet.Key.IsEmpty()){
+				sql = $@"DELETE PlayerReportCardFacets 
+                            WHERE PlayerReportCardId = (SELECT PlayerReportCardId FROM PlayerReportCards WHERE Guid = @PlayerReportCardId)
+                                AND FacetKey = @FacetKey;
+                            {(!request.Facet.Value.IsEmpty() ?
+								@"INSERT INTO PlayerReportCardFacets (PlayerReportCardId, FacetKey, FacetValue)
+							    VALUES( (SELECT PlayerReportCardId FROM PlayerReportCards WHERE Guid = @PlayerReportCardId), 
+                                        @FacetKey, @FacetValue)"
+												: "")
+											};";
 
-            var reportCardGuid = Guid.NewGuid();
-            DynamicParameters p = new DynamicParameters();            
-            p.Add("@PlayerReportCardId", request.ReportCardId.ToString());
-            p.Add("@ReportCardSkillId", request.SkillId.ToString());
-            p.Add("@ReportCardGradeId", (request.ReportCardGrade.HasValue ? (int?)request.ReportCardGrade : null));
+				parameters.Add("@FacetKey", request.Facet.Key);
+				parameters.Add("@FacetValue", request.Facet?.Value);
+			}
+			return (sql, parameters);
+		}
 
-            using (var connection = connectionFactory.Connect())
-            {
-                connection.Open();
-                using (var transaction = connection.BeginTransaction())
-                {
-                    try
-                    {                        
-                        connection.Execute(sql, p, transaction);
-                        transaction.Commit();
-                    }
-                    catch (Exception ex)
-                    {
-                        transaction.Rollback();
-                        throw ex;
-                    }
-                }
-            }
-        }
-
-        public void UpdateTerm(TermSetupRequest request) {
+		public void UpdateTerm(TermSetupRequest request) {
 			throw new System.NotImplementedException();
 		}
 	}

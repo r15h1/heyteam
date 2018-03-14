@@ -18,10 +18,11 @@ namespace HeyTeam.Web.Models.EvaluationViewModels
 		[NotEmpty(ErrorMessage = "PlayerId cannot be an empty guid")]
 		public Guid PlayerId { get; set; }
 
-		[Required]
-		[NotEmpty(ErrorMessage = "SkillId cannot be an empty guid")]
-		public Guid SkillId { get; set; }
+		public Guid? SkillId { get; set; }
 
         public int? ReportCardGradeId { get; set; }
-    }
+
+		public string FacetKey{ get; set; }
+		public string FacetValue { get; set; }
+	}
 }

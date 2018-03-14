@@ -99,6 +99,9 @@ namespace HeyTeam.Lib.Queries {
                 foreach(var skill in GetReportCardSkills(connection, p))
                     evaluation.ReportCard.AddSkill(skill);
 
+				foreach(var facet in GetReportCardFacets(connection, p))
+					evaluation.ReportCard.AddFacet(facet.Key, facet.Value);				
+
                 return evaluation;
             }
         }
@@ -204,6 +207,18 @@ namespace HeyTeam.Lib.Queries {
             );
             return skills;
         }
+
+		private IDictionary<string, string> GetReportCardFacets(IDbConnection connection, DynamicParameters p)
+		{
+			string sql = @"SELECT FacetKey, FacetValue 
+							FROM PlayerReportCardFacets F
+							INNER JOIN PlayerReportCards P ON P.PlayerReportCardId = F.PlayerReportCardId AND P.Guid = @PlayerReportCardGuid";
+
+			return connection.Query(sql, p).ToDictionary (
+				row => (string)row.FacetKey,
+				row => (string)row.FacetValue
+			);
+		}
 
         public IEnumerable<PlayerReportCard> GetPlayerReportCards(Guid clubId, Guid termId, Guid squadId) {
 			string sql = @"SELECT P.FirstName, P.LastName, P.SquadNumber, P.Guid AS PlayerGuid, 

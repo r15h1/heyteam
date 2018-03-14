@@ -1,4 +1,6 @@
-﻿using System;
+﻿using HeyTeam.Core.Models;
+using System;
+using System.Collections.Generic;
 
 namespace HeyTeam.Core.Services {
 	public interface IEvaluationService 
@@ -28,7 +30,7 @@ namespace HeyTeam.Core.Services {
         public Guid ReportCardId { get; set; }
         public Guid? SkillId { get; set; }
         public ReportCardGrade? ReportCardGrade { get; set; }
-        public string Comments { get; set; }
+        public ReportCardFacet Facet { get; set; }
     }
 
     public class TermStatusUpdateRequest {

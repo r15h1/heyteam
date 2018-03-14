@@ -1,4 +1,5 @@
 ﻿using HeyTeam.Core;
+using HeyTeam.Core.Models;
 using HeyTeam.Core.Queries;
 using HeyTeam.Core.Search;
 using HeyTeam.Core.Services;
@@ -123,7 +124,8 @@ namespace HeyTeam.Web.Controllers
                 new UpdateReportCardRequest {
                     ClubId = club.Guid, SquadId = model.SquadId, TermId = model.TermId,
                     PlayerId = model.PlayerId, ReportCardId = reportCardId, SkillId = model.SkillId,
-                    ReportCardGrade = (ReportCardGrade?) model.ReportCardGradeId
+                    ReportCardGrade = (ReportCardGrade?) model.ReportCardGradeId,
+					Facet = new ReportCardFacet { Key = model.FacetKey, Value = model.FacetValue }
             });
 
             if (!response.RequestIsFulfilled)

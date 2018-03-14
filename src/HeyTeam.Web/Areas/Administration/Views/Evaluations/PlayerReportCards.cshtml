@@ -54,6 +54,7 @@
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script src="~/lib/select2/dist/js/select2.min.js"></script>
     <script>
+        var facetKeys = { CoachesComments: "CoachesComments", OverallGrade: "OverallGrade", Level: "Level" };
         var dialogBody = $('#reportModal div.modal-body');
         var dialogHeader = $('#reportModal h4.modal-title');
         var dialog = $('#reportModal > div.modal-dialog');
@@ -310,10 +311,26 @@
                         }                        
                     }
                 }
+
+                var facets = playerReportCard.results.reportCard.facets;
+                for (var i = 0; i < facets.length; i++) {
+                    var facet = facets[i];
+                    if (facet.key == facetKeys.CoachesComments) {
+
+                    } else if (facet.key == facetKeys.OverallGrade) {
+                        reportCardTableBody.append(getReportOverallGradeElement(facet.key, facet.value));
+                    } else if (facet.key == facetKeys.Level) {
+                        
+                    }
+                }
+
+
                 if (playerReportCard.results.term.status == "Open") {
                     attachGradeButtonEvents(playerReportCard);
+                    attachFacetButtonEvents(playerReportCard);
                 } else {
                     $("button.gradeButton").attr("disabled", true);
+                    $("button.facetGradeButton").attr("disabled", true);
                 }
 
             } else {
@@ -339,6 +356,15 @@
                 "<td class='col-md-1 text-center'><button data-gradeid='3' data-state='0' class='btn " + (skill.grade == 3 ? "btn-primary" : "btn-default") + " gradeButton'>B</button></td>" +
                 "<td class='col-md-1 text-center'><button data-gradeid='2' data-state='0' class='btn " + (skill.grade == 2 ? "btn-primary" : "btn-default") + " gradeButton'>B+</button></td>" +
                 "<td class='col-md-1 text-center'><button data-gradeid='1' data-state='0' class='btn " + (skill.grade == 1 ? "btn-primary" : "btn-default") + " gradeButton'>A</button></td></tr>";
+        }
+
+        function getReportOverallGradeElement(facetKey, facetValue) {
+            return "<tr data-facetkey='" + facetKey + "' style='border: none!important;'><td colspan='2' style='border: none!important; text-align:right; font-weight:700; color: rgb(196, 14, 14);'>Overall Grade</td>" +                
+                "<td class='col-md-1 text-center'><button data-facetvalue='C' data-state='0' class='btn " + (facetValue == 'C' ? "btn-danger" : "btn-default") + " facetGradeButton'>C</button></td>" +
+                "<td class='col-md-1 text-center'><button data-facetvalue='B-' data-state='0' class='btn " + (facetValue == 'B-' ? "btn-danger" : "btn-default") + " facetGradeButton'>B-</button></td>" +
+                "<td class='col-md-1 text-center'><button data-facetvalue='B' data-state='0' class='btn " + (facetValue == 'B' ? "btn-danger" : "btn-default") + " facetGradeButton'>B</button></td>" +
+                "<td class='col-md-1 text-center'><button data-facetvalue='B+' data-state='0' class='btn " + (facetValue == 'B+' ? "btn-danger" : "btn-default") + " facetGradeButton'>B+</button></td>" +
+                "<td class='col-md-1 text-center'><button data-facetvalue='A' data-state='0' class='btn " + (facetValue == 'A' ? "btn-danger" : "btn-default") + " facetGradeButton'>A</button></td></tr>";
         }
 
         function attachGradeButtonEvents(playerReportCard) {
@@ -372,6 +398,42 @@
                     restoreOriginalState(button);
                     console.log(textStatus);
                 });                
+            });
+        }
+
+        function attachFacetButtonEvents(playerReportCard) {
+            var playerId = playerReportCard.results.player.guid;
+            var reportCardId = playerReportCard.results.reportCard.guid;
+            var termId = playerReportCard.results.term.guid;
+
+            $('button.facetGradeButton').on('click', function (e) {
+                var button = $(this);
+                var buttons = button.closest('tr').find("button");
+                var facetKey = button.closest('tr').data('facetkey');
+                var facetValue = button.data('facetvalue');
+                var currentState = button.data('state');
+                showSpinner(button);
+
+                $.ajax({
+                    method: "POST",
+                    contentType: 'application/json',
+                    url: "/api/evaluations/report-cards/" + reportCardId,
+                    data: JSON.stringify({ SquadId: $("#squads").val(), TermId: termId, PlayerId: playerId, ReportCardId: reportCardId, FacetKey: facetKey, FacetValue: (currentState == 1 ? null : facetValue) })
+                })
+                    .done(function (data) {
+                        clearAttributes(buttons);
+                        $(button).data("state", (currentState == 1 ? 0 : 1));
+                        if (currentState == 0) {
+                            $(button).addClass("btn btn-danger facetGradeButton");
+                        }
+                    })
+                    .fail(function (jqXHR, textStatus, errorThrown) {
+                        clearAttributes(buttons);
+                        $(button).data("state", currentState);
+                        if (currentState == 0) {
+                            $(button).addClass("btn btn-danger facetGradeButton");
+                        }
+                    });
             });
         }
 

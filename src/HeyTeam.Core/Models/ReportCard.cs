@@ -8,7 +8,13 @@ namespace HeyTeam.Core.Models
 {
     public class ReportCard
     {
-        public ReportCard(Guid reportCardId)
+		private readonly IDictionary<string, string> facets = new Dictionary<string, string>() {
+			{ ReportCardFacetKeys.CoachesComments, "" },
+			{ ReportCardFacetKeys.OverallGrade, "" },
+			{ ReportCardFacetKeys.Level, "" },
+		};
+
+		public ReportCard(Guid reportCardId)
         {
             Guid = reportCardId;
         }
@@ -22,7 +28,6 @@ namespace HeyTeam.Core.Models
                 Headlines.Add(headline);
             }
         }
-
         public void AddArea(MiniReportCardArea area)
         {
             if (area != null && !area.Guid.IsEmpty() && !area.HeadlineId.IsEmpty())
@@ -34,7 +39,6 @@ namespace HeyTeam.Core.Models
                 }
             }
         }
-
         public void AddSkill(MiniReportCardSkill skill)
         {
             if (skill != null && !skill.Guid.IsEmpty() && !skill.AreaId.IsEmpty())
@@ -42,6 +46,27 @@ namespace HeyTeam.Core.Models
                 var targetArea = Headlines.SelectMany(h => h.Areas).SingleOrDefault(a => a.Guid == skill.AreaId);
                 targetArea.AddSkill(skill);
             }
-        }
+        }		
+		public IEnumerable<ReportCardFacet> Facets { get => facets.Select(f => new ReportCardFacet { Key = f.Key, Value = f.Value }); } 
+		public void AddFacet(string key, string value) {
+			if(!key.IsEmpty()){
+				if (facets.ContainsKey(key)) {
+					facets[key] = value ?? string.Empty;					
+				} else {
+					facets.Add(key, value ?? string.Empty);
+				}
+			}
+		}
     }
+
+	public class ReportCardFacet{
+		public string Key { get; set; }
+		public string Value { get; set; }
+	}
+
+	public static class ReportCardFacetKeys {
+		public const string CoachesComments = "CoachesComments";
+		public const string OverallGrade = "OverallGrade";
+		public const string Level = "Level";
+	}
 }
