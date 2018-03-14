@@ -282,7 +282,7 @@
         function displayReportCard(playerReportCard) {
             $('#reportModal').modal({ show: true });
             if (playerReportCard.results && playerReportCard.results.reportCard.headlines.length > 0) {                 
-                dialogBody.empty().append("<div class='text-right'><a href='print' target='_blank' class='btn btn-default printButton' title='print'><span class='glyphicon glyphicon glyphicon-print'></span></a></div>").append(reportCardTableHtml);
+                dialogBody.empty().append("<div class='text-right'><a href='player-report-cards/" + playerReportCard.results.reportCard.guid +  "/print' target='_blank' class='btn btn-default printButton' title='print'><span class='glyphicon glyphicon glyphicon-print'></span></a></div>").append(reportCardTableHtml);
                 dialogHeader.text("Report Card: " + playerReportCard.results.player.name + ", " + playerReportCard.results.term.name);                
 
                 var reportCardTableBody = $(".report-card-table-body");
