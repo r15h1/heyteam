@@ -36,8 +36,8 @@ namespace HeyTeam.Core.Models.Mini
         }
 
         public Guid HeadlineId { get; }
-        public ICollection<MiniReportCardItem> Skills { get; } = new List<MiniReportCardItem>();
-        public void AddSkill(MiniReportCardItem skill)
+        public ICollection<MiniReportCardSkill> Skills { get; } = new List<MiniReportCardSkill>();
+        public void AddSkill(MiniReportCardSkill skill)
         {
             if (skill != null && !skill.Guid.IsEmpty() && !Skills.Any(s => s.Guid == skill.Guid))
             {

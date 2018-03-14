@@ -164,12 +164,16 @@
         }
 
         function attachActionDropdownEvents() {
-            $('button.generateReport').on('click', function (e) {
-                console.log("clicked");
-                var context = getReportCardContext($(this.closest("tr")));
-                console.log(context.playerId + " - " + context.reportCardId);  
+            $('button.generateReport').on('click', function (e) {                
+                var context = getReportCardContext($(this.closest("tr")));                
                 promptTemplateSelection(context);
-            });            
+            });      
+
+            $('button.printReport').on('click', function (e) {                        
+                var context = getReportCardContext($(this.closest("tr")));
+                console.log('printing ' + context.reportCardId);
+                window.open('player-report-cards/' + context.reportCardId, '_blank');
+            });      
         }      
 
         function attachShowReportCardEvents() {
@@ -244,7 +248,7 @@
             .done(function (data) {
                 console.log("done generating report");
                 var reportCardContext = { termId: termId, squadId: squadId, playerId: playerId, reportCardId: data.id };
-                showReportIcon(context, data.id);
+                updateRowActionButtons(context, data.id);
                 updateReportCardDialog(reportCardContext);
              })
             .fail(function (jqXHR, textStatus, errorThrown) {
@@ -252,10 +256,17 @@
             });
         }
 
-        function showReportIcon(context, reportCardId) {
+        function updateRowActionButtons(context, reportCardId) {
             context.tableRow.data("reportcardid", reportCardId);
             context.tableRow.find("td:nth-child(3)").append("<button class='btn btn-link showReportCard'><span class='glyphicon glyphicon glyphicon-file'></span></button>");
+
+            context.tableRow.find("ul.dropdown-menu").empty().append(
+                "<li><button class='btn btn-link printReport'><span class='glyphicon glyphicon glyphicon-print' aria-hidden='true'></span> Print</button></li>" +
+                "<li><button class='btn btn-link deleteReport'><span class='text-danger glyphicon glyphicon glyphicon-remove' aria-hidden='true'></span> Delete</button></li>"
+            );
+
             attachShowReportCardEvents();
+            attachActionDropdownEvents();
         }
 
         function updateReportCardDialog(reportCardContext) {
@@ -282,7 +293,7 @@
         function displayReportCard(playerReportCard) {
             $('#reportModal').modal({ show: true });
             if (playerReportCard.results && playerReportCard.results.reportCard.headlines.length > 0) {                 
-                dialogBody.empty().append("<div class='text-right'><a href='player-report-cards/" + playerReportCard.results.reportCard.guid +  "/print' target='_blank' class='btn btn-default printButton' title='print'><span class='glyphicon glyphicon glyphicon-print'></span></a></div>").append(reportCardTableHtml);
+                dialogBody.empty().append("<div class='text-right'><a href='player-report-cards/" + playerReportCard.results.reportCard.guid +  "' target='_blank' class='btn btn-default printButton' title='print'><span class='glyphicon glyphicon glyphicon-print'></span></a></div>").append(reportCardTableHtml);
                 dialogHeader.text("Report Card: " + playerReportCard.results.player.name + ", " + playerReportCard.results.term.name);                
 
                 var reportCardTableBody = $(".report-card-table-body");

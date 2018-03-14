@@ -102,5 +102,11 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 									.ToList();
 			return squadList;
 		}
+
+		[HttpGet("player-report-cards/{playerReportCardId:guid}")]
+		public IActionResult PlayerReportCardDetails(Guid playerReportCardId) {
+			var reportCard = evaluationQuery.GetPlayerReportCardDetails(club.Guid, playerReportCardId);
+			return View(reportCard);
+		}
 	}
 }
