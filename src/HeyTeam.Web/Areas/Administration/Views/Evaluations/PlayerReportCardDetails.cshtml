@@ -89,7 +89,7 @@
     <div class="identification">
         <p><span class="bold blue">Name:  </span>@Model.Player.Name</p>
         <p><span class="bold blue">Term:  </span>@Model.Term.Name</p>
-        <p><span class="bold blue">Level: </span></p>
+        <p><span class="bold blue">Level: </span>@Model.ReportCard.Facets.SingleOrDefault(f => f.Key == ReportCardFacetKeys.Level)?.Value</p>
     </div>
     <h2 class="red">Mapola FC Academy Players Evaluation</h2>
     <p>All grades are specific to the Age Group and the Level that the player is training at.</p>
@@ -137,7 +137,9 @@
     </table>
     <div>
         <p class="bold blue">Coaches Comments</p>
-        <p style="text-align:justify;">is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was</p>
+        <p style="text-align:justify;">
+            @Model.ReportCard.Facets.SingleOrDefault(f => f.Key == ReportCardFacetKeys.CoachesComments)?.Value
+        </p>
     </div>
 </body>
 </html>

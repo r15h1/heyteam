@@ -62,6 +62,7 @@
         var squadDropdown = $('#squads').select2({ placeholder: 'select squad...' });
         var termDropdown = $('#terms').select2({
             ajax: {
+                cache:false,
                 url: '/api/evaluations/terms?',
                 data: function (params) {
                     var query = {
@@ -340,7 +341,7 @@
                     attachGradeButtonEvents(playerReportCard);
                     attachFacetButtonEvents(playerReportCard);
                     toggleEditUpdateButtons(true);
-                    attachEditUpdateButtonEvents();
+                    attachEditUpdateButtonEvents(playerReportCard);
                 } else {
                     $("button.gradeButton").attr("disabled", true);
                     $("button.facetGradeButton").attr("disabled", true);
@@ -386,8 +387,8 @@
                             "<input name='level' type='text' class='form-control level' placeholder='level' readonly value='" + facet.value + "'/>" +                            
                         "</div>";
             } else if (facet.key = facetKeys.CoachesComments) {
-                element = "<div class='form-group'><label for='comments'>Coaches Comments:</label>" +
-                    "<textarea name='coachescomments' class='form-control comments' placeholder='coaches comments' readonly>" + facet.value + "</textarea></div>";
+                element = "<div class='form-group'><label for='comments'>Coaches Comments (450 characters):</label>" +
+                    "<textarea name='coachescomments' maxlength='450' class='form-control comments' placeholder='coaches comments' readonly rows='4'>" + facet.value + "</textarea></div>";
             }
             return element;
         }
@@ -462,18 +463,54 @@
             });
         }
 
-        function attachEditUpdateButtonEvents() {
-            $('button.editButton').on('click', function (e) { 
-                toggleEditUpdateButtons(false);
-                dialogBody.find("div.panel-body input,textarea").removeAttr("readonly");
-                var level = $(".level").val();
-                var comments = $(".comments").val();
+        function attachEditUpdateButtonEvents(playerReportCard) {
+            var playerId = playerReportCard.results.player.guid;
+            var reportCardId = playerReportCard.results.reportCard.guid;
+            var termId = playerReportCard.results.term.guid;
 
-                $('button.cancelButton').on('click', function (e) {
-                    toggleEditUpdateButtons(true);
-                    dialogBody.find("div.panel-body input,textarea").attr("readonly", "readonly");
-                    $(".level").val(level);
-                    $(".comments").val(comments);
+            $('button.editButton').unbind().on('click', function (e) { 
+                toggleEditUpdateButtons(false);                
+                var originalLevel = $(".level").val();
+                var originalComments = $(".comments").val();
+
+                $('button.cancelButton').unbind().on('click', function (e) {
+                    toggleEditUpdateButtons(true);                    
+                    $(".level").val(originalLevel);
+                    $(".comments").val(originalComments);
+                });
+
+                $('button.okButton').unbind().on('click', function (e) {
+                    var newLevel = $(".level").val();
+                    var newComments = $(".comments").val();
+                    if (originalLevel.localeCompare(newLevel) == 0 && originalComments.localeCompare(newComments) == 0) {
+                        toggleEditUpdateButtons(true);
+                    } else {
+                        if (originalLevel.localeCompare(newLevel) != 0) {
+                            $.ajax({
+                                method: "POST",
+                                contentType: 'application/json',
+                                url: "/api/evaluations/report-cards/" + reportCardId,
+                                data: JSON.stringify({ SquadId: $("#squads").val(), TermId: termId, PlayerId: playerId, ReportCardId: reportCardId, FacetKey: facetKeys.Level, FacetValue: newLevel })
+                            }).done(function (data) {
+                                toggleEditUpdateButtons(true);
+                            }).fail(function (jqXHR, textStatus, errorThrown) {
+                                $('button.cancelButton').trigger('click');
+                            });
+                        }
+
+                        if (originalComments.localeCompare(newComments) != 0) {
+                            $.ajax({
+                                method: "POST",
+                                contentType: 'application/json',
+                                url: "/api/evaluations/report-cards/" + reportCardId,
+                                data: JSON.stringify({ SquadId: $("#squads").val(), TermId: termId, PlayerId: playerId, ReportCardId: reportCardId, FacetKey: facetKeys.CoachesComments, FacetValue: newComments })
+                            }).done(function (data) {
+                                toggleEditUpdateButtons(true);
+                            }).fail(function (jqXHR, textStatus, errorThrown) {
+                                $('button.cancelButton').trigger('click');
+                            });
+                        }
+                    }
                 });
             });            
         }
@@ -483,10 +520,12 @@
                 $("button.editButton").show();
                 $("button.okButton").hide();
                 $("button.cancelButton").hide();
+                dialogBody.find("div.panel-body input,textarea").attr("readonly", "readonly");
             } else {
                 $("button.editButton").hide();
                 $("button.okButton").show();
                 $("button.cancelButton").show();
+                dialogBody.find("div.panel-body input,textarea").removeAttr("readonly");
             }
             
         }
