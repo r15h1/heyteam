@@ -20,7 +20,7 @@
                 @foreach (var design in Model)
                 {
                     <tr>
-                        <td><a asp-area="Administration" asp-controller="Evaluations" asp-action="ReportCardDesigner" asp-route-reportDesignId="@design.Guid">@design.Name</a></td>
+                        <td><a asp-area="Administration" asp-controller="Evaluations" asp-action="ReportCardDesigner" asp-route-reportDesignId="@design.Guid">@design.DesignName</a></td>
                     </tr>
                 }
             </tbody>
