@@ -23,24 +23,27 @@ namespace HeyTeam.Lib.Services
 		private readonly CryptographicSettings cryptographicSettings;
 		private readonly IEmailSender emailSender;
 		private readonly IValidator<AccountRequest> accountRequestValidator;
-        private readonly IClubQuery clubQuery;
+        //private readonly IClubQuery clubQuery;
 		private readonly IMemberQuery memberQuery;
 		private readonly IIdentityManager identityManager;
+		private readonly Club club;
 
 		public AccountsService(IDataProtectionProvider dataProtectionProvider, 
 								IOptions<CryptographicConfiguration> cryptographicConfiguration, 
 								IEmailSender emailSender,
 								IValidator<AccountRequest> accountRequestValidator,
-                                IClubQuery clubQuery,
+                                //IClubQuery clubQuery,
 								IMemberQuery memberQuery,
-								IIdentityManager identityManager) {
+								IIdentityManager identityManager,
+								Club club) {
 			this.dataProtectionProvider = dataProtectionProvider;
 			this.cryptographicSettings = cryptographicConfiguration.Value.CryptographicSettings;
 			this.emailSender = emailSender;
 			this.accountRequestValidator = accountRequestValidator;
-            this.clubQuery = clubQuery;
+            //this.clubQuery = clubQuery;
 			this.memberQuery = memberQuery;
 			this.identityManager = identityManager;
+			this.club = club;
 		}
 
 		public Response CreateMemberAccount(MembershipRequest request) {
@@ -52,7 +55,7 @@ namespace HeyTeam.Lib.Services
 			if (!validationResult.IsValid)
 				return Response.CreateResponse(validationResult.Messages);
 
-			var club = clubQuery.GetClub(request.ClubId);
+			//var club = clubQuery.GetClub(request.ClubId);
 			if(club == null)
 				return Response.CreateResponse(new EntityNotFoundException("The specified club does not exist"));
 
@@ -71,7 +74,7 @@ namespace HeyTeam.Lib.Services
 				string message = "<html><body><p>Dear Member,</p>" +
 									"<p>You're invited to join Mapola Online - a platform that Mapola FC uses to manage team's activity, sessions, games and track player performance.</p>" +
 									"<p>Please click on the link below to register.</p>" +
-									$"<p><a href='http://localhost:5000/accounts/register?token={token}' target='_blank'>Register Now</a></p><p>Thank you</p><p>Mapola Admin</p></body></html>";
+									$"<p><a href='{club.Url}/accounts/register?token={token}' target='_blank'>Register Now</a></p><p>Thank you</p><p>Mapola Admin</p></body></html>";
 
 				var emailRequest = new EmailRequest {
 					Subject = "Invitation To Use Mapola Online", 
@@ -90,7 +93,7 @@ namespace HeyTeam.Lib.Services
 			if (!validationResult.IsValid)
 				return Response.CreateResponse(validationResult.Messages);
 
-			var club = clubQuery.GetClub(request.ClubId);
+			//var club = clubQuery.GetClub(request.ClubId);
 			if (club == null)
 				return Response.CreateResponse(new EntityNotFoundException("The specified club does not exist"));
 
@@ -119,7 +122,7 @@ namespace HeyTeam.Lib.Services
 				if (invite.Expiry.Value < DateTime.Today)
 					return (Response.CreateResponse(new IllegalOperationException("The token is expired")), null);
 
-				var club = clubQuery.GetClub(invite.ClubId.Value);
+				//var club = clubQuery.GetClub(invite.ClubId.Value);
 				if (club == null || club.Guid != request.ClubId)
 					return (Response.CreateResponse(new EntityNotFoundException("The token does not correspond to this club")), null);
 

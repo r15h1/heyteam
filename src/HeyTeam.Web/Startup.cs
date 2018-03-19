@@ -83,8 +83,9 @@ namespace HeyTeam.Web {
 			services.AddRouting(options => options.LowercaseUrls = true);
 			services.AddMvc();
 
+			string pathToKeyPersistence = Configuration.GetSection("CryptographicSettings:KeysPersistencePathToFileSystem").Value;
 			services.AddDataProtection()
-				.PersistKeysToFileSystem(new DirectoryInfo(@"C:\Temp\Keys"))
+				.PersistKeysToFileSystem(new DirectoryInfo(pathToKeyPersistence))
 				.SetApplicationName("HeyTeam.Web");
 
 			services.AddAuthorization(options =>
@@ -170,15 +171,15 @@ namespace HeyTeam.Web {
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public  void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
+            //if (env.IsDevelopment())
+            //{
                 app.UseDeveloperExceptionPage();
                 app.UseDatabaseErrorPage();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Home/Error");
-            }
+            //}
+            //else
+            //{
+            //    app.UseExceptionHandler("/Home/Error");
+            //}
 
             app.UseStaticFiles();
             app.UseAuthentication();            

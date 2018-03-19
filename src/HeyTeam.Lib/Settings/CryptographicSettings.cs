@@ -10,5 +10,6 @@ namespace HeyTeam.Lib.Settings
 	public class CryptographicSettings
     {
 		public string RegistrationPurposeKey { get; set; }
+		public string KeysPersistencePathToFileSystem { get; set; }
 	}
 }
