@@ -222,7 +222,7 @@ namespace HeyTeam.Lib.Queries {
 						row => new PlayerIndexedDocument() {
 							PlayerId = Guid.Parse(row.PlayerGuid.ToString()), PlayerName = row.PlayerName, 
 							SearchField = $"{row.PlayerName.ToLowerInvariant()} {row.SquadNumber} {row.SquadName.ToLowerInvariant()}",
-							SquadName = row.SquadName, SquadNumber = row.SquadNumber.ToString()
+							SquadName = row.SquadName, SquadNumber = row.SquadNumber?.ToString()
 						}).ToList();
 
 				return list;			
