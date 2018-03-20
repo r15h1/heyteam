@@ -12,14 +12,14 @@
                         <option value="" disabled="disabled" selected="selected">Select a new coach</option>
                     </select>                   
                     <span class="input-group-btn">
-                        <a asp-controller="Coaches" asp-action="new" asp-route-returnurl="/squads/@Model.SquadId/coach" class="btn btn-default" title="Add a New Coach to the List"><span class="glyphicon glyphicon-plus"></span> </a>
+                        <a asp-area="Administration" asp-controller="Coaches" asp-action="new" asp-route-returnurl="/administration/squads/@Model.SquadId/coach" class="btn btn-default" title="Add a New Coach to the List"><span class="glyphicon glyphicon-plus"></span> </a>
                     </span>                    
                 </div>
                 <span asp-validation-for="SelectedCoach" class="text-danger"></span>
             </div>
 
             <div class="modal-footer">
-                <a href="/squads/@Model.SquadId" class="btn btn-default">Cancel</a>
+                <a asp-action="Index" asp-route-squadid="@Model.SquadId" class="btn btn-default">Cancel</a>
                 <input type="submit" value="Assign Selected Coach" class="btn btn-primary" />
             </div>
         </form>

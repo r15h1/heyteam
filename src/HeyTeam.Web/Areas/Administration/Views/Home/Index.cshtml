@@ -19,7 +19,6 @@
                     <th>Squad Name</th>
                     <th>Coach</th>
                     <th>#Players</th>
-                    <th>#Missing Evaluations</th>
                     <th>Next Session</th>
                 </tr>
             </thead>
@@ -30,7 +29,6 @@
                         <td><a asp-area="Administration" asp-controller="Squads" asp-action="Index" asp-route-squadId="@squad.Cells["squadid"]">@squad.Cells["squadname"]</a></td>
                         <td>@squad.Cells["coach"]</td>
                         <td>@squad.Cells["numberofplayers"]</td>
-                        <td></td>
                         <td></td>
                     </tr>
                 }
