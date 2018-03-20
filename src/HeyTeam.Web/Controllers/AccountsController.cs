@@ -286,7 +286,7 @@ namespace HeyTeam.Web.Controllers {
 
 					await signInManager.SignInAsync(user, isPersistent: false);
 					logger.LogInformation("User created a new account with password.");
-					return RedirectToLocal(returnUrl);
+					return View("RegistrationCompleted");
 				} else {
 					foreach (var error in result.Errors)
 						ModelState.AddModelError(string.Empty, error);
