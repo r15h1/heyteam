@@ -25,6 +25,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.IO;
 
 namespace HeyTeam.Web {
@@ -73,6 +74,8 @@ namespace HeyTeam.Web {
 				 options.LoginPath = "/accounts/login";
 				 options.LogoutPath = "/accounts/logout";
 				 options.AccessDeniedPath = "/accounts/accessdenied";
+				 options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+				 options.SlidingExpiration = true;
 			 }); 
 
 			services.AddMemoryCache();
