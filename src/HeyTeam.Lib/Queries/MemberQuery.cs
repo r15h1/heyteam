@@ -237,14 +237,25 @@ namespace HeyTeam.Lib.Queries {
 			using (var connection = connectionFactory.Connect()) {
 				string sql = @"SELECT S.Name AS SquadName, S.Guid AS SquadGuid 
 								FROM Squads S
-								WHERE S.Guid IN @Squads
-				
+								WHERE S.Guid IN @Squads;
+								
+								SELECT * FROM (
 								SELECT S.Guid AS SquadGuid, 0 AS Membership,
 									P.Guid AS MemberGuid, P.FirstName + ' ' + P.LastName AS MemberName                                    
                                 FROM Players P
                                 INNER JOIN Squads S ON P.SquadId = S.SquadId
                                 WHERE S.Guid IN @Squads
-								ORDER BY P.FirstName, P.LastName";
+								
+								UNION
+
+								SELECT S.Guid AS SquadGuid, 0 AS Membership,
+									C.Guid AS MemberGuid, C.FirstName + ' ' + C.LastName AS MemberName                                    
+                                FROM Coaches C
+								INNER JOIN SquadCoaches SC ON SC.CoachId = C.CoachId
+                                INNER JOIN Squads S ON SC.SquadId = S.SquadId
+                                WHERE S.Guid IN @Squads) T
+								ORDER BY MemberName;
+								";
 				DynamicParameters p = new DynamicParameters();
 				p.Add("@Squads", squads.ToArray());
 				connection.Open();
