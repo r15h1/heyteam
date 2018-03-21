@@ -16,7 +16,10 @@ namespace HeyTeam.Lib.Validation {
 
 			if(request.Title.IsEmpty())
 				validationResult.AddMessage("Title cannot be null");
-				
+
+			if (request.Description.IsEmpty())
+				validationResult.AddMessage("Description cannot be null");
+
 
 			return validationResult;
 		}

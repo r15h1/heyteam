@@ -34,6 +34,7 @@
   <ItemGroup>
     <Folder Include="Areas\Administration\Data\" />
     <Folder Include="Areas\Coaches\Data\" />
+    <Folder Include="Areas\Coaches\Models\" />
     <Folder Include="Areas\Players\Data\" />
     <Folder Include="Areas\Players\Models\" />
   </ItemGroup>

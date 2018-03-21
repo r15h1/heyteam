@@ -22,7 +22,7 @@
     </div>
 </div>
 
-<div class="modal fade" id="myModal" role="dialog">
+<div class="modal fade" id="deleteConfirmationDialog" role="dialog">
     <div class="modal-dialog">
         <!-- Modal content-->
         <div class="modal-content">
@@ -33,7 +33,7 @@
                     <h4 class="modal-title">Confirm Event Deletion</h4>
                 </div>
                 <div class="modal-body">
-                    <p>Do you really want to this event?</p>
+                    <p>Do you really want to delete this event?</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
@@ -43,6 +43,23 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="libraryViewsDialog" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">            
+            <input type="hidden" id="eventId" name="eventId" />
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Training Material Views</h4>
+            </div>
+            <div class="modal-body">
+                <p class="message">Fetching views, please wait...</p>
+                <div class="content table-responsive">abcd</div>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <div id="message" style="display:none"></div>
 <div class="table-responsive">
@@ -56,7 +73,7 @@
                 <th>Location</th>
                 <th>Docs</th>
                 @*<th>Attendance</th>
-                <th>Review</th>*@
+                    <th>Review</th>*@
                 <th>Action</th>
             </tr>
         </thead>
@@ -77,11 +94,11 @@
             $.ajax({
                 method: "POST",
                 url: "events/delete",
-                data : { "eventid": $("#eventId").val() }
+                data: { "eventid": $("#eventId").val() }
             })
-            .done(function (data) {
-                updateTable();
-            });
+                .done(function (data) {
+                    updateTable();
+                });
         });
 
         function updateTable() {
@@ -91,14 +108,14 @@
             $("#message").text("Fetching data, please wait...");
             $("#message").show();
 
-            var url = "/api/events?month=" + date[1] + "&year=" + date[0];
+            var eventsApiUrl = "/api/events?month=" + date[1] + "&year=" + date[0];
             if ($('#Squad').val()) {
-                url = url + "&squad=" + $('#Squad').val();
+                eventsApiUrl = eventsApiUrl + "&squad=" + $('#Squad').val();
             }
 
             $.ajax({
                 method: "GET",
-                url: url
+                url: eventsApiUrl
             })
                 .done(function (data) {
                     var gameEventTypes = [2, 3, 4, 5];
@@ -115,14 +132,14 @@
                             row = row + "<td>" + entry.formattedStartDate + "</td>";
                             row = row + "<td>" + entry.formattedEndDate + "</td>";
                             row = row + "<td>" + entry.location + "</td>";
-                            row = row + "<td>" + entry.trainingMaterialsCount + "</td>";
+                            row = row + "<td class='text-center'><a href='#' class='trainingMaterialViews'>" + entry.trainingMaterialsCount + "</a></td>";
 
                             var endDate = new Date(entry.formattedEndDate);
                             var startDate = new Date(entry.formattedStartDate);
                             var now = new Date();
                             var lastReviewDate = new Date(now.getTime() - (1000 * 60 * 60 * 24 * 30)); //close review 30 days after event
-                            var attendanceStartDate = new Date(startDate.getTime() - (1000 * 60 * 60 * 1)); //display attendance  option 1 hour before game 
-                            var attendanceEndDate = new Date(startDate.getTime() + (1000 * 60 * 60 * 24 * 15)); //hide attendance  option 15 days after game 
+                            var attendanceStartDate = new Date(startDate.getTime() - (1000 * 60 * 60 * 1)); //display attendance  option 1 hour before game
+                            var attendanceEndDate = new Date(startDate.getTime() + (1000 * 60 * 60 * 24 * 15)); //hide attendance  option 15 days after game
 
                             row = row + "<td class='text-center'><div class='dropdown'>" +
                                 "<button class='btn btn-default dropdown-toggle btn-sm' type='button' id='dropdownMenu1' data-toggle='dropdown' aria- haspopup='true' aria-expanded='true' >" +
@@ -137,11 +154,11 @@
                             if (gameEventTypes.includes(entry.eventType) && now > endDate && endDate >= lastReviewDate) {
                                 row = row + "<li><a href='events/" + entry.eventId + "/report'><span class='text-primary glyphicon glyphicon-list-alt'></span> Match Report</a></li>";
                             }
-                            
+
                             if (now > endDate && endDate >= lastReviewDate) {
                                 row = row + "<li><a href='events/" + entry.eventId + "/reviews'><span class='text-primary glyphicon glyphicon-star'></span> Review</a></li>";
-                            } 
-                                
+                            }
+
                             row = row + "<li><a href='#' class='deleteButton'><span class='text-danger glyphicon glyphicon-remove' aria-hidden='true'></span> Delete</a></li>" +
                                 "</ul></div></td>";
 
@@ -149,16 +166,40 @@
                             $("#eventsTable > tbody").append(row);
                         }
 
+                        $('a.trainingMaterialViews').click(
+                            function () {                                
+                                var libraryViewsDialogBody = $("#libraryViewsDialog .modal-body");
+                                var libraryViewsDialogContentArea = libraryViewsDialogBody.find("div.content");
+                                var source = $(this);
+                                var eventId = source.closest("tr").data('id');
+
+                                libraryViewsDialogBody.find("p.message").show();
+                                libraryViewsDialogContentArea.empty();
+                                $('#libraryViewsDialog').modal('show');
+
+                                $.ajax({
+                                    method: "GET",
+                                    url: "/api/events/" + eventId + "/library/views"
+                                }).done(function (data) {                                    
+                                    libraryViewsDialogBody.find("p.message").hide();
+                                    if (data != null && data.results != null) {
+                                        var viewsHtml = buildViewsHtmlTable(data.results);
+                                        libraryViewsDialogContentArea.append(viewsHtml);
+                                    }
+                                });
+                            }
+                        );
+
                         $('a.deleteButton').on('click', function (e) {
                             e.preventDefault();
-                            var id = $(this).closest('tr').data('id');
-                            $('#myModal').data('id', id).modal('show');
+                            var eventId = $(this).closest('tr').data('id');
+                            $('#deleteConfirmationDialog').data('id', eventId).modal('show');
                         });
 
                         $('#ConfirmDeleteButton').click(function () {
-                            var id = $('#myModal').data('id');
-                            $("#eventId").val(id);
-                            $('#myModal').modal('hide');
+                            var eventId = $('#deleteConfirmationDialog').data('id');
+                            $("#eventId").val(eventId);
+                            $('#deleteConfirmationDialog').modal('hide');
                         });
                     } else {
                         $(".table-responsive").hide();
@@ -168,7 +209,51 @@
                 });
         }
 
+        function buildViewsHtmlTable(results) {
+            var table = $("<table class='table table-bordered table-hover'><thead><tr></tr></thead><tbody></tbody></table>");
+            var tableHeader = table.find("thead > tr");
+            var tableBody = table.find("tbody");
+            tableHeader.append("<th class='col-md-4'>Viewer</th>");
+
+            var trainingMaterialsViews = results.trainingMaterialViews;
+            var squads = results.squads;
+
+            for (var i = 0; i < trainingMaterialsViews.length; i++) {
+                var trainingMaterial = trainingMaterialsViews[i].trainingMaterial;
+                tableHeader.append("<th class='text-center'><figure><img style='max-height:25px;' class='img-rounded' src='" + trainingMaterial.thumbnailUrl + "'><figcaption>" + trainingMaterial.title + "</figcaption></figure></th>");
+            }
+            
+            for (var i = 0; i < squads.length; i++) {
+                var squad = squads[i];
+                tableBody.append("<tr style='background-color:rgb(230,230,230);'><td colspan='" + (trainingMaterialsViews.length + 1) + "'>" + squad.name +  "</td></tr>");
+                for (var j = 0; j < squad.members.length; j++) {
+                    var member = squad.members[j];
+                    var tableRow = $("<tr></tr>");
+                    tableRow.append("<td>" + member.name + "</td>");
+                    for (var k = 0; k < trainingMaterialsViews.length; k++) {
+                        var views = trainingMaterialsViews[k].viewedBy;
+                        var index = findIndexInData(views, "guid", member.guid);
+                        tableRow.append("<td class='text-center'>" +
+                            (index == -1 ? "<span class='glyphicon glyphicon-remove text-danger'>" : "<span class='glyphicon glyphicon-ok text-success'>")
+                            + "</td>"
+                        );
+                    }
+                    tableBody.append(tableRow);
+                }                
+            }
+            return table;
+        }
+
         updateTable();
+
+        function findIndexInData(data, property, value) {
+            for (var i = 0, l = data.length; i < l; i++) {
+                if (data[i][property] === value) {
+                    return i;
+                }
+            }
+            return -1;
+        }
     </script>
 }
 

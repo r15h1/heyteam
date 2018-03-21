@@ -1,9 +1,8 @@
 ﻿using HeyTeam.Core;
 using HeyTeam.Core.Queries;
 using HeyTeam.Core.Services;
-using HeyTeam.Web.Areas.Coaches.Models;
-using HeyTeam.Web.Models;
 using HeyTeam.Util;
+using HeyTeam.Web.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;

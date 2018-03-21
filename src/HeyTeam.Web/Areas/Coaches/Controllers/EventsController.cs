@@ -1,7 +1,6 @@
 ﻿using HeyTeam.Core;
 using HeyTeam.Core.Queries;
 using HeyTeam.Core.Services;
-using HeyTeam.Web.Areas.Coaches.Models;
 using HeyTeam.Web.Models;
 using HeyTeam.Web.Models.EventsViewModels;
 using Microsoft.AspNetCore.Authorization;

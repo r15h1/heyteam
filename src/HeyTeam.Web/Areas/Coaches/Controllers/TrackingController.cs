@@ -5,7 +5,7 @@ using HeyTeam.Web.Models.TrackingViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HeyTeam.Web.Controllers
+namespace HeyTeam.Web.Controllers.Coaches
 {
     [Authorize(Policy = "Coach")]
     [Area("Coaches")]

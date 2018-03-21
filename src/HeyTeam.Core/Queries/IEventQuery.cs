@@ -13,6 +13,7 @@ namespace HeyTeam.Core.Queries {
 		IEnumerable<EventReview> GetEventReviews(Guid eventId);
 		IEnumerable<Squad> GetUnReviewedSquads(Guid eventId);
 		EventReport GetEventReport(Guid eventId);
+		IEnumerable<TrainingMaterialView> GetTrainingMaterialViews(Guid eventId);
 	}
 
 	public class EventsRequest {

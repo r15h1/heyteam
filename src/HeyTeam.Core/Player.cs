@@ -7,6 +7,7 @@ namespace HeyTeam.Core {
         public Player (Guid squadId, Guid? playerId = null) : base(playerId){
             if(squadId.IsEmpty()) throw new ArgumentNullException();
             SquadId = squadId;
+			Squads.Add(squadId);
         }
 
         public Guid SquadId { get; }        

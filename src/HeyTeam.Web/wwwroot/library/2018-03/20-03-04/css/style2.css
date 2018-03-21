@@ -1,0 +1,181 @@
+/* Layout
+-----------------------------*/
+body {
+  min-width: 60px;
+	width: auto;
+	height:auto;
+}
+
+.content {
+	padding-top:30px;
+	padding-bottom:15px;
+}
+
+.progression {
+	margin-bottom:30px;
+}
+
+.footer {
+	min-height:100px;
+	padding-top: 10px;
+	padding-bottom: 5px;
+}
+
+.header_inside,
+.content_inside,
+.footer_inside {
+	margin-left: auto;
+	margin-right: auto;
+	max-width: 930px;
+	padding: 0px 30px;
+}
+
+.content_column {
+	width: 450px;
+	display: inline;
+	float: left;
+	position: relative;
+	margin-left: 15px;
+	margin-right: 15px;
+}
+
+/* ------ Clear ------*/
+.clear {
+  clear: both;
+  display: block;
+  overflow: hidden;
+  visibility: hidden;
+  width: 0;
+  height: 0;
+}
+.clearfix:before,
+.clearfix:after {
+  content: '\0020';
+  display: block;
+  overflow: hidden;
+  visibility: hidden;
+  width: 0;
+  height: 0;
+}
+.clearfix:after {
+  clear: both;
+}
+.clearfix {
+  zoom: 1; /* IE6 + IE7 only */
+}
+
+
+/* Style
+-----------------------------*/
+.header {
+	background:#0077b8 url('../images/header_bg.png') bottom left repeat-x;
+}
+.header a {
+	display: inline-block;
+}
+.logo {
+	width: 197px;
+	height: 110px;
+	background: transparent url('../images/logo.png') top left no-repeat;
+}
+.content {
+	background:url('../images/content_bg.gif') top left repeat-x;
+}
+.progression {
+
+}
+.content .session_icons img {
+	background: none;
+	border: none;
+}
+.progression img {
+	padding:4px;
+	background:#ffffff;
+	border:1px solid #cccccc;
+}
+.footer {
+	background:#0077b8 url('../images/footer_bg.png') top left repeat-x;
+}
+.footer .footer_logo {
+	float:right;
+	background: transparent url('../images/footer_logo.png') top left no-repeat;
+	height:46px;
+	width:209px;
+}
+.footer .copyright {
+	margin-top:15px;
+	float:left;
+	color:#9dbed0;
+}
+.odd .comments, .even .flash {
+	float:right;
+	margin-right:0;
+	margin-left:15px;
+}
+.odd .flash, .even .comments {
+	margin-right:15px;
+	margin-left:0;
+	float:left;
+}
+.flash .flash_container {
+	padding:4px;
+	background-color: #ffffff;
+	border: 1px solid #E2E2E2;
+}
+.flash .no_support {
+	display:none;
+}
+
+
+/* Index Style
+-----------------------------*/
+
+#index .session {
+	float: left;
+	width: 100%;
+}
+#index .category_section {
+	width: 100%;
+	display: inline-block;
+	margin-bottom: 40px;
+	clear: both;
+}
+#index .category_inside {
+	margin-left: 20%;
+}
+#index .images {
+	width: 198px;
+	float: left;
+	margin-bottom: 20px;
+}
+#index .images .thumbnail {
+	width: 170px;
+	height: 101px;
+	border: none;
+	margin-bottom: 5px;
+}
+#index .images p {
+	display: block; /* Set 'display: none;' to hide youtube and user image icons */
+}
+#index .details {
+	display: inline-block;
+	margin-left: 5px;
+	max-width: 520px;
+}
+#index .details th,
+#index .details tr.details_author td {
+	font-weight: bold;
+}
+#index .details th {
+	padding-right: 5px;
+}
+
+#index .details tr.details_category {
+	display: none;
+}
+
+/* Start of Thumbnails Only */
+/* Un-comment the next commented lines to hide the details and display titles and thumbnails only). */
+/*#index .details {display: none;}
+#index .session {width: auto; min-height: 230px;max-width: 230px; margin-right: 5px;}*/
+/* End of Thumbnails Only */

@@ -1,6 +1,7 @@
 using Dapper;
 using HeyTeam.Core;
 using HeyTeam.Core.Models;
+using HeyTeam.Core.Models.Mini;
 using HeyTeam.Core.Queries;
 using HeyTeam.Lib.Data;
 using HeyTeam.Util;
@@ -226,6 +227,42 @@ namespace HeyTeam.Lib.Queries {
 						}).ToList();
 
 				return list;			
+			}
+		}
+
+		public IEnumerable<MiniSquad> GetMembers(IEnumerable<Guid> squads) {
+			if (squads == null || squads.Count() == 0)
+				return null;
+
+			using (var connection = connectionFactory.Connect()) {
+				string sql = @"SELECT S.Name AS SquadName, S.Guid AS SquadGuid 
+								FROM Squads S
+								WHERE S.Guid IN @Squads
+				
+								SELECT S.Guid AS SquadGuid, 0 AS Membership,
+									P.Guid AS MemberGuid, P.FirstName + ' ' + P.LastName AS MemberName                                    
+                                FROM Players P
+                                INNER JOIN Squads S ON P.SquadId = S.SquadId
+                                WHERE S.Guid IN @Squads
+								ORDER BY P.FirstName, P.LastName";
+				DynamicParameters p = new DynamicParameters();
+				p.Add("@Squads", squads.ToArray());
+				connection.Open();
+				var reader = connection.QueryMultiple(sql, p);
+				var squadList = reader.Read().Select<dynamic, MiniSquad>(
+					row => new MiniSquad(Guid.Parse(row.SquadGuid.ToString()), row.SquadName)
+				).ToList();
+
+				foreach(var member in reader.Read().Cast<dynamic>()){
+					if (squadList.Any(s => s.Guid == member.SquadGuid))
+						squadList.SingleOrDefault(s => s.Guid == member.SquadGuid).AddMember(
+							new MiniMember(member.MemberGuid, member.MemberName){
+								Membership = ((Membership) member.Membership).ToString()
+							}
+						);
+				}
+
+				return squadList;
 			}
 		}
 	}

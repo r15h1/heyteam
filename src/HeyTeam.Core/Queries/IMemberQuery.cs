@@ -1,4 +1,5 @@
 ﻿using HeyTeam.Core.Models;
+using HeyTeam.Core.Models.Mini;
 using System;
 using System.Collections.Generic;
 
@@ -7,6 +8,7 @@ namespace HeyTeam.Core.Queries {
     {
 		Player GetPlayer(Guid playerId);
 		IEnumerable<Player> GetPlayers(Guid squadId);
+		IEnumerable<MiniSquad> GetMembers(IEnumerable<Guid> squads);
 		Coach GetCoach(Guid guid);
 		IEnumerable<Coach> GetClubCoaches(Guid clubId);
 		IEnumerable<Coach> GetSquadCoaches(Guid squadId);

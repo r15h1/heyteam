@@ -97,5 +97,14 @@ namespace HeyTeam.Web.Controllers {
 			var response = eventService.EmailEventReport(request);
 			return response.RequestIsFulfilled ? Ok() : BadRequest(response.Errors) as IActionResult;
 		}
+
+		[HttpGet("{eventId:guid}/library/views")]
+		public IActionResult GetTrainingMaterialViews(Guid eventId)
+		{
+			var evnt = eventsQuery.GetEvent(eventId);
+			var views = eventsQuery.GetTrainingMaterialViews(eventId);
+			var squads = memberQuery.GetMembers(evnt.Squads.Select(s => s.Guid));
+			return new JsonResult(new { results = new { squads, trainingMaterialViews = views } });
+		}
 	}
 }

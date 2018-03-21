@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using HeyTeam.Core.Models;
 using System.Xml;
+using HeyTeam.Core.Models.Mini;
 
 namespace HeyTeam.Lib.Queries {
 	public class EventQuery : IEventQuery {
@@ -352,6 +353,50 @@ namespace HeyTeam.Lib.Queries {
 			var document = new XmlDocument();
 			document.LoadXml(report);
 			return document;
+		}
+
+		public IEnumerable<TrainingMaterialView> GetTrainingMaterialViews(Guid eventId) {
+			string sql = @"SELECT T.Guid AS TrainingMaterialGuid, T.Title, T.ThumbnailUrl, T.Description
+						FROM Events E
+						INNER JOIN EventTrainingMaterials ET ON E.EventId = ET.EventId
+						INNER JOIN TrainingMaterials T ON T.TrainingMaterialId = ET.TrainingMaterialId
+						WHERE E.Guid = @EventGuid 
+
+						SELECT DISTINCT P.Guid AS MemberGuid, P.FirstName + ' ' + P.LastName AS Name, 0 AS Membership, 
+							T.Guid AS TrainingMaterialGuid
+						FROM EventTrainingMaterialViews V
+						INNER JOIN Events E ON E.EventId = V.EventId AND E.Guid = @EventGuid 
+						INNER JOIN Players P ON P.PlayerId = V.PlayerId
+						INNER JOIN TrainingMaterials T ON V.TrainingMaterialId = T.TrainingMaterialId
+						UNION ALL
+						SELECT DISTINCT C.Guid AS MemberGuid, C.FirstName + ' ' + C.LastName AS Name, 1 AS Membership,
+							T.Guid AS TrainingMaterialGuid
+						FROM EventTrainingMaterialViews V
+						INNER JOIN Events E ON E.EventId = V.EventId AND E.Guid = @EventGuid 
+						INNER JOIN Coaches C ON C.CoachId = V.CoachId
+						INNER JOIN TrainingMaterials T ON V.TrainingMaterialId = T.TrainingMaterialId";
+
+			DynamicParameters p = new DynamicParameters();
+			p.Add("@EventGuid", eventId.ToString());
+			using (var connection = connectionFactory.Connect()) {
+				connection.Open();
+				var reader = connection.QueryMultiple(sql, p);
+				var trainingMaterialViews = reader.Read().Cast<IDictionary<string, object>>().Select<dynamic, TrainingMaterialView>(
+					row => new TrainingMaterialView(
+						new MiniTrainingMaterial(Guid.Parse(row.TrainingMaterialGuid.ToString()), row.Title) { 
+							ThumbnailUrl = row.ThumbnailUrl,
+							Description = row.Description
+						}
+					)).ToList();
+				
+				foreach(var viewer in reader.Read().Cast<dynamic>())				
+					trainingMaterialViews.SingleOrDefault(t => t.TrainingMaterial.Guid == viewer.TrainingMaterialGuid)
+						?.AddViewer(new MiniMember(Guid.Parse(viewer.MemberGuid.ToString()), viewer.Name) { 
+							Membership = ((Membership) viewer.Membership).ToString().ToLowerInvariant()
+						});
+
+				return trainingMaterialViews;
+			}
 		}
 	}
 }

@@ -1,4 +1,4 @@
-﻿@model HeyTeam.Web.Areas.Coaches.Models.EventDetailsViewModel
+﻿@model HeyTeam.Web.Models.EventDetailsViewModel
 <h1>@($"{Model.Title}")</h1>
 <h3>Event Details</h3>
 <div class="row">
@@ -35,12 +35,17 @@
             <label asp-for="TrainingMaterials" class="control-label"></label>
 
             @foreach (var tm in Model.TrainingMaterials) {
-            string item = "<div class='media' style='margin-top:10px; padding-bottom:10px'>" +
-                                "<div class='media-left'><a href='" + tm.Url + "' target='_blank'><img class='media-object' style='max-height:40px;' src='" + tm.ThumbnailUrl + "' alt=''></a></div>" +
-                                "<div class='media-body'><div class='img-changer-text'><a href='" + tm.Url + "' target='_blank'>" + tm.Title + "</a></div>(" + tm.ShortContentType + ")</div >" +
-                            "</div>";
-            @Html.Raw(item);
-    }
+        @*string item = "<div class='media' style='margin-top:10px; padding-bottom:10px'>" +
+                        "<div class='media-left'><a href='" + tm.Url + "' target='_blank'><img class='media-object' style='max-height:40px;' src='" + tm.ThumbnailUrl + "' alt=''></a></div>" +
+                        "<div class='media-body'><div class='img-changer-text'><a href='" + tm.Url + "' target='_blank'>" + tm.Title + "</a></div>(" + tm.ShortContentType + ")</div >" +
+                    "</div>";
+    @Html.Raw(item);*@
+            
+        <div class='media' style='margin-top:10px; padding-bottom:10px'>
+            <div class='media-left'><a asp-area="Players" asp-controller="Tracking" asp-action="Library" asp-route-eventid="@Model.EventId" asp-route-trainingMaterialid="@tm.Guid" target='_blank'><img class='media-object' style='max-height:40px;' src='@tm.ThumbnailUrl' alt='cocojambo'></a></div>
+            <div class='media-body'><div class='img-changer-text'><a asp-area="Players" asp-controller="Tracking" asp-action="Library" asp-route-eventid="@Model.EventId" asp-route-trainingMaterialid="@tm.Guid" target='_blank'>@tm.Title</a></div>(@tm.ShortContentType)</div>
+        </div>
+}
         </div>
 }
         <div class="modal-footer">

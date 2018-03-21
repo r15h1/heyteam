@@ -1,0 +1,108 @@
+/*
+	960 Grid System ~ Text CSS.
+	Learn more ~ http://960.gs/
+
+	Licensed under GPL and MIT.
+*/
+
+/* `Basic HTML
+----------------------------------------------------------------------------------------------------*/
+
+body {
+	font: 12px/1.5 'tahoma', 'Helvetica Neue', Arial, 'Liberation Sans', FreeSans, sans-serif;
+	color:#222222;
+}
+a {
+	color:#008D42;
+	text-decoration:none;
+}
+a:hover {
+	text-decoration:underline;
+}
+
+hr {
+	border: 0 #eeeeee solid;
+	border-top-width: 1px;
+	clear: both;
+	height: 0;
+	margin-bottom:30px;
+}
+
+hr.no_marg {
+	margin-bottom:0px;
+}
+
+p {
+	font-size:12px;
+}
+
+/* `Headings
+----------------------------------------------------------------------------------------------------*/
+h1, h2, h3, h4, h5, h6 {
+	margin-bottom:5px;
+	font-family: 'tahoma', 'Helvetica Neue', Arial, 'Liberation Sans', FreeSans, sans-serif;
+	font-weight:normal;
+}
+h1 {
+	font-size: 24px;
+	color:#0072b0;
+	border-bottom:1px solid #eeeeee;
+	margin-bottom:30px;
+	padding-bottom:30px;
+}
+h1 span {
+	color:#333333;
+}
+h2 {
+	font-size: 18px;
+	color:#008d42;
+}
+
+h3 {
+	font-size: 16px;
+}
+
+h4 {
+	font-size: 14px;
+}
+
+h5 {
+	font-size: 14px;
+}
+
+h6 {
+	font-size: 14px;
+}
+
+/* `Spacing
+----------------------------------------------------------------------------------------------------*/
+
+ol {
+	list-style: decimal;
+}
+
+ul {
+	list-style: disc;
+}
+
+li {
+	background: url('../images/bullet.gif') left 5px no-repeat;
+	margin-left:15px;
+	padding-left:3px;
+	margin-bottom:3px;
+}
+
+p,
+dl,
+ol,
+ul,
+pre,
+table,
+address,
+fieldset,
+figure {
+	margin-bottom: 20px;
+}
+p {
+	line-height: 18px;
+}
