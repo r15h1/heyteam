@@ -37,5 +37,6 @@
     <Folder Include="Areas\Coaches\Models\" />
     <Folder Include="Areas\Players\Data\" />
     <Folder Include="Areas\Players\Models\" />
+    <Folder Include="wwwroot\docs\" />
   </ItemGroup>
 </Project>
