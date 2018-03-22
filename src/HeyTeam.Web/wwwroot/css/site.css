@@ -69,6 +69,12 @@ h4 {
     animation: glyphicon-spin-r 1s infinite linear;
 }
 
+.score-board {
+    font-weight: 700;
+    font-size: 2em;
+    color: rgb(34, 66, 16);
+}
+
 @-webkit-keyframes glyphicon-spin-r {
     0% {
         -webkit-transform: rotate(0deg);

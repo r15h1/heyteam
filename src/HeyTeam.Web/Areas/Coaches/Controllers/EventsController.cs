@@ -158,5 +158,10 @@ namespace HeyTeam.Web.Areas.Coaches.Controllers {
 			model.EventDetails = $"{@event.EventType.GetDescription()}<br/>{@event.StartDate.ToString("ddd dd-MMM-yyyy h:mm tt")}<br/>{@event.Location}<br/>{string.Join(", ", @event.Squads.Select(s => s.Name))}";
 			model.SquadsNotYetReviewed = squadsNotYetReviewed;			
 		}
+
+		[HttpGet("{eventId:guid}/tracker")]
+		public ActionResult Tracker(Guid memberId, Guid eventId) {			
+			return View();
+		}
 	}
 }

@@ -347,5 +347,11 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 
 			return playerList.OrderBy(s => s.Text).ToList();
 		}
+
+
+		[HttpGet("{eventId:guid}/tracker")]
+		public ActionResult Tracker(Guid memberId, Guid eventId) {
+			return View();
+		}
 	}
 }

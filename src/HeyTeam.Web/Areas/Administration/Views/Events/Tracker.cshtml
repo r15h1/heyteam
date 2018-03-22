@@ -1,0 +1,86 @@
+﻿<h2>Tracker</h2>
+<h3>Mapola FC vs Blue Whales FC</h3>
+<div class="row">
+    <div class="col-md-3 text-right score-board">Mapola FC</div>
+    <div class="col-md-2 text-center score-board">0 : 0</div>
+    <div class="col-md-3 text-left score-board">Blue Whales FC</div>
+</div>
+<div class="row">
+    <div class="col-md-8">
+            
+        <div class="col-md-12" style="border:solid 3px rgb(200,200,200); background-image:url('/images/soccer-field.jpg'); background-repeat:no-repeat; background-size:100% auto;height:500px;">
+            <div class="col-md-offset-2" style="padding-top:75px; color:rgb(255,255,255);font-size:1.3em;">
+                <ul style="list-style-type: none" data-bind="foreach: lineup">
+                    <li style="margin-top:4px;margin-bottom:4px;">
+                        <button class="btn" type="button" style="width:150px;"
+                                data-bind="text: name, click: $root.prepareSubstitution, css: { 'btn-default': (readyForSubstitution() == false), 'btn-warning': (readyForSubstitution() == true)  }">                            
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th class="col-md-6">Player</th>
+                    <th class="col-md-2">On</th>
+                    <th class="col-md-2">Off</th>
+                    <th class="col-md-2">Time</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+    @section Scripts {
+        <script src="~/lib/knockout/dist/knockout.js"></script>
+        <script type="text/javascript">
+            var status = {
+                injured: "injured", sentOff: "sentOff", playing: "playing", onTheBench: "onTheBench"
+            };
+
+            function player(guid, name, squadNumber) {
+                var self = this;
+                self.name = name;
+                self.guid = guid;
+                self.squadNumber = squadNumber;
+                self.readyForSubstitution = ko.observable(false);
+            }
+
+            function game() {
+                var self = this;
+
+                self.lineup = ko.observableArray([
+                    new player("1", "Romy Lukaku", "9"),
+                    new player("2", "David De Gea", "1"),
+                    new player("3", "Marcus Rashford", "14"),
+                    new player("4", "Anthony Martial", "11"),
+                    new player("5", "Antonio Valencia", "31"),
+                    new player("6", "Nemanja Matic", "6"),
+                    new player("7", "Paul Pogba", "8")
+                ]);
+
+                self.substitutes = ko.observableArray([
+                    new player("8", "Scott MacTominay", "40"),
+                    new player("9", "Ashley Young", "5"),
+                    new player("10", "Chris Smalling", "4")
+                ]);
+
+                self.prepareSubstitution = function (player) {
+                    console.log("before preparing for substitution..." + player.name + " - " + player.readyForSubstitution);
+                    if (player.readyForSubstitution() == true) {
+                        player.readyForSubstitution(false);
+                    } else {
+                        player.readyForSubstitution(true);    
+                    }
+
+                    console.log("after preparing for substitution..." + player.name + " - " + player.readyForSubstitution);
+                }
+            }
+
+            ko.applyBindings(new game());
+        </script>
+    }
