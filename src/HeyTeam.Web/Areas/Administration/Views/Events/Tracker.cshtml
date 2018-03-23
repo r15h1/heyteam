@@ -1,19 +1,27 @@
 ﻿<h2>Tracker</h2>
 <h3>Mapola FC vs Blue Whales FC</h3>
 <div class="row">
+    <div class="container">
+        <button type="button" class="btn btn-success" data-bind="click:moveStage, text:nextStageName, disable:(isGameOver())"></button>
+        <label class="text-center label label-primary score-board">0:00</label>    
+    </div>
+</div>
+<div class="row">
     <div class="col-md-3 text-right score-board">Mapola FC</div>
     <div class="col-md-2 text-center score-board">0 : 0</div>
     <div class="col-md-3 text-left score-board">Blue Whales FC</div>
+    <div class="col-md-4">
+        <button type="button" class="btn btn-primary" data-bind="click:executeSubstitutions, disable:(isGameOver())">Swap Players</button>
+    </div>
 </div>
 <div class="row">
-    <div class="col-md-8">
-            
+    <div class="col-md-8">            
         <div class="col-md-12" style="border:solid 3px rgb(200,200,200); background-image:url('/images/soccer-field.jpg'); background-repeat:no-repeat; background-size:100% auto;height:500px;">
             <div class="col-md-offset-2" style="padding-top:75px; color:rgb(255,255,255);font-size:1.3em;">
                 <ul style="list-style-type: none" data-bind="foreach: lineup">
                     <li style="margin-top:4px;margin-bottom:4px;">
                         <button class="btn" type="button" style="width:150px;"
-                                data-bind="text: name, click: $root.prepareSubstitution, css: { 'btn-default': (readyForSubstitution() == false), 'btn-warning': (readyForSubstitution() == true)  }">                            
+                                data-bind="text: name, click: $root.selectPlayer, css: { 'btn-default': (isSelected() == false), 'btn-warning': (isSelected() == true)  }">                            
                         </button>
                     </li>
                 </ul>
@@ -25,13 +33,35 @@
             <thead>
                 <tr>
                     <th class="col-md-6">Player</th>
-                    <th class="col-md-2">On</th>
-                    <th class="col-md-2">Off</th>
-                    <th class="col-md-2">Time</th>
+                    <th class="col-md-2 text-center">On</th>
+                    <th class="col-md-2 text-center">Off</th>
+                    <th class="col-md-2 text-center">Time</th>
                 </tr>
             </thead>
-            <tbody></tbody>
+            <tbody data-bind="foreach: players">
+                <tr>
+                    <td data-bind="text:name"></td>
+                    <td class="text-center" data-bind="text:ins"></td>
+                    <td class="text-center" data-bind="text:outs"></td>
+                    <td class="text-center" data-bind="text:getTotalGameTime"></td>
+                </tr>
+            </tbody>
         </table>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <ul style="list-style-type: none" data-bind="foreach: substitutes" class="list-inline">
+                    <li style="margin-top:4px;margin-bottom:4px;">
+                        <button class="btn" type="button" style="width:150px;"
+                                data-bind="text: name, click: $root.selectPlayer, css: { 'btn-default': (isSelected() == false), 'btn-warning': (isSelected() == true)  }"></button>
+                    </li>
+                </ul>            
+            </div>
+        </div>
     </div>
 </div>
 
@@ -42,16 +72,85 @@
                 injured: "injured", sentOff: "sentOff", playing: "playing", onTheBench: "onTheBench"
             };
 
+            var gameStages = {
+                beforeKickOff: 0, firstHalfStarted: 1, halfTime: 2, secondHaldStarted: 3, gameOver: 4
+            };
+
+            var gameStageCommands = [
+                "Before Kick Off", "Start Game", "Half Time", "Start Second Half", "End Game", "Game is Over"
+            ];
+            
             function player(guid, name, squadNumber) {
                 var self = this;
                 self.name = name;
                 self.guid = guid;
                 self.squadNumber = squadNumber;
-                self.readyForSubstitution = ko.observable(false);
+
+                self.isSelected = ko.observable(false);
+                self.gameTimeMilliSeconds = ko.observable(0);
+                self.ins = ko.observable(0);
+                self.outs = ko.observable(0);
+                self.timeBroughtOn = null;
+
+                self.broughtOn = function () {
+                    self.ins(self.ins() + 1);
+                    self.timeBroughtOn = new Date().getTime();
+                }
+
+                self.broughtOff = function () {
+                    self.outs(self.outs() + 1);
+                    self.updateGameTime(new Date().getTime());
+                    self.timeBroughtOn = null;
+                }
+
+                self.updateGameTime = function (referenceTime) {
+                    if (referenceTime != null && self.timeBroughtOn != null) {
+                        var milliSecondsOn = referenceTime - self.timeBroughtOn;
+                        self.gameTimeMilliSeconds(self.gameTimeMilliSeconds() + milliSecondsOn);
+                        self.timeBroughtOn = referenceTime;
+                    }
+                } 
+
+                self.getTotalGameTime = ko.pureComputed(function () {
+                    var millis = self.gameTimeMilliSeconds();
+                    var minutes = Math.floor(millis / 60000);
+                    var seconds = ((millis % 60000) / 1000).toFixed(0);
+                    return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+                });
             }
 
             function game() {
                 var self = this;
+
+                self.stage = ko.observable(gameStages.beforeKickOff);
+
+                self.isGameUnderWay = ko.pureComputed(function () {
+                    return self.stage() == gameStages.firstHalfStarted || self.stage() == gameStages.secondHalfStarted;
+                });
+
+                self.isGameOver = ko.pureComputed(function () {
+                    return self.stage() == gameStages.gameOver;
+                });
+
+                self.moveStage = function () {
+                    console.log(self.stage());
+
+                    if (!self.isGameOver()) {
+                        self.stage(self.stage() + 1);
+                    }
+
+                    if (self.stage() == gameStages.firstHalfStarted) {
+                        console.log("game starting...")
+                        for (var i = 0; i < self.lineup().length; i++) {
+                            console.log("bringing in..." + self.lineup()[i].name);
+                            self.lineup()[i].broughtOn();
+                        }
+                    }
+                }
+
+                self.nextStageName = ko.pureComputed(function () {
+                    return gameStageCommands[self.stage() + 1];
+                });
 
                 self.lineup = ko.observableArray([
                     new player("1", "Romy Lukaku", "9"),
@@ -69,16 +168,55 @@
                     new player("10", "Chris Smalling", "4")
                 ]);
 
-                self.prepareSubstitution = function (player) {
-                    console.log("before preparing for substitution..." + player.name + " - " + player.readyForSubstitution);
-                    if (player.readyForSubstitution() == true) {
-                        player.readyForSubstitution(false);
-                    } else {
-                        player.readyForSubstitution(true);    
+                self.players = ko.pureComputed(function () {
+                    return self.lineup().concat(self.substitutes()).sort(
+                        function (a, b) {
+                            return (a.name > b.name) ? 1 : 0;
+                        
+                    });
+                });
+
+                self.selectPlayer = function (player) {
+                    player.isSelected(!player.isSelected());
+                }
+
+                self.executeSubstitutions = function () {
+                    console.log("substituting...")
+                    var affected = self.lineup();
+                    var index = affected.length;
+                    while (index--) {
+                        var player = affected[index];
+                        if (player.isSelected()) {
+                            player.isSelected(false);
+
+                            self.substitutes.push(player);
+                            self.lineup.remove(player);
+                            player.broughtOff();
+                        }
                     }
 
-                    console.log("after preparing for substitution..." + player.name + " - " + player.readyForSubstitution);
+                    affected = self.substitutes();
+                    index = affected.length;
+                    while (index--) {
+                        var player = affected[index];
+                        if (player.isSelected()) {
+                            player.isSelected(false);
+                            self.lineup.push(player);
+                            self.substitutes.remove(player);
+                            player.broughtOn();
+                        }
+                    }
                 }
+
+                var timer = setInterval(function () {
+                    if (self.isGameUnderWay()) {
+                        var referenceTime = new Date().getTime();
+                        for (var i = 0; i < self.lineup().length; i++) {
+                            var player = self.lineup()[i];
+                            player.updateGameTime(referenceTime);
+                        }                        
+                    }
+                }, 1000);
             }
 
             ko.applyBindings(new game());
