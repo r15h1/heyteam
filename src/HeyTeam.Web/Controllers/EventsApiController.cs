@@ -53,6 +53,12 @@ namespace HeyTeam.Web.Controllers {
 			return Json(response);
 		}
 
+		[HttpGet("{eventId:guid}/attendance")]
+		public IActionResult Attendance(Guid eventId) {
+			var eventPlayers = eventsQuery.GetPlayersByEvent(eventId);
+			return Json(eventPlayers);
+		}
+
 		[HttpPost("attendance")]
 		public IActionResult Attendance([FromBody] EventAttendanceViewModel attendance) {
 			if(!ModelState.IsValid)

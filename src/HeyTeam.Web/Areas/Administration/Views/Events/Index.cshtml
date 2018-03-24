@@ -149,6 +149,7 @@
 
                             if (now >= attendanceStartDate && now <= attendanceEndDate) {
                                 row = row + "<li><a href='events/" + entry.eventId + "/attendance'><span class='text-primary glyphicon glyphicon-hand-up'></span> Attendance</a></li>";
+                                row = row + "<li><a href='events/" + entry.eventId + "/tracker'><span class='text-primary glyphicon glyphicon-time'></span> Tracker</a></li>";
                             }
 
                             if (gameEventTypes.includes(entry.eventType) && now > endDate && endDate >= lastReviewDate) {

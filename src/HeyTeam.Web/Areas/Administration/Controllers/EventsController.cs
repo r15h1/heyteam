@@ -351,7 +351,16 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 
 		[HttpGet("{eventId:guid}/tracker")]
 		public ActionResult Tracker(Guid memberId, Guid eventId) {
-			return View();
+			var @event = eventsQuery.GetEvent(eventId);
+			var model = new EventAttendanceModel {
+				EndDate = @event.EndDate,
+				EventId = @event.Guid,
+				Location = @event.Location,
+				StartDate = @event.StartDate,
+				Title = @event.Title,
+				EventType = @event.EventType.GetDescription()
+			};
+			return View(model);
 		}
 	}
 }
