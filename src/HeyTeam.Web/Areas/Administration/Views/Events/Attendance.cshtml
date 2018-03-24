@@ -19,10 +19,10 @@
                 <tr data-eventid="@player.EventGuid" data-squadid="@player.SquadGuid" data-playerid="@player.PlayerGuid">
                     <td>@player.SquadName</td>
                     <td>@player.PlayerName</td>
-                    <td class="text-center"><button data-attendanceid="1" data-state="@(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.Present ? 1 : 0)" class="btn @(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.Present ? "btn-success" : "btn-default")" title="Present"><span class="glyphicon glyphicon-ok-sign"></span></button></td>                    
-                    <td class="text-center"><button data-attendanceid="3" data-state="@(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.Late ? 1 : 0)" class="btn @(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.Late ? "btn-warning" : "btn-default")" title="Late"><span class="glyphicon glyphicon-time"></span></button></td>
-                    <td class="text-center"><button data-attendanceid="4" data-state="@(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.LeftEarly ? 1 : 0)" class="btn @(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.LeftEarly ? "btn-info" : "btn-default")" title="Left Early"><span class="glyphicon glyphicon-exclamation-sign"></span></button></td>
-                    <td class="text-center"><button data-attendanceid="2" data-state="@(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.NoShow ? 1 : 0)" class="btn @(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.NoShow ? "btn-danger" : "btn-default")" title="No Show"><span class="glyphicon glyphicon-remove-sign"></span></button></td>
+                    <td class="text-center"><button data-attendanceid="1" data-state="@(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.Present ? 1 : 0)" class="attendance btn @(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.Present ? "btn-success" : "btn-default")" title="Present"><span class="glyphicon glyphicon-ok-sign"></span></button></td>                    
+                    <td class="text-center"><button data-attendanceid="3" data-state="@(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.Late ? 1 : 0)" class="attendance btn @(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.Late ? "btn-warning" : "btn-default")" title="Late"><span class="glyphicon glyphicon-time"></span></button></td>
+                    <td class="text-center"><button data-attendanceid="4" data-state="@(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.LeftEarly ? 1 : 0)" class="attendance btn @(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.LeftEarly ? "btn-info" : "btn-default")" title="Left Early"><span class="glyphicon glyphicon-exclamation-sign"></span></button></td>
+                    <td class="text-center"><button data-attendanceid="2" data-state="@(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.NoShow ? 1 : 0)" class="attendance btn @(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.NoShow ? "btn-danger" : "btn-default")" title="No Show"><span class="glyphicon glyphicon-remove-sign"></span></button></td>
                 </tr>
             }
         </tbody>
@@ -30,41 +30,8 @@
 </div>
 
 @section Scripts {
+    <script src="~/js/attendance.js"></script>
     <script type="text/javascript">
-        $('button').on('click', function (e) {
-            var eventId = $(this).closest('tr').data('eventid');
-            var squadId = $(this).closest('tr').data('squadid');
-            var playerId = $(this).closest('tr').data('playerid');
-            var attendanceid = $(this).data('attendanceid');
-            var currentstate = $(this).data('state');
-            var button = $(this);
-
-            $.ajax({
-                method: "POST",
-                contentType: 'application/json',
-                url: "/api/events/attendance",
-                data: JSON.stringify({ "eventid": eventId, "squadid": squadId, "playerid": playerId, "attendance": (currentstate == 1 ? null : attendanceid) })
-            })
-                .done(function (data) {
-                    var buttons = button.closest('tr').find("button");
-                    clearAttributes(buttons);
-                    if (currentstate == 0) {
-                        var style = (attendanceid == 1 ? "btn-success" : (attendanceid == 2 ? "btn-danger" : (attendanceid == 3 ? "btn-warning" : "btn-info")));
-                        $(button).addClass("btn " + style);
-                    }
-                    $(button).data("state", (currentstate == 1 ? 0 : 1));
-                })
-                .fail(function (jqXHR, textStatus, errorThrown) {
-                    console.log(textStatus);
-                });
-        });
-
-        function clearAttributes(buttons) {
-            for (var i = 0; i < buttons.length; i++) {
-                $(buttons[i]).removeClass();
-                $(buttons[i]).addClass("btn btn-default");
-                $(buttons[i]).data("state", 0);
-            }
-        }
+        bindEvents('button.attendance');
     </script>
 }
