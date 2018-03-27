@@ -1,7 +1,7 @@
 ﻿var attendance = { unSpecified: null, present: 1, noShow: 2, late: 3, leftEarly: 4 };
 var columns = { squad: 1, player: 2, present: 3, late: 4, leftEarly: 5, noShow: 6, timeLogged: 7 };
 var timeLogForm = "<form class='time-log'></form>";
-var timeLogInput = "<input class='form-control time-input input-sm' type='number' min='0' max='400' maxlength='3' value='0' readonly />";
+var timeLogInput = "<input class='form-control time-input input-sm' type='number' min='0' max='400' maxlength='3' value='0' readonly placeholder='0'/>";
 var timeLogOkButton = "<button type='submit' class='btn btn-default btn-sm saveTimeLog' title='save'><span class='glyphicon glyphicon-ok text-success'></span></button>";
 var timeLogCancelButton = "<button type='button' class='btn btn-default btn-sm cancelTimeLog' title='cancel'><span class='glyphicon glyphicon-remove text-danger'></span></button>";
 var timeLogEditButton = "<button type='button' class='btn btn-default btn-sm editTimeLog' title='edit'><span class='glyphicon glyphicon-pencil'></span></button>";

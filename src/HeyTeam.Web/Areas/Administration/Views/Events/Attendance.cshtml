@@ -12,7 +12,7 @@
                 <th class="text-center col-md-1">Late</th>
                 <th class="text-center col-md-1">Left Early</th>
                 <th class="text-center col-md-1">No Show</th>
-                <th class="text-center col-md-2">Time Logged</th>
+                <th class="text-center col-md-2">Time Logged (mins)</th>
             </tr>
         </thead>
         <tbody>
@@ -28,7 +28,7 @@
                     @if(player.Attendance.HasValue && player.Attendance != HeyTeam.Core.Attendance.NoShow)
                     {
                     <form class="time-log">
-                        <input class='form-control time-input input-sm' type='number' min='0' max='400' maxlength='3' value='@player.TimeLogged' readonly />
+                        <input class='form-control time-input input-sm' type='number' min='0' max='400' maxlength='3' value='@player.TimeLogged' readonly placeholder="0"/>
                         <button type='button' class='btn btn-default btn-sm editTimeLog' title="edit"><span class='glyphicon glyphicon-pencil'></span></button>
                     </form>
                     }
