@@ -84,6 +84,31 @@ namespace HeyTeam.Web.Controllers {
 			return Ok();
 		}
 
+		[HttpPost("timelog")]
+		public IActionResult TimeLog([FromBody] EventTimeLogViewModel attendance) {
+			if (!ModelState.IsValid)
+				return BadRequest();
+
+			var request = new EventTimeLogRequest {
+				ClubId = club.Guid,
+				EventId = attendance.EventId,
+				PlayerId = attendance.PlayerId,
+				SquadId = attendance.SquadId,
+				TimeLogged = attendance.TimeLogged
+			};
+
+			var response = eventService.LogEventTime(request);
+
+			if (!response.RequestIsFulfilled) {
+				foreach (var error in response.Errors)
+					ModelState.AddModelError("", error);
+
+				return BadRequest();
+			}
+
+			return Ok();
+		}
+
 		[HttpPost("emailReport")]
 		public IActionResult EmailReport([FromBody] EmailReportViewModel model) {
 			if (!ModelState.IsValid)

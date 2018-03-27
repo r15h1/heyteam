@@ -10,5 +10,6 @@ namespace HeyTeam.Core.Repositories {
 		void UpdateAttendance(Guid squadId, Guid eventId, Guid playerId, Attendance? attendance);
 		void AddEventReview(NewEventReviewRequest request);
 		void SaveEventReport(EventReport report);
+		void UpdateTimeLog(Guid squadId, Guid eventId, Guid playerId, short? timeLogged);
 	}
 }

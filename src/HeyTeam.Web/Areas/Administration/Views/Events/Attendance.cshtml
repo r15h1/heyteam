@@ -6,32 +6,53 @@
     <table class="table table-bordered table-hover">
         <thead>
             <tr>
-                <th>Squad</th>
-                <th>Player</th>
-                <th class="text-center">Present <span class="glyphicon glyphicon-ok-sign"></span></th>
-                <th class="text-center">Late <span class="glyphicon glyphicon-time"></span></th>
-                <th class="text-center">Left Early <span class="glyphicon glyphicon-exclamation-sign"></span></th>
-                <th class="text-center">No Show <span class="glyphicon glyphicon-remove-sign"></span></th>
+                <th class="col-md-2">Squad</th>
+                <th class="col-md-3">Player</th>
+                <th class="text-center col-md-1">Present</th>
+                <th class="text-center col-md-1">Late</th>
+                <th class="text-center col-md-1">Left Early</th>
+                <th class="text-center col-md-1">No Show</th>
+                <th class="text-center col-md-2">Time Logged</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var player in Model.EventPlayers) {
-                <tr data-eventid="@player.EventGuid" data-squadid="@player.SquadGuid" data-playerid="@player.PlayerGuid">
-                    <td>@player.SquadName</td>
-                    <td>@player.PlayerName</td>
-                    <td class="text-center"><button data-attendanceid="1" data-state="@(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.Present ? 1 : 0)" class="attendance btn @(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.Present ? "btn-success" : "btn-default")" title="Present"><span class="glyphicon glyphicon-ok-sign"></span></button></td>                    
-                    <td class="text-center"><button data-attendanceid="3" data-state="@(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.Late ? 1 : 0)" class="attendance btn @(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.Late ? "btn-warning" : "btn-default")" title="Late"><span class="glyphicon glyphicon-time"></span></button></td>
-                    <td class="text-center"><button data-attendanceid="4" data-state="@(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.LeftEarly ? 1 : 0)" class="attendance btn @(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.LeftEarly ? "btn-info" : "btn-default")" title="Left Early"><span class="glyphicon glyphicon-exclamation-sign"></span></button></td>
-                    <td class="text-center"><button data-attendanceid="2" data-state="@(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.NoShow ? 1 : 0)" class="attendance btn @(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.NoShow ? "btn-danger" : "btn-default")" title="No Show"><span class="glyphicon glyphicon-remove-sign"></span></button></td>
-                </tr>
+            <tr data-eventid="@player.EventGuid" data-squadid="@player.SquadGuid" data-playerid="@player.PlayerGuid" data-attendanceid="@(player.Attendance.HasValue ? (int?)player.Attendance : null)">
+                <td>@player.SquadName</td>
+                <td>@player.PlayerName</td>
+                <td class="text-center"><button data-attendanceid="1" data-state="@(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.Present ? 1 : 0)" class="attendance btn @(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.Present ? " btn-success" : "btn-default" )" title="Present"><span class="glyphicon glyphicon-ok-sign"></span></button></td>
+                <td class="text-center"><button data-attendanceid="3" data-state="@(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.Late ? 1 : 0)" class="attendance btn @(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.Late ? " btn-warning" : "btn-default" )" title="Late"><span class="glyphicon glyphicon-time"></span></button></td>
+                <td class="text-center"><button data-attendanceid="4" data-state="@(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.LeftEarly ? 1 : 0)" class="attendance btn @(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.LeftEarly ? " btn-info" : "btn-default" )" title="Left Early"><span class="glyphicon glyphicon-exclamation-sign"></span></button></td>
+                <td class="text-center"><button data-attendanceid="2" data-state="@(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.NoShow ? 1 : 0)" class="attendance btn @(player.Attendance.HasValue && player.Attendance == HeyTeam.Core.Attendance.NoShow ? " btn-danger" : "btn-default" )" title="No Show"><span class="glyphicon glyphicon-remove-sign"></span></button></td>
+                <td class="text-center time-log">
+                    @if(player.Attendance.HasValue && player.Attendance != HeyTeam.Core.Attendance.NoShow)
+                    {
+                    <form class="time-log">
+                        <input class='form-control time-input input-sm' type='number' min='0' max='400' maxlength='3' value='@player.TimeLogged' readonly />
+                        <button type='button' class='btn btn-default btn-sm editTimeLog' title="edit"><span class='glyphicon glyphicon-pencil'></span></button>
+                    </form>
+                    }
+                </td>
+            </tr>
             }
         </tbody>
     </table>
 </div>
 
 @section Scripts {
-    <script src="~/js/attendance.js"></script>
-    <script type="text/javascript">
-        bindEvents('button.attendance');
-    </script>
+<script src="~/js/attendance.js"></script>
+<script type="text/javascript">
+        initializeAttendance();
+</script>
+}
+
+@section CSS {
+<style type="text/css">
+    .time-input
+    {
+        width:65px;
+        display:inline;
+        text-align:right;
+    }
+</style>
 }

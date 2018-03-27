@@ -237,7 +237,7 @@ namespace HeyTeam.Lib.Queries {
 				string sql = @"SELECT S.Guid AS SquadGuid, E.Guid AS EventGuid, P.Guid AS PlayerGuid, 
 									P.DateOfBirth, P.DominantFoot, P.FirstName, P.LastName, 
 									P.Email, P.Nationality, P.SquadNumber, S.Name AS SquadName,
-									EA.AttendanceId
+									EA.AttendanceId, EA.TimeLogged
 								FROM Players P
 								INNER JOIN Squads S ON P.SquadId = S.SquadId
 								INNER JOIN SquadEvents SE ON S.SquadId = SE.SquadId
@@ -252,7 +252,7 @@ namespace HeyTeam.Lib.Queries {
 				var players = reader.Select<dynamic, EventPlayer>(
 						row => new EventPlayer(Guid.Parse(row.SquadGuid.ToString()), Guid.Parse(row.EventGuid.ToString()), Guid.Parse(row.PlayerGuid.ToString())) {
 							PlayerName = $"{row.FirstName} {row.LastName}", SquadNumber = row.SquadNumber, SquadName = row.SquadName,
-							Attendance = (Attendance?) row.AttendanceId
+							Attendance = (Attendance?) row.AttendanceId, TimeLogged = row.TimeLogged
 						}).ToList();
 				return players;
 			}

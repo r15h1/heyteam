@@ -21,5 +21,6 @@ namespace HeyTeam.Core.Models {
 		public string PlayerName { get; set; }
 		public short SquadNumber { get; set; }
 		public Attendance? Attendance { get; set; }
+		public short? TimeLogged{ get; set; }
 	}
 }
