@@ -136,6 +136,7 @@ namespace HeyTeam.Web {
 			services.AddScoped<IEventService, EventService>();
 			services.AddScoped<IValidator<EventAttendanceRequest>, EventAttendanceRequestValidator>();
 			services.AddScoped<IValidator<EventTimeLogRequest>, EventTimeLogRequestValidator>();
+			services.AddScoped<IValidator<EventFeedbackRequest>, EventFeedbackRequestValidator>();
 
 			services.AddScoped<IFileHandlerFactory, FileHandlerFactory>();
 			services.AddScoped<IValidator<TrainingMaterialRequest>, TrainingMaterialRequestValidator>();

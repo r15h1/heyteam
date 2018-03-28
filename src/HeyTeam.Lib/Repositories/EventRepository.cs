@@ -131,16 +131,7 @@ namespace HeyTeam.Lib.Repositories {
 		}
 
 		public void UpdateAttendance(Guid squadId, Guid eventId, Guid playerId, Attendance? attendance) {
-			string sql = @"IF @AttendanceId IS NULL  
-						 BEGIN
-							DELETE EventAttendance 
-							WHERE SquadId = (SELECT SquadId FROM Squads WHERE Guid = @SquadGuid)
-							AND EventId = (SELECT EventId FROM Events WHERE Guid = @EventGuid) 
-							AND PlayerId = (SELECT PlayerId FROM Players WHERE GUID = @PlayerGuid); 
-						END
-						ELSE IF @AttendanceId IS NOT NULL 
-						BEGIN
-							MERGE EventAttendance Target
+			string sql = @"	MERGE EventAttendance Target
 							USING (
 								VALUES((SELECT SquadId FROM Squads WHERE Guid = @SquadGuid),
 										(SELECT EventId FROM Events WHERE Guid = @EventGuid),
@@ -150,11 +141,10 @@ namespace HeyTeam.Lib.Repositories {
 							AS Source (SquadId, EventId, PlayerId)
 							ON Target.SquadId = Source.SquadId AND Target.EventId = Source.EventId AND Target.PlayerId = Source.PlayerId
 							WHEN MATCHED THEN
-								UPDATE SET AttendanceId = @AttendanceId, TimeLogged = CASE WHEN @AttendanceId = 2 THEN NULL ELSE TimeLogged END
+								UPDATE SET AttendanceId = @AttendanceId, TimeLogged = CASE WHEN @AttendanceId IS NULL OR @AttendanceId = 2 THEN NULL ELSE TimeLogged END
 							WHEN NOT MATCHED BY Target THEN
 								INSERT (SquadId, EventId, PlayerId, AttendanceId)
-								VALUES(SquadId, EventId, PlayerId, @AttendanceId) ;
-						END";
+								VALUES(SquadId, EventId, PlayerId, @AttendanceId);";
 
 			var parameters = new DynamicParameters();
 			parameters.Add("@SquadGuid", squadId.ToString());
@@ -167,6 +157,7 @@ namespace HeyTeam.Lib.Repositories {
 				using (var transaction = connection.BeginTransaction()) {
 					try {
 						connection.Execute(sql, parameters, transaction);
+						CleanupEventAttendance(squadId, eventId, playerId, connection, transaction);
 						transaction.Commit();
 					} catch (Exception ex) {
 						transaction.Rollback();
@@ -242,11 +233,20 @@ namespace HeyTeam.Lib.Repositories {
 		}
 
 		public void UpdateTimeLog(Guid squadId, Guid eventId, Guid playerId, short? timeLogged) {
-			string sql = @"UPDATE EventAttendance SET TimeLogged = @TimeLogged 
-							WHERE SquadId = (SELECT SquadId FROM Squads WHERE Guid = @SquadGuid) AND 
-							EventId = (SELECT EventId FROM Events WHERE Guid = @EventGuid) AND
-							PlayerId = (SELECT PlayerId FROM Players WHERE GUID = @PlayerGuid)";
-
+			string sql = @"MERGE EventAttendance Target
+							USING(
+								VALUES((SELECT SquadId FROM Squads WHERE Guid = @SquadGuid),
+										(SELECT EventId FROM Events WHERE Guid = @EventGuid),
+										(SELECT PlayerId FROM Players WHERE GUID = @PlayerGuid)
+								)
+							)
+							AS Source(SquadId, EventId, PlayerId)
+							ON Target.SquadId = Source.SquadId AND Target.EventId = Source.EventId AND Target.PlayerId = Source.PlayerId
+							WHEN MATCHED THEN
+								UPDATE SET TimeLogged = @TimeLogged
+							WHEN NOT MATCHED BY Target THEN
+								INSERT(SquadId, EventId, PlayerId, TimeLogged)
+								VALUES(SquadId, EventId, PlayerId, @TimeLogged); ";
 			var parameters = new DynamicParameters();
 			parameters.Add("@SquadGuid", squadId.ToString());
 			parameters.Add("@EventGuid", eventId.ToString());
@@ -255,8 +255,68 @@ namespace HeyTeam.Lib.Repositories {
 
 			using (var connection = connectionFactory.Connect()) {
 				connection.Open();
-				connection.Execute(sql, parameters);				
+				using (var transaction = connection.BeginTransaction()) {
+					try {
+						connection.Execute(sql, parameters, transaction);
+						CleanupEventAttendance(squadId, eventId, playerId, connection, transaction);
+						transaction.Commit();
+					} catch (Exception ex) {
+						transaction.Rollback();
+						throw ex;
+					}
+				}
 			}
+		}
+
+		public void UpdateEventFeedback(Guid squadId, Guid eventId, Guid playerId, string feedback) {
+			string sql = @"MERGE EventAttendance Target
+							USING(
+								VALUES((SELECT SquadId FROM Squads WHERE Guid = @SquadGuid),
+										(SELECT EventId FROM Events WHERE Guid = @EventGuid),
+										(SELECT PlayerId FROM Players WHERE GUID = @PlayerGuid)
+								)
+							)
+							AS Source(SquadId, EventId, PlayerId)
+							ON Target.SquadId = Source.SquadId AND Target.EventId = Source.EventId AND Target.PlayerId = Source.PlayerId
+							WHEN MATCHED THEN
+								UPDATE SET Feedback = @Feedback
+							WHEN NOT MATCHED BY Target THEN
+								INSERT(SquadId, EventId, PlayerId, Feedback)
+								VALUES(SquadId, EventId, PlayerId, @Feedback); ";
+			var parameters = new DynamicParameters();
+			parameters.Add("@SquadGuid", squadId.ToString());
+			parameters.Add("@EventGuid", eventId.ToString());
+			parameters.Add("@PlayerGuid", playerId.ToString());
+			parameters.Add("@Feedback", feedback);
+
+			using (var connection = connectionFactory.Connect()) {
+				connection.Open();
+				using (var transaction = connection.BeginTransaction()) {
+					try {
+						connection.Execute(sql, parameters, transaction);
+						CleanupEventAttendance(squadId, eventId, playerId, connection, transaction);
+						transaction.Commit();
+					} catch (Exception ex) {
+						transaction.Rollback();
+						throw ex;
+					}
+				}
+			}
+		}
+
+		private void CleanupEventAttendance(Guid squadId, Guid eventId, Guid playerId, IDbConnection connection, IDbTransaction transaction) {
+			string sql = @"DELETE EventAttendance WHERE 
+							SquadId = (SELECT SquadId FROM Squads WHERE Guid = @SquadGuid) AND
+							EventId = (SELECT EventId FROM Events WHERE Guid = @EventGuid) AND 
+							PlayerId = (SELECT PlayerId FROM Players WHERE GUID = @PlayerGuid) AND
+							(AttendanceId IS NULL OR AttendanceId = 0) AND 
+							(TimeLogged IS NULL OR TimeLogged = 0) AND 
+							(Feedback IS NULL OR LEN(LTRIM(RTRIM(ISNULL(Feedback, '')))) = 0)";
+			var parameters = new DynamicParameters();
+			parameters.Add("@SquadGuid", squadId.ToString());
+			parameters.Add("@EventGuid", eventId.ToString());
+			parameters.Add("@PlayerGuid", playerId.ToString());
+			connection.Execute(sql, parameters, transaction);
 		}
 	}
 }

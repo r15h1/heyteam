@@ -28,6 +28,7 @@ namespace HeyTeam.Lib.Services {
 		private readonly IEmailSender emailSender;
 		private readonly IValidator<EmailReportRequest> emailReportRequestValidator;
 		private readonly IValidator<EventTimeLogRequest> eventTimeLogRequestValidator;
+		private readonly IValidator<EventFeedbackRequest> eventFeedbackRequestValidator;
 
 		public EventService(IEventRepository eventRepository, IEventQuery eventQuery, IValidator<EventSetupRequest> setUpRequestValidator, 			
 								IValidator<EventDeleteRequest> deleteRequestValidator, IClubQuery clubQuery, ISquadQuery squadQuery, ILibraryQuery libraryQuery, IMemberQuery memberQuery,
@@ -35,7 +36,8 @@ namespace HeyTeam.Lib.Services {
 								IValidator<NewEventReviewRequest> newEventReviewValidator,
 								IEmailSender emailSender,
 								IValidator<EmailReportRequest> emailReportRequestValidator,
-								IValidator<EventTimeLogRequest> eventTimeLogRequestValidator
+								IValidator<EventTimeLogRequest> eventTimeLogRequestValidator,
+								IValidator<EventFeedbackRequest> eventFeedbackRequestValidator
 		) {
 			this.eventRepository = eventRepository;
 			this.eventQuery = eventQuery;
@@ -50,6 +52,7 @@ namespace HeyTeam.Lib.Services {
 			this.emailSender = emailSender;
 			this.emailReportRequestValidator = emailReportRequestValidator;
 			this.eventTimeLogRequestValidator = eventTimeLogRequestValidator;
+			this.eventFeedbackRequestValidator = eventFeedbackRequestValidator;
 		}
 
 		public Response CreateEvent(EventSetupRequest request) {
@@ -329,6 +332,35 @@ namespace HeyTeam.Lib.Services {
 
 			try {
 				eventRepository.UpdateTimeLog(request.SquadId, request.EventId, request.PlayerId, request.TimeLogged);
+			} catch (Exception ex) {
+				return Response.CreateResponse(ex);
+			}
+			return Response.CreateSuccessResponse();
+		}
+
+		public Response UpdateEventFeedback(EventFeedbackRequest request) {
+			var validationResult = eventFeedbackRequestValidator.Validate(request);
+			if (!validationResult.IsValid)
+				return Response.CreateResponse(validationResult.Messages);
+
+			var club = clubQuery.GetClub(request.ClubId);
+			if (club == null)
+				return Response.CreateResponse(new EntityNotFoundException("The specified club does not exist"));
+
+			var squad = squadQuery.GetSquad(request.SquadId);
+			if (squad == null || squad.ClubId != club.Guid)
+				return Response.CreateResponse(new IllegalOperationException("The specified squad does not belong to this club"));
+
+			var @event = eventQuery.GetEvent(request.EventId);
+			if (@event == null || !@event.Squads.Any(s => s.Guid == squad.Guid))
+				return Response.CreateResponse(new IllegalOperationException("The specified squad is not bound to this event"));
+
+			var player = memberQuery.GetPlayer(request.PlayerId);
+			if (player == null || player.SquadId != squad.Guid)
+				return Response.CreateResponse(new IllegalOperationException("The specified player does not belong this squad"));
+
+			try {
+				eventRepository.UpdateEventFeedback(request.SquadId, request.EventId, request.PlayerId, request.Feedback);
 			} catch (Exception ex) {
 				return Response.CreateResponse(ex);
 			}

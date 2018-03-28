@@ -15,6 +15,7 @@ namespace HeyTeam.Core.Services {
 		XmlDocument SerializeReport<T>(T report);
 		Response EmailEventReport(EmailReportRequest request);
 		Response LogEventTime(EventTimeLogRequest request);
+		Response UpdateEventFeedback(EventFeedbackRequest request);
 	}
 
 	public class EmailReportRequest {		
@@ -55,6 +56,15 @@ namespace HeyTeam.Core.Services {
 		public Guid PlayerId { get; set; }
 		public short? TimeLogged { get; set; }
 	}
+
+	public class EventFeedbackRequest {
+		public Guid ClubId { get; set; }
+		public Guid EventId { get; set; }
+		public Guid SquadId { get; set; }
+		public Guid PlayerId { get; set; }
+		public string Feedback { get; set; }
+	}
+
 
 	public class NewEventReviewRequest {
 		public Guid ClubId { get; set; }

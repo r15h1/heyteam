@@ -6,13 +6,14 @@
     <table class="table table-bordered table-hover">
         <thead>
             <tr>
-                <th class="col-md-2">Squad</th>
-                <th class="col-md-3">Player</th>
+                <th class="col-md-1">Squad</th>
+                <th class="col-md-4">Player</th>
                 <th class="text-center col-md-1">Present</th>
                 <th class="text-center col-md-1">Late</th>
                 <th class="text-center col-md-1">Left Early</th>
                 <th class="text-center col-md-1">No Show</th>
                 <th class="text-center col-md-2">Time Logged (mins)</th>
+                <th class="text-center col-md-1">Feedback</th>
             </tr>
         </thead>
         <tbody>
@@ -33,6 +34,7 @@
                     </form>
                     }
                 </td>
+                <td class="text-center"><button class="btn btn-default btn-sm editFeedback" title="A simple shell for an h1 to appropriately space out and segment sections of content on a page. It can utilize the h1's default small element, as well as most other components (with additional styles)."><span class="glyphicon glyphicon-comment text-success"></span></button></td>
             </tr>
             }
         </tbody>
@@ -42,7 +44,8 @@
 @section Scripts {
 <script src="~/js/attendance.js"></script>
 <script type="text/javascript">
-        initializeAttendance();
+    initializeAttendance();
+    $("button.editFeedback").tooltip();
 </script>
 }
 
