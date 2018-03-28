@@ -60,16 +60,16 @@ namespace HeyTeam.Web.Controllers {
 		}
 
 		[HttpPost("attendance")]
-		public IActionResult Attendance([FromBody] EventAttendanceViewModel attendance) {
+		public IActionResult Attendance([FromBody] EventAttendanceViewModel model) {
 			if(!ModelState.IsValid)
 				return BadRequest();
 		
 			var request = new EventAttendanceRequest {
 				ClubId = club.Guid,
-				EventId = attendance.EventId,
-				PlayerId = attendance.PlayerId,
-				SquadId = attendance.SquadId,
-				Attendance = attendance.Attendance
+				EventId = model.EventId,
+				PlayerId = model.PlayerId,
+				SquadId = model.SquadId,
+				Attendance = model.Attendance
 			};
 
 			var response = eventService.UpdateEventAttendance(request);
@@ -85,19 +85,44 @@ namespace HeyTeam.Web.Controllers {
 		}
 
 		[HttpPost("timelog")]
-		public IActionResult TimeLog([FromBody] EventTimeLogViewModel attendance) {
+		public IActionResult TimeLog([FromBody] EventTimeLogViewModel model) {
 			if (!ModelState.IsValid)
 				return BadRequest();
 
 			var request = new EventTimeLogRequest {
 				ClubId = club.Guid,
-				EventId = attendance.EventId,
-				PlayerId = attendance.PlayerId,
-				SquadId = attendance.SquadId,
-				TimeLogged = attendance.TimeLogged
+				EventId = model.EventId,
+				PlayerId = model.PlayerId,
+				SquadId = model.SquadId,
+				TimeLogged = model.TimeLogged
 			};
 
 			var response = eventService.LogEventTime(request);
+
+			if (!response.RequestIsFulfilled) {
+				foreach (var error in response.Errors)
+					ModelState.AddModelError("", error);
+
+				return BadRequest();
+			}
+
+			return Ok();
+		}
+
+		[HttpPost("feedback")]
+		public IActionResult Feedback([FromBody] EventFeedbackViewModel model) {
+			if (!ModelState.IsValid)
+				return BadRequest();
+
+			var request = new EventFeedbackRequest {
+				ClubId = club.Guid,
+				EventId = model.EventId,
+				PlayerId = model.PlayerId,
+				SquadId = model.SquadId,
+				Feedback = model.Feedback
+			};
+
+			var response = eventService.UpdateEventFeedback(request);
 
 			if (!response.RequestIsFulfilled) {
 				foreach (var error in response.Errors)

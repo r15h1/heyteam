@@ -75,6 +75,26 @@ h4 {
     color: rgb(34, 66, 16);
 }
 
+
+/***tooltips*/
+.tooltip-arrow,
+.default-tooltip + .tooltip > .tooltip-inner {
+    font-size: 1.15em;
+    text-align: justify;
+    max-width: 300px;
+    background-color: rgb(75,75,75);
+}
+
+.tooltip.in {
+    opacity: 1;
+    filter: alpha(opacity=100);
+}
+
+.text-muted {
+    color: rgb(210,210,210);
+}
+
+
 @-webkit-keyframes glyphicon-spin-r {
     0% {
         -webkit-transform: rotate(0deg);

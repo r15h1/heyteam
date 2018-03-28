@@ -22,5 +22,6 @@ namespace HeyTeam.Core.Models {
 		public short SquadNumber { get; set; }
 		public Attendance? Attendance { get; set; }
 		public short? TimeLogged{ get; set; }
+		public string Feedback { get; set; }
 	}
 }

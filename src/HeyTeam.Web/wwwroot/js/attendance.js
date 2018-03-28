@@ -1,12 +1,63 @@
 ﻿var attendance = { unSpecified: null, present: 1, noShow: 2, late: 3, leftEarly: 4 };
 var columns = { squad: 1, player: 2, present: 3, late: 4, leftEarly: 5, noShow: 6, timeLogged: 7 };
 var timeLogForm = "<form class='time-log'></form>";
-var timeLogInput = "<input class='form-control time-input input-sm' type='number' min='0' max='400' maxlength='3' value='0' readonly placeholder='0'/>";
+var timeLogInput = "<input class='form-control time-input input-sm' type='number' min='0' max='400' maxlength='3' readonly placeholder='0'/>";
 var timeLogOkButton = "<button type='submit' class='btn btn-default btn-sm saveTimeLog' title='save'><span class='glyphicon glyphicon-ok text-success'></span></button>";
 var timeLogCancelButton = "<button type='button' class='btn btn-default btn-sm cancelTimeLog' title='cancel'><span class='glyphicon glyphicon-remove text-danger'></span></button>";
 var timeLogEditButton = "<button type='button' class='btn btn-default btn-sm editTimeLog' title='edit'><span class='glyphicon glyphicon-pencil'></span></button>";
 
-function initializeAttendance() {
+function initialize() {
+    var targetFeedbackButton = null;
+    $("button.editFeedback").tooltip({ placement: "auto left", trigger: 'hover'});
+    $("button.editFeedback").click(function (e) {
+        var button = $(this);
+        targetFeedbackButton = button;
+        var playerName = button.closest("tr").find("td:nth-child(" + columns.player + ")").text();
+        var eventId = button.closest('tr').data('eventid');
+        var squadId = button.closest('tr').data('squadid');
+        var playerId = button.closest('tr').data('playerid');
+        var feedback = button.attr("data-original-title");
+        $("form.feedback textarea").val(feedback);
+
+        button.tooltip("hide");
+        $('#feedbackDialog h4').text("Feedback - " + playerName);
+        $('#feedbackDialog').data("eventid", eventId);
+        $('#feedbackDialog').data("squadid", squadId);
+        $('#feedbackDialog').data("playerid", playerId);
+        $('#feedbackDialog').modal('show');
+    });  
+
+    $("form.feedback").submit(function (e) {
+        e.preventDefault();
+        var eventId = $('#feedbackDialog').data("eventid");
+        var squadId = $('#feedbackDialog').data("squadid");
+        var playerId = $('#feedbackDialog').data("playerid");
+        var feedback = $("form.feedback textarea").val();
+
+        $.ajax({
+            method: "POST",
+            contentType: 'application/json',
+            url: "/api/events/feedback",
+            data: JSON.stringify({ "eventid": eventId, "squadid": squadId, "playerid": playerId, "feedback": feedback })
+        }).done(function (data) {
+            $('#feedbackDialog h4').text("Feedback");
+            $('#feedbackDialog').data("eventid", null);
+            $('#feedbackDialog').data("squadid", null);
+            $('#feedbackDialog').data("playerid", null);
+            $('#feedbackDialog').modal("hide");
+            
+            if ($.trim(feedback).length == 0) {
+                targetFeedbackButton.find("span.glyphicon").addClass("text-muted");
+                targetFeedbackButton.removeAttr("data-original-title");   
+            } else {
+                targetFeedbackButton.find("span.glyphicon").removeClass("text-muted");
+                targetFeedbackButton.attr("data-original-title", feedback);
+            }
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            console.log(textStatus);
+        });
+    });
+
     $('button.attendance').on('click', function (e) {
         var button = $(this);
         var eventId = $(this).closest('tr').data('eventid');
@@ -76,6 +127,7 @@ function initializeAttendance() {
     function makeTimeLogFormEditable(form) {
         var input = form.find('input.time-input');
         input.removeAttr("readonly");
+        $(input).focus();
         var originalTimeLogged = input.val();
         var okButton = $(timeLogOkButton);
         var cancelButton = $(timeLogCancelButton);        

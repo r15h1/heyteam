@@ -287,7 +287,7 @@ namespace HeyTeam.Lib.Repositories {
 			parameters.Add("@SquadGuid", squadId.ToString());
 			parameters.Add("@EventGuid", eventId.ToString());
 			parameters.Add("@PlayerGuid", playerId.ToString());
-			parameters.Add("@Feedback", feedback);
+			parameters.Add("@Feedback", feedback.IsEmpty() ? null : feedback);
 
 			using (var connection = connectionFactory.Connect()) {
 				connection.Open();
