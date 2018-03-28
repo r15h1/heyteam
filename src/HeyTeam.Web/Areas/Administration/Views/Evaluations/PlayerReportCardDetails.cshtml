@@ -26,26 +26,35 @@
             border-collapse: collapse;
         }
 
-        tr {
+        thead {
+            display: table-header-group;
+        }
+
+        thead > tr > th {
+            text-align:left;
+        }
+
+        tbody > tr {
             border: solid thin rgb(200,200,200);
+            border-collapse: collapse;
             -webkit-print-color-adjust: exact;
         }
-        td {
+        tbody > tr > td {
             padding: 2px 2px 2px 2px;
             border: solid thin rgb(200,200,200);
             font-size:9pt;
         }
 
-        td:nth-child(n+3){
-            text-align:center;
-            font-weight:700;
-            width:0.75cm;
-        }
+        tbody > tr > td:nth-child(n+3) {
+                text-align: center;
+                font-weight: 700;
+                width: 0.75cm;
+            }
 
         h2 {
             margin-top: 0;
-            margin-bottom: 0;            
-            font-size: 13pt;
+            margin-bottom: 0;
+            font-size: 14pt;
         }
 
         p {
@@ -64,6 +73,7 @@
             height: 2.2cm;
             width: 7cm;
             padding-left:3pt;
+            text-align:left;
         }
 
         .bold{
@@ -84,16 +94,30 @@
     }
     </style>
     </head>
-<body>
-    <img src="~/images/mapola-logo.png" />
-    <div class="identification">
-        <p><span class="bold blue">Name:  </span>@Model.Player.Name</p>
-        <p><span class="bold blue">Term:  </span>@Model.Term.Name</p>
-        <p><span class="bold blue">Level: </span>@Model.ReportCard.Facets.SingleOrDefault(f => f.Key == ReportCardFacetKeys.Level)?.Value</p>
-    </div>
-    <h2 class="red">Mapola FC Academy Players Evaluation</h2>
-    <p>All grades are specific to the Age Group and the Level that the player is training at.</p>
+<body>    
     <table>
+        <thead>
+            <tr>
+                <th><img src="~/images/mapola-logo.png" /></th>
+                <th colspan="6">
+                    <div class="identification">
+                        <p> <span class="bold blue">Name:  </span>@Model.Player.Name</p>
+                        <p><span class="bold blue">Term:  </span>@Model.Term.Name</p>
+                        <p><span class="bold blue">Level: </span>@Model.ReportCard.Facets.SingleOrDefault(f => f.Key == ReportCardFacetKeys.Level)?.Value</p>
+                    </div>
+                </th>
+            </tr>
+            <tr>
+                <th colspan="7">
+                    <h2 class="red">Mapola FC Academy Players Evaluation</h2>                    
+                </th>
+            </tr>
+            <tr>
+                <th colspan="7">
+                    <p>All grades are specific to the Age Group and the Level that the player is training at.</p>
+                </th>
+            </tr>
+        </thead>
         <tbody>
             @foreach (var headline in Model.ReportCard.Headlines) {
                 <tr style="background-color:rgb(26, 26, 126);color:rgb(255,255,255);font-weight:700;">
