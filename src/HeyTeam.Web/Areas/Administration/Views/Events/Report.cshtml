@@ -104,7 +104,7 @@
         $("#editButton, #cancelButton").click(function () {
             $("#editButton, #backToListButton, #cancelButton, #submitButton").toggleClass("hidden");
             var disabled = $("#Opponent").prop("disabled");
-            $("input[type=text], textarea").prop("disabled", !disabled);
+            $("input[type=text], textarea, input[type=number]").prop("disabled", !disabled);
             toggleEmailButton();
         });
 

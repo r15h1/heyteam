@@ -92,6 +92,13 @@
         function initialize() {
             $("#terms").change(refreshReportCardTable);
             $("#squads").change(refreshReportCardTable);
+            $('.table-responsive').on('show.bs.dropdown', function () {
+                $('.table-responsive').css("overflow", "inherit");
+            });
+
+            $('.table-responsive').on('hide.bs.dropdown', function () {
+                $('.table-responsive').css("overflow", "auto");
+            })
         }
 
         function refreshReportCardTable() {
