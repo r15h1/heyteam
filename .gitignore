@@ -292,6 +292,7 @@ __pycache__/
 !src/HeyTeam.Lib/Repositories/*
 !src/HeyTeam.Lib/HeyTeam.Lib.csproj
 
+src/HeyTeam.Web/wwwroot/library/*
 src/HeyTeam.Web/wwwroot/lib/*
 src/HeyTeam.Web/wwwroot/css/*.min.css
 src/HeyTeam.Web/wwwroot/js/*.min.css

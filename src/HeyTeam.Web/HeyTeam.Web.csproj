@@ -38,5 +38,6 @@
     <Folder Include="Areas\Players\Data\" />
     <Folder Include="Areas\Players\Models\" />
     <Folder Include="wwwroot\docs\" />
+    <Folder Include="wwwroot\library\" />
   </ItemGroup>
 </Project>

@@ -168,6 +168,10 @@
                                 row = row + "<li><a href='events/" + entry.eventId + "/reviews'><span class='text-primary glyphicon glyphicon-star'></span> Review</a></li>";
                             }
 
+                            if (entry.trainingMaterialsCount > 0) {
+                                row = row + "<li><a href='#' class='trainingMaterialViews'><span class='text-primary glyphicon glyphicon-eye-open'></span> Training Material Views</a></li>";
+                            }
+
                             row = row + "<li><a href='#' class='deleteButton'><span class='text-danger glyphicon glyphicon-remove' aria-hidden='true'></span> Delete</a></li>" +
                                 "</ul></div></td>";
 
