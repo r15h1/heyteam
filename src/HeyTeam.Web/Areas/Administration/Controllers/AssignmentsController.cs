@@ -49,8 +49,9 @@ namespace HeyTeam.Web.Areas.Administration.Controllers
             //{
                 model.SquadList = GetSquadList();
                 model.SelectedPlayerList = GetSelectedPlayerList(model.Players);
+				model.SelectedTrainingMaterialList = GetSelectedTrainingMaterialList(model.TrainingMaterials);
 
-                return View("Create", model);
+				return View("Create", model);
             //}
             //return View("Create", model);
             //return RedirectToAction(nameof(Index));

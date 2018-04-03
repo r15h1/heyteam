@@ -43,6 +43,8 @@
     <script src="~/lib/select2/dist/js/select2.min.js"></script>
     <script>
         var selectedPlayerList = @(Model.SelectedPlayerList.IsEmpty() ? Html.Raw("''") : Html.Raw(Model.SelectedPlayerList));
+        var selectedTrainingMaterialList = @(Model.SelectedTrainingMaterialList.IsEmpty() ? Html.Raw("''") : Html.Raw(Model.SelectedTrainingMaterialList));
+
         $('#Squads').select2({
             placeholder: 'select squads...'
         });
@@ -62,7 +64,7 @@
             placeholder: 'select players...'
         });
 
-        $('#TrainingMaterials').select2({
+        var trainingMaterialsDropdown = $('#TrainingMaterials').select2({
             ajax: {
                 url: '/administration/api/library?',
                 data: function (params) {
@@ -75,6 +77,7 @@
                 processResults: function (data) {return {results: data};}
             },
             minimumInputLength: 1,
+            data: selectedTrainingMaterialList,
             placeholder: 'select training materials...',
             templateResult: resultStyles,
             templateSelection: resultStyles
@@ -101,6 +104,13 @@
                 $("#Players option[value='" + selectedPlayerList[i].id + "']").prop("selected", true);
             }
             playersDropdown.trigger("change");
+        }
+
+        if (selectedTrainingMaterialList != null && selectedTrainingMaterialList.length > 0) {
+            for (var i in selectedTrainingMaterialList) {
+                $("#TrainingMaterials option[value='" + selectedTrainingMaterialList[i].id + "']").prop("selected", true);
+            }
+            trainingMaterialsDropdown.trigger("change");
         }
     </script>
 }
