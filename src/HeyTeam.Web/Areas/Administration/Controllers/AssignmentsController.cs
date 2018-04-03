@@ -58,6 +58,7 @@ namespace HeyTeam.Web.Areas.Administration.Controllers
             }
 
 			var response = assignmentService.CreateAssignment(new AssignmentRequest { 
+				ClubId = club.Guid,
 				CoachId = model.CoachId,
 				DateDue = model.DateDue,
 				Notes = model.Notes,

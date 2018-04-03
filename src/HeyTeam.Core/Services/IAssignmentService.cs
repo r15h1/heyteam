@@ -10,6 +10,7 @@ namespace HeyTeam.Core.Services
 
     public class AssignmentRequest
     {
+		public Guid ClubId { get; set; }
         public Guid? Guid { get; set; }
         public DateTime? SubmittedOn { get; set; }                
         public Guid CoachId { get; set; }
