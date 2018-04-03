@@ -15,18 +15,17 @@ namespace HeyTeam.Web.Models.Assignments
         public DateTime? SubmittedOn { get; set; }
 
         [Required]
-        public int CoachId { get; set; }
-
+        public Guid CoachId { get; set; }
         public DateTime? DateDue { get; set; }
 
         [Required]
         public string Notes { get; set; }
-
-        public IEnumerable<TrainingMaterial> TrainingMaterials { get; set; }
-
-        public IEnumerable<MiniModel> Squads { get; set; }
-
-        public IEnumerable<MiniModel> Players { get; set; }
+        public IEnumerable<Guid> TrainingMaterials { get; set; }
+        public IEnumerable<Guid> Squads { get; set; }
+        public IEnumerable<Guid> Players { get; set; }
         public IEnumerable<SelectListItem> SquadList { get; internal set; }
+        
+        public string SelectedTrainingMaterialList { get; internal set; }
+        public string SelectedPlayerList { get; internal set; }
     }
 }

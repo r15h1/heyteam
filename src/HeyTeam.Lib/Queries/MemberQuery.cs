@@ -241,7 +241,7 @@ namespace HeyTeam.Lib.Queries {
 								
 								SELECT * FROM (
 								SELECT S.Guid AS SquadGuid, 0 AS Membership,
-									P.Guid AS MemberGuid, P.FirstName + ' ' + P.LastName AS MemberName                                    
+									P.Guid AS MemberGuid, P.FirstName + ' ' + P.LastName + ' (' + S.Name + ')'  AS MemberName                                    
                                 FROM Players P
                                 INNER JOIN Squads S ON P.SquadId = S.SquadId
                                 WHERE S.Guid IN @Squads

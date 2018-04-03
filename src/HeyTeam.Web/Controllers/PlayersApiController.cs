@@ -28,7 +28,7 @@ namespace HeyTeam.Web.Controllers
 		[HttpGet]
 		public IActionResult Get(GenericSearchModel model) {
 			var results = memberQuery.SearchPlayers(model.Query, model.Page, model.Limit) ?? new List<PlayerSearchResult>(); ;
-			return new JsonResult(results?.Select(t => new { id = t.PlayerId, text = $"{t.PlayerName} - {t.SquadName} (#{t.SquadNumber})"}));
+			return new JsonResult(results?.Select(t => new { id = t.PlayerId, text = $"{t.PlayerName} {t.SquadName}"}));
 		}
 	}
 }
