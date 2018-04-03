@@ -1,5 +1,6 @@
 ﻿using HeyTeam.Core;
 using HeyTeam.Core.Models.Mini;
+using HeyTeam.Web.ValidationAttributes;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
@@ -16,7 +17,8 @@ namespace HeyTeam.Web.Models.Assignments
 
         [Required]
         public Guid CoachId { get; set; }
-        public DateTime? DateDue { get; set; }
+				
+		public DateTime? DateDue { get; set; }
 
         [Required]
         public string Notes { get; set; }

@@ -1,5 +1,6 @@
 ﻿using HeyTeam.Core;
 using HeyTeam.Core.Queries;
+using HeyTeam.Core.Services;
 using HeyTeam.Web.Models.Assignments;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,14 +22,16 @@ namespace HeyTeam.Web.Areas.Administration.Controllers
         private readonly ISquadQuery squadQuery;
         private readonly IMemberQuery memberQuery;
         private readonly ILibraryQuery libraryQuery;
+		private readonly IAssignmentService assignmentService;
 
-        public AssignmentsController(Club club, ISquadQuery squadQuery, IMemberQuery memberQuery, ILibraryQuery libraryQuery)
+		public AssignmentsController(Club club, ISquadQuery squadQuery, IMemberQuery memberQuery, ILibraryQuery libraryQuery, IAssignmentService assignmentService)
         {
             this.club = club;
             this.squadQuery = squadQuery;
             this.memberQuery = memberQuery;
             this.libraryQuery = libraryQuery;
-        }
+			this.assignmentService = assignmentService;
+		}
 
         public IActionResult Index()
         {
@@ -45,16 +48,35 @@ namespace HeyTeam.Web.Areas.Administration.Controllers
         [HttpPost("new")]
         public IActionResult New(AssignmentDetailsViewModel model)
         {
-            //if (!ModelState.IsValid)
-            //{
+            if (!ModelState.IsValid)
+            {
                 model.SquadList = GetSquadList();
                 model.SelectedPlayerList = GetSelectedPlayerList(model.Players);
 				model.SelectedTrainingMaterialList = GetSelectedTrainingMaterialList(model.TrainingMaterials);
 
 				return View("Create", model);
-            //}
-            //return View("Create", model);
-            //return RedirectToAction(nameof(Index));
+            }
+
+			var response = assignmentService.CreateAssignment(new AssignmentRequest { 
+				CoachId = model.CoachId,
+				DateDue = model.DateDue,
+				Notes = model.Notes,
+				Players = model.Players,
+				Squads = model.Squads,
+				TrainingMaterials = model.TrainingMaterials
+			});
+
+			if(!response.RequestIsFulfilled){
+				model.SquadList = GetSquadList();
+				model.SelectedPlayerList = GetSelectedPlayerList(model.Players);
+				model.SelectedTrainingMaterialList = GetSelectedTrainingMaterialList(model.TrainingMaterials);
+				foreach (var error in response.Errors)
+					ModelState.AddModelError("", error);
+
+				return View("Create", model);
+			}
+
+            return RedirectToAction(nameof(Index));
         }
 
         private List<SelectListItem> GetSquadList()
