@@ -13,19 +13,18 @@ namespace HeyTeam.Lib.Validation {
 				return validationResult;
 			}
 
-			if(request.Notes.IsEmpty()){
-				validationResult.AddMessage("Notes cannot be empty");
-			}
+			if(request.Instructions.IsEmpty()) validationResult.AddMessage("Notes cannot be empty");
 
-			if ((request.Squads == null || request.Squads.Count() == 0) && (request.Players == null || request.Players.Count() == 0)) {
-				validationResult.AddMessage("Assignment must be allocated to squad(s) and/or player(s)");
-			}
+            if ((request.Squads == null || request.Squads.Count() == 0) && (request.Players == null || request.Players.Count() == 0))
+                validationResult.AddMessage("Assignment must be allocated to squad(s) and/or player(s)");
 
-			if (request.DateDue.HasValue && request.DateDue.Value < DateTime.Today) {
-				validationResult.AddMessage("Date due must be in the future");
-			}
+            if (request.DateDue.HasValue && request.DateDue.Value < DateTime.Today)
+                validationResult.AddMessage("Date due must be in the future");
 
-			return validationResult;
+            if (request.CoachId.IsEmpty())
+                validationResult.AddMessage("CoachId must be supplied");
+
+            return validationResult;
 		}
 	}
 }

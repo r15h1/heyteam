@@ -15,7 +15,7 @@ namespace HeyTeam.Core.Services
         public DateTime? SubmittedOn { get; set; }                
         public Guid CoachId { get; set; }
         public DateTime? DateDue { get; set; }
-        public string Notes { get; set; }
+        public string Instructions { get; set; }
         public IEnumerable<Guid> TrainingMaterials { get; set; }
         public IEnumerable<Guid> Squads { get; set; }
         public IEnumerable<Guid> Players { get; set; }

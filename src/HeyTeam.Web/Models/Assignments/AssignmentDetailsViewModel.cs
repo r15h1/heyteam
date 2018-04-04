@@ -14,14 +14,11 @@ namespace HeyTeam.Web.Models.Assignments
     {
         public Guid? Guid { get; set; }
         public DateTime? SubmittedOn { get; set; }
-
-        [Required]
-        public Guid CoachId { get; set; }
-				
+        				
 		public DateTime? DateDue { get; set; }
 
         [Required]
-        public string Notes { get; set; }
+        public string Instructions { get; set; }
         public IEnumerable<Guid> TrainingMaterials { get; set; }
         public IEnumerable<Guid> Squads { get; set; }
         public IEnumerable<Guid> Players { get; set; }

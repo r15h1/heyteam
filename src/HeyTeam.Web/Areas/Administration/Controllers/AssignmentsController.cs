@@ -48,36 +48,48 @@ namespace HeyTeam.Web.Areas.Administration.Controllers
         [HttpPost("new")]
         public IActionResult New(AssignmentDetailsViewModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                model.SquadList = GetSquadList();
-                model.SelectedPlayerList = GetSelectedPlayerList(model.Players);
-				model.SelectedTrainingMaterialList = GetSelectedTrainingMaterialList(model.TrainingMaterials);
+            if (!ModelState.IsValid)            
+                return PromptForSubmission(model);
+            
+            var email = User.Identity.Name;
+            var members = memberQuery.GetMembersByEmail(club.Guid, email);
+            var coach = members?.FirstOrDefault(m => m.Membership == Membership.Coach);
 
-				return View("Create", model);
+            if(coach == null)
+            {
+                ModelState.AddModelError("", "Coach could not be resolved");
+                PromptForSubmission(model);
             }
 
-			var response = assignmentService.CreateAssignment(new AssignmentRequest { 
+
+            var response = assignmentService.CreateAssignment(new AssignmentRequest { 
 				ClubId = club.Guid,
-				CoachId = model.CoachId,
+				CoachId = coach.Guid,
 				DateDue = model.DateDue,
-				Notes = model.Notes,
+				Instructions = model.Instructions,
 				Players = model.Players,
 				Squads = model.Squads,
 				TrainingMaterials = model.TrainingMaterials
 			});
 
-			if(!response.RequestIsFulfilled){
-				model.SquadList = GetSquadList();
-				model.SelectedPlayerList = GetSelectedPlayerList(model.Players);
-				model.SelectedTrainingMaterialList = GetSelectedTrainingMaterialList(model.TrainingMaterials);
+			if(!response.RequestIsFulfilled){				
 				foreach (var error in response.Errors)
 					ModelState.AddModelError("", error);
 
+                PromptForSubmission(model);
 				return View("Create", model);
 			}
 
             return RedirectToAction(nameof(Index));
+        }
+
+        private IActionResult PromptForSubmission(AssignmentDetailsViewModel model)
+        {
+            model.SquadList = GetSquadList();
+            model.SelectedPlayerList = GetSelectedPlayerList(model.Players);
+            model.SelectedTrainingMaterialList = GetSelectedTrainingMaterialList(model.TrainingMaterials);
+
+            return View("Create", model);
         }
 
         private List<SelectListItem> GetSquadList()
