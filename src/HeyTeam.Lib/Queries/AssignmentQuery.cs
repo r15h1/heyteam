@@ -59,5 +59,51 @@ namespace HeyTeam.Lib.Queries
                 return list;
             }
         }
-    }
+
+		public IEnumerable<Assignment> GetAssignments(AssignmentsRequest request) {
+			var sql = $@"SELECT	P.FirstName + ' ' + P.LastName AS PlayerName, 
+                                P.Guid AS PlayerGuid,
+		                        PA.Guid AS PlayerAssignmnentGuid,
+                                PA.DateDue, 
+		                        A.Guid AS AssignmentGuid, 
+		                        CAST(A.CreatedOn AS DATE) AS CreatedOn, 
+		                        A.Instructions,
+		                        A.Title, Cl.Guid AS ClubGuid,
+                                Co.Guid AS CoachGuid,
+		                        Co.FirstName + ' ' + Co.LastName AS CoachName
+                        FROM PlayerAssignments PA
+                        INNER JOIN Assignments A ON A.AssignmentId = PA.AssignmentId
+                        INNER JOIN Players P ON PA.PlayerId = P.PlayerId
+                        INNER JOIN Clubs Cl ON A.ClubId = Cl.ClubId
+                        INNER JOIN Squads S ON S.ClubId = Cl.ClubId AND P.SquadId = S.SquadId
+                        INNER JOIN Coaches Co ON Cl.ClubId = Co.ClubId AND Co.CoachId = A.CoachId                        
+                        WHERE Cl.Guid = @ClubGuid AND YEAR(PA.AssignedOn) = @Year AND MONTH(PA.AssignedOn) = @Month
+						{((request.Squads?.Any() ?? false) ? " AND S.Guid IN @Squads" : "")}
+                        ORDER BY CreatedOn DESC, DateDue DESC, PlayerName;";
+
+			DynamicParameters p = new DynamicParameters();
+			p.Add("@ClubGuid", request.ClubId.ToString());
+			p.Add("@Month", request.Month);
+			p.Add("@Year", request.Year);			
+
+			if (request.Squads?.Any() ?? false)
+				p.Add("@Squads", request.Squads);
+
+			using (var connection = connectionFactory.Connect()) {
+				connection.Open();
+				var reader = connection.Query(sql, p).Cast<IDictionary<string, object>>();
+				var list = reader.Select<dynamic, Assignment>(
+						row => new Assignment(Guid.Parse(row.ClubGuid.ToString()), Guid.Parse(row.AssignmentGuid.ToString()), Guid.Parse(row.PlayerAssignmnentGuid.ToString())) {
+							Coach = new MiniModel(Guid.Parse(row.CoachGuid.ToString()), row.CoachName),
+							CreatedOn = row.CreatedOn,
+							DateDue = row.DateDue,
+							Instructions = row.Instructions,
+							Player = new MiniModel(Guid.Parse(row.PlayerGuid.ToString()), row.PlayerName),
+							Title = row.Title
+						}).ToList();
+
+				return list;
+			}
+		}
+	}
 }

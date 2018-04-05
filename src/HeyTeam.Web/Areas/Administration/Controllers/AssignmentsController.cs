@@ -41,8 +41,9 @@ namespace HeyTeam.Web.Areas.Administration.Controllers
         [HttpGet("")]
         public IActionResult Index()
         {
-            var model = assignmentQuery.GetAssignments(club.Guid);
-            return View(model);
+			var model = new IndexViewModel();
+			model.Squads = GetSquadList().OrderBy(s => s.Text).Prepend(new SelectListItem { Text = "All", Value = "" }).ToList();
+			return View(model);
         }
 
         [HttpGet("new")]

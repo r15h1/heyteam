@@ -1,4 +1,4 @@
-﻿@model IEnumerable<HeyTeam.Core.Models.Assignment>
+﻿@model HeyTeam.Web.Models.Assignments.IndexViewModel
 @{
     ViewData["Title"] = "Index";
 }
@@ -10,61 +10,122 @@
         <a class="btn btn-primary" asp-controller="Assignments" asp-area="Administration" asp-action="New">Add New Assignment</a>
     </div>
 </div>
+<div class="row">
+    <div class="col-md-12" style="margin-bottom:15px;">
+        <div class="form-inline">
+            <div class="form-group">
+                <label for="month">Month Assigned:</label>
+                <input id="month" type="month" class="form-control" value=@($"{DateTime.Now.Year}-{(DateTime.Now.Month < 10 ? "0" : "")}{DateTime.Now.Month}")>
+            </div>
+            <div class="form-group">
+                <label for="squads" class="control-label">Squads:</label>
+                <select id="squads" name="squads" asp-items="Model.Squads" class="form-control"></select>
+            </div>
+        </div>
+    </div>
+</div>
 
+<div id="message" style="display:none"></div>
 <div class="table-responsive">
-    <table class="table table-bordered table-hover">
+    <table id="assignmentsTable" class="table table-bordered table-hover">
         <thead>
             <tr>
-                <th class="col-md-4">Title</th>
+                <th class="col-md-3">Title</th>
                 <th class="col-md-2">Assigned To</th>
-                <th class="col-md-1">Created By</th>
-                <th class="col-md-1">Created On</th>
-                <th class="col-md-1">Date Due</th>
+                <th class="col-md-2">Created By</th>
+                <th class="col-md-2">Created On</th>
+                <th class="col-md-2">Date Due</th>
                 <th class="col-md-1">Actions</th>
             </tr>
         </thead>
-        <tbody>
-            @foreach (var assignment in Model)
-            {
-            <tr data-id="@assignment.AssignmentId">
-                <td><a class="btn btn-link assignmentTitle default-tooltip" title="@assignment.Instructions" asp-area="Administration" asp-controller="Assignments" asp-action="Details" asp-route-playerAssignmentId="@assignment.PlayerAssignmentId">@assignment.Title</a></td>
-                <td>@assignment.Player.Name</td>
-                <td>@assignment.Coach.Name</td>
-                <td>@assignment.CreatedOn.ToString("dd MMM yyyy")</td>
-                <td>@assignment.DateDue?.ToString("dd MMM yyyy")</td>
-                <td class='text-center'>
-                    <div class='dropdown'>
-                        <button class='btn btn-default dropdown-toggle btn-sm' type='button' id='dropdownMenu1' data-toggle='dropdown' aria- haspopup='true' aria-expanded='true'>
-                            <span class='caret'></span>
-                        </button>
-                        <ul class='dropdown-menu dropdown-menu-right' aria-labelledby='dropdownMenu1'>
-                            <li><button class="assignAgain btn btn-link"><span class="text-primary glyphicon glyphicon-hand-right"></span> Assign To Another Player</button></li>
-                            @*<li><button class="assignmentHistory btn btn-link"><span class="text-primary glyphicon glyphicon-th-list"></span> History</button></li>*@
-                        </ul>
-                    </div>
-                </td>
-            </tr>
-            }
-        </tbody>
+        <tbody></tbody>
     </table>
 </div>
 @section Scripts {
-<script>
-    $('.table-responsive').on('show.bs.dropdown', function () {
-        $('.table-responsive').css("overflow", "inherit");
-    });
+    <script src="~/lib/select2/dist/js/select2.min.js"></script>
+    <script>
+        var tableBody = $("#assignmentsTable").find("tbody");
+        $("#squads").select2();
+        $("#squads").change(updateTable);
+        $("#month").change(updateTable);        
+        
+        function updateTable() {
+            var date = $('#month').val().split('-');
+            $(".table-responsive").hide();
+            $("#eventsTable > tbody").empty();
+            $("#message").text("Fetching data, please wait...");
+            $("#message").show();
 
-    $('.table-responsive').on('hide.bs.dropdown', function () {
-        $('.table-responsive').css("overflow", "auto");
-    })
+            var date = $('#month').val().split('-');
+            var apiUrl = "/api/assignments?month=" + date[1] + "&year=" + date[0];
+            if ($('#squads').val().length > 0) {
+                apiUrl = apiUrl + "&squads=" + $('#squads').val();
+            }
 
-    $("button.assignAgain").click(function () {
-        console.log("assigning again...");
-    });
+            console.log("calling ajax...");
+            $.ajax({
+                method: "GET",
+                url: apiUrl
+            }).done(function (data) {
+                console.log("ajax done...");
+                if (data.length > 0) {
+                    addRows(data);
+                    $(".table-responsive").show();
+                    $("#message").hide();
+                } else {
+                    $(".table-responsive").hide();
+                    $("#message").show();
+                    $("#message").text("No records found");
+                }
+                }).fail(function (jqXHR, textStatus, errorThrown) { 
+                    console.log("ajax failed...");
+                }).always(function () { 
+                    console.log("ajax completed...");
+                    bindEvents();
+                });
+        }
 
-    $("a.assignmentTitle").tooltip({ placement: "auto right", trigger: 'hover' });
-    //$("button.assignmentHistory").click(function () {
-    //    console.log("checking history for this assignment...");
-    //});
-</script>
+        function bindEvents() {
+            $('.table-responsive').unbind();
+            $("button.assignAgain").unbind();
+
+            $('.table-responsive').on('show.bs.dropdown', function () {
+                $('.table-responsive').css("overflow", "inherit");
+            });
+
+            $('.table-responsive').on('hide.bs.dropdown', function () {
+                $('.table-responsive').css("overflow", "auto");
+            })
+
+            $("button.assignAgain").click(function () {
+                console.log("assigning again...");
+            });
+
+            $("button.assignmentTitle").tooltip("destroy");
+            $("button.assignmentTitle").tooltip({ placement: "auto right", trigger: 'hover' });
+
+        }
+
+        function addRows(data) {            
+            tableBody.empty();
+            for (var index in data) {
+                var record = data[index];
+                var row = "<tr data-assignmentid='" + record.assignmentId + "' data-playerassignmentid='" + record.playerAssignmentId + "'>" +
+                    "<td><button type='button' class='btn btn-link assignmentTitle' title='" + record.instructions + "'>" + record.title + "</button></td>" +
+                    "<td>" + record.player.name + "</td>" +
+                    "<td>" + record.coach.name + "</td>" +
+                    "<td>" + new Date(record.createdOn).toDateString() + "</td>" +
+                    "<td>" + (record.dateDue == null ? "" : new Date(record.dateDue).toDateString()) + "</td>" +
+                    "<td></td>" +
+                    "</tr>";
+                tableBody.append(row);
+            }
+        }
+
+        updateTable();
+    </script>
+}
+
+@section CSS {
+    <link href="~/lib/select2/dist/css/select2.min.css" rel="stylesheet" />
 }
