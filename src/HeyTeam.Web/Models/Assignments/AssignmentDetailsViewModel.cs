@@ -18,9 +18,15 @@ namespace HeyTeam.Web.Models.Assignments
 		public DateTime? DateDue { get; set; }
 
         [Required]
+        [MaxLength(250)]
+        public string Title { get; set; }
+
+        [Required]
         public string Instructions { get; set; }
         public IEnumerable<Guid> TrainingMaterials { get; set; }
         public IEnumerable<Guid> Squads { get; set; }
+
+        [Required]
         public IEnumerable<Guid> Players { get; set; }
         public IEnumerable<SelectListItem> SquadList { get; internal set; }
         

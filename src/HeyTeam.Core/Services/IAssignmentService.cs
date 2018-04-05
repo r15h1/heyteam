@@ -19,5 +19,6 @@ namespace HeyTeam.Core.Services
         public IEnumerable<Guid> TrainingMaterials { get; set; }
         public IEnumerable<Guid> Squads { get; set; }
         public IEnumerable<Guid> Players { get; set; }
+        public string Title { get; set; }
     }
 }

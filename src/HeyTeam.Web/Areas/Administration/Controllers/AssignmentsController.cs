@@ -23,19 +23,26 @@ namespace HeyTeam.Web.Areas.Administration.Controllers
         private readonly IMemberQuery memberQuery;
         private readonly ILibraryQuery libraryQuery;
 		private readonly IAssignmentService assignmentService;
+        private readonly IAssignmentQuery assignmentQuery;
 
-		public AssignmentsController(Club club, ISquadQuery squadQuery, IMemberQuery memberQuery, ILibraryQuery libraryQuery, IAssignmentService assignmentService)
+        public AssignmentsController(Club club, ISquadQuery squadQuery, IMemberQuery memberQuery, 
+                ILibraryQuery libraryQuery, IAssignmentService assignmentService,
+                IAssignmentQuery assignmentQuery
+        )
         {
             this.club = club;
             this.squadQuery = squadQuery;
             this.memberQuery = memberQuery;
             this.libraryQuery = libraryQuery;
 			this.assignmentService = assignmentService;
-		}
+            this.assignmentQuery = assignmentQuery;
+        }
 
+        [HttpGet("")]
         public IActionResult Index()
         {
-            return View();
+            var model = assignmentQuery.GetAssignments(club.Guid);
+            return View(model);
         }
 
         [HttpGet("new")]
@@ -63,6 +70,7 @@ namespace HeyTeam.Web.Areas.Administration.Controllers
 
 
             var response = assignmentService.CreateAssignment(new AssignmentRequest { 
+                Title = model.Title,
 				ClubId = club.Guid,
 				CoachId = coach.Guid,
 				DateDue = model.DateDue,

@@ -7,23 +7,29 @@
         <form asp-action="New" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
+                <label asp-for="Title" class="control-label">Title</label>
+                <input type="text" asp-for="Title" class="form-control" required maxlength="250" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+            <div class="form-group">
                 <label asp-for="Instructions" class="control-label">Instructions</label>
                 <textarea asp-for="Instructions" class="form-control" required rows="5"></textarea>
                 <span asp-validation-for="Instructions" class="text-danger"></span>
             </div>
+
+            @*<div class="form-group">
+            <label asp-for="Squads" class="control-label"></label>
+            <select asp-for="Squads" class="form-control" multiple asp-items="Model.SquadList"></select>
+            <span asp-validation-for="Squads" class="text-danger"></span>
+        </div>*@
+            <div class="form-group">
+                <label asp-for="Players" class="control-label"></label>
+                <select asp-for="Players" class="form-control" multiple required></select>
+                <span asp-validation-for="Players" class="text-danger"></span>
+            </div>
             <div class="form-group">
                 <label asp-for="DateDue" class="control-label">Date Due</label>
                 <input type="date" asp-for="DateDue" class="form-control" style="width:200px" />
-            </div>
-            <div class="form-group">
-                <label asp-for="Squads" class="control-label"></label>
-                <select asp-for="Squads" class="form-control" multiple asp-items="Model.SquadList"></select>
-                <span asp-validation-for="Squads" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Players" class="control-label"></label>
-                <select asp-for="Players" class="form-control" multiple></select>
-                <span asp-validation-for="Players" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="TrainingMaterials" class="control-label"></label>
@@ -45,9 +51,9 @@
         var selectedPlayerList = @(Model.SelectedPlayerList.IsEmpty() ? Html.Raw("''") : Html.Raw(Model.SelectedPlayerList));
         var selectedTrainingMaterialList = @(Model.SelectedTrainingMaterialList.IsEmpty() ? Html.Raw("''") : Html.Raw(Model.SelectedTrainingMaterialList));
 
-        $('#Squads').select2({
-            placeholder: 'select squads...'
-        });
+        //$('#Squads').select2({
+        //    placeholder: 'select squads...'
+        //});
 
         var playersDropdown = $('#Players').select2({
             ajax: {

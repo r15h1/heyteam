@@ -42,8 +42,8 @@ namespace HeyTeam.Lib.Repositories {
 
         private static void CreateAssignment(Guid guid, AssignmentRequest request, IDbConnection connection, IDbTransaction transaction)
         {
-            var sql = @"INSERT INTO Assignments(Guid, ClubId, CreatedOn, CoachId, Instructions)
-                        SELECT @AssignmentGuid, Cl.ClubId, GetDate(), Co.CoachId, @Instructions
+            var sql = @"INSERT INTO Assignments(Guid, ClubId, CreatedOn, CoachId, Title, Instructions)
+                        SELECT @AssignmentGuid, Cl.ClubId, GetDate(), Co.CoachId, @Title, @Instructions
                         FROM Clubs Cl
                         INNER JOIN Coaches Co ON Co.ClubId = Cl.ClubId
                         WHERE Co.Guid = @CoachGuid AND Cl.Guid = @ClubGuid;";
@@ -52,6 +52,7 @@ namespace HeyTeam.Lib.Repositories {
             parameters.Add("@AssignmentGuid", guid);
             parameters.Add("@ClubGuid", request.ClubId);
             parameters.Add("@CoachGuid", request.CoachId);
+            parameters.Add("@Title", request.Title);
             parameters.Add("@Instructions", request.Instructions);
             connection.Execute(sql, parameters, transaction);
         }
@@ -77,13 +78,14 @@ namespace HeyTeam.Lib.Repositories {
         {
             if(request.Squads?.Any() ?? false)
             {
-                var sql = @"INSERT INTO SquadAssignments (SquadId, AssignmentId, AssignedOn, CoachId, DateDue)
-                            SELECT S.SquadId,
+                var sql = @"INSERT INTO PlayerAssignments (PlayerId, AssignmentId, AssignedOn, CoachId, DateDue)
+                            SELECT P.PlayerId,
                                 (SELECT AssignmentId FROM Assignments WHERE Guid = @AssignmentGuid),
                                 GetDate(),
                                 (Select CoachId FROM Coaches WHERE Guid = @CoachGuid),
                                 @DateDue
-                            FROM Squads S
+                            FROM Players P
+                            INNER JOIN Squads S ON P.SquadId = S.SquadId
                             WHERE S.Guid IN @Squads;";
                 var parameters = new DynamicParameters();
                 parameters.Add("@AssignmentGuid", assignmentGuid);

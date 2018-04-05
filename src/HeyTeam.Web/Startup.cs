@@ -175,6 +175,7 @@ namespace HeyTeam.Web {
 			services.AddScoped<IAssignmentService, AssignmentService>();
 			services.AddScoped<IValidator<AssignmentRequest>, AssignmentRequestValidator>();
             services.AddScoped<IAssignmentRepository, AssignmentRepository>();
+            services.AddScoped<IAssignmentQuery, AssignmentQuery>();
 		}
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

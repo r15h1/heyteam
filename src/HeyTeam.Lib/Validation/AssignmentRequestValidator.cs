@@ -12,8 +12,9 @@ namespace HeyTeam.Lib.Validation {
 				validationResult.AddMessage("Request cannot be null");
 				return validationResult;
 			}
+            if (request.Title.IsEmpty()) validationResult.AddMessage("Title cannot be empty");
 
-			if(request.Instructions.IsEmpty()) validationResult.AddMessage("Notes cannot be empty");
+            if (request.Instructions.IsEmpty()) validationResult.AddMessage("Notes cannot be empty");
 
             if ((request.Squads == null || request.Squads.Count() == 0) && (request.Players == null || request.Players.Count() == 0))
                 validationResult.AddMessage("Assignment must be allocated to squad(s) and/or player(s)");
