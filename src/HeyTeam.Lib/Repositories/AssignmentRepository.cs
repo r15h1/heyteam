@@ -116,5 +116,17 @@ namespace HeyTeam.Lib.Repositories {
                 connection.Execute(sql, parameters, transaction);
             }
         }
+
+        public void DeletePlayerAssignment(Guid playerAssignmentId)
+        {
+            var sql = @"DELETE FROM PlayerAssignments WHERE Guid = @PlayerAssignmentId;";
+            var parameters = new DynamicParameters();
+            parameters.Add("@PlayerAssignmentId", playerAssignmentId);
+            using (var connection = factory.Connect())
+            {
+                connection.Open();
+                connection.Execute(sql, parameters);
+            }
+        }
     }
 }

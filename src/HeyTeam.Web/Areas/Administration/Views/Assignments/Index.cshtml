@@ -27,6 +27,25 @@
 
 <div id="message" style="display:none"></div>
 <div class="assignments"></div>
+<div class="modal fade" id="deleteConfirmationDialog" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" id="myform">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Confirm Deletion</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Do you really want to delete this entry?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <input type="submit" id="ConfirmDeleteButton" class="btn btn-danger" value="Delete" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @section Scripts {
     <script src="~/lib/select2/dist/js/select2.min.js"></script>
     <script>
@@ -101,9 +120,18 @@
             })
 
             $("button.removePlayer").click(function () {
-                var playerAssignmentId = $(this).closest("tr").data("playerassignmentid");
+                var row = $(this).closest("tr");
+                var playerAssignmentId = row.data("playerassignmentid");
                 console.log("removing player..." + playerAssignmentId);
+                $('#myform').unbind();
+                $('#myform').submit(function (e) {
+                    e.preventDefault();
+                    removePlayerAssignment(row, playerAssignmentId);
+                });
+                $('#deleteConfirmationDialog').modal('show');                
             });
+
+            
 
             $("button.changeDueDate").click(function () {
                 var playerAssignmentId = $(this).closest("tr").data("playerassignmentid");
@@ -142,7 +170,6 @@
                 headerTitle.find("h4").attr("title", record.instructions);
                 headerTitle.append("<span class='small'> created by " + record.createdby + " on " + record.createdOn + "</span>");                
                 
-
                 headerButtons.append("<button type='button' class='btn btn-link editAssignment' title='Edit this assignment'><span class='glyphicon glyphicon-pencil'></span></button>");
                 headerButtons.append("<button type='button' class='btn btn-link assignNewPlayer' title='Assign to new player'><span class='glyphicon glyphicon-plus'></span></button>");
                 headerButtons.append("<button type='button' class='btn btn-link deleteAssignment' title='Delete this assignment'><span class='glyphicon glyphicon-remove text-danger'></span></button>");                
@@ -172,6 +199,21 @@
                     $(".assignments").append(table)
                 }                
             }
+        }
+
+        function removePlayerAssignment(row, playerAssignmentId) {
+            $.ajax({
+                method: "POST",
+                url: "/api/assignments/remove-player",
+                data: { "playerAssignmentId": playerAssignmentId }
+            }).done(function (data) {
+                $(row).remove();
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.log("ajax failed...");                
+            }).always(function () {
+                $('#myform').unbind();
+                $('#deleteConfirmationDialog').modal('hide');
+            });
         }
 
         updateTable();

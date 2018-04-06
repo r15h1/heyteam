@@ -7,6 +7,7 @@ namespace HeyTeam.Core.Queries
     public interface IAssignmentQuery
     {
         IEnumerable<Assignment> GetAssignments(AssignmentsRequest request);
+        Assignment GetPlayerAssignment(Guid playerAssignmentId);
     }
 
 	public class AssignmentsRequest {

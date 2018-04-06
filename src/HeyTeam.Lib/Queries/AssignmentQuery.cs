@@ -76,5 +76,57 @@ namespace HeyTeam.Lib.Queries
                 return assignments;
 			}
 		}
-	}
+
+        public Assignment GetPlayerAssignment(Guid playerAssignmentId)
+        {
+            var sql = $@"SELECT	P.FirstName + ' ' + P.LastName + '(' + S.Name + ')' AS PlayerName,  
+                                P.Guid AS PlayerGuid,
+		                        PA.Guid AS PlayerAssignmnentGuid,
+                                PA.DateDue, 
+                                PA.AssignedOn,
+		                        A.Guid AS AssignmentGuid, 
+		                        CAST(A.CreatedOn AS DATE) AS CreatedOn, 
+		                        A.Instructions,
+		                        A.Title, Cl.Guid AS ClubGuid,
+                                Co1.FirstName + ' ' + Co1.LastName AS AssignedBy,
+                                Co1.FirstName + ' ' + Co1.LastName AS CreatedBy
+                        FROM PlayerAssignments PA
+                        INNER JOIN Assignments A ON A.AssignmentId = PA.AssignmentId
+                        INNER JOIN Players P ON PA.PlayerId = P.PlayerId
+                        INNER JOIN Clubs Cl ON A.ClubId = Cl.ClubId
+                        INNER JOIN Squads S ON S.ClubId = Cl.ClubId AND P.SquadId = S.SquadId
+                        INNER JOIN Coaches Co1 ON Cl.ClubId = Co1.ClubId AND Co1.CoachId = PA.CoachId
+                        INNER JOIN Coaches Co2 ON Cl.ClubId = Co2.ClubId AND Co2.CoachId = A.CoachId
+                        WHERE PA.Guid = @PlayerAssignmentId;";
+
+
+            DynamicParameters p = new DynamicParameters();
+            p.Add("@PlayerAssignmentId", playerAssignmentId.ToString());
+            using (var connection = connectionFactory.Connect())
+            {
+                connection.Open();
+                var reader = connection.Query(sql, p).Cast<IDictionary<string, dynamic>>();
+                var assignment = reader.Select<dynamic, Assignment>(
+                        row => new Assignment(Guid.Parse(row.ClubGuid.ToString()), Guid.Parse(row.AssignmentGuid.ToString()), Guid.Parse(row.PlayerAssignmnentGuid.ToString()))
+                        {
+                            Createdby = row.CreatedBy,
+                            CreatedOn = row.CreatedOn.ToString("dd-MMM-yyyy"),
+                            Instructions = row.Instructions,
+                            Title = row.Title
+                        }).GroupBy(a => a.AssignmentId).Select(g => g.First()).SingleOrDefault();
+
+                assignment.Allocations = reader.Select<dynamic, PlayerAssignment>(
+                           row => new PlayerAssignment(Guid.Parse(row.PlayerGuid.ToString()), Guid.Parse(row.AssignmentGuid.ToString()), Guid.Parse(row.PlayerAssignmnentGuid.ToString()))
+                           {
+                               AssignedBy = row.AssignedBy,
+                               AssignedOn = row.AssignedOn.ToString("dd-MMM-yyyy"),
+                               DueDate = row.DateDue?.ToString("dd-MMM-yyyy"),
+                               PlayerName = row.PlayerName
+                           }
+                        ).ToList();
+
+                return assignment;
+            }
+        }
+    }
 }
