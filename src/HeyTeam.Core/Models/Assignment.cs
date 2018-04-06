@@ -1,5 +1,6 @@
 ﻿using HeyTeam.Core.Models.Mini;
 using System;
+using System.Collections.Generic;
 
 namespace HeyTeam.Core.Models
 {
@@ -9,17 +10,15 @@ namespace HeyTeam.Core.Models
         {
             ClubId = clubId;
             AssignmentId = assignmentId;
-            PlayerAssignmentId = playerAssignmentId;
         }
 
         public Guid ClubId { get; }
         public Guid AssignmentId { get; }
-        public Guid PlayerAssignmentId { get; }
-        public string Instructions { get; set; }
-        public DateTime CreatedOn { get; set; }
-        public MiniModel Coach { get; set; }
+        public string Instructions { get; set; }        
         public string Title { get; set; }
-        public MiniModel Player { get; set; }
-        public DateTime? DateDue { get; set; }
+        public string Createdby { get; set; }
+        public string CreatedOn { get; set; }
+        public IEnumerable<MiniTrainingMaterial> TrainingMaterials { get; set; } = new List<MiniTrainingMaterial>();
+        public IEnumerable<PlayerAssignment> Allocations { get; set; } = new List<PlayerAssignment>();
     }
 }

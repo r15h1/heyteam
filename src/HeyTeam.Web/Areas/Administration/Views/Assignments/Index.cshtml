@@ -26,33 +26,37 @@
 </div>
 
 <div id="message" style="display:none"></div>
-<div class="table-responsive">
-    <table id="assignmentsTable" class="table table-bordered table-hover">
-        <thead>
-            <tr>
-                <th class="col-md-3">Title</th>
-                <th class="col-md-2">Assigned To</th>
-                <th class="col-md-2">Created By</th>
-                <th class="col-md-2">Created On</th>
-                <th class="col-md-2">Date Due</th>
-                <th class="col-md-1">Actions</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
-</div>
+<div class="assignments"></div>
 @section Scripts {
     <script src="~/lib/select2/dist/js/select2.min.js"></script>
     <script>
-        var tableBody = $("#assignmentsTable").find("tbody");
+        var tablehtml = '<div class="table-responsive">' +
+                            '<table class="table table-bordered table-hover">' +
+                                '<thead>' +
+                                    '<tr>' +                                        
+                                        '<th class="col-md-2">Assigned To</th>' +
+                                        '<th class="col-md-2">Assigned By</th>' +
+                                        '<th class="col-md-2">Assigned On</th>' +
+                                        '<th class="col-md-2">Due Date</th>' +
+                                        '<th class="col-md-1">Actions</th>' +
+                                    '</tr>' +
+                                '</thead>' +
+                            '<tbody></tbody>' +
+                        '</table>' +
+            '</div>';
+
+        var panelhtml = '<div class="panel panel-default">' +
+                        '<div class="panel-heading"><h4 class="panel-title assignmentTitle"></h4></div>' +
+                        '<div class="panel-body"></div>' +
+                    '</div > ';
+
         $("#squads").select2();
         $("#squads").change(updateTable);
         $("#month").change(updateTable);        
         
         function updateTable() {
             var date = $('#month').val().split('-');
-            $(".table-responsive").hide();
-            $("#eventsTable > tbody").empty();
+            $(".assignments").empty();
             $("#message").text("Fetching data, please wait...");
             $("#message").show();
 
@@ -70,10 +74,10 @@
                 console.log("ajax done...");
                 if (data.length > 0) {
                     addRows(data);
-                    $(".table-responsive").show();
+                    $(".assignments").show();
                     $("#message").hide();
                 } else {
-                    $(".table-responsive").hide();
+                    $(".assignments").hide();
                     $("#message").show();
                     $("#message").text("No records found");
                 }
@@ -101,24 +105,38 @@
                 console.log("assigning again...");
             });
 
-            $("button.assignmentTitle").tooltip("destroy");
-            $("button.assignmentTitle").tooltip({ placement: "auto right", trigger: 'hover' });
+            $(".assignmentTitle").tooltip("destroy");
+            $(".assignmentTitle").tooltip({ placement: "auto right", trigger: 'hover' });
 
         }
 
         function addRows(data) {            
-            tableBody.empty();
             for (var index in data) {
                 var record = data[index];
-                var row = "<tr data-assignmentid='" + record.assignmentId + "' data-playerassignmentid='" + record.playerAssignmentId + "'>" +
-                    "<td><button type='button' class='btn btn-link assignmentTitle' title='" + record.instructions + "'>" + record.title + "</button></td>" +
-                    "<td>" + record.player.name + "</td>" +
-                    "<td>" + record.coach.name + "</td>" +
-                    "<td>" + new Date(record.createdOn).toDateString() + "</td>" +
-                    "<td>" + (record.dateDue == null ? "" : new Date(record.dateDue).toDateString()) + "</td>" +
-                    "<td></td>" +
-                    "</tr>";
-                tableBody.append(row);
+                var panel = $(panelhtml);
+                panel.find("h4").text(record.title);
+                panel.find("h4").attr("title", record.instructions);
+                panel.find(".panel-body").append("<p> Created by " + record.createdby + " on " + record.createdOn + "</p>");
+                
+                var table = $(tablehtml);
+                var tableBody = table.find("tbody");
+
+                var allocations = record.allocations;
+                if (allocations != null && allocations.length > 0) {
+                    for (var j in allocations) {
+                        var allocation = allocations[j];
+                        var row = "<tr>" +
+                            "<td><button type='button' class='btn btn-link'>" + allocation.playerName + "</button></td>" +                            
+                            "<td>" + allocation.assignedBy + "</td>" +
+                            "<td>" + allocation.assignedOn + "</td>" +
+                            "<td>" + (allocation.dueDate == null ? "" : allocation.dueDate) + "</td>" +
+                            "<td></td>" +
+                            "</tr>";
+                        tableBody.append(row);
+                    }
+                    panel.find(".panel-body").append(table);
+                }
+                $(".assignments").append(panel)
             }
         }
 
@@ -127,5 +145,5 @@
 }
 
 @section CSS {
-    <link href="~/lib/select2/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="~/lib/select2/dist/css/select2.min.css" rel="stylesheet" />    
 }
