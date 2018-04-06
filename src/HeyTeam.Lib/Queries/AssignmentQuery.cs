@@ -38,8 +38,7 @@ namespace HeyTeam.Lib.Queries
                         INNER JOIN Coaches Co1 ON Cl.ClubId = Co1.ClubId AND Co1.CoachId = PA.CoachId
                         INNER JOIN Coaches Co2 ON Cl.ClubId = Co2.ClubId AND Co2.CoachId = A.CoachId
                         WHERE Cl.Guid = @ClubGuid AND YEAR(PA.AssignedOn) = @Year AND MONTH(PA.AssignedOn) = @Month
-						{((request.Squads?.Any() ?? false) ? " AND S.Guid IN @Squads " : "")}
-                        ORDER BY CreatedOn DESC, DateDue DESC, PlayerName;";
+						{((request.Squads?.Any() ?? false) ? " AND S.Guid IN @Squads " : "")}";
 
 			DynamicParameters p = new DynamicParameters();
 			p.Add("@ClubGuid", request.ClubId.ToString());
@@ -59,7 +58,7 @@ namespace HeyTeam.Lib.Queries
                             CreatedOn = row.CreatedOn.ToString("dd-MMM-yyyy"),
                             Instructions = row.Instructions,
                             Title = row.Title
-                        }).GroupBy(a => a.AssignmentId).Select(g => g.First()).ToList();
+                        }).GroupBy(a => a.AssignmentId).Select(g => g.First()).OrderBy(a => a.Title).ToList();
 
                 var allocations = reader.Select<dynamic, PlayerAssignment>(
                            row => new PlayerAssignment(Guid.Parse(row.PlayerGuid.ToString()), Guid.Parse(row.AssignmentGuid.ToString()), Guid.Parse(row.PlayerAssignmnentGuid.ToString()))

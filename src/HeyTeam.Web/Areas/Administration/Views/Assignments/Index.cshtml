@@ -33,6 +33,10 @@
         var tablehtml = '<div class="table-responsive">' +
                             '<table class="table table-bordered table-hover">' +
                                 '<thead>' +
+                                    '<tr>' +
+                                        '<th colspan="3" class="heading-title"><h4 class="assignmentTitle"></h4></th>' +
+                                        '<th colspan="2" class="heading-buttons text-right"></th>' +
+                                    '</tr>' +
                                     '<tr>' +                                        
                                         '<th class="col-md-2">Assigned To</th>' +
                                         '<th class="col-md-2">Assigned By</th>' +
@@ -43,12 +47,7 @@
                                 '</thead>' +
                             '<tbody></tbody>' +
                         '</table>' +
-            '</div>';
-
-        var panelhtml = '<div class="panel panel-default">' +
-                        '<div class="panel-heading"><h4 class="panel-title assignmentTitle"></h4></div>' +
-                        '<div class="panel-body"></div>' +
-                    '</div > ';
+            '</div>';        
 
         $("#squads").select2();
         $("#squads").change(updateTable);
@@ -113,30 +112,43 @@
         function addRows(data) {            
             for (var index in data) {
                 var record = data[index];
-                var panel = $(panelhtml);
-                panel.find("h4").text(record.title);
-                panel.find("h4").attr("title", record.instructions);
-                panel.find(".panel-body").append("<p> Created by " + record.createdby + " on " + record.createdOn + "</p>");
-                
                 var table = $(tablehtml);
                 var tableBody = table.find("tbody");
+                var headerTitle = table.find("th.heading-title");
+                var headerButtons = table.find("th.heading-buttons");
+
+                headerTitle.find("h4").text(record.title);
+                headerTitle.find("h4").attr("title", record.instructions);
+                headerTitle.append("<span class='small'> created by " + record.createdby + " on " + record.createdOn + "</span>");                
+                headerTitle.data("assignmentid", record.assignmentId);
+
+                headerButtons.append("<button type='button' class='btn btn-link editAssignment' title='Edit this assignment'><span class='glyphicon glyphicon-pencil'></span></button>");
+                headerButtons.append("<button type='button' class='btn btn-link deleteAssignment' title='Assign to new player'><span class='glyphicon glyphicon-plus'></span></button>");
+                headerButtons.append("<button type='button' class='btn btn-link deleteAssignment' title='Delete this assignment'><span class='glyphicon glyphicon-remove text-danger'></span></button>");                
 
                 var allocations = record.allocations;
                 if (allocations != null && allocations.length > 0) {
                     for (var j in allocations) {
                         var allocation = allocations[j];
                         var row = "<tr>" +
-                            "<td><button type='button' class='btn btn-link'>" + allocation.playerName + "</button></td>" +                            
+                            "<td><a href='#'>" + allocation.playerName + "</a></td>" +                            
                             "<td>" + allocation.assignedBy + "</td>" +
                             "<td>" + allocation.assignedOn + "</td>" +
                             "<td>" + (allocation.dueDate == null ? "" : allocation.dueDate) + "</td>" +
-                            "<td></td>" +
+                            "<td class='text-center'><div class='dropdown'>" +
+                            "<button class='btn btn-default dropdown-toggle btn-sm' type='button' id='dropdownMenu1' data-toggle='dropdown' aria- haspopup='true' aria-expanded='true' >" +
+                            "<span class='caret'></span>" +
+                            "</button>" +
+                            "<ul class='dropdown-menu dropdown-menu-right' aria-labelledby='dropdownMenu1'>" +
+                            "<li><button class='btn btn-link modifyDueDate'>Change Due Date</li>" +
+                            "<li><button class='btn btn-link unassignPlayer'>Remove Player</li>" +
+                            "</ul>" +
+                            "</td>" +
                             "</tr>";
                         tableBody.append(row);
                     }
-                    panel.find(".panel-body").append(table);
-                }
-                $(".assignments").append(panel)
+                    $(".assignments").append(table)
+                }                
             }
         }
 
@@ -145,5 +157,15 @@
 }
 
 @section CSS {
-    <link href="~/lib/select2/dist/css/select2.min.css" rel="stylesheet" />    
+    <link href="~/lib/select2/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        .assignmentTitle {
+            display: inline;
+        }
+
+        .table-bordered > thead > tr:nth-child(1) > th {
+            border: 0;
+            background-color:rgb(245,245,245);
+        }
+    </style>
 }
