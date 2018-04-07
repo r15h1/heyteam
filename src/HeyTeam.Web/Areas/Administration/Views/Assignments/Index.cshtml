@@ -30,7 +30,7 @@
 <div class="modal fade" id="deleteConfirmationDialog" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form method="post" id="myform">
+            <form method="post" id="removePlayerForm">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                     <h4 class="modal-title">Confirm Deletion</h4>
@@ -41,6 +41,26 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                     <input type="submit" id="ConfirmDeleteButton" class="btn btn-danger" value="Delete" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="dueDateDialog" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <form method="post" id="dueDateForm">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Change Due Date</h4>
+                </div>
+                <div class="modal-body">
+                    <label>Due Date: </label><input value="null" type="date" id="dueDateInput" class="form-control" style="width:200px" required min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")"/>                    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <input type="submit" id="ConfirmDeleteButton" class="btn btn-primary" value="Save" />
                 </div>
             </form>
         </div>
@@ -123,19 +143,27 @@
                 var row = $(this).closest("tr");
                 var playerAssignmentId = row.data("playerassignmentid");
                 console.log("removing player..." + playerAssignmentId);
-                $('#myform').unbind();
-                $('#myform').submit(function (e) {
+                $('#removePlayerForm').unbind();
+                $('#removePlayerForm').submit(function (e) {
                     e.preventDefault();
                     removePlayerAssignment(row, playerAssignmentId);
                 });
                 $('#deleteConfirmationDialog').modal('show');                
-            });
-
-            
+            });            
 
             $("button.changeDueDate").click(function () {
-                var playerAssignmentId = $(this).closest("tr").data("playerassignmentid");
-                console.log("changing due date..." + playerAssignmentId);
+                var row = $(this).closest("tr");
+                var playerAssignmentId = row.data("playerassignmentid");
+                $("#dueDateInput").val(null);
+                $('#dueDateForm').unbind();
+                $('#dueDateForm').submit(function (e) {
+                    e.preventDefault();
+                    var newDate = $("#dueDateInput").val();
+                    if (newDate > new Date()) {                        
+                        updateDueDate(row, playerAssignmentId, newDate);    
+                    }                    
+                });
+                $('#dueDateDialog').modal('show');                
             });
 
             $("button.editAssignment").click(function () {
@@ -170,9 +198,9 @@
                 headerTitle.find("h4").attr("title", record.instructions);
                 headerTitle.append("<span class='small'> created by " + record.createdby + " on " + record.createdOn + "</span>");                
                 
-                headerButtons.append("<button type='button' class='btn btn-link editAssignment' title='Edit this assignment'><span class='glyphicon glyphicon-pencil'></span></button>");
-                headerButtons.append("<button type='button' class='btn btn-link assignNewPlayer' title='Assign to new player'><span class='glyphicon glyphicon-plus'></span></button>");
-                headerButtons.append("<button type='button' class='btn btn-link deleteAssignment' title='Delete this assignment'><span class='glyphicon glyphicon-remove text-danger'></span></button>");                
+                //headerButtons.append("<button type='button' class='btn btn-link editAssignment' title='Edit this assignment'><span class='glyphicon glyphicon-pencil'></span></button>");
+                //headerButtons.append("<button type='button' class='btn btn-link assignNewPlayer' title='Assign to new player'><span class='glyphicon glyphicon-plus'></span></button>");
+                //headerButtons.append("<button type='button' class='btn btn-link deleteAssignment' title='Delete this assignment'><span class='glyphicon glyphicon-remove text-danger'></span></button>");                
                 headerButtons.data("assignmentid", record.assignmentId);
 
                 var allocations = record.allocations;
@@ -180,7 +208,8 @@
                     for (var j in allocations) {
                         var allocation = allocations[j];
                         var row = "<tr data-playerassignmentid='" + allocation.playerAssignmentId + "'>" +
-                            "<td><a href='#'>" + allocation.playerName + "</a></td>" +                            
+                            //"<td><a href='#'>" + allocation.playerName + "</a></td>" +                            
+                            "<td>" + allocation.playerName + "</td>" +
                             "<td>" + allocation.assignedBy + "</td>" +
                             "<td>" + allocation.assignedOn + "</td>" +
                             "<td>" + (allocation.dueDate == null ? "" : allocation.dueDate) + "</td>" +
@@ -189,7 +218,7 @@
                             "<span class='caret'></span>" +
                             "</button>" +
                             "<ul class='dropdown-menu dropdown-menu-right' aria-labelledby='dropdownMenu1'>" +
-                            "<li><button class='btn btn-link changeDueDate'>Change Due Date</li>" +
+                            //"<li><button class='btn btn-link changeDueDate'>Change Due Date</li>" +
                             "<li><button class='btn btn-link removePlayer'>Remove Player</li>" +
                             "</ul>" +
                             "</td>" +
@@ -211,8 +240,23 @@
             }).fail(function (jqXHR, textStatus, errorThrown) {
                 console.log("ajax failed...");                
             }).always(function () {
-                $('#myform').unbind();
+                $('#removePlayerForm').unbind();
                 $('#deleteConfirmationDialog').modal('hide');
+            });
+        }
+
+        function updateDueDate(row, playerAssignmentId, newDate) {
+            $.ajax({
+                method: "PUT",
+                url: "/api/assignments",
+                data: { "playerAssignmentId": playerAssignmentId,"dueDate" : dueDate }
+            }).done(function (data) {
+                
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.log("ajax failed...");
+            }).always(function () {
+                $('#dueDateForm').unbind();
+                $('#dueDateDialog').modal('hide');
             });
         }
 
