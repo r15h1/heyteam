@@ -58,6 +58,13 @@ namespace HeyTeam.Web.Areas.Administration.Controllers
         {
             if (!ModelState.IsValid)            
                 return PromptForSubmission(model);
+			else if(model.AssignedTo == AssignedTo.IndividualPlayers && (model.Players == null || model.Players.Count() == 0)){
+				ModelState.AddModelError("", "Please specify which players this is assigned to");
+				return PromptForSubmission(model);
+			} else if (model.AssignedTo == AssignedTo.SelectedSquads && (model.Squads == null || model.Squads.Count() == 0)) {
+				ModelState.AddModelError("", "Please specify which squads this is assigned to");
+				return PromptForSubmission(model);
+			}
             
             var email = User.Identity.Name;
             var members = memberQuery.GetMembersByEmail(club.Guid, email);
@@ -140,5 +147,7 @@ namespace HeyTeam.Web.Areas.Administration.Controllers
                     new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() }
                 );
         }
+
+		
     }
 }

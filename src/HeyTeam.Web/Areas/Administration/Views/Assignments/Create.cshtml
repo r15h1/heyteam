@@ -4,7 +4,7 @@
 <h3>Details</h3>
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="New" method="post">
+        <form asp-action="New" method="post" id="assignmentsForm">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Title" class="control-label">Title</label>
@@ -16,17 +16,30 @@
                 <textarea asp-for="Instructions" class="form-control" required rows="5"></textarea>
                 <span asp-validation-for="Instructions" class="text-danger"></span>
             </div>
-
-            @*<div class="form-group">
-            <label asp-for="Squads" class="control-label"></label>
-            <select asp-for="Squads" class="form-control" multiple asp-items="Model.SquadList"></select>
-            <span asp-validation-for="Squads" class="text-danger"></span>
-        </div>*@
             <div class="form-group">
+                <label for="assignedTo" class="control-label" id="AssignTo" style="display:block;">Assign To</label>
+                <div class="radio">
+                    <label><input asp-for="AssignedTo" type="radio" name="assignedTo" value="2">Individual players</label>
+                </div>
+                <div class="radio">
+                    <label><input asp-for="AssignedTo" type="radio" name="assignedTo" value="1">Selected Squads</label>
+                </div>
+                <div class="radio">
+                    <label><input asp-for="AssignedTo" type="radio" name="assignedTo" value="0">Everyone</label>
+                </div>        
+                <span asp-validation-for="AssignedTo" class="text-danger"></span>
+            </div>
+            <div class="form-group selectedSquads">
+                <label asp-for="Squads" class="control-label"></label>
+                <select asp-for="Squads" class="form-control" multiple asp-items="Model.SquadList"></select>
+                <span asp-validation-for="Squads" class="text-danger"></span>
+            </div>
+            <div class="form-group individualPlayers">
                 <label asp-for="Players" class="control-label"></label>
-                <select asp-for="Players" class="form-control" multiple required></select>
+                <select asp-for="Players" class="form-control" multiple></select>
                 <span asp-validation-for="Players" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <label asp-for="DateDue" class="control-label">Due Date</label>
                 <input type="date" asp-for="DateDue" class="form-control" style="width:200px" />
@@ -40,7 +53,7 @@
                 <a asp-action="Index" class="btn btn-default">Cancel</a>
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
-        </form>
+    </form>
     </div>
 </div>
 
@@ -48,12 +61,33 @@
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script src="~/lib/select2/dist/js/select2.min.js"></script>
     <script>
+        var assignedTo = { all:0, selectedSquads:1, individualPlayers:2}
+
         var selectedPlayerList = @(Model.SelectedPlayerList.IsEmpty() ? Html.Raw("''") : Html.Raw(Model.SelectedPlayerList));
         var selectedTrainingMaterialList = @(Model.SelectedTrainingMaterialList.IsEmpty() ? Html.Raw("''") : Html.Raw(Model.SelectedTrainingMaterialList));
 
-        //$('#Squads').select2({
-        //    placeholder: 'select squads...'
-        //});
+        
+        $("input[name=assignedTo]").click(function () { 
+            var input = $(this).val();
+            if (input == assignedTo.all) {
+                $("div.selectedSquads, div.individualPlayers").hide();
+                $("#Squads, #Players").removeAttr("required");
+            } else if (input == assignedTo.selectedSquads) {                       
+                $("#Players").removeAttr("required");
+                $("#Squads").attr("required", "required");
+                $("div.individualPlayers").hide();
+                $("div.selectedSquads").show();         
+            } else if (input == assignedTo.individualPlayers) {
+                $("#Squads").removeAttr("required");
+                $("#Players").attr("required", "required");
+                $("div.individualPlayers").show();
+                $("div.selectedSquads").hide();
+            }
+        });
+
+        var squadsDropdown = $('#Squads').select2({
+            placeholder: 'select squads...'
+        });
 
         var playersDropdown = $('#Players').select2({
             ajax: {
@@ -117,10 +151,55 @@
                 $("#TrainingMaterials option[value='" + selectedTrainingMaterialList[i].id + "']").prop("selected", true);
             }
             trainingMaterialsDropdown.trigger("change");
-        }
+        }        
+
+        $("#assignmentsForm").on("submit", function (e) {
+            e.preventDefault();
+            if ($("#assignmentsForm").valid()) {
+                console.log("valid form");
+            } else {
+                console.log("invalid form");
+            }
+        });
+
+        //$.validator.addMethod("oneormorechecked", function (value, element) {
+        //    console.log("valid" + ($('input[name=assignedTo]:checked').length > 0));
+        //    var assignee = $("input[name=assignedTo]").val();
+        //    return assignee == null;
+        //}, "At least 1 must be selected");
+
+        $.validator.addMethod("playersrequired", function (value, element) {
+            console.log("playersrequired");
+            var assignee = $("input[name=assignedTo]").val();
+            return !(assignee == assignedTo.individualPlayers && ($('#Players').val() == null || $('#Players').val().length == 0));
+            
+        }, "At least 1 player must be selected");
+
+        $("#assignmentsForm").validate({
+            rules: {
+                assignedTo: { required: true }
+            },
+            errorPlacement: function (error, element) {
+                if (element.attr("name") == "assignedTo") {
+                    error.insertAfter("#AssignTo");
+                } else if (element.parent('.form-group').length) {
+                    element.parent().append(error);
+                } else {
+                    error.insertAfter(element);
+                }              
+            }
+        });        
+
+        $("div.individualPlayers").hide();
+        $("div.selectedSquads").hide();
     </script>
 }
 
 @section CSS {
     <link href="~/lib/select2/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        .error {            
+            color:rgb(157, 38, 38);
+        } 
+    </style>
 }
