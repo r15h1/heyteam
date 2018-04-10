@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using HeyTeam.Core.Services;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -26,11 +27,5 @@ namespace HeyTeam.Web.Models.Assignments {
         public IEnumerable<SelectListItem> SquadList { get; internal set; }        
         public string SelectedTrainingMaterialList { get; internal set; }
         public string SelectedPlayerList { get; internal set; }
-    }
-
-	public enum AssignedTo {
-		All = 0,
-		SelectedSquads = 1,
-		IndividualPlayers = 2
-	}
+    }	
 }

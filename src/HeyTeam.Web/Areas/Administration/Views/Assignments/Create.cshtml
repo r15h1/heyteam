@@ -19,7 +19,7 @@
             <div class="form-group">
                 <label for="assignedTo" class="control-label" id="AssignTo" style="display:block;">Assign To</label>
                 <div class="radio">
-                    <label><input asp-for="AssignedTo" type="radio" name="assignedTo" value="2">Individual players</label>
+                    <label><input asp-for="AssignedTo" type="radio" name="assignedTo" value="2" checked>Individual players</label>
                 </div>
                 <div class="radio">
                     <label><input asp-for="AssignedTo" type="radio" name="assignedTo" value="1">Selected Squads</label>
@@ -68,21 +68,8 @@
 
         
         $("input[name=assignedTo]").click(function () { 
-            var input = $(this).val();
-            if (input == assignedTo.all) {
-                $("div.selectedSquads, div.individualPlayers").hide();
-                $("#Squads, #Players").removeAttr("required");
-            } else if (input == assignedTo.selectedSquads) {                       
-                $("#Players").removeAttr("required");
-                $("#Squads").attr("required", "required");
-                $("div.individualPlayers").hide();
-                $("div.selectedSquads").show();         
-            } else if (input == assignedTo.individualPlayers) {
-                $("#Squads").removeAttr("required");
-                $("#Players").attr("required", "required");
-                $("div.individualPlayers").show();
-                $("div.selectedSquads").hide();
-            }
+            console.log("radio clicked");
+            initializeAssignees();
         });
 
         var squadsDropdown = $('#Squads').select2({
@@ -154,11 +141,12 @@
         }        
 
         $("#assignmentsForm").on("submit", function (e) {
-            e.preventDefault();
+            
             if ($("#assignmentsForm").valid()) {
-                console.log("valid form");
+                console.log("submitting valid form");
             } else {
                 console.log("invalid form");
+                e.preventDefault();
             }
         });
 
@@ -170,7 +158,7 @@
 
         $.validator.addMethod("playersrequired", function (value, element) {
             console.log("playersrequired");
-            var assignee = $("input[name=assignedTo]").val();
+            var assignee = $("input[name=assignedTo]:checked").val();
             return !(assignee == assignedTo.individualPlayers && ($('#Players').val() == null || $('#Players').val().length == 0));
             
         }, "At least 1 player must be selected");
@@ -190,8 +178,32 @@
             }
         });        
 
-        $("div.individualPlayers").hide();
-        $("div.selectedSquads").hide();
+        function initialize() {
+            $("div.individualPlayers").hide();
+            $("div.selectedSquads").hide();            
+            initializeAssignees();
+        }
+
+        function initializeAssignees() {
+            var input = $("input[name=assignedTo]:checked").val();
+            if (input == assignedTo.all) {
+                $("div.selectedSquads, div.individualPlayers").hide();
+                $("#Squads, #Players").removeAttr("required");
+            } else if (input == assignedTo.selectedSquads) {
+                $("#Players").removeAttr("required");
+                $("#Squads").attr("required", "required");
+                $("div.individualPlayers").hide();
+                $("div.selectedSquads").show();
+            } else if (input == assignedTo.individualPlayers) {
+                $("#Squads").removeAttr("required");
+                $("#Players").attr("required", "required");
+                $("div.individualPlayers").show();
+                $("div.selectedSquads").hide();
+            }
+        }
+
+        initialize();
+        
     </script>
 }
 

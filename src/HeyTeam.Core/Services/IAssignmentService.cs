@@ -27,5 +27,12 @@ namespace HeyTeam.Core.Services
         public IEnumerable<Guid> Squads { get; set; }
         public IEnumerable<Guid> Players { get; set; }
         public string Title { get; set; }
+		public AssignedTo AssignedTo{ get; set; }
     }
+
+	public enum AssignedTo {
+		All = 0,
+		SelectedSquads = 1,
+		IndividualPlayers = 2
+	}
 }

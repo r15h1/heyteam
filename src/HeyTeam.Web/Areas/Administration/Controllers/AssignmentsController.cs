@@ -76,16 +76,16 @@ namespace HeyTeam.Web.Areas.Administration.Controllers
                 PromptForSubmission(model);
             }
 
-
             var response = assignmentService.CreateAssignment(new AssignmentRequest { 
                 Title = model.Title,
 				ClubId = club.Guid,
 				CoachId = coach.Guid,
 				DateDue = model.DateDue,
 				Instructions = model.Instructions,
-				Players = model.Players,
-				Squads = model.Squads,
-				TrainingMaterials = model.TrainingMaterials
+				Players = model.AssignedTo == AssignedTo.IndividualPlayers ? model.Players : null,
+				Squads = model.AssignedTo == AssignedTo.SelectedSquads ? model.Squads : null,
+				TrainingMaterials = model.TrainingMaterials,
+				AssignedTo = model.AssignedTo.Value
 			});
 
 			if(!response.RequestIsFulfilled){				

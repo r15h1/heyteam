@@ -27,8 +27,12 @@ namespace HeyTeam.Lib.Repositories {
                         var assignmentGuid = Guid.NewGuid();
                         CreateAssignment(assignmentGuid, request, connection, transaction);
                         AddTrainingMaterials(assignmentGuid, request.TrainingMaterials, connection, transaction);
-                        AssignToSquads(assignmentGuid, request, connection, transaction);
-                        AssignToPlayers(assignmentGuid, request, connection, transaction);
+
+						if(request.AssignedTo==AssignedTo.SelectedSquads)
+							AssignToSquads(assignmentGuid, request, connection, transaction);
+						else
+							AssignToPlayers(assignmentGuid, request, connection, transaction);
+
                         transaction.Commit();
                     }
                     catch (Exception ex)
@@ -75,46 +79,45 @@ namespace HeyTeam.Lib.Repositories {
         }
 
         private void AssignToSquads(Guid assignmentGuid, AssignmentRequest request, IDbConnection connection, IDbTransaction transaction)
-        {
-            if(request.Squads?.Any() ?? false)
-            {
-                var sql = @"INSERT INTO PlayerAssignments (PlayerId, AssignmentId, AssignedOn, CoachId, DateDue)
-                            SELECT P.PlayerId,
-                                (SELECT AssignmentId FROM Assignments WHERE Guid = @AssignmentGuid),
-                                GetDate(),
-                                (Select CoachId FROM Coaches WHERE Guid = @CoachGuid),
-                                @DateDue
-                            FROM Players P
-                            INNER JOIN Squads S ON P.SquadId = S.SquadId
-                            WHERE S.Guid IN @Squads;";
-                var parameters = new DynamicParameters();
-                parameters.Add("@AssignmentGuid", assignmentGuid);
-                parameters.Add("@Squads", request.Squads);
-                parameters.Add("@CoachGuid", request.CoachId);
-                parameters.Add("@DateDue", request.DateDue);
-                connection.Execute(sql, parameters, transaction);
-            }
+        {            
+            var sql = @"INSERT INTO PlayerAssignments (PlayerId, AssignmentId, AssignedOn, CoachId, DateDue)
+                        SELECT P.PlayerId,
+                            (SELECT AssignmentId FROM Assignments WHERE Guid = @AssignmentGuid),
+                            GetDate(),
+                            (Select CoachId FROM Coaches WHERE Guid = @CoachGuid),
+                            @DateDue
+                        FROM Players P
+                        INNER JOIN Squads S ON P.SquadId = S.SquadId
+                        WHERE S.Guid IN @Squads;";
+            var parameters = new DynamicParameters();
+            parameters.Add("@AssignmentGuid", assignmentGuid);
+            parameters.Add("@Squads", request.Squads);
+            parameters.Add("@CoachGuid", request.CoachId);
+            parameters.Add("@DateDue", request.DateDue);
+            connection.Execute(sql, parameters, transaction);            
         }
 
         private void AssignToPlayers(Guid assignmentGuid, AssignmentRequest request, IDbConnection connection, IDbTransaction transaction)
-        {
-            if (request.Players?.Any() ?? false)
-            {
-                var sql = @"INSERT INTO PlayerAssignments (PlayerId, AssignmentId, AssignedOn, CoachId, DateDue)
-                            SELECT P.PlayerId,
-                                (SELECT AssignmentId FROM Assignments WHERE Guid = @AssignmentGuid),
-                                GetDate(),
-                                (Select CoachId FROM Coaches WHERE Guid = @CoachGuid),
-                                @DateDue
-                            FROM Players P
-                            WHERE P.Guid IN @Players;";
-                var parameters = new DynamicParameters();
-                parameters.Add("@AssignmentGuid", assignmentGuid);
-                parameters.Add("@Players", request.Players);
-                parameters.Add("@CoachGuid", request.CoachId);
-                parameters.Add("@DateDue", request.DateDue);
-                connection.Execute(sql, parameters, transaction);
-            }
+        {            
+            var sql = $@"INSERT INTO PlayerAssignments (PlayerId, AssignmentId, AssignedOn, CoachId, DateDue)
+                        SELECT P.PlayerId,
+                            (SELECT AssignmentId FROM Assignments WHERE Guid = @AssignmentGuid),
+                            GetDate(),
+                            (Select CoachId FROM Coaches WHERE Guid = @CoachGuid),
+                            @DateDue
+                        FROM Players P
+                        {(request.AssignedTo == AssignedTo.IndividualPlayers ? 
+							"WHERE P.Guid IN @Players" 
+							: $@"INNER JOIN Squads S ON P.SquadId = S.SquadId 
+								 INNER JOIN Clubs C ON S.ClubId = C.ClubId AND C.Guid = @ClubGuid"			
+						)};";
+            var parameters = new DynamicParameters();
+            parameters.Add("@AssignmentGuid", assignmentGuid);
+            parameters.Add("@Players", request.Players);
+            parameters.Add("@CoachGuid", request.CoachId);
+            parameters.Add("@DateDue", request.DateDue);
+			parameters.Add("@ClubGuid", request.ClubId.ToString());
+			connection.Execute(sql, parameters, transaction);            
         }
 
         public void DeletePlayerAssignment(Guid playerAssignmentId)

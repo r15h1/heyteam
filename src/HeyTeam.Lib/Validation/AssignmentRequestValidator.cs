@@ -16,10 +16,12 @@ namespace HeyTeam.Lib.Validation {
 
             if (request.Instructions.IsEmpty()) validationResult.AddMessage("Notes cannot be empty");
 
-            if ((request.Squads == null || request.Squads.Count() == 0) && (request.Players == null || request.Players.Count() == 0))
-                validationResult.AddMessage("Assignment must be allocated to squad(s) and/or player(s)");
+            if (request.AssignedTo == AssignedTo.SelectedSquads && (request.Squads == null || request.Squads.Count() == 0))
+                validationResult.AddMessage("Assignment must be allocated to at least one squad");
+			else if (request.AssignedTo == AssignedTo.IndividualPlayers && (request.Players == null || request.Players.Count() == 0))
+				validationResult.AddMessage("Assignment must be allocated to at least one player");
 
-            if (request.DateDue.HasValue && request.DateDue.Value < DateTime.Today)
+			if (request.DateDue.HasValue && request.DateDue.Value < DateTime.Today)
                 validationResult.AddMessage("Date due must be in the future");
 
             if (request.CoachId.IsEmpty())
