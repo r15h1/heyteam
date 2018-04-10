@@ -1,0 +1,570 @@
+﻿@model IEnumerable<SelectListItem>
+<h1>Player Report Cards</h1>
+<h3>Select Term and Squad</h3>
+<div class="row">
+    <div class="col-md-12" style="margin-bottom:15px;">
+        <div class="form-inline">
+            <div class="form-group">
+                @*<label for="term">Term:</label>*@
+                <select id="terms" name="terms" class="form-control" style="width:200px;"></select>
+            </div>
+            <div class="form-group">
+                @*<label for="Squad" class="control-label">Squads:</label>*@
+                <select id="squads" name="squads" asp-items="Model" class="form-control" style="width:200px;"></select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="message">No records found</div>
+<div class="table-responsive" style="display:none">
+    <table id="reportCardsTable" class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th class="col-md-5">Player Name</th>
+                <th class="text-center col-md-1">Squad#</th>
+                <th class="text-center col-md-1">Report Card</th>
+                <th class="text-center col-md-3">Action</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="reportModal" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Modal Header</h4>
+            </div>
+            <div class="modal-body">
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/lib/select2/dist/js/select2.min.js"></script>
+    <script>
+        var facetKeys = { CoachesComments: "CoachesComments", OverallGrade: "OverallGrade", Level: "Level" };
+        var dialogBody = $('#reportModal div.modal-body');
+        var dialogHeader = $('#reportModal h4.modal-title');
+        var dialog = $('#reportModal > div.modal-dialog');
+        var reportCardTableHtml = "<div class='table-responsive'><table class='table table-bordered table-hover'><tbody class='report-card-table-body'></tbody></table></div>";
+        var squadDropdown = $('#squads').select2({ placeholder: 'select squad...' });
+        var termDropdown = $('#terms').select2({
+            ajax: {
+                cache:false,
+                url: '/api/evaluations/terms?',
+                data: function (params) {
+                    var query = {
+                        q: params.term,
+                        page: 1
+                    };
+                    return query;
+                },
+                processResults: function (data) { return { results: data.results.hits }; }
+            },
+            minimumInputLength: 1,
+            placeholder: 'select term...',
+            templateResult: resultStyles,
+            templateSelection: resultStyles
+        });
+
+        initialize();
+
+        function resultStyles(selection) {
+            if (selection.status && selection.status == "Closed") {
+                return $("<span style='text-decoration: line-through;'>" + selection.text + "</span>");
+            }
+
+            return selection.text;
+        }
+
+        function initialize() {
+            $("#terms").change(refreshReportCardTable);
+            $("#squads").change(refreshReportCardTable);
+            $('.table-responsive').on('show.bs.dropdown', function () {
+                $('.table-responsive').css("overflow", "inherit");
+            });
+
+            $('.table-responsive').on('hide.bs.dropdown', function () {
+                $('.table-responsive').css("overflow", "auto");
+            })
+        }
+
+        function refreshReportCardTable() {
+            var termId = $("#terms").val();
+            var squadId = $("#squads").val();
+
+            if (squadId != null && termId != null) {
+                $(".table-responsive").hide();
+                $("#reportCardsTable > tbody").empty();
+                $("#message").text("Fetching data, please wait...");
+                $("#message").show();
+                fetchReportCards(termId, squadId);
+            } else {
+                $("#message").text("No records found");
+                $("#message").show();
+            }
+        }
+
+        function fetchReportCards(termId, squadId) {
+            $.ajax({
+                method: "GET",
+                url: "/api/evaluations/report-cards?termId=" + termId + "&squadId=" + squadId
+            })
+            .done(function (data) {
+                if (data.results.length == 0) {
+                    $(".table-responsive").hide();
+                    $("#message").show();
+                    $("#message").text("No records found");
+                } else {
+                    displayReportCardList(data);
+                }
+            });
+        }
+
+        function displayReportCardList(data) {
+            var reportCards = data.results;
+            var term = data.term;
+            var isTermOpen = (data.term.status == "Open");
+
+            for (var i = 0; i < reportCards.length; i++) {
+                var reportCard = reportCards[i];
+                var actionDropdown = "", actionDropDownOptions = "";
+
+                if (reportCard.reportCardExists) {
+                    actionDropDownOptions += "<li><button class='btn btn-link printReport'><span class='glyphicon glyphicon glyphicon-print' aria-hidden='true'></span> Print</button></li>";
+                }
+                if (isTermOpen == true && reportCard.reportCardExists == false) {
+                    actionDropDownOptions += "<li><button class='btn btn-link generateReport'><span class='text-default glyphicon glyphicon glyphicon-cog' aria-hidden='true'></span> Generate</button></li>";
+                }
+                if (isTermOpen == true && reportCard.reportCardExists == true) {
+                    actionDropDownOptions += "<li><button class='btn btn-link deleteReport'><span class='text-danger glyphicon glyphicon glyphicon-remove' aria-hidden='true'></span> Delete</button></li>";
+                }
+
+                if (actionDropDownOptions.length > 0) {
+                    actionDropdown = "<div class='dropdown'>" +
+                        "<button class='btn btn-default dropdown-toggle btn-sm' type='button' id='dropdownMenu1' data-toggle='dropdown' aria- haspopup='true' aria-expanded='true' >" +
+                        "<span class='caret'></span></button><ul class='dropdown-menu dropdown-menu-right' aria-labelledby='dropdownMenu1'>" + actionDropDownOptions + "</ul>";
+                }
+
+                var row = "<tr data-playerid='" + reportCard.playerId + "' data-reportcardid = '" + reportCard.playerReportCardId + "'>";
+
+                row = row + "<td>" + reportCard.playerName + "</td>";
+                row = row + "<td class='text-center'>" + reportCard.squadNumber + "</td>";
+                row = row + "<td class='text-center'>" + (reportCard.reportCardExists ? "<button class='btn btn-link showReportCard'><span class='glyphicon glyphicon glyphicon-file'></span></button>" : "") + "</td>";
+                row = row + "<td class='text-center'>" + actionDropdown + "</td></tr>";
+                $("#reportCardsTable > tbody").append(row);
+            }
+            $(".table-responsive").show();
+            $("#message").hide();
+            attachActionDropdownEvents();
+            attachShowReportCardEvents();
+        }
+
+        function attachActionDropdownEvents() {
+            $('button.generateReport').on('click', function (e) {
+                var context = getReportCardContext($(this.closest("tr")));
+                promptTemplateSelection(context);
+            });
+
+            $('button.printReport').on('click', function (e) {
+                var context = getReportCardContext($(this.closest("tr")));
+                console.log('printing ' + context.reportCardId);
+                window.open('player-report-cards/' + context.reportCardId, '_blank');
+            });
+        }
+
+        function attachShowReportCardEvents() {
+            $('button.showReportCard').on('click', function (e) {
+                console.log("clicked");
+                var context = getReportCardContext($(this.closest("tr")));
+                console.log(context.playerId + " - " + context.reportCardId);
+                updateReportCardDialog(context);
+            });
+        }
+
+        function getReportCardContext(record) {
+            return { playerId: record.data('playerid'), reportCardId: record.data('reportcardid'), tableRow: record };
+        }
+
+        function promptTemplateSelection(context) {
+            dialog.removeClass("modal-lg").removeClass("modal-sm");
+            dialogHeader.text("Select Report Template");
+            dialogBody.empty().append("<p class='modal-message'>Fetching report templates, please wait....</p>");
+            $('#reportModal').modal({ show: true });
+
+            var playerContext = context;
+            $.ajax({
+                method: "GET",
+                url: "/api/evaluations/report-designs"
+            })
+            .done(function (data) {
+                if (data.results.length == 0) {
+                    $(".table-responsive").hide();
+                    $("#message").show();
+                    $("#message").text("No records found");
+                } else {
+                    displayReportDesigns(data, playerContext);
+                }
+            });
+        }
+
+        function displayReportDesigns(data, context) {
+            console.log("player " + context.playerId);
+            if (data.results.length > 0) {
+                dialogBody.empty()
+                    .append("<table class='table table-borderless report-template-list'></table>");
+
+                for (var i = 0; i < data.results.length; i++) {
+                    var template = data.results[i];
+                    $('.report-template-list').append("<tr data-reporttemplateid='" + template.reportDesignId + "'><td><button type='button' class='btn btn-link report-template-button'>" + template.name + "</button></td></tr>");
+                }
+
+                $(".report-template-button").on("click", function (e) {
+                    var reportTemplateId = $(this).closest('tr').data('reporttemplateid');
+                    generateReportCard(context, reportTemplateId);
+                });
+
+            } else {
+                dialogBody.empty().append("<p class='modal-message'>No report template found. Please create a report template.</div>");
+            }
+        }
+
+        function generateReportCard(context, reportDesignId) {
+            //console.log("player: " + playerId + ", report design id: " + reportTemplateId);
+            var playerId = context.playerId;
+            var termId = termDropdown.val();
+            var squadId = squadDropdown.val();
+
+            updateDialogStatus("Generating report. Please wait...");
+
+            $.ajax({
+                method: "POST",
+                url: "/api/evaluations/report-cards/new",
+                data: { squadId: squadId, termId: termId, playerId: playerId, reportDesignId: reportDesignId }
+            })
+            .done(function (data) {
+                console.log("done generating report");
+                var reportCardContext = { termId: termId, squadId: squadId, playerId: playerId, reportCardId: data.id };
+                updateRowActionButtons(context, data.id);
+                updateReportCardDialog(reportCardContext);
+             })
+            .fail(function (jqXHR, textStatus, errorThrown) {
+                updateDialogStatus("There was an error generating the report. Please contact your administrator.\n" + textStatus);
+            });
+        }
+
+        function updateRowActionButtons(context, reportCardId) {
+            context.tableRow.data("reportcardid", reportCardId);
+            context.tableRow.find("td:nth-child(3)").append("<button class='btn btn-link showReportCard'><span class='glyphicon glyphicon glyphicon-file'></span></button>");
+
+            context.tableRow.find("ul.dropdown-menu").empty().append(
+                "<li><button class='btn btn-link printReport'><span class='glyphicon glyphicon glyphicon-print' aria-hidden='true'></span> Print</button></li>" +
+                "<li><button class='btn btn-link deleteReport'><span class='text-danger glyphicon glyphicon glyphicon-remove' aria-hidden='true'></span> Delete</button></li>"
+            );
+
+            attachShowReportCardEvents();
+            attachActionDropdownEvents();
+        }
+
+        function updateReportCardDialog(reportCardContext) {
+            dialogHeader.text("Player Report Card");
+            dialogBody.empty();
+            dialog.removeClass("modal-lg").removeClass("modal-sm").addClass("modal-lg");;
+            updateDialogStatus("showing report card for: " + reportCardContext.termId + "<br/>" + reportCardContext.squadId);
+
+            $.ajax({
+                method: "GET",
+                url: "/api/evaluations/report-cards/" + reportCardContext.reportCardId
+            })
+            .done(function (data) {
+                if (data.results.length == 0) {
+                    $(".table-responsive").hide();
+                    $("#message").show();
+                    $("#message").text("No records found");
+                } else {
+                    displayReportCard(data);
+                }
+            });
+        }
+
+        function displayReportCard(playerReportCard) {
+            $('#reportModal').modal({ show: true });
+            if (playerReportCard.results && playerReportCard.results.reportCard.headlines.length > 0) {
+                dialogBody.empty()
+                    .append("<div class='text-right'><a href='player-report-cards/" + playerReportCard.results.reportCard.guid + "' target='_blank' class='btn btn-default printButton' title='print'><span class='glyphicon glyphicon glyphicon-print'></span></a></div>")
+                    .append(reportCardTableHtml)
+                    .append(
+                    "<div class='panel panel-default'>" +
+                    "<div class='panel-body'></div>" +
+                    "<div class='modal-footer' style='padding-top:0;margin-top:0;border:none;'>" + 
+                    "<button type='button' class='btn btn-default editButton'>Edit</button>" +
+                    "<button type='button' class='btn btn-default cancelButton' style='display:none'>Cancel</button>" +
+                    "<button type='button' class='btn btn-primary okButton' style='display:none'>OK</button>" +
+                    "</div></div> ");
+
+                dialogHeader.text("Report Card: " + playerReportCard.results.player.name + ", " + playerReportCard.results.term.name);
+
+                var reportCardTableBody = $(".report-card-table-body");
+                var headlines = playerReportCard.results.reportCard.headlines;
+                for (var i = 0; i < headlines.length; i++) {
+                    var headline = headlines[i];
+                    reportCardTableBody.append(getReportCardHeadlineElement(headline));
+
+                    for (var j = 0; j < headline.areas.length; j++) {
+                        var area = headline.areas[j];
+                        for (var k = 0; k < area.skills.length; k++) {
+                            var skill = area.skills[k];
+                            reportCardTableBody.append(getReportCardAreaElement(area, skill));
+                        }
+                    }
+                }
+
+                var facets = playerReportCard.results.reportCard.facets;
+                for (var i = 0; i < facets.length; i++) {
+                    var facet = facets[i];
+                    var facetElement = getReportFacetElement(facet);
+                    if (facet.key == facetKeys.CoachesComments) {
+                        dialogBody.find("div.panel-body").append(facetElement);
+                    } else if (facet.key == facetKeys.OverallGrade) {
+                        reportCardTableBody.append(facetElement);
+                    } else if (facet.key == facetKeys.Level) {
+                        dialogBody.find("div.panel-body").prepend(facetElement);
+                    }
+                }
+
+                if (playerReportCard.results.term.status == "Open") {
+                    attachGradeButtonEvents(playerReportCard);
+                    attachFacetButtonEvents(playerReportCard);
+                    toggleEditUpdateButtons(true);
+                    attachEditUpdateButtonEvents(playerReportCard);
+                } else {
+                    $("button.gradeButton").attr("disabled", true);
+                    $("button.facetGradeButton").attr("disabled", true);
+                    $("button.editButton").hide();
+                }
+
+            } else {
+                dialogBody.empty().append("<p class='modal-message'>Report data could not be retrieved</div>");
+            }
+        }
+
+        function getReportCardHeadlineElement(headline) {
+            return "<tr style='background-color:rgb(0,0,100); color:rgb(255,255,255)'><td class='col-md-3'>" + headline.title + "</td>" +
+                    "<td class='col-md-4'>All Ages</td>" +
+                    "<td class='col-md-1 text-center'>C</td>" +
+                    "<td class='col-md-1 text-center'>B-</td>" +
+                    "<td class='col-md-1 text-center'>B</td>" +
+                    "<td class='col-md-1 text-center'>B+</td>" +
+                    "<td class='col-md-1 text-center'>A</td></tr>";
+        }
+
+        function getReportCardAreaElement(area, skill) {
+            return "<tr data-skillid='" + skill.guid + "'><td class='col-md-3'>" + area.title + "</td>" +
+                "<td class='col-md-4'>" + skill.title + "</td>" +
+                "<td class='col-md-1 text-center'><button data-gradeid='5' data-state='0' class='btn " + (skill.grade == 5 ? "btn-primary" : "btn-default") + " gradeButton'>C</button></td>" +
+                "<td class='col-md-1 text-center'><button data-gradeid='4' data-state='0' class='btn " + (skill.grade == 4 ? "btn-primary" : "btn-default") + " gradeButton'>B-</button></td>" +
+                "<td class='col-md-1 text-center'><button data-gradeid='3' data-state='0' class='btn " + (skill.grade == 3 ? "btn-primary" : "btn-default") + " gradeButton'>B</button></td>" +
+                "<td class='col-md-1 text-center'><button data-gradeid='2' data-state='0' class='btn " + (skill.grade == 2 ? "btn-primary" : "btn-default") + " gradeButton'>B+</button></td>" +
+                "<td class='col-md-1 text-center'><button data-gradeid='1' data-state='0' class='btn " + (skill.grade == 1 ? "btn-primary" : "btn-default") + " gradeButton'>A</button></td></tr>";
+        }
+
+        function getReportFacetElement(facet) {
+            var element = "";
+            if (facet.key == facetKeys.OverallGrade) {
+                element = "<tr data-facetkey='" + facet.key + "' style='border: none!important;'><td colspan='2' style='border: none!important; text-align:right; font-weight:700; color: rgb(196, 14, 14);'>Overall Grade</td>" +
+                    "<td class='col-md-1 text-center'><button data-facetvalue='C' data-state='0' class='btn " + (facet.value == 'C' ? "btn-danger" : "btn-default") + " facetGradeButton'>C</button></td>" +
+                    "<td class='col-md-1 text-center'><button data-facetvalue='B-' data-state='0' class='btn " + (facet.value == 'B-' ? "btn-danger" : "btn-default") + " facetGradeButton'>B-</button></td>" +
+                    "<td class='col-md-1 text-center'><button data-facetvalue='B' data-state='0' class='btn " + (facet.value == 'B' ? "btn-danger" : "btn-default") + " facetGradeButton'>B</button></td>" +
+                    "<td class='col-md-1 text-center'><button data-facetvalue='B+' data-state='0' class='btn " + (facet.value == 'B+' ? "btn-danger" : "btn-default") + " facetGradeButton'>B+</button></td>" +
+                    "<td class='col-md-1 text-center'><button data-facetvalue='A' data-state='0' class='btn " + (facet.value == 'A' ? "btn-danger" : "btn-default") + " facetGradeButton'>A</button></td></tr>";
+            } else if (facet.key == facetKeys.Level) {
+                element = "<div class='form-group'><label for='level'>Level:</label>" +
+                            "<input name='level' type='text' class='form-control level' placeholder='level' readonly value='" + facet.value + "'/>" +                            
+                        "</div>";
+            } else if (facet.key = facetKeys.CoachesComments) {
+                element = "<div class='form-group'><label for='comments'>Coaches Comments (450 characters):</label>" +
+                    "<textarea name='coachescomments' maxlength='450' class='form-control comments' placeholder='coaches comments' readonly rows='4'>" + facet.value + "</textarea></div>";
+            }
+            return element;
+        }
+
+        function attachGradeButtonEvents(playerReportCard) {
+            var playerId = playerReportCard.results.player.guid;
+            var reportCardId = playerReportCard.results.reportCard.guid;
+            var termId = playerReportCard.results.term.guid;
+
+            $('button.gradeButton').on('click', function (e) {
+                var button = $(this);
+                var buttons = button.closest('tr').find("button");
+                var skillId = button.closest('tr').data('skillid');
+                var gradeId = button.data('gradeid');
+                var currentState = button.data('state');
+                showSpinner(button);
+
+                $.ajax({
+                    method: "POST",
+                    contentType: 'application/json',
+                    url: "/api/evaluations/report-cards/" + reportCardId,
+                    data: JSON.stringify({ SquadId:$("#squads").val(), TermId:termId, PlayerId:playerId, ReportCardId:reportCardId, SkillId:skillId, ReportCardGradeId:(currentState == 1 ? null : gradeId) })
+                })
+                .done(function (data) {
+                    clearAttributes(buttons);
+                    $(button).data("state", (currentState == 1 ? 0 : 1));
+                    if (currentState == 0) {
+                        $(button).addClass("btn btn-primary gradeButton");
+                    }
+                })
+                .fail(function (jqXHR, textStatus, errorThrown) {
+                    clearAttributes(buttons);
+                    restoreOriginalState(button);
+                    console.log(textStatus);
+                });
+            });
+        }
+
+        function attachFacetButtonEvents(playerReportCard) {
+            var playerId = playerReportCard.results.player.guid;
+            var reportCardId = playerReportCard.results.reportCard.guid;
+            var termId = playerReportCard.results.term.guid;
+
+            $('button.facetGradeButton').on('click', function (e) {
+                var button = $(this);
+                var buttons = button.closest('tr').find("button");
+                var facetKey = button.closest('tr').data('facetkey');
+                var facetValue = button.data('facetvalue');
+                var currentState = button.data('state');
+                showSpinner(button);
+
+                $.ajax({
+                    method: "POST",
+                    contentType: 'application/json',
+                    url: "/api/evaluations/report-cards/" + reportCardId,
+                    data: JSON.stringify({ SquadId: $("#squads").val(), TermId: termId, PlayerId: playerId, ReportCardId: reportCardId, FacetKey: facetKey, FacetValue: (currentState == 1 ? null : facetValue) })
+                })
+                    .done(function (data) {
+                        clearAttributes(buttons);
+                        $(button).data("state", (currentState == 1 ? 0 : 1));
+                        if (currentState == 0) {
+                            $(button).addClass("btn btn-danger facetGradeButton");
+                        }
+                    })
+                    .fail(function (jqXHR, textStatus, errorThrown) {
+                        clearAttributes(buttons);
+                        $(button).data("state", currentState);
+                        if (currentState == 0) {
+                            $(button).addClass("btn btn-danger facetGradeButton");
+                        }
+                    });
+            });
+        }
+
+        function attachEditUpdateButtonEvents(playerReportCard) {
+            var playerId = playerReportCard.results.player.guid;
+            var reportCardId = playerReportCard.results.reportCard.guid;
+            var termId = playerReportCard.results.term.guid;
+
+            $('button.editButton').unbind().on('click', function (e) { 
+                toggleEditUpdateButtons(false);                
+                var originalLevel = $(".level").val();
+                var originalComments = $(".comments").val();
+
+                $('button.cancelButton').unbind().on('click', function (e) {
+                    toggleEditUpdateButtons(true);                    
+                    $(".level").val(originalLevel);
+                    $(".comments").val(originalComments);
+                });
+
+                $('button.okButton').unbind().on('click', function (e) {
+                    var newLevel = $(".level").val();
+                    var newComments = $(".comments").val();
+                    if (originalLevel.localeCompare(newLevel) == 0 && originalComments.localeCompare(newComments) == 0) {
+                        toggleEditUpdateButtons(true);
+                    } else {
+                        if (originalLevel.localeCompare(newLevel) != 0) {
+                            $.ajax({
+                                method: "POST",
+                                contentType: 'application/json',
+                                url: "/api/evaluations/report-cards/" + reportCardId,
+                                data: JSON.stringify({ SquadId: $("#squads").val(), TermId: termId, PlayerId: playerId, ReportCardId: reportCardId, FacetKey: facetKeys.Level, FacetValue: newLevel })
+                            }).done(function (data) {
+                                toggleEditUpdateButtons(true);
+                            }).fail(function (jqXHR, textStatus, errorThrown) {
+                                $('button.cancelButton').trigger('click');
+                            });
+                        }
+
+                        if (originalComments.localeCompare(newComments) != 0) {
+                            $.ajax({
+                                method: "POST",
+                                contentType: 'application/json',
+                                url: "/api/evaluations/report-cards/" + reportCardId,
+                                data: JSON.stringify({ SquadId: $("#squads").val(), TermId: termId, PlayerId: playerId, ReportCardId: reportCardId, FacetKey: facetKeys.CoachesComments, FacetValue: newComments })
+                            }).done(function (data) {
+                                toggleEditUpdateButtons(true);
+                            }).fail(function (jqXHR, textStatus, errorThrown) {
+                                $('button.cancelButton').trigger('click');
+                            });
+                        }
+                    }
+                });
+            });            
+        }
+
+        function toggleEditUpdateButtons(showEdit) {
+            if (showEdit == true) {
+                $("button.editButton").show();
+                $("button.okButton").hide();
+                $("button.cancelButton").hide();
+                dialogBody.find("div.panel-body input,textarea").attr("readonly", "readonly");
+            } else {
+                $("button.editButton").hide();
+                $("button.okButton").show();
+                $("button.cancelButton").show();
+                dialogBody.find("div.panel-body input,textarea").removeAttr("readonly");
+            }
+            
+        }
+
+        function clearAttributes(buttons) {
+            for (var i = 0; i < buttons.length; i++) {
+                $(buttons[i]).removeClass();
+                $(buttons[i]).addClass("btn btn-default gradeButton");
+                $(buttons[i]).data("state", 0);
+                $(buttons[i]).children(".glyphicon").remove();
+            }
+        }
+
+        function restoreOriginalState(button) {
+            $(button).data("state", currentState);
+            if (currentState == 0) {
+                $(button).addClass("btn btn-primary gradeButton");
+            }
+        }
+
+        function updateDialogStatus(message) {
+            $("p.dialogstatus").remove();
+            dialogBody.append("<p class='dialogstatus'>" + message + "</p>");
+        }
+
+        function showSpinner(button) {
+            button.append("<span class='glyphicon glyphicon-repeat fast-right-spinner'></span>");
+        }
+
+    </script>
+}
+
+@section CSS {
+    <link href="~/lib/select2/dist/css/select2.min.css" rel="stylesheet" />
+}

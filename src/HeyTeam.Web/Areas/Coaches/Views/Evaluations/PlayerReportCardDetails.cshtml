@@ -1,0 +1,169 @@
+﻿
+@using System.Linq
+@using HeyTeam.Core.Models
+@{Layout = null;}
+@model HeyTeam.Core.Models.PlayerEvaluation
+<html>
+<head>
+    <style type="text/css">
+    @@media print, screen {
+        @@page
+        {
+            size: letter portrait;
+            margin: 1.0cm;
+        }
+
+        body{
+            width:8.5in;
+            height:11in;
+            margin:0 auto;
+            font-family:Verdana, Geneva, Tahoma, sans-serif;
+        }
+
+        table {
+            width: 100%;
+            /*border: solid thin rgb(200,200,200);*/
+            border-collapse: collapse;
+        }
+
+        thead {
+            display: table-header-group;
+        }
+
+        thead > tr > th {
+            text-align:left;
+        }
+
+        tbody > tr {
+            border: solid thin rgb(200,200,200);
+            border-collapse: collapse;
+            -webkit-print-color-adjust: exact;
+        }
+        tbody > tr > td {
+            padding: 2px 2px 2px 2px;
+            border: solid thin rgb(200,200,200);
+            font-size:9pt;
+        }
+
+        tbody > tr > td:nth-child(n+3) {
+                text-align: center;
+                font-weight: 700;
+                width: 0.75cm;
+            }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 0;
+            font-size: 14pt;
+        }
+
+        p {
+            margin-bottom: 0.5em;
+            margin-top: 0.5em;
+            font-size: 10pt;
+        }
+
+        img{
+            height:2.2cm; width:2.2cm;
+        }
+
+        .identification {
+            float: right;
+            border: solid thin rgb(200,200,200);
+            height: 2.2cm;
+            width: 7cm;
+            padding-left:3pt;
+            text-align:left;
+        }
+
+        .bold{
+            font-weight:600;
+        }
+
+        .active-grade{
+            background-color:rgb(230,230,230);
+        }
+
+        .red {
+            color: rgb(196, 14, 14);
+        }
+
+        .blue {
+            color:rgb(26, 26, 126);
+        }
+    }
+    </style>
+    </head>
+<body>    
+    <table>
+        <thead>
+            <tr>
+                <th><img src="~/images/mapola-logo.png" /></th>
+                <th colspan="6">
+                    <div class="identification">
+                        <p> <span class="bold blue">Name:  </span>@Model.Player.Name</p>
+                        <p><span class="bold blue">Term:  </span>@Model.Term.Name</p>
+                        <p><span class="bold blue">Level: </span>@Model.ReportCard.Facets.SingleOrDefault(f => f.Key == ReportCardFacetKeys.Level)?.Value</p>
+                    </div>
+                </th>
+            </tr>
+            <tr>
+                <th colspan="7">
+                    <h2 class="red">Mapola FC Academy Players Evaluation</h2>                    
+                </th>
+            </tr>
+            <tr>
+                <th colspan="7">
+                    <p>All grades are specific to the Age Group and the Level that the player is training at.</p>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var headline in Model.ReportCard.Headlines) {
+                <tr style="background-color:rgb(26, 26, 126);color:rgb(255,255,255);font-weight:700;">
+                    <td>@headline.Title</td>
+                    <td>All Ages</td>
+                    <td>C</td>
+                    <td>B-</td>
+                    <td>B</td>
+                    <td>B+</td>
+                    <td>A</td>
+                </tr>
+                @foreach (var area in headline.Areas) {
+                    @foreach (var skill in area.Skills) {
+                        <tr>
+                            <td>@area.Title</td>
+                            <td>@skill.Title</td>
+                            <td class="@(skill.Grade.HasValue && skill.Grade.Value == HeyTeam.Core.ReportCardGrade.C ? "active-grade" : "")">
+                                @(skill.Grade.HasValue && skill.Grade.Value == HeyTeam.Core.ReportCardGrade.C ? "C" : "" )
+                            </td>
+                            <td class="@(skill.Grade.HasValue && skill.Grade.Value == HeyTeam.Core.ReportCardGrade.BMinus ? "active-grade" : "")">
+                                @(skill.Grade.HasValue && skill.Grade.Value == HeyTeam.Core.ReportCardGrade.BMinus ? "B-" : "" )
+                            </td>
+                            <td class="@(skill.Grade.HasValue && skill.Grade.Value == HeyTeam.Core.ReportCardGrade.B ? "active-grade" : "")">
+                                @(skill.Grade.HasValue && skill.Grade.Value == HeyTeam.Core.ReportCardGrade.B ? "B" : "" )
+                            </td>
+                            <td class="@(skill.Grade.HasValue && skill.Grade.Value == HeyTeam.Core.ReportCardGrade.BPlus ? "active-grade" : "")">
+                                @(skill.Grade.HasValue && skill.Grade.Value == HeyTeam.Core.ReportCardGrade.BPlus ? "B+" : "" )
+                            </td>
+                            <td class="@(skill.Grade.HasValue && skill.Grade.Value == HeyTeam.Core.ReportCardGrade.A ? "active-grade" : "")">
+                                @(skill.Grade.HasValue && skill.Grade.Value == HeyTeam.Core.ReportCardGrade.A ? "A" : "" )
+                            </td>
+                        </tr>
+                    }
+                }
+            }
+                        <tr style="border:none !important;">
+                            <td colspan="2" style="border:none !important;text-align:right;font-weight:700;color: rgb(196, 14, 14);">Overall Grade</td>
+                            <td colspan="5" style="text-align:center;" class="bold red">@Model.ReportCard.Facets.SingleOrDefault(f => f.Key == ReportCardFacetKeys.OverallGrade)?.Value</td>
+                        </tr>
+        </tbody>
+    </table>
+    <div>
+        <p class="bold blue">Coaches Comments</p>
+        <p style="text-align:justify;">
+            @Model.ReportCard.Facets.SingleOrDefault(f => f.Key == ReportCardFacetKeys.CoachesComments)?.Value
+        </p>
+    </div>
+</body>
+</html>

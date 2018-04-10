@@ -1,0 +1,57 @@
+﻿@model IEnumerable<HeyTeam.Core.Term>
+<h1>Terms</h1>
+<h3>List</h3>
+<div>
+    <div class="btn-group" role="group" aria-label="...">
+        <a asp-area="Coaches" asp-controller="Evaluations" asp-action="NewTerm" class="btn btn-primary">Add New Term</a>
+    </div>
+</div>
+<div class="table-responsive">
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Title)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.StartDate)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.EndDate)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.TermStatus)
+                </th>
+
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var term in Model)
+            {
+                <tr>
+                    <td><a asp-area="Coaches" asp-controller="Evaluations" asp-action="TermDetails" asp-route-termId="@term.Guid">@term.Title</a></td>
+                    <td>
+                        @term.StartDate.ToString("dd-MMM-yyyy")
+                    </td>
+                    <td>
+                        @term.EndDate.ToString("dd-MMM-yyyy")
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => term.TermStatus)
+                    </td>
+                    <td class='text-center'>
+                        @*<div class='dropdown'>
+                            <button class='btn btn-default dropdown-toggle btn-sm' type='button' id='dropdownMenu1' data-toggle='dropdown' aria- haspopup='true' aria-expanded='true'>                                
+                                <span class='caret'></span>                                
+                            </button>
+                            <ul class='dropdown-menu dropdown-menu-right' aria-labelledby='dropdownMenu1'>
+                                
+                            </ul>
+                        </div>*@
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
