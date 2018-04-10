@@ -1,0 +1,280 @@
+﻿@model HeyTeam.Web.Models.Assignments.IndexViewModel
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Assignments</h2>
+<h3>List</h3>
+<div>
+    <div class="btn-group" role="group" aria-label="...">
+        <a class="btn btn-primary" asp-controller="Assignments" asp-area="Coaches" asp-action="New">Add New Assignment</a>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12" style="margin-bottom:15px;">
+        <div class="form-inline">
+            <div class="form-group">
+                <label for="month">Month Assigned:</label>
+                <input id="month" type="month" class="form-control" value=@($"{DateTime.Now.Year}-{(DateTime.Now.Month < 10 ? "0" : "")}{DateTime.Now.Month}")>
+            </div>
+            <div class="form-group">
+                <label for="squads" class="control-label">Squads:</label>
+                <select id="squads" name="squads" asp-items="Model.Squads" class="form-control"></select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="message" style="display:none"></div>
+<div class="assignments"></div>
+<div class="modal fade" id="deleteConfirmationDialog" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" id="removePlayerForm">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Confirm Deletion</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Do you really want to delete this entry?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <input type="submit" id="ConfirmDeleteButton" class="btn btn-danger" value="Delete" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="dueDateDialog" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <form method="post" id="dueDateForm">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Change Due Date</h4>
+                </div>
+                <div class="modal-body">
+                    <label>Due Date: </label><input value="null" type="date" id="dueDateInput" class="form-control" style="width:200px" required min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")"/>                    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <input type="submit" id="ConfirmDeleteButton" class="btn btn-primary" value="Save" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script src="~/lib/select2/dist/js/select2.min.js"></script>
+    <script>
+        var tablehtml = '<div class="table-responsive">' +
+                            '<table class="table table-bordered table-hover">' +
+                                '<thead>' +
+                                    '<tr>' +
+                                        '<th colspan="3" class="heading-title"><h4 class="assignmentTitle"></h4></th>' +
+                                        '<th colspan="2" class="heading-buttons text-right"></th>' +
+                                    '</tr>' +
+                                    '<tr>' +                                        
+                                        '<th class="col-md-2">Assigned To</th>' +
+                                        '<th class="col-md-2">Assigned By</th>' +
+                                        '<th class="col-md-2">Assigned On</th>' +
+                                        '<th class="col-md-2">Due Date</th>' +
+                                        '<th class="col-md-1 text-center">Actions</th>' +
+                                    '</tr>' +
+                                '</thead>' +
+                            '<tbody></tbody>' +
+                        '</table>' +
+            '</div>';        
+
+        $("#squads").select2();
+        $("#squads").change(updateTable);
+        $("#month").change(updateTable);        
+        
+        function updateTable() {
+            var date = $('#month').val().split('-');
+            $(".assignments").empty();
+            $("#message").text("Fetching data, please wait...");
+            $("#message").show();
+
+            var date = $('#month').val().split('-');
+            var apiUrl = "/api/assignments?month=" + date[1] + "&year=" + date[0];
+            if ($('#squads').val().length > 0) {
+                apiUrl = apiUrl + "&squads=" + $('#squads').val();
+            }
+
+            console.log("calling ajax...");
+            $.ajax({
+                method: "GET",
+                url: apiUrl
+            }).done(function (data) {
+                console.log("ajax done...");
+                if (data.length > 0) {
+                    addRows(data);
+                    $(".assignments").show();
+                    $("#message").hide();
+                } else {
+                    $(".assignments").hide();
+                    $("#message").show();
+                    $("#message").text("No records found");
+                }
+                }).fail(function (jqXHR, textStatus, errorThrown) { 
+                    console.log("ajax failed...");
+                }).always(function () { 
+                    console.log("ajax completed...");
+                    bindEvents();
+                });
+        }
+
+        function bindEvents() {
+            $('.table-responsive').unbind();
+            $("button.assignAgain").unbind();
+
+            $('.table-responsive').on('show.bs.dropdown', function () {
+                $('.table-responsive').css("overflow", "inherit");
+            });
+
+            $('.table-responsive').on('hide.bs.dropdown', function () {
+                $('.table-responsive').css("overflow", "auto");
+            })
+
+            $("button.removePlayer").click(function () {
+                var row = $(this).closest("tr");
+                var playerAssignmentId = row.data("playerassignmentid");
+                console.log("removing player..." + playerAssignmentId);
+                $('#removePlayerForm').unbind();
+                $('#removePlayerForm').submit(function (e) {
+                    e.preventDefault();
+                    removePlayerAssignment(row, playerAssignmentId);
+                });
+                $('#deleteConfirmationDialog').modal('show');                
+            });      
+        
+
+            $("button.changeDueDate").click(function () {
+                var row = $(this).closest("tr");
+                var playerAssignmentId = row.data("playerassignmentid");
+                $("#dueDateInput").val(null);
+                $('#dueDateForm').unbind();
+                $('#dueDateForm').submit(function (e) {
+                    e.preventDefault();
+                    var newDate = $("#dueDateInput").val();
+                    if (newDate > new Date()) {                        
+                        updateDueDate(row, playerAssignmentId, newDate);    
+                    }                    
+                });
+                $('#dueDateDialog').modal('show');                
+            });
+
+            $("button.editAssignment").click(function () {
+                var assignmentId = $(this).closest("th").data("assignmentid");
+                console.log("editing assignment..." + assignmentId);
+            });
+
+            $("button.assignNewPlayer").click(function () {
+                var assignmentId = $(this).closest("th").data("assignmentid");
+                console.log("assigning to new player..." + assignmentId);
+            });
+
+            $("button.deleteAssignment").click(function () {
+                var assignmentId = $(this).closest("th").data("assignmentid");
+                console.log("deleting assignment..." + assignmentId);
+            });
+
+            $(".assignmentTitle").tooltip("destroy");
+            $(".assignmentTitle").tooltip({ placement: "auto right", trigger: 'hover' });
+
+        }
+
+        function addRows(data) {            
+            for (var index in data) {
+                var record = data[index];
+                var table = $(tablehtml);
+                var tableBody = table.find("tbody");
+                var headerTitle = table.find("th.heading-title");
+                var headerButtons = table.find("th.heading-buttons");
+
+                headerTitle.find("h4").text(record.title);
+                headerTitle.find("h4").attr("title", record.instructions);
+                headerTitle.append("<span class='small'> created by " + record.createdby + " on " + record.createdOn + "</span>");                
+                
+                //headerButtons.append("<button type='button' class='btn btn-link editAssignment' title='Edit this assignment'><span class='glyphicon glyphicon-pencil'></span></button>");
+                //headerButtons.append("<button type='button' class='btn btn-link assignNewPlayer' title='Assign to new player'><span class='glyphicon glyphicon-plus'></span></button>");
+                //headerButtons.append("<button type='button' class='btn btn-link deleteAssignment' title='Delete this assignment'><span class='glyphicon glyphicon-remove text-danger'></span></button>");                
+                headerButtons.data("assignmentid", record.assignmentId);
+
+                var allocations = record.allocations;
+                if (allocations != null && allocations.length > 0) {
+                    for (var j in allocations) {
+                        var allocation = allocations[j];
+                        var row = "<tr data-playerassignmentid='" + allocation.playerAssignmentId + "'>" +
+                            //"<td><a href='#'>" + allocation.playerName + "</a></td>" +                            
+                            "<td>" + allocation.playerName + "</td>" +
+                            "<td>" + allocation.assignedBy + "</td>" +
+                            "<td>" + allocation.assignedOn + "</td>" +
+                            "<td>" + (allocation.dueDate == null ? "" : allocation.dueDate) + "</td>" +
+                            "<td class='text-center'><div class='dropdown'>" +
+                            "<button class='btn btn-default dropdown-toggle btn-sm' type='button' id='dropdownMenu1' data-toggle='dropdown' aria- haspopup='true' aria-expanded='true' >" +
+                            "<span class='caret'></span>" +
+                            "</button>" +
+                            "<ul class='dropdown-menu dropdown-menu-right' aria-labelledby='dropdownMenu1'>" +
+                            //"<li><button class='btn btn-link changeDueDate'>Change Due Date</li>" +
+                            "<li><button class='btn btn-link removePlayer'>Remove Player</li>" +
+                            "</ul>" +
+                            "</td>" +
+                            "</tr>";
+                        tableBody.append(row);
+                    }
+                    $(".assignments").append(table)
+                }                
+            }
+        }
+
+        function removePlayerAssignment(row, playerAssignmentId) {
+            $.ajax({
+                method: "POST",
+                url: "/api/assignments/remove-player",
+                data: { "playerAssignmentId": playerAssignmentId }
+            }).done(function (data) {
+                $(row).remove();
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.log("ajax failed...");                
+            }).always(function () {
+                $('#removePlayerForm').unbind();
+                $('#deleteConfirmationDialog').modal('hide');
+            });
+        }
+
+        function updateDueDate(row, playerAssignmentId, newDate) {
+            $.ajax({
+                method: "PUT",
+                url: "/api/assignments",
+                data: { "playerAssignmentId": playerAssignmentId,"dueDate" : dueDate }
+            }).done(function (data) {
+                
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.log("ajax failed...");
+            }).always(function () {
+                $('#dueDateForm').unbind();
+                $('#dueDateDialog').modal('hide');
+            });
+        }
+
+        updateTable();
+    </script>
+}
+
+@section CSS {
+    <link href="~/lib/select2/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        .assignmentTitle {
+            display: inline;
+        }
+
+        .table-bordered > thead > tr:nth-child(1) > th {
+            border: 0;
+            background-color:rgb(245,245,245);
+        }
+    </style>
+}
