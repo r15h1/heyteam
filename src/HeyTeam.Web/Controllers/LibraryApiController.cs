@@ -7,10 +7,9 @@ using System.Collections.Generic;
 
 namespace HeyTeam.Web.Areas.Administration.Controllers {
 
-	[Authorize(Policy = "Administrator")]
+	[Authorize]
 	[Produces("application/json")]
-	[Area("Administration")]
-	[Route("[area]/api/library")]
+	[Route("api/library")]
 	public class LibraryApiController : Controller
     {
 		private readonly Club club;
