@@ -1,6 +1,6 @@
 ﻿@model HeyTeam.Web.Models.EventsViewModel
-<h1>Events</h1>
-<h3>Manage Reviews & Attendance</h3>
+<h1>Events, Attendance & Reviews</h1>
+<h3>List</h3>
 
 <div class="row">
     <div class="col-md-12" style="margin-bottom:15px;">
@@ -16,109 +16,209 @@
         </div>
     </div>
 </div>
-<div id="message" style="display:none"></div>
-    <div class="table-responsive">
-        <table id="eventsTable" class="table table-bordered table-hover">
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Squads</th>
-                    <th>Starts</th>
-                    <th>Ends</th>
-                    <th>Location</th>
-                    <th>Docs</th>
-                    <th>Action</th>                    
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+
+<div class="modal fade" id="libraryViewsDialog" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">            
+            <input type="hidden" id="eventId" name="eventId" />
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Training Material Views</h4>
+            </div>
+            <div class="modal-body">
+                <p class="message">Fetching views, please wait...</p>
+                <div class="content table-responsive">abcd</div>
+            </div>
+        </div>
     </div>
+</div>
 
-    @section Scripts {
-        <script src="~/lib/select2/dist/js/select2.min.js"></script>
-        <script type="text/javascript">
-            //$('#Squads').select2();
-        </script>
-        <script type="text/javascript">
-            $("#month").change(updateTable);
-            $("#Squad").change(updateTable);
 
-            function updateTable() {
-                var date = $('#month').val().split('-');
-                $(".table-responsive").hide();
-                $("#eventsTable > tbody").empty();
-                $("#message").text("Fetching data, please wait...");
-                $("#message").show();                
+<div id="message" style="display:none"></div>
+<div class="table-responsive">
+    <table id="eventsTable" class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Squads</th>
+                <th>Starts</th>
+                <th>Ends</th>
+                <th>Location</th>
+                <th>Docs</th>
+                @*<th>Attendance</th>
+                    <th>Review</th>*@
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
 
-                var url = "/api/events?month=" + date[1] + "&year=" + date[0];
-                if ($('#Squad').val()) {
-                    url = url + "&squad=" + $('#Squad').val();
-                }
+@section Scripts {
+    <script src="~/lib/select2/dist/js/select2.min.js"></script>
+    <script type="text/javascript">
+        $("#month").change(updateTable);
+        $("#Squad").change(updateTable);
 
-                $.ajax({
-                    method: "GET",
-                    url: url
-                })
-                    .done(function (data) {
-                        var gameEventTypes = [2, 3, 4, 5];
-                        //console.log(data);
-                        if (data.length > 0) {
-                            $(".table-responsive").show();
-                            $("#message").hide();
-                            for (var i = 0; i < data.length; i++) {
-                                var entry = data[i];
-                                //console.log(entry);
-                                var row = "<tr data-id='" + entry.eventId + "'>";
-                                row = row + "<td><a href='events/" + entry.eventId + "'><span class='label label-default'>" + entry.eventTypeDescription + "</span><br/>" +  entry.title + "</a></td>";
-                                row = row + "<td>" + entry.squads + "</td>";
-                                row = row + "<td>" + entry.formattedStartDate + "</td>";
-                                row = row + "<td>" + entry.formattedEndDate + "</td>";
-                                row = row + "<td>" + entry.location + "</td>";
-                                row = row + "<td>" + entry.trainingMaterialsCount + "</td>";
-                                
-                                var endDate = new Date(entry.formattedEndDate);
-                                var now = new Date();
-                                var minDate = new Date(now.getTime() - (1000 * 60 * 60 * 24 * 30));
+        
 
-                                row = row + "<td class='text-center'>";
-                                var dropdown = "<div class='dropdown'><button class='btn btn-default dropdown-toggle btn-sm' type='button' id='dropdownMenu1' data-toggle='dropdown' aria- haspopup='true' aria-expanded='true' >" +
-                                    "<span class='caret'></span>" +
-                                    "</button>" +
-                                    "<ul class='dropdown-menu dropdown-menu-right' aria-labelledby='dropdownMenu1'>";
+        function updateTable() {
+            var date = $('#month').val().split('-');
+            $(".table-responsive").hide();
+            $("#eventsTable > tbody").empty();
+            $("#message").text("Fetching data, please wait...");
+            $("#message").show();
 
-                                if (now > endDate) {
-                                    dropdown = dropdown + "<li><a href='events/" + entry.eventId + "/attendance'><span class='text-primary glyphicon glyphicon-hand-up'></span> Attendance</a></li>";
-                                }
+            $('.table-responsive').on('show.bs.dropdown', function () {
+                $('.table-responsive').css("overflow", "inherit");
+            });
 
-                                if (gameEventTypes.includes(entry.eventType) && now > endDate && endDate >= minDate) {
-                                    dropdown = dropdown + "<li><a href='events/" + entry.eventId + "/report'><span class='text-primary glyphicon glyphicon-list-alt'></span> Report</a></li>";
-                                }
+            $('.table-responsive').on('hide.bs.dropdown', function () {
+                $('.table-responsive').css("overflow", "auto");
+            })
 
-                                if (now > endDate && endDate >= minDate) {
-                                    dropdown = dropdown + "<li><a href='events/" + entry.eventId + "/reviews'><span class='text-primary glyphicon glyphicon-star'></span> Review</a></li>";
-                                }                                 
-                                dropdown = dropdown + "</ul></div>";
-
-                                var hasDropdownElements = $(dropdown).find("li").length > 0;
-                                if (hasDropdownElements) {
-                                    row = row + dropdown;
-                                }
-                                
-                                row = row + "</td><tr>";
-                                $("#eventsTable > tbody").append(row);
-                            }
-                        } else {
-                            $(".table-responsive").hide();
-                            $("#message").show();
-                            $("#message").text("No records found"); 
-                        }
-                    });
+            var eventsApiUrl = "/api/events?month=" + date[1] + "&year=" + date[0];
+            if ($('#Squad').val()) {
+                eventsApiUrl = eventsApiUrl + "&squad=" + $('#Squad').val();
             }
-            console.log(new Date());
-            updateTable();
-        </script>
-    }
 
-    @section CSS {
-        <link href="~/lib/select2/dist/css/select2.min.css" rel="stylesheet" />
-    }
+            $.ajax({
+                method: "GET",
+                url: eventsApiUrl
+            })
+                .done(function (data) {
+                    var gameEventTypes = [2, 3, 4, 5];
+                    //console.log(data);
+                    if (data.length > 0) {
+                        $(".table-responsive").show();
+                        $("#message").hide();
+                        for (var i = 0; i < data.length; i++) {
+                            var entry = data[i];
+                            //console.log(entry);
+                            var row = "<tr data-id='" + entry.eventId + "'>";
+                            row = row + "<td><a href='events/" + entry.eventId + "'><span class='label label-default'>" + entry.eventTypeDescription + "</span><br/>" + entry.title + "</a></td>";
+                            row = row + "<td>" + entry.squads + "</td>";
+                            row = row + "<td>" + entry.formattedStartDate + "</td>";
+                            row = row + "<td>" + entry.formattedEndDate + "</td>";
+                            row = row + "<td>" + entry.location + "</td>";
+                            row = row + "<td class='text-center'><a href='#' class='trainingMaterialViews'>" + entry.trainingMaterialsCount + "</a></td>";
+
+                            var endDate = new Date(entry.formattedEndDate);
+                            var startDate = new Date(entry.formattedStartDate);
+                            var now = new Date();
+                            var lastReviewDate = new Date(now.getTime() - (1000 * 60 * 60 * 24 * 30)); //close review 30 days after event
+                            var attendanceStartDate = new Date(startDate.getTime() - (1000 * 60 * 60 * 3)); //display attendance  option 3 hours before game
+                            var attendanceEndDate = new Date(startDate.getTime() + (1000 * 60 * 60 * 24 * 15)); //hide attendance  option 15 days after game
+
+                            row = row + "<td class='text-center'><div class='dropdown'>" +
+                                "<button class='btn btn-default dropdown-toggle btn-sm' type='button' id='dropdownMenu1' data-toggle='dropdown' aria- haspopup='true' aria-expanded='true' >" +
+                                "<span class='caret'></span>" +
+                                "</button>" +
+                                "<ul class='dropdown-menu dropdown-menu-right' aria-labelledby='dropdownMenu1'>";
+
+                            if (now >= attendanceStartDate && now <= attendanceEndDate) {
+                                row = row + "<li><a href='events/" + entry.eventId + "/attendance'><span class='text-primary glyphicon glyphicon-hand-up'></span> Attendance</a></li>";
+                                //row = row + "<li><a href='events/" + entry.eventId + "/tracker'><span class='text-primary glyphicon glyphicon-time'></span> Tracker</a></li>";
+                            }
+
+                            if (gameEventTypes.includes(entry.eventType) && now > endDate && endDate >= lastReviewDate) {
+                                row = row + "<li><a href='events/" + entry.eventId + "/report'><span class='text-primary glyphicon glyphicon-list-alt'></span> Match Report</a></li>";
+                            }
+
+                            if (now > endDate && endDate >= lastReviewDate) {
+                                row = row + "<li><a href='events/" + entry.eventId + "/reviews'><span class='text-primary glyphicon glyphicon-star'></span> Review</a></li>";
+                            }
+
+                            if (entry.trainingMaterialsCount > 0) {
+                                row = row + "<li><a href='#' class='trainingMaterialViews'><span class='text-primary glyphicon glyphicon-eye-open'></span> Training Material Views</a></li>";
+                            }
+
+                            row += "</ul></div></td>";
+
+                            row = row + "</tr>";
+                            $("#eventsTable > tbody").append(row);
+                        }
+
+                        $('a.trainingMaterialViews').click(
+                            function () {
+                                var libraryViewsDialogBody = $("#libraryViewsDialog .modal-body");
+                                var libraryViewsDialogContentArea = libraryViewsDialogBody.find("div.content");
+                                var source = $(this);
+                                var eventId = source.closest("tr").data('id');
+
+                                libraryViewsDialogBody.find("p.message").show();
+                                libraryViewsDialogContentArea.empty();
+                                $('#libraryViewsDialog').modal('show');
+
+                                $.ajax({
+                                    method: "GET",
+                                    url: "/api/events/" + eventId + "/library/views"
+                                }).done(function (data) {
+                                    libraryViewsDialogBody.find("p.message").hide();
+                                    if (data != null && data.results != null) {
+                                        var viewsHtml = buildViewsHtmlTable(data.results);
+                                        libraryViewsDialogContentArea.append(viewsHtml);
+                                    }
+                                });
+                            }
+                        );
+                        
+                    } else {
+                        $(".table-responsive").hide();
+                        $("#message").show();
+                        $("#message").text("No records found");
+                    }
+                });
+        }
+
+        function buildViewsHtmlTable(results) {
+            var table = $("<table class='table table-bordered table-hover'><thead><tr></tr></thead><tbody></tbody></table>");
+            var tableHeader = table.find("thead > tr");
+            var tableBody = table.find("tbody");
+            tableHeader.append("<th class='col-md-4'>Viewer</th>");
+
+            var trainingMaterialsViews = results.trainingMaterialViews;
+            var squads = results.squads;
+
+            for (var i = 0; i < trainingMaterialsViews.length; i++) {
+                var trainingMaterial = trainingMaterialsViews[i].trainingMaterial;
+                tableHeader.append("<th class='text-center'><figure><img style='max-height:25px;' class='img-rounded' src='" + trainingMaterial.thumbnailUrl + "'><figcaption>" + trainingMaterial.title + "</figcaption></figure></th>");
+            }
+            
+            for (var i = 0; i < squads.length; i++) {
+                var squad = squads[i];
+                tableBody.append("<tr style='background-color:rgb(230,230,230);'><td colspan='" + (trainingMaterialsViews.length + 1) + "'>" + squad.name +  "</td></tr>");
+                for (var j = 0; j < squad.members.length; j++) {
+                    var member = squad.members[j];
+                    var tableRow = $("<tr></tr>");
+                    tableRow.append("<td>" + member.name + "</td>");
+                    for (var k = 0; k < trainingMaterialsViews.length; k++) {
+                        var views = trainingMaterialsViews[k].viewedBy;
+                        var index = findIndexInData(views, "guid", member.guid);
+                        tableRow.append("<td class='text-center'>" +
+                            (index == -1 ? "<span class='glyphicon glyphicon-remove text-danger'>" : "<span class='glyphicon glyphicon-ok text-success'>")
+                            + "</td>"
+                        );
+                    }
+                    tableBody.append(tableRow);
+                }                
+            }
+            return table;
+        }
+
+        updateTable();
+
+        function findIndexInData(data, property, value) {
+            for (var i = 0, l = data.length; i < l; i++) {
+                if (data[i][property] === value) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+    </script>
+}
+
+@section CSS {
+    <link href="~/lib/select2/dist/css/select2.min.css" rel="stylesheet" />
+}

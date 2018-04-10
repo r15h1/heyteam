@@ -1,9 +1,20 @@
 ﻿@model HeyTeam.Web.Models.EventsViewModels.EventReviewViewModel
+@using HeyTeam.Util;
 
-<h2>Event Reviews</h2>
-<h3>@Model.EventTitle </h3>
+<h2>@Model.EventTitle</h2>
+<h3>Event Reviews</h3>
 <h4><small>@Html.Raw(Model.EventDetails)</small></h4>
 <h3>Submitted Reviews</h3>
+
+@if(TempData["Temp_Data_Error"] != null && !TempData["Temp_Data_Error"].ToString().IsEmpty()) {
+<div class="alert alert-danger alert-dismissible" role="alert">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+    @TempData["Temp_Data_Error"].ToString()
+</div>
+}
+
 
 @if(@Model.SquadsNotYetReviewed?.Count() > 0) {
 <div>
@@ -24,7 +35,8 @@ else
     {
         <div class="panel panel-default">
             <div class="panel-heading">
-                Submitted by @($"{review.Coach?.FirstName} {review.Coach?.LastName}") on @review.LastReviewedOn.Value.ToString("dd MMM yyyy h:mm tt") <br/> @string.Join(", ", review.Squads.Select(s => s.Name))
+                @($"{review.Coach?.FirstName} {review.Coach?.LastName}") for @string.Join(", ", review.Squads.Select(s => s.Name))<br />
+                @review.LastReviewedOn.Value.ToString("dd MMM yyyy") <span class="glyphicon glyphicon-time"></span>@review.LastReviewedOn.Value.ToString("h:mm tt")
             </div>
 
             <div class="panel-body">
