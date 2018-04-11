@@ -38,7 +38,8 @@ namespace HeyTeam.Lib.Queries
                         INNER JOIN Coaches Co1 ON Cl.ClubId = Co1.ClubId AND Co1.CoachId = PA.CoachId
                         INNER JOIN Coaches Co2 ON Cl.ClubId = Co2.ClubId AND Co2.CoachId = A.CoachId
                         WHERE Cl.Guid = @ClubGuid AND YEAR(PA.AssignedOn) = @Year AND MONTH(PA.AssignedOn) = @Month
-						{((request.Squads?.Any() ?? false) ? " AND S.Guid IN @Squads " : "")}";
+						{((request.Squads?.Any() ?? false) ? " AND S.Guid IN @Squads " : "")}
+						{((request.Players?.Any() ?? false) ? " AND P.Guid IN @Players " : "")}";
 
 			DynamicParameters p = new DynamicParameters();
 			p.Add("@ClubGuid", request.ClubId.ToString());
@@ -47,6 +48,9 @@ namespace HeyTeam.Lib.Queries
 
 			if (request.Squads?.Any() ?? false)
 				p.Add("@Squads", request.Squads);
+
+			if (request.Players?.Any() ?? false)
+				p.Add("@Players", request.Players);
 
 			using (var connection = connectionFactory.Connect()) {
 				connection.Open();

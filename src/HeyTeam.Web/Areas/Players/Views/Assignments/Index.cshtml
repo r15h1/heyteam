@@ -1,0 +1,122 @@
+﻿@model HeyTeam.Web.Models.Assignments.IndexViewModel
+<h2>Assignments</h2>
+<h3>List</h3>
+<div class="row">
+    <div class="col-md-12" style="margin-bottom:15px;">
+        <div class="form-inline">
+            <div class="form-group">
+                <label for="month">Month Assigned:</label>
+                <input id="month" type="month" class="form-control" value=@($"{DateTime.Now.Year}-{(DateTime.Now.Month < 10 ? "0" : "")}{DateTime.Now.Month}")>
+            </div>            
+        </div>
+    </div>
+</div>
+
+<div id="message" style="display:none"></div>
+<div class="assignments"></div>
+
+@section Scripts {
+    <script src="~/lib/select2/dist/js/select2.min.js"></script>
+    <script>
+
+        var tablehtml = '<div class="table-responsive">' +
+                            '<table class="table table-bordered table-hover">' +
+                                '<thead>' +
+                                    '<tr>' +
+                                        '<th class="col-md-4">Assignment</th>' +
+                                        '<th class="col-md-2">Assigned By</th>' +
+                                        '<th class="col-md-2">Assigned On</th>' +
+                                        '<th class="col-md-2">Due Date</th>' +
+                                    '</tr>' +
+                                '</thead>' +
+                            '<tbody></tbody>' +
+                        '</table>' +
+            '</div>';
+
+
+        $("#month").change(updateTable);
+
+        function updateTable() {
+            var date = $('#month').val().split('-');
+            $(".assignments").empty();
+            $("#message").text("Fetching data, please wait...");
+            $("#message").show();
+
+            var date = $('#month').val().split('-');
+            var apiUrl = "/api/assignments?month=" + date[1] + "&year=" + date[0] + "&players=@Model.PlayerId";
+
+
+            console.log("calling ajax...");
+            $.ajax({
+                method: "GET",
+                url: apiUrl
+            }).done(function (data) {
+                console.log("ajax done...");
+                if (data.length > 0) {
+                    addRows(data);
+                    $(".assignments").show();
+                    $("#message").hide();
+                } else {
+                    $(".assignments").hide();
+                    $("#message").show();
+                    $("#message").text("No records found");
+                }
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    console.log("ajax failed...");
+                }).always(function () {
+                    console.log("ajax completed...");
+                    bindEvents();
+                });
+        }
+
+        function bindEvents() {
+            $('.table-responsive').unbind();
+            $('.table-responsive').on('show.bs.dropdown', function () {
+                $('.table-responsive').css("overflow", "inherit");
+            });
+
+            $('.table-responsive').on('hide.bs.dropdown', function () {
+                $('.table-responsive').css("overflow", "auto");
+            })
+
+            $(".assignmentTitle").tooltip("destroy");
+            $(".assignmentTitle").tooltip({ placement: "auto right", trigger: 'hover' });
+
+        }
+
+        function addRows(data) {
+            for (var index in data) {
+                var record = data[index];
+                var table = $(tablehtml);
+                var tableBody = table.find("tbody");
+                
+
+                var allocations = record.allocations;
+                if (allocations != null && allocations.length > 0) {
+                    for (var j in allocations) {
+                        var allocation = allocations[j];
+                        var row = "<tr data-playerassignmentid='" + allocation.playerAssignmentId + "'>" +
+                            "<td><a href='#' class='assignmentTitle' title='" + record.instructions + "'>" + record.title + "</a></td>" +
+                            "<td>" + allocation.assignedBy + "</td>" +
+                            "<td>" + allocation.assignedOn + "</td>" +
+                            "<td>" + (allocation.dueDate == null ? "" : allocation.dueDate) + "</td>" +
+                            "</tr>";
+                        tableBody.append(row);
+                    }
+                    $(".assignments").append(table)
+                }
+            }
+        }
+
+        updateTable();
+    </script>
+}
+
+@section CSS {
+    <link href="~/lib/select2/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        .assignmentTitle {
+            display: inline;
+        }        
+    </style>
+}

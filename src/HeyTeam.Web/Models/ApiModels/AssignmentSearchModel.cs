@@ -7,6 +7,7 @@ namespace HeyTeam.Web.Models.ApiModels
 {
     public class AssignmentSearchModel
     {
+		public IEnumerable<Guid> Players { get; set; }
 		public IEnumerable<Guid> Squads { get; set; }
 		public int Month { get; set; } = DateTime.Today.Month;
 		public int Year { get; set; } = DateTime.Today.Year;
