@@ -27,6 +27,7 @@
                                         '<th class="col-md-2">Assigned By</th>' +
                                         '<th class="col-md-2">Assigned On</th>' +
                                         '<th class="col-md-2">Due Date</th>' +
+                                        '<th class="col-md-2">Viewed</th>' +
                                     '</tr>' +
                                 '</thead>' +
                             '<tbody></tbody>' +
@@ -100,6 +101,7 @@
                             "<td>" + allocation.assignedBy + "</td>" +
                             "<td>" + allocation.assignedOn + "</td>" +
                             "<td>" + (allocation.dueDate == null ? "" : allocation.dueDate) + "</td>" +
+                            "<td></td>" +
                             "</tr>";
                         tableBody.append(row);
                     }

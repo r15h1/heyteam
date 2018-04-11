@@ -44,6 +44,11 @@ namespace HeyTeam.Web.Areas.Players.Controllers
 			var model = new IndexViewModel();
 			model.PlayerId = memberid;
 			return View(model);
-        }        
-    }
+        }
+
+		[HttpGet("{assignmentId:guid}")]
+		public IActionResult Details(Guid assignmentId) {
+			return View();
+		}
+	}
 }

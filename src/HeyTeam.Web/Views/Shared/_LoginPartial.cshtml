@@ -1,12 +1,22 @@
 @using Microsoft.AspNetCore.Identity
 @using HeyTeam.Web.Models
 @using HeyTeam.Identity
+@using HeyTeam.Core.Queries
+@using HeyTeam.Core
 
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
+@inject IMemberQuery memberQuery
+@inject Club club
 
-@if (SignInManager.IsSignedIn(User))
-{
+@if (SignInManager.IsSignedIn(User)) {
+    
+
+        ApplicationUser user = UserManager.GetUserAsync(User).Result;
+        var members = memberQuery.GetMembersByEmail(club.Guid, user.Email);
+        var profileCount = members.Count();
+    
+
     <form asp-area="" asp-controller="Accounts" asp-action="Logout" method="post" id="logoutForm" class="navbar-right">
         <ul class="nav navbar-nav navbar-right">
             <li class="dropdown">
@@ -15,6 +25,11 @@
                     <li>
                         <a asp-area="" asp-controller="Manage" asp-action="Index" title="Manage">Account</a>
                     </li>
+                    @if (profileCount > 1) {
+                        <li>
+                            <a asp-area="" asp-controller="AreaSelection" asp-action="Index" title="Select a different profile">Switch Profile</a>
+                        </li>
+                    }
                     <li>
                         <button type="submit" class="btn btn-link navbar-btn navbar-link">Log out</button>
                     </li>
@@ -22,9 +37,7 @@
             </li>
         </ul>
     </form>
-}
-else
-{
+} else {
     <ul class="nav navbar-nav navbar-right">
         <li><a asp-area="" asp-controller="Account" asp-action="Register">Register</a></li>
         <li><a asp-area="" asp-controller="Account" asp-action="Login">Log in</a></li>
