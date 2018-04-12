@@ -7,7 +7,7 @@
             <div class="form-group">
                 <label for="month">Month Assigned:</label>
                 <input id="month" type="month" class="form-control" value=@($"{DateTime.Now.Year}-{(DateTime.Now.Month < 10 ? "0" : "")}{DateTime.Now.Month}")>
-            </div>            
+            </div>
         </div>
     </div>
 </div>
@@ -15,6 +15,21 @@
 <div id="message" style="display:none"></div>
 <div class="assignments"></div>
 
+<div class="modal fade" id="assignmentDialog" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <input type="hidden" id="eventId" name="eventId" />
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Assignment Details</h4>
+            </div>
+            <div class="modal-body">
+                <p class="message">Fetching views, please wait...</p>
+                <div class="content"></div>
+            </div>
+        </div>
+    </div>
+</div>
 @section Scripts {
     <script src="~/lib/select2/dist/js/select2.min.js"></script>
     <script>
@@ -82,7 +97,22 @@
 
             $(".assignmentTitle").tooltip("destroy");
             $(".assignmentTitle").tooltip({ placement: "auto right", trigger: 'hover' });
+            $("a.assignmentTitle").click(function (e) {
+                e.preventDefault();
+                var assignmentId = $(this).closest("tr").data("assignmentid");
+                var playerAssignmentId = $(this).closest("tr").data("playerassignmentid");                           
+                var apiUrl = "/api/assignments/" + assignmentId + "/player/" + playerAssignmentId;
+                $.ajax({
+                    method: "GET",
+                    url: apiUrl
+                }).done(function (data) {
+                    $("#assignmentDialog").modal("show");
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    console.log("ajax failed...");
+                });
 
+
+            });
         }
 
         function addRows(data) {
@@ -90,13 +120,11 @@
                 var record = data[index];
                 var table = $(tablehtml);
                 var tableBody = table.find("tbody");
-                
-
                 var allocations = record.allocations;
                 if (allocations != null && allocations.length > 0) {
                     for (var j in allocations) {
                         var allocation = allocations[j];
-                        var row = "<tr data-playerassignmentid='" + allocation.playerAssignmentId + "'>" +
+                        var row = "<tr data-playerassignmentid='" + allocation.playerAssignmentId + "' data-assignmentid='" + record.assignmentId + "'>" +
                             "<td><a href='#' class='assignmentTitle' title='" + record.instructions + "'>" + record.title + "</a></td>" +
                             "<td>" + allocation.assignedBy + "</td>" +
                             "<td>" + allocation.assignedOn + "</td>" +
@@ -119,6 +147,6 @@
     <style>
         .assignmentTitle {
             display: inline;
-        }        
+        }
     </style>
 }

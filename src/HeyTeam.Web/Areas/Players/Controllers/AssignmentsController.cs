@@ -48,6 +48,7 @@ namespace HeyTeam.Web.Areas.Players.Controllers
 
 		[HttpGet("{assignmentId:guid}")]
 		public IActionResult Details(Guid assignmentId) {
+			//var assignment = assignmentQuery.GetPlayerAssignment();
 			return View();
 		}
 	}

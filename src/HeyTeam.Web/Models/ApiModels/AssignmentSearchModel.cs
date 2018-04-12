@@ -9,7 +9,7 @@ namespace HeyTeam.Web.Models.ApiModels
     {
 		public IEnumerable<Guid> Players { get; set; }
 		public IEnumerable<Guid> Squads { get; set; }
-		public int Month { get; set; } = DateTime.Today.Month;
-		public int Year { get; set; } = DateTime.Today.Year;
+		public int? Month { get; set; }
+		public int? Year { get; set; } 
 	}
 }

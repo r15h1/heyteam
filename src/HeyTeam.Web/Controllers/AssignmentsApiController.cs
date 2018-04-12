@@ -29,16 +29,22 @@ namespace HeyTeam.Web.Controllers {
 			return new JsonResult(assignments);
 		}
 
-        [HttpPost("remove-player")]
-        public IActionResult RemovePlayerFromAssignment(Guid playerAssignmentId)
+		[HttpGet("{assignmentId:guid}/player/{playerAssignmentId:guid}")]
+		public IActionResult GetAssignment(Guid assignmentId, Guid playerAssignmentId) {
+			var assignment = assignmentQuery.GetPlayerAssignment(new PlayerAssignmentRequest { ClubId = club.Guid, AssignmentId = assignmentId, PlayerAssignmentId = playerAssignmentId });
+			return new JsonResult(assignment);
+		}
+
+		[HttpPost("remove-player")]
+        public IActionResult RemovePlayerFromAssignment(Guid assignmentId, Guid playerAssignmentId)
         {
-            if (playerAssignmentId.IsEmpty())
+            if (playerAssignmentId.IsEmpty() || assignmentId.IsEmpty())
             {
-                ModelState.AddModelError("", "Player Assignment Id is required");
+                ModelState.AddModelError("", "Assignment Id is required");
                 return BadRequest(ModelState);
             }
 
-            var response = assignmentService.RemovePlayerFromAssignment(new UnAssignPlayerRequest { ClubId = club.Guid, PlayerAssignmentId = playerAssignmentId });
+            var response = assignmentService.RemovePlayerFromAssignment(new UnAssignPlayerRequest { ClubId = club.Guid, AssignmentId = assignmentId, PlayerAssignmentId = playerAssignmentId });
             if (!response.RequestIsFulfilled)
             {
                 foreach(var error in response.Errors)

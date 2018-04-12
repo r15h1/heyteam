@@ -29,22 +29,28 @@ namespace HeyTeam.Lib.Queries
 		                        A.Instructions,
 		                        A.Title, Cl.Guid AS ClubGuid,
                                 Co1.FirstName + ' ' + Co1.LastName AS AssignedBy,
-                                Co1.FirstName + ' ' + Co1.LastName AS CreatedBy
-                        FROM PlayerAssignments PA
-                        INNER JOIN Assignments A ON A.AssignmentId = PA.AssignmentId
-                        INNER JOIN Players P ON PA.PlayerId = P.PlayerId
+                                Co2.FirstName + ' ' + Co2.LastName AS CreatedBy
+                        FROM Assignments A 
+                        LEFT JOIN PlayerAssignments PA ON A.AssignmentId = PA.AssignmentId
+                        LEFT JOIN Players P ON PA.PlayerId = P.PlayerId
                         INNER JOIN Clubs Cl ON A.ClubId = Cl.ClubId
-                        INNER JOIN Squads S ON S.ClubId = Cl.ClubId AND P.SquadId = S.SquadId
-                        INNER JOIN Coaches Co1 ON Cl.ClubId = Co1.ClubId AND Co1.CoachId = PA.CoachId
-                        INNER JOIN Coaches Co2 ON Cl.ClubId = Co2.ClubId AND Co2.CoachId = A.CoachId
-                        WHERE Cl.Guid = @ClubGuid AND YEAR(PA.AssignedOn) = @Year AND MONTH(PA.AssignedOn) = @Month
+                        LEFT JOIN Squads S ON S.ClubId = Cl.ClubId AND P.SquadId = S.SquadId
+                        LEFT JOIN Coaches Co1 ON Cl.ClubId = Co1.ClubId AND Co1.CoachId = PA.CoachId
+                        LEFT JOIN Coaches Co2 ON Cl.ClubId = Co2.ClubId AND Co2.CoachId = A.CoachId
+                        WHERE Cl.Guid = @ClubGuid 
+						{(request.Month.HasValue ? " AND MONTH(PA.AssignedOn) = @Month " : "")}
+						{(request.Year.HasValue ? " AND YEAR(PA.AssignedOn) = @Year  " : "")}						
 						{((request.Squads?.Any() ?? false) ? " AND S.Guid IN @Squads " : "")}
 						{((request.Players?.Any() ?? false) ? " AND P.Guid IN @Players " : "")}";
 
 			DynamicParameters p = new DynamicParameters();
 			p.Add("@ClubGuid", request.ClubId.ToString());
-			p.Add("@Month", request.Month);
-			p.Add("@Year", request.Year);			
+
+			if(request.Month.HasValue)
+				p.Add("@Month", request.Month);
+
+			if (request.Year.HasValue)
+				p.Add("@Year", request.Year);			
 
 			if (request.Squads?.Any() ?? false)
 				p.Add("@Squads", request.Squads);
@@ -54,9 +60,9 @@ namespace HeyTeam.Lib.Queries
 
 			using (var connection = connectionFactory.Connect()) {
 				connection.Open();
-				var reader = connection.Query(sql, p).Cast<IDictionary<string, dynamic>>();
-                var assignments = reader.Select<dynamic, Assignment>(
-                        row => new Assignment(Guid.Parse(row.ClubGuid.ToString()), Guid.Parse(row.AssignmentGuid.ToString()), Guid.Parse(row.PlayerAssignmnentGuid.ToString()))
+				var reader = connection.Query(sql, p);
+                var assignments = reader.Cast<IDictionary<string, dynamic>>().Select<dynamic, Assignment>(
+                        row => new Assignment(Guid.Parse(row.ClubGuid.ToString()), Guid.Parse(row.AssignmentGuid.ToString()))
                         {
                             Createdby = row.CreatedBy,
                             CreatedOn = row.CreatedOn.ToString("dd-MMM-yyyy"),
@@ -64,7 +70,7 @@ namespace HeyTeam.Lib.Queries
                             Title = row.Title
                         }).GroupBy(a => a.AssignmentId).Select(g => g.First()).OrderBy(a => a.Title).ToList();
 
-                var allocations = reader.Select<dynamic, PlayerAssignment>(
+                var allocations = reader.Where(x => x.PlayerAssignmnentGuid != null).Select<dynamic, PlayerAssignment>(
                            row => new PlayerAssignment(Guid.Parse(row.PlayerGuid.ToString()), Guid.Parse(row.AssignmentGuid.ToString()), Guid.Parse(row.PlayerAssignmnentGuid.ToString()))
                            {
                                AssignedBy = row.AssignedBy,
@@ -81,7 +87,7 @@ namespace HeyTeam.Lib.Queries
 			}
 		}
 
-        public Assignment GetPlayerAssignment(Guid playerAssignmentId)
+        public Assignment GetPlayerAssignment(PlayerAssignmentRequest request)
         {
             var sql = $@"SELECT	P.FirstName + ' ' + P.LastName + '(' + S.Name + ')' AS PlayerName,  
                                 P.Guid AS PlayerGuid,
@@ -101,17 +107,19 @@ namespace HeyTeam.Lib.Queries
                         INNER JOIN Squads S ON S.ClubId = Cl.ClubId AND P.SquadId = S.SquadId
                         INNER JOIN Coaches Co1 ON Cl.ClubId = Co1.ClubId AND Co1.CoachId = PA.CoachId
                         INNER JOIN Coaches Co2 ON Cl.ClubId = Co2.ClubId AND Co2.CoachId = A.CoachId
-                        WHERE PA.Guid = @PlayerAssignmentId;";
+                        WHERE A.Guid = @AssignmentGuid AND Cl.Guid = @ClubGuid AND PA.Guid = @PlayerAssignmentGuid;";
 
 
             DynamicParameters p = new DynamicParameters();
-            p.Add("@PlayerAssignmentId", playerAssignmentId.ToString());
-            using (var connection = connectionFactory.Connect())
+            p.Add("@ClubGuid", request.ClubId.ToString());
+			p.Add("@AssignmentGuid", request.AssignmentId.ToString());
+			p.Add("@PlayerAssignmentGuid", request.PlayerAssignmentId.ToString());
+			using (var connection = connectionFactory.Connect())
             {
                 connection.Open();
                 var reader = connection.Query(sql, p).Cast<IDictionary<string, dynamic>>();
                 var assignment = reader.Select<dynamic, Assignment>(
-                        row => new Assignment(Guid.Parse(row.ClubGuid.ToString()), Guid.Parse(row.AssignmentGuid.ToString()), Guid.Parse(row.PlayerAssignmnentGuid.ToString()))
+                        row => new Assignment(Guid.Parse(row.ClubGuid.ToString()), Guid.Parse(row.AssignmentGuid.ToString()))
                         {
                             Createdby = row.CreatedBy,
                             CreatedOn = row.CreatedOn.ToString("dd-MMM-yyyy"),
@@ -131,6 +139,6 @@ namespace HeyTeam.Lib.Queries
 
                 return assignment;
             }
-        }
-    }
+        }		
+	}
 }

@@ -1,0 +1,45 @@
+﻿@model HeyTeam.Web.Models.Assignments.AssignmentDetailsViewModel
+@using HeyTeam.Util
+<h1>Assignment Details</h1>
+<h3>@Model.Title</h3>
+<div class="row">
+    <div class="col-md-4">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>        
+        <div class="form-group">
+            <label asp-for="Instructions" class="control-label">Instructions</label>
+            <textarea asp-for="Instructions" class="form-control" required rows="5" readonly></textarea>
+            <span asp-validation-for="Instructions" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="DateDue" class="control-label">Due Date</label>
+            <input type="date" asp-for="DateDue" class="form-control" style="width:200px" readonly/>
+        </div>
+        @if (Model.TrainingMaterials != null && Model.TrainingMaterials.Count() > 0) {
+        <div class="form-group">
+            <label asp-for="TrainingMaterials" class="control-label"></label>
+
+            @foreach (var tm in Model.TrainingMaterials) {
+                <div class='media' style='margin-top:10px; padding-bottom:10px'>
+                    <div class='media-left'><a asp-area="Players" asp-controller="Tracking" asp-action="Library" asp-route-eventid="@Model.EventId" asp-route-trainingMaterialid="@tm.Guid" target='_blank'><img class='media-object' style='max-height:40px;' src='@tm.ThumbnailUrl' alt='cocojambo'></a></div>
+                    <div class='media-body'><div class='img-changer-text'><a asp-area="Players" asp-controller="Tracking" asp-action="Library" asp-route-eventid="@Model.EventId" asp-route-trainingMaterialid="@tm.Guid" target='_blank'>@tm.Title</a></div>(@tm.ShortContentType)</div>
+                </div>
+            }
+        </div>
+        }
+        <div class="modal-footer">
+            <a asp-action="Index" class="btn btn-default">Cancel</a>
+        </div>
+    </div>
+</div>
+@section Scripts {    
+    <script>        
+        var selectedTrainingMaterialList = @(Model.SelectedTrainingMaterialList.IsEmpty() ? Html.Raw("''") : Html.Raw(Model.SelectedTrainingMaterialList));
+
+        if (selectedTrainingMaterialList != null && selectedTrainingMaterialList.length > 0) {
+            for (var i in selectedTrainingMaterialList) {
+                $("#TrainingMaterials option[value='" + selectedTrainingMaterialList[i].id + "']").prop("selected", true);
+            }
+            trainingMaterialsDropdown.trigger("change");
+        }       
+    </script>
+}

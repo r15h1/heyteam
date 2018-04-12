@@ -13,7 +13,8 @@ namespace HeyTeam.Core.Services
     {
         public Guid ClubId { get; set; }
         public Guid PlayerAssignmentId { get; set; }
-    }
+		public Guid AssignmentId { get; set; }
+	}
 
     public class AssignmentRequest
     {

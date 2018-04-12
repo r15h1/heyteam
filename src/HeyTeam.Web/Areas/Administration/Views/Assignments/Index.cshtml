@@ -142,11 +142,12 @@
             $("button.removePlayer").click(function () {
                 var row = $(this).closest("tr");
                 var playerAssignmentId = row.data("playerassignmentid");
+                var assignmentId = row.data("assignmentid");
                 console.log("removing player..." + playerAssignmentId);
                 $('#removePlayerForm').unbind();
                 $('#removePlayerForm').submit(function (e) {
                     e.preventDefault();
-                    removePlayerAssignment(row, playerAssignmentId);
+                    removePlayerAssignment(row, assignmentId, playerAssignmentId);
                 });
                 $('#deleteConfirmationDialog').modal('show');                
             });      
@@ -208,7 +209,7 @@
                 if (allocations != null && allocations.length > 0) {
                     for (var j in allocations) {
                         var allocation = allocations[j];
-                        var row = "<tr data-playerassignmentid='" + allocation.playerAssignmentId + "'>" +
+                        var row = "<tr data-playerassignmentid='" + allocation.playerAssignmentId + "' data-assignmentid='" + record.assignmentId + "'>" +
                             //"<td><a href='#'>" + allocation.playerName + "</a></td>" +                            
                             "<td>" + allocation.playerName + "</td>" +
                             "<td>" + allocation.assignedBy + "</td>" +
@@ -226,16 +227,19 @@
                             "</tr>";
                         tableBody.append(row);
                     }
-                    $(".assignments").append(table)
-                }                
+                } else {
+                    table.find("thead > tr:nth-child(2)").remove();
+                }  
+
+                $(".assignments").append(table)
             }
         }
 
-        function removePlayerAssignment(row, playerAssignmentId) {
+        function removePlayerAssignment(row, assignmentId, playerAssignmentId) {
             $.ajax({
                 method: "POST",
                 url: "/api/assignments/remove-player",
-                data: { "playerAssignmentId": playerAssignmentId }
+                data: { "playerAssignmentId": playerAssignmentId, "assignmentId": assignmentId }
             }).done(function (data) {
                 $(row).remove();
             }).fail(function (jqXHR, textStatus, errorThrown) {

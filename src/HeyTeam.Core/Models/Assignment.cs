@@ -6,7 +6,7 @@ namespace HeyTeam.Core.Models
 {
     public class Assignment
     {
-        public Assignment(Guid clubId, Guid assignmentId, Guid playerAssignmentId)
+        public Assignment(Guid clubId, Guid assignmentId)
         {
             ClubId = clubId;
             AssignmentId = assignmentId;
