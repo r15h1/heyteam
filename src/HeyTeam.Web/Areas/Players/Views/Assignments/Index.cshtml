@@ -69,7 +69,7 @@
             }).done(function (data) {
                 console.log("ajax done...");
                 if (data.length > 0) {
-                    addRows(data);
+                    addRowsToAssignmentList(data);
                     $(".assignments").show();
                     $("#message").hide();
                 } else {
@@ -106,16 +106,14 @@
                     method: "GET",
                     url: apiUrl
                 }).done(function (data) {
-                    $("#assignmentDialog").modal("show");
+                    displayAssignmentDetails(data);
                 }).fail(function (jqXHR, textStatus, errorThrown) {
                     console.log("ajax failed...");
                 });
-
-
             });
         }
 
-        function addRows(data) {
+        function addRowsToAssignmentList(data) {
             for (var index in data) {
                 var record = data[index];
                 var table = $(tablehtml);
@@ -136,6 +134,32 @@
                     $(".assignments").append(table)
                 }
             }
+        }
+
+        function displayAssignmentDetails(data) {
+            var assignmentDialog = $("#assignmentDialog");
+            var contentArea = assignmentDialog.find("div.content");
+            contentArea.empty();
+            contentArea.append("<div class='form-group'>" +
+                "<label for='title' class='control-label'>Title</label>" +
+                "<input class='form-control' readonly value='" + data.title + "'/></div>");
+            contentArea.append("<div class='form-group'>" +
+                "<label for='instructions' class='control-label'>Instructions</label>" +
+                "<textarea name='instructions' rows='10' class='form-control' readonly>" + data.instructions + "</textarea></div>");
+
+            contentArea.append("<div class='form-group training-materials'><label for='TrainingMaterials' class='control-label'></label></div>");
+            if (data.trainingMaterials != null && data.trainingMaterials.length > 0) {
+                var trainingMaterialList = contentArea.find("div.training-materials");
+                for (var index in data.trainingMaterials) {
+                    var tm = data.trainingMaterials[index];
+                    trainingMaterialList.append("<div class='media' style='margin-top:10px; padding-bottom:10px'>" +
+                    "<div class='media-left'><a href='" + tm.url + "' target='_blank'><img class='media-object' style='max-height:40px;' src='" + tm.thumbnailUrl + "'></a></div>" +
+                        "<div class='media-body'><div class='img-changer-text'><a target='_blank' href='" + tm.url + "'>" + tm.title + "</a></div></div></div>");
+                }
+            }
+
+            assignmentDialog.find("p.message").hide();
+            assignmentDialog.modal("show");
         }
 
         updateTable();

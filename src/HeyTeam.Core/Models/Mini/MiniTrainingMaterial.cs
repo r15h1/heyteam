@@ -12,5 +12,6 @@ namespace HeyTeam.Core.Models.Mini
 		public string Description { get; set; }
 		public string ThumbnailUrl { get; set; }
 		public string Title { get; }
+		public string Url { get; set; }
 	}
 }

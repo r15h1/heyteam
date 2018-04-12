@@ -107,7 +107,13 @@ namespace HeyTeam.Lib.Queries
                         INNER JOIN Squads S ON S.ClubId = Cl.ClubId AND P.SquadId = S.SquadId
                         INNER JOIN Coaches Co1 ON Cl.ClubId = Co1.ClubId AND Co1.CoachId = PA.CoachId
                         INNER JOIN Coaches Co2 ON Cl.ClubId = Co2.ClubId AND Co2.CoachId = A.CoachId
-                        WHERE A.Guid = @AssignmentGuid AND Cl.Guid = @ClubGuid AND PA.Guid = @PlayerAssignmentGuid;";
+                        WHERE A.Guid = @AssignmentGuid AND Cl.Guid = @ClubGuid AND PA.Guid = @PlayerAssignmentGuid;						
+						
+						SELECT T.Guid AS AssignmentGuid, T.Title, T.Description, T.ContentType, T.Url, T.ThumbnailUrl
+						FROM AssignmentTrainingMaterials ATM
+						INNER JOIN Assignments A ON A.AssignmentId = ATM.AssignmentId
+						INNER JOIN TrainingMaterials T ON T.TrainingMaterialId = ATM.TrainingMaterialId
+						WHERE A.Guid = @AssignmentGuid;";
 
 
             DynamicParameters p = new DynamicParameters();
@@ -117,8 +123,9 @@ namespace HeyTeam.Lib.Queries
 			using (var connection = connectionFactory.Connect())
             {
                 connection.Open();
-                var reader = connection.Query(sql, p).Cast<IDictionary<string, dynamic>>();
-                var assignment = reader.Select<dynamic, Assignment>(
+                var reader = connection.QueryMultiple(sql, p);
+				var assignmentCursor = reader.Read().Cast<IDictionary<string, dynamic>>();
+				var assignment = assignmentCursor.Select<dynamic, Assignment>(
                         row => new Assignment(Guid.Parse(row.ClubGuid.ToString()), Guid.Parse(row.AssignmentGuid.ToString()))
                         {
                             Createdby = row.CreatedBy,
@@ -127,7 +134,7 @@ namespace HeyTeam.Lib.Queries
                             Title = row.Title
                         }).GroupBy(a => a.AssignmentId).Select(g => g.First()).SingleOrDefault();
 
-                assignment.Allocations = reader.Select<dynamic, PlayerAssignment>(
+                assignment.Allocations = assignmentCursor.Select<dynamic, PlayerAssignment>(
                            row => new PlayerAssignment(Guid.Parse(row.PlayerGuid.ToString()), Guid.Parse(row.AssignmentGuid.ToString()), Guid.Parse(row.PlayerAssignmnentGuid.ToString()))
                            {
                                AssignedBy = row.AssignedBy,
@@ -137,7 +144,14 @@ namespace HeyTeam.Lib.Queries
                            }
                         ).ToList();
 
-                return assignment;
+				var trainingMaterialCursor = reader.Read().Cast<IDictionary<string, dynamic>>();
+				assignment.TrainingMaterials = trainingMaterialCursor.Select<dynamic, MiniTrainingMaterial>( 
+					row => new MiniTrainingMaterial(Guid.Parse(row.AssignmentGuid.ToString()), row.Title){
+						Description = row.Description, ThumbnailUrl = row.ThumbnailUrl, Url = row.Url
+					}				
+				).ToList();
+
+				return assignment;
             }
         }		
 	}
