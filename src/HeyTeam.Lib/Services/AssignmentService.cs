@@ -90,7 +90,7 @@ namespace HeyTeam.Lib.Services {
             if (club == null)
                 return Response.CreateResponse(new EntityNotFoundException("The specified club doesn not exist"));
 
-            var assignment = assignmentQuery.GetPlayerAssignment(new PlayerAssignmentRequest { ClubId = request.ClubId, AssignmentId = request.AssignmentId, PlayerAssignmentId = request.PlayerAssignmentId });
+            var assignment = assignmentQuery.GetPlayerAssignment(new PlayerAssignmentRequest { ClubId = request.ClubId, AssignmentId = request.AssignmentId, PlayerId = request.PlayerId });
             if(assignment == null)
                 return Response.CreateResponse(new EntityNotFoundException("The specified assignment doesn not exist"));
             else if (assignment.ClubId != request.ClubId)
@@ -98,7 +98,7 @@ namespace HeyTeam.Lib.Services {
 
             try
             {
-                assignmentRepository.DeletePlayerAssignment(request.PlayerAssignmentId);
+                assignmentRepository.DeletePlayerAssignment(request);
                 return Response.CreateSuccessResponse();
             }catch(Exception ex)
             {

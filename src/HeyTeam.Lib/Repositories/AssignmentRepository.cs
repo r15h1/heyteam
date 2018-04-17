@@ -46,8 +46,8 @@ namespace HeyTeam.Lib.Repositories {
 
         private static void CreateAssignment(Guid guid, AssignmentRequest request, IDbConnection connection, IDbTransaction transaction)
         {
-            var sql = @"INSERT INTO Assignments(Guid, ClubId, CreatedOn, CoachId, Title, Instructions)
-                        SELECT @AssignmentGuid, Cl.ClubId, GetDate(), Co.CoachId, @Title, @Instructions
+            var sql = @"INSERT INTO Assignments(Guid, ClubId, CreatedOn, CoachId, Title, Instructions, DueDate)
+                        SELECT @AssignmentGuid, Cl.ClubId, GetDate(), Co.CoachId, @Title, @Instructions, @DueDate
                         FROM Clubs Cl
                         INNER JOIN Coaches Co ON Co.ClubId = Cl.ClubId
                         WHERE Co.Guid = @CoachGuid AND Cl.Guid = @ClubGuid;";
@@ -58,6 +58,7 @@ namespace HeyTeam.Lib.Repositories {
             parameters.Add("@CoachGuid", request.CoachId);
             parameters.Add("@Title", request.Title);
             parameters.Add("@Instructions", request.Instructions);
+            parameters.Add("@DueDate", request.DueDate);
             connection.Execute(sql, parameters, transaction);
         }
 
@@ -80,12 +81,11 @@ namespace HeyTeam.Lib.Repositories {
 
         private void AssignToSquads(Guid assignmentGuid, AssignmentRequest request, IDbConnection connection, IDbTransaction transaction)
         {            
-            var sql = @"INSERT INTO PlayerAssignments (PlayerId, AssignmentId, AssignedOn, CoachId, DateDue)
+            var sql = @"INSERT INTO PlayerAssignments (PlayerId, AssignmentId, AssignedOn, CoachId)
                         SELECT P.PlayerId,
                             (SELECT AssignmentId FROM Assignments WHERE Guid = @AssignmentGuid),
                             GetDate(),
-                            (Select CoachId FROM Coaches WHERE Guid = @CoachGuid),
-                            @DateDue
+                            (Select CoachId FROM Coaches WHERE Guid = @CoachGuid)
                         FROM Players P
                         INNER JOIN Squads S ON P.SquadId = S.SquadId
                         WHERE S.Guid IN @Squads;";
@@ -93,18 +93,17 @@ namespace HeyTeam.Lib.Repositories {
             parameters.Add("@AssignmentGuid", assignmentGuid);
             parameters.Add("@Squads", request.Squads);
             parameters.Add("@CoachGuid", request.CoachId);
-            parameters.Add("@DateDue", request.DateDue);
+            
             connection.Execute(sql, parameters, transaction);            
         }
 
         private void AssignToPlayers(Guid assignmentGuid, AssignmentRequest request, IDbConnection connection, IDbTransaction transaction)
         {            
-            var sql = $@"INSERT INTO PlayerAssignments (PlayerId, AssignmentId, AssignedOn, CoachId, DateDue)
+            var sql = $@"INSERT INTO PlayerAssignments (PlayerId, AssignmentId, AssignedOn, CoachId)
                         SELECT P.PlayerId,
                             (SELECT AssignmentId FROM Assignments WHERE Guid = @AssignmentGuid),
                             GetDate(),
-                            (Select CoachId FROM Coaches WHERE Guid = @CoachGuid),
-                            @DateDue
+                            (Select CoachId FROM Coaches WHERE Guid = @CoachGuid)
                         FROM Players P
                         {(request.AssignedTo == AssignedTo.IndividualPlayers ? 
 							"WHERE P.Guid IN @Players" 
@@ -115,16 +114,22 @@ namespace HeyTeam.Lib.Repositories {
             parameters.Add("@AssignmentGuid", assignmentGuid);
             parameters.Add("@Players", request.Players);
             parameters.Add("@CoachGuid", request.CoachId);
-            parameters.Add("@DateDue", request.DateDue);
 			parameters.Add("@ClubGuid", request.ClubId.ToString());
 			connection.Execute(sql, parameters, transaction);            
         }
 
-        public void DeletePlayerAssignment(Guid playerAssignmentId)
+        public void DeletePlayerAssignment(UnAssignPlayerRequest request)
         {
-            var sql = @"DELETE FROM PlayerAssignments WHERE Guid = @PlayerAssignmentId;";
+            var sql = $@"DELETE PA FROM PlayerAssignments PA
+                            INNER JOIN Players P ON PA.PlayerId = P.PlayerId
+                            INNER JOIN Assignments A ON A.AssignmentId = PA.AssignmentId
+                            INNER JOIN Clubs C ON C.ClubId = A.ClubId
+                            WHERE P.Guid = @PlayerGuid AND C.Guid = @ClubdGuid AND A.Guid = @AssignmentGuid;";
             var parameters = new DynamicParameters();
-            parameters.Add("@PlayerAssignmentId", playerAssignmentId);
+            parameters.Add("@PlayerGuid", request.PlayerId);
+            parameters.Add("@AssignmentGuid", request.AssignmentId);
+            parameters.Add("@ClubdGuid", request.ClubId);
+
             using (var connection = factory.Connect())
             {
                 connection.Open();

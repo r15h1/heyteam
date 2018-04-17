@@ -19,29 +19,27 @@ namespace HeyTeam.Lib.Queries
         }
 
 		public IEnumerable<Assignment> GetAssignments(AssignmentsRequest request) {
-			var sql = $@"SELECT	P.FirstName + ' ' + P.LastName + '(' + S.Name + ')' AS PlayerName,  
-                                P.Guid AS PlayerGuid,
-		                        PA.Guid AS PlayerAssignmnentGuid,
-                                PA.DateDue, 
-                                PA.AssignedOn,
+			var sql = $@"SELECT	A.DueDate, 
 		                        A.Guid AS AssignmentGuid, 
 		                        CAST(A.CreatedOn AS DATE) AS CreatedOn, 
 		                        A.Instructions,
-		                        A.Title, Cl.Guid AS ClubGuid,
-                                Co1.FirstName + ' ' + Co1.LastName AS AssignedBy,
-                                Co2.FirstName + ' ' + Co2.LastName AS CreatedBy
-                        FROM Assignments A 
-                        LEFT JOIN PlayerAssignments PA ON A.AssignmentId = PA.AssignmentId
-                        LEFT JOIN Players P ON PA.PlayerId = P.PlayerId
+		                        A.Title, Cl.Guid AS ClubGuid,                                
+                                Co.FirstName + ' ' + Co.LastName AS CreatedBy,                                
+                                (SELECT COUNT(1) FROM AssignmentTrainingMaterials ATM WHERE ATM.AssignmentId = A.AssignmentId) AS TrainingMaterialCount,
+                                COUNT(PA.AssignmentId) AS PlayerCount
+                        FROM Assignments A                                                 
                         INNER JOIN Clubs Cl ON A.ClubId = Cl.ClubId
-                        LEFT JOIN Squads S ON S.ClubId = Cl.ClubId AND P.SquadId = S.SquadId
-                        LEFT JOIN Coaches Co1 ON Cl.ClubId = Co1.ClubId AND Co1.CoachId = PA.CoachId
-                        LEFT JOIN Coaches Co2 ON Cl.ClubId = Co2.ClubId AND Co2.CoachId = A.CoachId
+                        INNER JOIN Coaches Co ON Cl.ClubId = Co.ClubId AND Co.CoachId = A.CoachId
+                        LEFT JOIN PlayerAssignments PA ON A.AssignmentId = PA.AssignmentId  
+                        LEFT JOIN Players P ON PA.PlayerId = P.PlayerId 
+                        {((request.Squads?.Any() ?? false) ? " INNER JOIN Squads S ON S.ClubId = Cl.ClubId AND P.SquadId = S.SquadId " : "")}
                         WHERE Cl.Guid = @ClubGuid 
-						{(request.Month.HasValue ? " AND MONTH(PA.AssignedOn) = @Month " : "")}
-						{(request.Year.HasValue ? " AND YEAR(PA.AssignedOn) = @Year  " : "")}						
+						{(request.Month.HasValue ? " AND MONTH(A.CreatedOn) = @Month " : "")}
+						{(request.Year.HasValue ? " AND YEAR(A.CreatedOn) = @Year  " : "")}						
 						{((request.Squads?.Any() ?? false) ? " AND S.Guid IN @Squads " : "")}
-						{((request.Players?.Any() ?? false) ? " AND P.Guid IN @Players " : "")}";
+						{((request.Players?.Any() ?? false) ? " AND P.Guid IN @Players " : "")}
+
+                        GROUP BY A.AssignmentId, A.DueDate, A.Guid, A.CreatedOn, A.Instructions, A.Title, Cl.Guid, Co.FirstName, Co.LastName";
 
 			DynamicParameters p = new DynamicParameters();
 			p.Add("@ClubGuid", request.ClubId.ToString());
@@ -64,24 +62,14 @@ namespace HeyTeam.Lib.Queries
                 var assignments = reader.Cast<IDictionary<string, dynamic>>().Select<dynamic, Assignment>(
                         row => new Assignment(Guid.Parse(row.ClubGuid.ToString()), Guid.Parse(row.AssignmentGuid.ToString()))
                         {
-                            Createdby = row.CreatedBy,
+                            CreatedBy = row.CreatedBy,
                             CreatedOn = row.CreatedOn.ToString("dd-MMM-yyyy"),
                             Instructions = row.Instructions,
-                            Title = row.Title
-                        }).GroupBy(a => a.AssignmentId).Select(g => g.First()).OrderBy(a => a.Title).ToList();
-
-                var allocations = reader.Where(x => x.PlayerAssignmnentGuid != null).Select<dynamic, PlayerAssignment>(
-                           row => new PlayerAssignment(Guid.Parse(row.PlayerGuid.ToString()), Guid.Parse(row.AssignmentGuid.ToString()), Guid.Parse(row.PlayerAssignmnentGuid.ToString()))
-                           {
-                               AssignedBy = row.AssignedBy,
-                               AssignedOn = row.AssignedOn.ToString("dd-MMM-yyyy"),
-                               DueDate = row.DateDue?.ToString("dd-MMM-yyyy"),
-                               PlayerName = row.PlayerName
-                           }
-                        ).ToList();
-
-                foreach (var assignment in assignments)
-                    assignment.Allocations = allocations.Where(a => a.AssignmentId == assignment.AssignmentId).ToList();
+                            Title = row.Title,
+                            DueDate = row.DueDate.ToString("dd-MMM-yyyy"),
+                            Players = row.PlayerCount,
+                            TrainingMaterials = row.TrainingMaterialCount
+                        }).OrderBy(a => a.Title).ToList();
                    
                 return assignments;
 			}
@@ -90,10 +78,9 @@ namespace HeyTeam.Lib.Queries
         public Assignment GetPlayerAssignment(PlayerAssignmentRequest request)
         {
             var sql = $@"SELECT	P.FirstName + ' ' + P.LastName + '(' + S.Name + ')' AS PlayerName,  
-                                P.Guid AS PlayerGuid,
-		                        PA.Guid AS PlayerAssignmnentGuid,
-                                PA.DateDue, 
+                                P.Guid AS PlayerGuid,		                                
                                 PA.AssignedOn,
+                                A.DueDate, 
 		                        A.Guid AS AssignmentGuid, 
 		                        CAST(A.CreatedOn AS DATE) AS CreatedOn, 
 		                        A.Instructions,
@@ -107,7 +94,7 @@ namespace HeyTeam.Lib.Queries
                         INNER JOIN Squads S ON S.ClubId = Cl.ClubId AND P.SquadId = S.SquadId
                         INNER JOIN Coaches Co1 ON Cl.ClubId = Co1.ClubId AND Co1.CoachId = PA.CoachId
                         INNER JOIN Coaches Co2 ON Cl.ClubId = Co2.ClubId AND Co2.CoachId = A.CoachId
-                        WHERE A.Guid = @AssignmentGuid AND Cl.Guid = @ClubGuid AND PA.Guid = @PlayerAssignmentGuid;						
+                        WHERE P.Guid = @PlayerGuid AND A.Guid = @AssignmentGuid AND Cl.Guid = @ClubGuid;						
 						
 						SELECT T.Guid AS AssignmentGuid, T.Title, T.Description, T.ContentType, T.Url, T.ThumbnailUrl
 						FROM AssignmentTrainingMaterials ATM
@@ -119,8 +106,8 @@ namespace HeyTeam.Lib.Queries
             DynamicParameters p = new DynamicParameters();
             p.Add("@ClubGuid", request.ClubId.ToString());
 			p.Add("@AssignmentGuid", request.AssignmentId.ToString());
-			p.Add("@PlayerAssignmentGuid", request.PlayerAssignmentId.ToString());
-			using (var connection = connectionFactory.Connect())
+            p.Add("@PlayerGuid", request.PlayerId.ToString());
+            using (var connection = connectionFactory.Connect())
             {
                 connection.Open();
                 var reader = connection.QueryMultiple(sql, p);
@@ -128,28 +115,28 @@ namespace HeyTeam.Lib.Queries
 				var assignment = assignmentCursor.Select<dynamic, Assignment>(
                         row => new Assignment(Guid.Parse(row.ClubGuid.ToString()), Guid.Parse(row.AssignmentGuid.ToString()))
                         {
-                            Createdby = row.CreatedBy,
+                            CreatedBy = row.CreatedBy,
                             CreatedOn = row.CreatedOn.ToString("dd-MMM-yyyy"),
                             Instructions = row.Instructions,
-                            Title = row.Title
+                            Title = row.Title,
+                            DueDate = row.DueDate.ToString("dd-MMM-yyyy")
                         }).GroupBy(a => a.AssignmentId).Select(g => g.First()).SingleOrDefault();
 
-                assignment.Allocations = assignmentCursor.Select<dynamic, PlayerAssignment>(
-                           row => new PlayerAssignment(Guid.Parse(row.PlayerGuid.ToString()), Guid.Parse(row.AssignmentGuid.ToString()), Guid.Parse(row.PlayerAssignmnentGuid.ToString()))
-                           {
-                               AssignedBy = row.AssignedBy,
-                               AssignedOn = row.AssignedOn.ToString("dd-MMM-yyyy"),
-                               DueDate = row.DateDue?.ToString("dd-MMM-yyyy"),
-                               PlayerName = row.PlayerName
-                           }
-                        ).ToList();
+    //            assignment.Allocations = assignmentCursor.Select<dynamic, PlayerAssignment>(
+    //                       row => new PlayerAssignment(Guid.Parse(row.PlayerGuid.ToString()), Guid.Parse(row.AssignmentGuid.ToString()))
+    //                       {
+    //                           AssignedBy = row.AssignedBy,
+    //                           AssignedOn = row.AssignedOn.ToString("dd-MMM-yyyy"),
+    //                           PlayerName = row.PlayerName
+    //                       }
+    //                    ).ToList();
 
-				var trainingMaterialCursor = reader.Read().Cast<IDictionary<string, dynamic>>();
-				assignment.TrainingMaterials = trainingMaterialCursor.Select<dynamic, MiniTrainingMaterial>( 
-					row => new MiniTrainingMaterial(Guid.Parse(row.AssignmentGuid.ToString()), row.Title){
-						Description = row.Description, ThumbnailUrl = row.ThumbnailUrl, Url = row.Url
-					}				
-				).ToList();
+				//var trainingMaterialCursor = reader.Read().Cast<IDictionary<string, dynamic>>();
+				//assignment.TrainingMaterials = trainingMaterialCursor.Select<dynamic, MiniTrainingMaterial>( 
+				//	row => new MiniTrainingMaterial(Guid.Parse(row.AssignmentGuid.ToString()), row.Title){
+				//		Description = row.Description, ThumbnailUrl = row.ThumbnailUrl, Url = row.Url
+				//	}				
+				//).ToList();
 
 				return assignment;
             }

@@ -12,7 +12,7 @@ namespace HeyTeam.Core.Services
     public class UnAssignPlayerRequest
     {
         public Guid ClubId { get; set; }
-        public Guid PlayerAssignmentId { get; set; }
+        public Guid PlayerId { get; set; }
 		public Guid AssignmentId { get; set; }
 	}
 
@@ -22,7 +22,7 @@ namespace HeyTeam.Core.Services
         public Guid? Guid { get; set; }
         public DateTime? SubmittedOn { get; set; }                
         public Guid CoachId { get; set; }
-        public DateTime? DateDue { get; set; }
+        public DateTime DueDate { get; set; }
         public string Instructions { get; set; }
         public IEnumerable<Guid> TrainingMaterials { get; set; }
         public IEnumerable<Guid> Squads { get; set; }

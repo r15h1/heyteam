@@ -5,6 +5,6 @@ namespace HeyTeam.Core.Repositories {
 	public interface IAssignmentRepository
     {
 		void CreateAssignment(AssignmentRequest request);
-        void DeletePlayerAssignment(Guid playerAssignmentId);
+        void DeletePlayerAssignment(UnAssignPlayerRequest request);
     }
 }

@@ -21,6 +21,6 @@ namespace HeyTeam.Core.Queries
 	public class PlayerAssignmentRequest{
 		public Guid ClubId { get; set; }
 		public Guid AssignmentId { get; set; }
-		public Guid PlayerAssignmentId { get; set; }
-	}
+        public Guid PlayerId { get; set; }
+    }
 }

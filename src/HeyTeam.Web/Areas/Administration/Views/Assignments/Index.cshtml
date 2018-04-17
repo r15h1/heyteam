@@ -14,7 +14,7 @@
     <div class="col-md-12" style="margin-bottom:15px;">
         <div class="form-inline">
             <div class="form-group">
-                <label for="month">Month Assigned:</label>
+                <label for="month">Month:</label>
                 <input id="month" type="month" class="form-control" value=@($"{DateTime.Now.Year}-{(DateTime.Now.Month < 10 ? "0" : "")}{DateTime.Now.Month}")>
             </div>
             <div class="form-group">
@@ -56,7 +56,7 @@
                     <h4 class="modal-title">Change Due Date</h4>
                 </div>
                 <div class="modal-body">
-                    <label>Due Date: </label><input value="null" type="date" id="dueDateInput" class="form-control" style="width:200px" required min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")"/>                    
+                    <label>Due Date: </label><input type="date" id="dueDateInput" class="form-control" style="width:200px" required min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")"/>                    
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
@@ -69,23 +69,22 @@
 @section Scripts {
     <script src="~/lib/select2/dist/js/select2.min.js"></script>
     <script>
-        var tablehtml = '<div class="table-responsive">' +
-                            '<table class="table table-bordered table-hover">' +
-                                '<thead>' +
-                                    '<tr>' +
-                                        '<th colspan="3" class="heading-title"><h4 class="assignmentTitle"></h4></th>' +
-                                        '<th colspan="2" class="heading-buttons text-right"></th>' +
-                                    '</tr>' +
-                                    '<tr>' +                                        
-                                        '<th class="col-md-2">Assigned To</th>' +
-                                        '<th class="col-md-2">Assigned By</th>' +
-                                        '<th class="col-md-2">Assigned On</th>' +
-                                        '<th class="col-md-2">Due Date</th>' +
-                                        '<th class="col-md-1 text-center">Actions</th>' +
-                                    '</tr>' +
-                                '</thead>' +
-                            '<tbody></tbody>' +
-                        '</table>' +
+        var tablehtml =
+            '<div class="table-responsive">' +                            
+            '<table class="table table-bordered table-hover">' +
+            '<thead>' +
+            '<tr>' +   
+                '<th class="col-md-2">Title</th>' +  
+                '<th class="col-md-4">Instructions</th>' + 
+                '<th class="col-md-2">Created By</th>' + 
+                '<th class="col-md-1">Due Date</th>' +  
+                '<th class="col-md-1">Players</th>' +  
+                '<th class="col-md-1">Training Materials</th>' +
+                '<th class="col-md-1 text-center">Actions</th>' +
+            '</tr>' +
+            '</thead>' +
+            '<tbody></tbody>' +
+            '</table>' +
             '</div>';        
 
         $("#squads").select2();
@@ -141,13 +140,13 @@
 
             $("button.removePlayer").click(function () {
                 var row = $(this).closest("tr");
-                var playerAssignmentId = row.data("playerassignmentid");
+                var playerId = row.data("playerid");
                 var assignmentId = row.data("assignmentid");
-                console.log("removing player..." + playerAssignmentId);
+                console.log("removing player..." + playerId);
                 $('#removePlayerForm').unbind();
                 $('#removePlayerForm').submit(function (e) {
                     e.preventDefault();
-                    removePlayerAssignment(row, assignmentId, playerAssignmentId);
+                    removePlayerAssignment(row, assignmentId, playerId);
                 });
                 $('#deleteConfirmationDialog').modal('show');                
             });      
@@ -155,14 +154,14 @@
 
             $("button.changeDueDate").click(function () {
                 var row = $(this).closest("tr");
-                var playerAssignmentId = row.data("playerassignmentid");
+                var playerId = row.data("playerid");
                 $("#dueDateInput").val(null);
                 $('#dueDateForm').unbind();
                 $('#dueDateForm').submit(function (e) {
                     e.preventDefault();
                     var newDate = $("#dueDateInput").val();
                     if (newDate > new Date()) {                        
-                        updateDueDate(row, playerAssignmentId, newDate);    
+                        updateDueDate(row, playerId, newDate);    
                     }                    
                 });
                 $('#dueDateDialog').modal('show');                
@@ -185,61 +184,39 @@
 
             $(".assignmentTitle").tooltip("destroy");
             $(".assignmentTitle").tooltip({ placement: "auto right", trigger: 'hover' });
-
         }
 
-        function addRows(data) {            
+        function addRows(data) {     
+            var table = $(tablehtml);
+            var tableBody = table.find("tbody");
             for (var index in data) {
                 var record = data[index];
-                var table = $(tablehtml);
-                var tableBody = table.find("tbody");
-                var headerTitle = table.find("th.heading-title");
-                var headerButtons = table.find("th.heading-buttons");
-
-                headerTitle.find("h4").text(record.title);
-                headerTitle.find("h4").attr("title", record.instructions);
-                headerTitle.append("<span class='small'> created by " + record.createdby + " on " + record.createdOn + "</span>");                
-                
-                //headerButtons.append("<button type='button' class='btn btn-link editAssignment' title='Edit this assignment'><span class='glyphicon glyphicon-pencil'></span></button>");
-                //headerButtons.append("<button type='button' class='btn btn-link assignNewPlayer' title='Assign to new player'><span class='glyphicon glyphicon-plus'></span></button>");
-                //headerButtons.append("<button type='button' class='btn btn-link deleteAssignment' title='Delete this assignment'><span class='glyphicon glyphicon-remove text-danger'></span></button>");                
-                headerButtons.data("assignmentid", record.assignmentId);
-
-                var allocations = record.allocations;
-                if (allocations != null && allocations.length > 0) {
-                    for (var j in allocations) {
-                        var allocation = allocations[j];
-                        var row = "<tr data-playerassignmentid='" + allocation.playerAssignmentId + "' data-assignmentid='" + record.assignmentId + "'>" +
-                            //"<td><a href='#'>" + allocation.playerName + "</a></td>" +                            
-                            "<td>" + allocation.playerName + "</td>" +
-                            "<td>" + allocation.assignedBy + "</td>" +
-                            "<td>" + allocation.assignedOn + "</td>" +
-                            "<td>" + (allocation.dueDate == null ? "" : allocation.dueDate) + "</td>" +
-                            "<td class='text-center'><div class='dropdown'>" +
-                            "<button class='btn btn-default dropdown-toggle btn-sm' type='button' id='dropdownMenu1' data-toggle='dropdown' aria- haspopup='true' aria-expanded='true' >" +
-                            "<span class='caret'></span>" +
-                            "</button>" +
-                            "<ul class='dropdown-menu dropdown-menu-right' aria-labelledby='dropdownMenu1'>" +
-                            //"<li><button class='btn btn-link changeDueDate'>Change Due Date</li>" +
-                            "<li><button class='btn btn-link removePlayer'>Remove Player</li>" +
-                            "</ul>" +
-                            "</td>" +
-                            "</tr>";
-                        tableBody.append(row);
-                    }
-                } else {
-                    table.find("thead > tr:nth-child(2)").remove();
-                }  
-
-                $(".assignments").append(table)
+                var row = "<tr data-assignmentid='" + record.assignmentId + "'>" +
+                    "<td>" + record.title + "</td>" +
+                    "<td><a class='assignmentTitle' title='" + record.instructions + "'>" + (record.instructions != null && record.instructions.length > 100 ? (record.instructions.substring(0, 99) + "...") : record.instructions) + "</a></td>" +
+                    "<td>" + record.createdBy + "</td>" +
+                    "<td>" + record.dueDate + "</td>" +
+                    "<td class='text-center'>" + record.players + "</td>" +
+                    "<td class='text-center'>" + record.trainingMaterials + "</td>" +
+                    "<td class='text-center'><div class='dropdown'>" +
+                    "<button class='btn btn-default dropdown-toggle btn-sm' type='button' id='dropdownMenu1' data-toggle='dropdown' aria- haspopup='true' aria-expanded='true' >" +
+                    "<span class='caret'></span>" +
+                    "</button>" +
+                    "<ul class='dropdown-menu dropdown-menu-right' aria-labelledby='dropdownMenu1'>" +
+                    "<li><button class='btn btn-link removePlayer'>Remove Player</li>" +
+                    "</ul>" +
+                    "</td>" +
+                    "</tr>";      
+                tableBody.append(row);
             }
+            $(".assignments").append(table);
         }
 
-        function removePlayerAssignment(row, assignmentId, playerAssignmentId) {
+        function removePlayerAssignment(row, assignmentId, playerId) {
             $.ajax({
                 method: "POST",
                 url: "/api/assignments/remove-player",
-                data: { "playerAssignmentId": playerAssignmentId, "assignmentId": assignmentId }
+                data: { "playerId": playerId, "assignmentId": assignmentId }
             }).done(function (data) {
                 $(row).remove();
             }).fail(function (jqXHR, textStatus, errorThrown) {
@@ -250,11 +227,11 @@
             });
         }
 
-        function updateDueDate(row, playerAssignmentId, newDate) {
+        function updateDueDate(row, playerId, newDate) {
             $.ajax({
                 method: "PUT",
                 url: "/api/assignments",
-                data: { "playerAssignmentId": playerAssignmentId,"dueDate" : dueDate }
+                data: { "playerId": playerId,"dueDate" : dueDate }
             }).done(function (data) {
                 
             }).fail(function (jqXHR, textStatus, errorThrown) {
@@ -272,13 +249,8 @@
 @section CSS {
     <link href="~/lib/select2/dist/css/select2.min.css" rel="stylesheet" />
     <style>
-        .assignmentTitle {
-            display: inline;
-        }
-
-        .table-bordered > thead > tr:nth-child(1) > th {
-            border: 0;
-            background-color:rgb(245,245,245);
-        }
+        .assignmentTitle {            
+            color:rgb(0,0,0);
+        }        
     </style>
 }

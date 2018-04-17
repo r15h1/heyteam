@@ -79,5 +79,10 @@ namespace HeyTeam.Lib.Services
                 return Response.CreateResponse(ex);
             }
         }
+
+        public Response Track(AssignmentTrainingMaterialViewRequest request)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

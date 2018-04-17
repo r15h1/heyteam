@@ -21,7 +21,7 @@ namespace HeyTeam.Lib.Validation {
 			else if (request.AssignedTo == AssignedTo.IndividualPlayers && (request.Players == null || request.Players.Count() == 0))
 				validationResult.AddMessage("Assignment must be allocated to at least one player");
 
-			if (request.DateDue.HasValue && request.DateDue.Value < DateTime.Today)
+			if (request.DueDate < DateTime.Today)
                 validationResult.AddMessage("Date due must be in the future");
 
             if (request.CoachId.IsEmpty())

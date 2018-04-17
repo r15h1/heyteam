@@ -16,9 +16,10 @@ namespace HeyTeam.Core.Models
         public Guid AssignmentId { get; }
         public string Instructions { get; set; }        
         public string Title { get; set; }
-        public string Createdby { get; set; }
+        public string CreatedBy { get; set; }
         public string CreatedOn { get; set; }
-        public IEnumerable<MiniTrainingMaterial> TrainingMaterials { get; set; } = new List<MiniTrainingMaterial>();
-        public IEnumerable<PlayerAssignment> Allocations { get; set; } = new List<PlayerAssignment>();
+        public string DueDate { get; set; }
+        public int Players { get; set; }
+        public int TrainingMaterials { get; set; }
     }
 }

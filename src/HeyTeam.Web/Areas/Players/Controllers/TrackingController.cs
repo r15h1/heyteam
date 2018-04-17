@@ -27,9 +27,21 @@ namespace HeyTeam.Web.Controllers.Players
 		}
 
         [HttpGet("events/{eventId:guid}/library/{trainingMaterialId:guid}")]
-		public IActionResult Library(LibraryTrackingViewModel model)
+		public IActionResult EventTrainingMaterialView(LibraryTrackingViewModel model)
         {
             var response = tracker.Track(new EventTrainingMaterialViewRequest{ClubId = club.Guid, EventId = model.EventId, MemberId=model.MemberId, TrainingMaterialId= model.TrainingMaterialId, Membership = Core.Membership.Player });
+            if (response.RequestIsFulfilled)
+            {
+                var trainingMaterial = libraryQuery.GetTrainingMaterial(model.TrainingMaterialId);
+                return Redirect(trainingMaterial.Url);
+            }
+            return View("ResourceNotFound");
+        }
+
+        [HttpGet("asssignments/{eventId:guid}/library/{trainingMaterialId:guid}")]
+        public IActionResult AssignmentTrainingMaterialView(LibraryTrackingViewModel model)
+        {
+            var response = tracker.Track(new EventTrainingMaterialViewRequest { ClubId = club.Guid, EventId = model.EventId, MemberId = model.MemberId, TrainingMaterialId = model.TrainingMaterialId, Membership = Core.Membership.Player });
             if (response.RequestIsFulfilled)
             {
                 var trainingMaterial = libraryQuery.GetTrainingMaterial(model.TrainingMaterialId);

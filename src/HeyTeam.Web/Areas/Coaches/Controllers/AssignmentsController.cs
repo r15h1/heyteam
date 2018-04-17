@@ -80,7 +80,7 @@ namespace HeyTeam.Web.Areas.Coaches.Controllers
                 Title = model.Title,
 				ClubId = club.Guid,
 				CoachId = coach.Guid,
-				DateDue = model.DateDue,
+				DueDate = model.DueDate,
 				Instructions = model.Instructions,
 				Players = model.AssignedTo == AssignedTo.IndividualPlayers ? model.Players : null,
 				Squads = model.AssignedTo == AssignedTo.SelectedSquads ? model.Squads : null,

@@ -29,22 +29,22 @@ namespace HeyTeam.Web.Controllers {
 			return new JsonResult(assignments);
 		}
 
-		[HttpGet("{assignmentId:guid}/player/{playerAssignmentId:guid}")]
-		public IActionResult GetAssignment(Guid assignmentId, Guid playerAssignmentId) {
-			var assignment = assignmentQuery.GetPlayerAssignment(new PlayerAssignmentRequest { ClubId = club.Guid, AssignmentId = assignmentId, PlayerAssignmentId = playerAssignmentId });
+		[HttpGet("{assignmentId:guid}/player/{playerId:guid}")]
+		public IActionResult GetAssignment(Guid assignmentId, Guid playerId) {
+			var assignment = assignmentQuery.GetPlayerAssignment(new PlayerAssignmentRequest { ClubId = club.Guid, AssignmentId = assignmentId, PlayerId = playerId });
 			return new JsonResult(assignment);
 		}
 
 		[HttpPost("remove-player")]
-        public IActionResult RemovePlayerFromAssignment(Guid assignmentId, Guid playerAssignmentId)
+        public IActionResult RemovePlayerFromAssignment(Guid assignmentId, Guid playerId)
         {
-            if (playerAssignmentId.IsEmpty() || assignmentId.IsEmpty())
+            if (playerId.IsEmpty() || assignmentId.IsEmpty())
             {
                 ModelState.AddModelError("", "Assignment Id is required");
                 return BadRequest(ModelState);
             }
 
-            var response = assignmentService.RemovePlayerFromAssignment(new UnAssignPlayerRequest { ClubId = club.Guid, AssignmentId = assignmentId, PlayerAssignmentId = playerAssignmentId });
+            var response = assignmentService.RemovePlayerFromAssignment(new UnAssignPlayerRequest { ClubId = club.Guid, AssignmentId = assignmentId, PlayerId = playerId });
             if (!response.RequestIsFulfilled)
             {
                 foreach(var error in response.Errors)
