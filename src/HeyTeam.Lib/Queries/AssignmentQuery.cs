@@ -26,7 +26,13 @@ namespace HeyTeam.Lib.Queries
 		                        A.Title, Cl.Guid AS ClubGuid,                                
                                 Co.FirstName + ' ' + Co.LastName AS CreatedBy,                                
                                 (SELECT COUNT(1) FROM AssignmentTrainingMaterials ATM WHERE ATM.AssignmentId = A.AssignmentId) AS TrainingMaterialCount,
-                                COUNT(PA.AssignmentId) AS PlayerCount
+                                COUNT(PA.AssignmentId) AS PlayerCount,
+								STUFF ((SELECT DISTINCT COALESCE(S1.Name + ', ', '') FROM PlayerAssignments PA1 
+								INNER JOIN Players P1 ON PA1.PlayerId = P1.PlayerId
+								INNER JOIN Squads S1 ON P1.SquadId = S1.SquadId
+								WHERE A.AssignmentId = PA1.AssignmentId 
+								FOR XML PATH(''),TYPE ).value('.','VARCHAR(50)') 
+									 ,1, 0, '') AS Squads
                         FROM Assignments A                                                 
                         INNER JOIN Clubs Cl ON A.ClubId = Cl.ClubId
                         INNER JOIN Coaches Co ON Cl.ClubId = Co.ClubId AND Co.CoachId = A.CoachId
@@ -68,7 +74,8 @@ namespace HeyTeam.Lib.Queries
                             Title = row.Title,
                             DueDate = row.DueDate.ToString("dd-MMM-yyyy"),
                             Players = row.PlayerCount,
-                            TrainingMaterials = row.TrainingMaterialCount
+                            TrainingMaterials = row.TrainingMaterialCount,
+							Squads = (row.Squads?.Trim().EndsWith(",") ? row.Squads.TrimEnd(new char[] { ',', ' ' }) : row.Squads)
                         }).OrderBy(a => a.Title).ToList();
                    
                 return assignments;

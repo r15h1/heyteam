@@ -76,8 +76,9 @@
             '<tr>' +   
                 '<th class="col-md-2">Title</th>' +  
                 '<th class="col-md-4">Instructions</th>' + 
-                '<th class="col-md-2">Created By</th>' + 
+                //'<th class="col-md-1">Created By</th>' + 
                 '<th class="col-md-1">Due Date</th>' +  
+                '<th class="col-md-2">Squads</th>' + 
                 '<th class="col-md-1">Players</th>' +  
                 '<th class="col-md-1">Training Materials</th>' +
                 '<th class="col-md-1 text-center">Actions</th>' +
@@ -194,8 +195,9 @@
                 var row = "<tr data-assignmentid='" + record.assignmentId + "'>" +
                     "<td>" + record.title + "</td>" +
                     "<td><a class='assignmentTitle' title='" + record.instructions + "'>" + (record.instructions != null && record.instructions.length > 100 ? (record.instructions.substring(0, 99) + "...") : record.instructions) + "</a></td>" +
-                    "<td>" + record.createdBy + "</td>" +
+                    //"<td>" + record.createdBy + "</td>" +
                     "<td>" + record.dueDate + "</td>" +
+                    "<td>" + record.squads + "</td>" +
                     "<td class='text-center'>" + record.players + "</td>" +
                     "<td class='text-center'>" + record.trainingMaterials + "</td>" +
                     "<td class='text-center'><div class='dropdown'>" +

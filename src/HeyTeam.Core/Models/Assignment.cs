@@ -21,5 +21,6 @@ namespace HeyTeam.Core.Models
         public string DueDate { get; set; }
         public int Players { get; set; }
         public int TrainingMaterials { get; set; }
-    }
+		public string Squads { get; set; }
+	}
 }
