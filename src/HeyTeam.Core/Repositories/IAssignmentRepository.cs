@@ -6,5 +6,6 @@ namespace HeyTeam.Core.Repositories {
     {
 		void CreateAssignment(AssignmentRequest request);
         void DeletePlayerAssignment(UnAssignPlayerRequest request);
-    }
+		void UpdateDueDate(AssignmentUpdateRequest request);
+	}
 }

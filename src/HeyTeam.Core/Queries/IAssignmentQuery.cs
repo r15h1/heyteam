@@ -8,7 +8,8 @@ namespace HeyTeam.Core.Queries
     {
         IEnumerable<Assignment> GetAssignments(AssignmentsRequest request);
         Assignment GetPlayerAssignment(PlayerAssignmentRequest request);
-    }
+		Assignment GetAssignment(Guid clubId, Guid assignmentId);
+	}
 
 	public class AssignmentsRequest {
 		public Guid ClubId { get; set; }

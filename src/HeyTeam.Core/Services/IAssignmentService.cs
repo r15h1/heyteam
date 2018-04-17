@@ -7,7 +7,8 @@ namespace HeyTeam.Core.Services
     {
         Response CreateAssignment(AssignmentRequest request);
         Response RemovePlayerFromAssignment(UnAssignPlayerRequest request);
-    }
+		Response UpdateDueDate(AssignmentUpdateRequest assignmentUpdateRequest);
+	}
 
     public class UnAssignPlayerRequest
     {
@@ -30,6 +31,12 @@ namespace HeyTeam.Core.Services
         public string Title { get; set; }
 		public AssignedTo AssignedTo{ get; set; }
     }
+
+	public class AssignmentUpdateRequest{
+		public Guid ClubId { get; set; }
+		public Guid AssignmentId { get; set; }
+		public DateTime DueDate { get; set; }
+	}
 
 	public enum AssignedTo {
 		All = 0,

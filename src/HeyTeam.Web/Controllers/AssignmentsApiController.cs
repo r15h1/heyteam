@@ -35,6 +35,19 @@ namespace HeyTeam.Web.Controllers {
 			return new JsonResult(assignment);
 		}
 
+		[HttpPut("{assignmentId:guid}")]
+		public IActionResult UpdateAssignment(UpdateDueDateModel model) {
+			if (!ModelState.IsValid) {
+				return BadRequest(ModelState);
+			} else if (model.AssignmentId.IsEmpty()) {
+				ModelState.AddModelError("", "AssignmentId cannot be empty guid");
+				return BadRequest(ModelState);
+			}
+
+			var response = assignmentService.UpdateDueDate(new AssignmentUpdateRequest { ClubId = club.Guid, AssignmentId = model.AssignmentId.Value, DueDate = model.DueDate.Value });
+			return Ok();
+		}
+
 		[HttpPost("remove-player")]
         public IActionResult RemovePlayerFromAssignment(Guid assignmentId, Guid playerId)
         {

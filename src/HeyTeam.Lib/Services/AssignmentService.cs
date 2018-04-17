@@ -88,11 +88,11 @@ namespace HeyTeam.Lib.Services {
         {
             var club = clubQuery.GetClub(request.ClubId);
             if (club == null)
-                return Response.CreateResponse(new EntityNotFoundException("The specified club doesn not exist"));
+                return Response.CreateResponse(new EntityNotFoundException("The specified club does not exist"));
 
             var assignment = assignmentQuery.GetPlayerAssignment(new PlayerAssignmentRequest { ClubId = request.ClubId, AssignmentId = request.AssignmentId, PlayerId = request.PlayerId });
             if(assignment == null)
-                return Response.CreateResponse(new EntityNotFoundException("The specified assignment doesn not exist"));
+                return Response.CreateResponse(new EntityNotFoundException("The specified assignment does not exist"));
             else if (assignment.ClubId != request.ClubId)
                 return Response.CreateResponse(new IllegalOperationException("The specified assignment does not belong to this club"));
 
@@ -105,5 +105,27 @@ namespace HeyTeam.Lib.Services {
                 return Response.CreateResponse(ex);
             }
         }
-    }
+
+		public Response UpdateDueDate(AssignmentUpdateRequest request) {
+			var club = clubQuery.GetClub(request.ClubId);
+			if (club == null)
+				return Response.CreateResponse(new EntityNotFoundException("The specified club does not exist"));
+
+			var assignment = assignmentQuery.GetAssignment(request.ClubId, request.AssignmentId);
+			if (assignment == null)
+				return Response.CreateResponse(new EntityNotFoundException("The specified assignment does not exist"));
+			else if (assignment.ClubId != request.ClubId)
+				return Response.CreateResponse(new IllegalOperationException("The specified assignment does not belong to this club"));
+
+			if(request.DueDate < DateTime.Today)
+				return Response.CreateResponse(new IllegalOperationException("Due Date must be greater than today's date"));
+
+			try {
+				assignmentRepository.UpdateDueDate(request);
+				return Response.CreateSuccessResponse();
+			} catch (Exception ex) {
+				return Response.CreateResponse(ex);
+			}
+		}
+	}
 }

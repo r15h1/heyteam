@@ -124,11 +124,11 @@ namespace HeyTeam.Lib.Repositories {
                             INNER JOIN Players P ON PA.PlayerId = P.PlayerId
                             INNER JOIN Assignments A ON A.AssignmentId = PA.AssignmentId
                             INNER JOIN Clubs C ON C.ClubId = A.ClubId
-                            WHERE P.Guid = @PlayerGuid AND C.Guid = @ClubdGuid AND A.Guid = @AssignmentGuid;";
+                            WHERE P.Guid = @PlayerGuid AND C.Guid = @ClubGuid AND A.Guid = @AssignmentGuid;";
             var parameters = new DynamicParameters();
             parameters.Add("@PlayerGuid", request.PlayerId);
             parameters.Add("@AssignmentGuid", request.AssignmentId);
-            parameters.Add("@ClubdGuid", request.ClubId);
+            parameters.Add("@ClubGuid", request.ClubId);
 
             using (var connection = factory.Connect())
             {
@@ -136,5 +136,19 @@ namespace HeyTeam.Lib.Repositories {
                 connection.Execute(sql, parameters);
             }
         }
-    }
+
+		public void UpdateDueDate(AssignmentUpdateRequest request) {
+			var sql = @"UPDATE Assignments SET DueDate = @DueDate WHERE Guid = @AssignmentGuid 
+							AND ClubId = (SELECT ClubId FROM Clubs WHERE Guid = @ClubGuid)";
+
+			var parameters = new DynamicParameters();	
+			parameters.Add("@AssignmentGuid", request.AssignmentId);
+			parameters.Add("@ClubGuid", request.ClubId);
+			parameters.Add("@DueDate", request.DueDate);
+			using (var connection = factory.Connect()) {
+				connection.Open();
+				connection.Execute(sql, parameters);
+			}
+		}
+	}
 }

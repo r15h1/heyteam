@@ -27,25 +27,6 @@
 
 <div id="message" style="display:none"></div>
 <div class="assignments"></div>
-<div class="modal fade" id="deleteConfirmationDialog" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form method="post" id="removePlayerForm">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Confirm Deletion</h4>
-                </div>
-                <div class="modal-body">
-                    <p>Do you really want to delete this entry?</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                    <input type="submit" id="ConfirmDeleteButton" class="btn btn-danger" value="Delete" />
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 
 <div class="modal fade" id="dueDateDialog" role="dialog">
     <div class="modal-dialog modal-sm">
@@ -60,7 +41,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                    <input type="submit" id="ConfirmDeleteButton" class="btn btn-primary" value="Save" />
+                    <input type="submit" class="btn btn-primary" value="Save" />
                 </div>
             </form>
         </div>
@@ -139,30 +120,18 @@
                 $('.table-responsive').css("overflow", "auto");
             })
 
-            $("button.removePlayer").click(function () {
-                var row = $(this).closest("tr");
-                var playerId = row.data("playerid");
-                var assignmentId = row.data("assignmentid");
-                console.log("removing player..." + playerId);
-                $('#removePlayerForm').unbind();
-                $('#removePlayerForm').submit(function (e) {
-                    e.preventDefault();
-                    removePlayerAssignment(row, assignmentId, playerId);
-                });
-                $('#deleteConfirmationDialog').modal('show');                
-            });      
-        
 
-            $("button.changeDueDate").click(function () {
+            $("button.updateDueDate").click(function () {
                 var row = $(this).closest("tr");
-                var playerId = row.data("playerid");
+                var assignmentId = row.data("assignmentid");
+
                 $("#dueDateInput").val(null);
                 $('#dueDateForm').unbind();
                 $('#dueDateForm').submit(function (e) {
                     e.preventDefault();
                     var newDate = $("#dueDateInput").val();
-                    if (newDate > new Date()) {                        
-                        updateDueDate(row, playerId, newDate);    
+                    if (new Date(newDate) > new Date()) {                        
+                        updateDueDate(assignmentId, newDate);    
                     }                    
                 });
                 $('#dueDateDialog').modal('show');                
@@ -177,11 +146,7 @@
                 var assignmentId = $(this).closest("th").data("assignmentid");
                 console.log("assigning to new player..." + assignmentId);
             });
-
-            $("button.deleteAssignment").click(function () {
-                var assignmentId = $(this).closest("th").data("assignmentid");
-                console.log("deleting assignment..." + assignmentId);
-            });
+            
 
             $(".assignmentTitle").tooltip("destroy");
             $(".assignmentTitle").tooltip({ placement: "auto right", trigger: 'hover' });
@@ -205,7 +170,7 @@
                     "<span class='caret'></span>" +
                     "</button>" +
                     "<ul class='dropdown-menu dropdown-menu-right' aria-labelledby='dropdownMenu1'>" +
-                    "<li><button class='btn btn-link removePlayer'>Remove Player</li>" +
+                    "<li><button class='btn btn-link updateDueDate'>Update Due Date</li>" +
                     "</ul>" +
                     "</td>" +
                     "</tr>";      
@@ -224,16 +189,15 @@
             }).fail(function (jqXHR, textStatus, errorThrown) {
                 console.log("ajax failed...");                
             }).always(function () {
-                $('#removePlayerForm').unbind();
-                $('#deleteConfirmationDialog').modal('hide');
+                
             });
         }
 
-        function updateDueDate(row, playerId, newDate) {
+        function updateDueDate(assignmentId, newDate) {
             $.ajax({
                 method: "PUT",
-                url: "/api/assignments",
-                data: { "playerId": playerId,"dueDate" : dueDate }
+                url: "/api/assignments/" + assignmentId,
+                data: { "dueDate": newDate }
             }).done(function (data) {
                 
             }).fail(function (jqXHR, textStatus, errorThrown) {
@@ -249,10 +213,5 @@
 }
 
 @section CSS {
-    <link href="~/lib/select2/dist/css/select2.min.css" rel="stylesheet" />
-    <style>
-        .assignmentTitle {            
-            color:rgb(0,0,0);
-        }        
-    </style>
+    <link href="~/lib/select2/dist/css/select2.min.css" rel="stylesheet" />    
 }
