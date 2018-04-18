@@ -123,30 +123,25 @@
 
             $("button.updateDueDate").click(function () {
                 var row = $(this).closest("tr");
+                var dueDateColumn = row.find("td:nth-child(3)");
                 var assignmentId = row.data("assignmentid");
-
-                $("#dueDateInput").val(null);
+                var assignmentDate = dueDateColumn.text();
+                $("#dueDateInput").val(new Date(assignmentDate).toISOString().split('T')[0]);
                 $('#dueDateForm').unbind();
                 $('#dueDateForm').submit(function (e) {
                     e.preventDefault();
                     var newDate = $("#dueDateInput").val();
                     if (new Date(newDate) > new Date()) {                        
-                        updateDueDate(assignmentId, newDate);    
+                        updateDueDate(assignmentId, newDate, dueDateColumn);    
                     }                    
                 });
                 $('#dueDateDialog').modal('show');                
-            });
-
-            $("button.editAssignment").click(function () {
-                var assignmentId = $(this).closest("th").data("assignmentid");
-                console.log("editing assignment..." + assignmentId);
-            });
+            });            
 
             $("button.assignNewPlayer").click(function () {
                 var assignmentId = $(this).closest("th").data("assignmentid");
                 console.log("assigning to new player..." + assignmentId);
-            });
-            
+            });            
 
             $(".assignmentTitle").tooltip("destroy");
             $(".assignmentTitle").tooltip({ placement: "auto right", trigger: 'hover' });
@@ -193,13 +188,13 @@
             });
         }
 
-        function updateDueDate(assignmentId, newDate) {
+        function updateDueDate(assignmentId, newDate, dueDateColumn) {
             $.ajax({
                 method: "PUT",
                 url: "/api/assignments/" + assignmentId,
                 data: { "dueDate": newDate }
             }).done(function (data) {
-                
+                dueDateColumn.text(formatDate(parseDate(newDate)));
             }).fail(function (jqXHR, textStatus, errorThrown) {
                 console.log("ajax failed...");
             }).always(function () {
@@ -207,6 +202,7 @@
                 $('#dueDateDialog').modal('hide');
             });
         }
+
 
         updateTable();
     </script>
