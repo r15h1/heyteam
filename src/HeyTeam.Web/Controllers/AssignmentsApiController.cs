@@ -29,9 +29,9 @@ namespace HeyTeam.Web.Controllers {
 			return new JsonResult(assignments);
 		}
 
-		[HttpGet("{assignmentId:guid}/player/{playerId:guid}")]
-		public IActionResult GetAssignment(Guid assignmentId, Guid playerId) {
-			var assignment = assignmentQuery.GetPlayerAssignment(new PlayerAssignmentRequest { ClubId = club.Guid, AssignmentId = assignmentId, PlayerId = playerId });
+		[HttpGet("{assignmentId:guid}")]
+		public IActionResult GetAssignment(Guid assignmentId) {
+			var assignment = assignmentQuery.GetAssignment(club.Guid, assignmentId );
 			return new JsonResult(assignment);
 		}
 

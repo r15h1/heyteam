@@ -1,4 +1,5 @@
 ﻿using HeyTeam.Core.Models;
+using HeyTeam.Core.Models.Mini;
 using System;
 using System.Collections.Generic;
 
@@ -6,9 +7,9 @@ namespace HeyTeam.Core.Queries
 {
     public interface IAssignmentQuery
     {
-        IEnumerable<Assignment> GetAssignments(AssignmentsRequest request);
-        Assignment GetPlayerAssignment(PlayerAssignmentRequest request);
-		Assignment GetAssignment(Guid clubId, Guid assignmentId);
+        IEnumerable<AssignmentSummary> GetAssignments(AssignmentsRequest request);
+        AssignmentSummary GetPlayerAssignment(PlayerAssignmentRequest request);
+		AssignmentDetails GetAssignment(Guid clubId, Guid assignmentId);
 	}
 
 	public class AssignmentsRequest {

@@ -4,9 +4,9 @@ using System.Collections.Generic;
 
 namespace HeyTeam.Core.Models
 {
-    public class Assignment
+    public class AssignmentSummary
     {
-        public Assignment(Guid clubId, Guid assignmentId)
+        public AssignmentSummary(Guid clubId, Guid assignmentId)
         {
             ClubId = clubId;
             AssignmentId = assignmentId;
@@ -19,8 +19,8 @@ namespace HeyTeam.Core.Models
         public string CreatedBy { get; set; }
         public string CreatedOn { get; set; }
         public string DueDate { get; set; }
-        public int Players { get; set; }
-        public int TrainingMaterials { get; set; }
+        public int PlayerCount { get; set; }
+        public int TrainingMaterialCount { get; set; }
 		public string Squads { get; set; }
 	}
 }

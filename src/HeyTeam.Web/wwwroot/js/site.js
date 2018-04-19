@@ -1,5 +1,26 @@
 ﻿// Write your JavaScript code.
-function formatDate(date) {
+function formatDate(date, format) {
+    if (format == 'ddMMMyyyy')
+        return ddMMMyyyy(date);
+    else if (format == 'yyyyMMdd')
+        return yyyyMMdd(date);
+    else
+        return date;
+}
+
+function yyyyMMdd(date) {
+    var d = new Date(date),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+
+    return [year, month, day].join('-');
+}
+
+function ddMMMyyyy(date) {
     var monthNames = [
         "Jan", "Feb", "Mar",
         "Apr", "May", "Jun", "Jul",
@@ -14,6 +35,7 @@ function formatDate(date) {
 
     return (day < 10 ? '0' + day : day) + '-' + monthNames[monthIndex] + '-' + year;
 }
+
 
 function parseDate(input) {
     var parts = input.match(/(\d+)/g);
