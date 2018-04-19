@@ -28,16 +28,32 @@
 <div id="message" style="display:none"></div>
 <div class="assignments"></div>
 
-<div class="modal fade" id="dueDateDialog" role="dialog">
-    <div class="modal-dialog modal-sm">
+<div class="modal fade" id="editAssignmentDialog" role="dialog">
+    <div class="modal-dialog">
         <div class="modal-content">
-            <form method="post" id="dueDateForm">
+            <form method="post" id="editAssignmentForm">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Change Due Date</h4>
+                    <h4 class="modal-title">Edit Assignment</h4>
                 </div>
-                <div class="modal-body">
-                    <label>Due Date: </label><input type="date" id="dueDateInput" class="form-control" style="width:200px" required min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")"/>                    
+                <div class="modal-body">                    
+                    <div class="form-group">
+                        <label for="title" class="control-label">Title</label>
+                        <input type="text" id="title" class="form-control" required maxlength="250" />
+                    </div>
+                    <div class="form-group">
+                        <label for="instructions" class="control-label">Instructions</label>
+                        <textarea id="instructions" class="form-control" required rows="5"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="dueDate" class="control-label">Due Date</label>
+                        <input type="date" id="dueDate" class="form-control" style="width:200px" value="null" required min="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")" />
+                    </div>
+                    <div class="form-group">
+                        <label for="trainingMaterials" class="control-label" style="display:block;">Due Date</label>
+                        @*<input type="date" id="trainingMaterials" class="form-control" style="width:200px" value="null" required min="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")" />*@
+                        <select id="trainingMaterials" class="form-control" multiple style="width:100%"></select>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
@@ -47,32 +63,34 @@
         </div>
     </div>
 </div>
+
 @section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script src="~/lib/select2/dist/js/select2.min.js"></script>
     <script>
+        var trainingMaterialsDropdown = null;
         var tablehtml =
-            '<div class="table-responsive">' +                            
+            '<div class="table-responsive">' +
             '<table class="table table-bordered table-hover">' +
             '<thead>' +
-            '<tr>' +   
-                '<th class="col-md-2">Title</th>' +  
-                '<th class="col-md-4">Instructions</th>' + 
-                //'<th class="col-md-1">Created By</th>' + 
-                '<th class="col-md-1">Due Date</th>' +  
-                '<th class="col-md-2">Squads</th>' + 
-                '<th class="col-md-1">Players</th>' +  
-                '<th class="col-md-1">Training Materials</th>' +
-                '<th class="col-md-1 text-center">Actions</th>' +
+            '<tr>' +
+            '<th class="col-md-2">Title</th>' +
+            '<th class="col-md-3">Instructions</th>' +
+            '<th class="col-md-2">Squads</th>' +
+            '<th class="col-md-2 text-center">Due Date</th>' +
+            '<th class="col-md-1  text-center">Players</th>' +
+            '<th class="col-md-1  text-center">Training Materials</th>' +
+            '<th class="col-md-1 text-center">Actions</th>' +
             '</tr>' +
             '</thead>' +
             '<tbody></tbody>' +
             '</table>' +
-            '</div>';        
+            '</div>';
 
         $("#squads").select2();
         $("#squads").change(updateTable);
-        $("#month").change(updateTable);        
-        
+        $("#month").change(updateTable);
+
         function updateTable() {
             var date = $('#month').val().split('-');
             $(".assignments").empty();
@@ -100,12 +118,12 @@
                     $("#message").show();
                     $("#message").text("No records found");
                 }
-                }).fail(function (jqXHR, textStatus, errorThrown) { 
-                    console.log("ajax failed...");
-                }).always(function () { 
-                    console.log("ajax completed...");
-                    bindEvents();
-                });
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.log("ajax failed...");
+            }).always(function () {
+                console.log("ajax completed...");
+                bindEvents();
+            });
         }
 
         function bindEvents() {
@@ -123,31 +141,32 @@
 
             $("button.updateDueDate").click(function () {
                 var row = $(this).closest("tr");
-                var dueDateColumn = row.find("td:nth-child(3)");
+                var dueDateColumn = row.find("td:nth-child(4)");
                 var assignmentId = row.data("assignmentid");
                 var assignmentDate = dueDateColumn.text();
                 $("#dueDateInput").val(new Date(assignmentDate).toISOString().split('T')[0]);
-                $('#dueDateForm').unbind();
-                $('#dueDateForm').submit(function (e) {
+                $('#editAssignmentForm').unbind();
+                $('#editAssignmentForm').submit(function (e) {
                     e.preventDefault();
                     var newDate = $("#dueDateInput").val();
-                    if (new Date(newDate) > new Date()) {                        
-                        updateDueDate(assignmentId, newDate, dueDateColumn);    
-                    }                    
+                    if (new Date(newDate) > new Date()) {
+                        updateDueDate(assignmentId, newDate, dueDateColumn);
+                    }
                 });
-                $('#dueDateDialog').modal('show');                
-            });            
+                setUpTrainingMaterials();
+                $('#editAssignmentDialog').modal('show');
+            });
 
             $("button.assignNewPlayer").click(function () {
                 var assignmentId = $(this).closest("th").data("assignmentid");
                 console.log("assigning to new player..." + assignmentId);
-            });            
+            });
 
             $(".assignmentTitle").tooltip("destroy");
             $(".assignmentTitle").tooltip({ placement: "auto right", trigger: 'hover' });
         }
 
-        function addRows(data) {     
+        function addRows(data) {
             var table = $(tablehtml);
             var tableBody = table.find("tbody");
             for (var index in data) {
@@ -155,9 +174,8 @@
                 var row = "<tr data-assignmentid='" + record.assignmentId + "'>" +
                     "<td>" + record.title + "</td>" +
                     "<td><a class='assignmentTitle' title='" + record.instructions + "'>" + (record.instructions != null && record.instructions.length > 100 ? (record.instructions.substring(0, 99) + "...") : record.instructions) + "</a></td>" +
-                    //"<td>" + record.createdBy + "</td>" +
-                    "<td>" + record.dueDate + "</td>" +
                     "<td>" + record.squads + "</td>" +
+                    "<td class='text-center'>" + record.dueDate + "</td>" +
                     "<td class='text-center'>" + record.players + "</td>" +
                     "<td class='text-center'>" + record.trainingMaterials + "</td>" +
                     "<td class='text-center'><div class='dropdown'>" +
@@ -165,10 +183,12 @@
                     "<span class='caret'></span>" +
                     "</button>" +
                     "<ul class='dropdown-menu dropdown-menu-right' aria-labelledby='dropdownMenu1'>" +
-                    "<li><button class='btn btn-link updateDueDate'>Update Due Date</li>" +
+                    "<li><button class='btn btn-link updateDueDate'>Edit</li>" +
+                    "<li><button class='btn btn-link addRemovePlayers'>Add/Remove Players</li>" +
+                    "<li><button class='btn btn-link addRemovePlayers'>Delete</li>" +
                     "</ul>" +
                     "</td>" +
-                    "</tr>";      
+                    "</tr>";
                 tableBody.append(row);
             }
             $(".assignments").append(table);
@@ -182,9 +202,9 @@
             }).done(function (data) {
                 $(row).remove();
             }).fail(function (jqXHR, textStatus, errorThrown) {
-                console.log("ajax failed...");                
+                console.log("ajax failed...");
             }).always(function () {
-                
+
             });
         }
 
@@ -194,20 +214,65 @@
                 url: "/api/assignments/" + assignmentId,
                 data: { "dueDate": newDate }
             }).done(function (data) {
-                dueDateColumn.text(formatDate(parseDate(newDate)));
+                dueDateColumn.text(formatDate(newDate));
             }).fail(function (jqXHR, textStatus, errorThrown) {
                 console.log("ajax failed...");
             }).always(function () {
                 $('#dueDateForm').unbind();
-                $('#dueDateDialog').modal('hide');
+                $('#editAssignmentDialog').modal('hide');
             });
         }
 
+        function setUpTrainingMaterials() {
+            if (trainingMaterialsDropdown != null) {
+                $('#trainingMaterials').select2("destroy");
+            }
+
+            trainingMaterialsDropdown = $('#trainingMaterials').select2({
+                ajax: {
+                    url: '/api/library?',
+                    data: function (params) {
+                        var query = {
+                            q: params.term,
+                            page: 1
+                        };
+                        return query;
+                    },
+                    processResults: function (data) { return { results: data }; }
+                },
+                minimumInputLength: 1,
+                //data: selectedTrainingMaterialList,
+                placeholder: 'select training materials...',
+                templateResult: resultStyles,
+                templateSelection: resultStyles
+            });
+        }
+
+        function resultStyles(selection) {
+            if (!selection.id) { return selection.text; }
+            var thumbnail = selection.thumbnail;
+            if (!thumbnail) {
+                return selection.text;
+            } else {
+                var $selection = $(
+                    '<div class="media" style="margin-top:0; padding-bottom:5px">' +
+                    '<div class="media-left"><img class="media-object" style="max-height:40px;" src="' + thumbnail + '" alt=""></div>' +
+                    '<div class="media-body"><div class="img-changer-text">' + selection.text + '</div>(' + selection.contentType + ')</div >' +
+                    '</div>'
+                );
+                return $selection;
+            }
+        }
 
         updateTable();
     </script>
 }
 
 @section CSS {
-    <link href="~/lib/select2/dist/css/select2.min.css" rel="stylesheet" />    
+    <link href="~/lib/select2/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        .select2-container--default .select2-search--inline .select2-search__field {
+            width: 100% !important;
+        }
+    </style>
 }

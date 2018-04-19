@@ -84,8 +84,8 @@ namespace HeyTeam.Lib.Queries
                         LEFT JOIN Players P ON PA.PlayerId = P.PlayerId 
                         {((request.Squads?.Any() ?? false) ? " INNER JOIN Squads S ON S.ClubId = Cl.ClubId AND P.SquadId = S.SquadId " : "")}
                         WHERE Cl.Guid = @ClubGuid 
-						{(request.Month.HasValue ? " AND MONTH(A.CreatedOn) = @Month " : "")}
-						{(request.Year.HasValue ? " AND YEAR(A.CreatedOn) = @Year  " : "")}						
+						{(request.Month.HasValue ? " AND MONTH(A.DueDate) = @Month " : "")}
+						{(request.Year.HasValue ? " AND YEAR(A.DueDate) = @Year  " : "")}						
 						{((request.Squads?.Any() ?? false) ? " AND S.Guid IN @Squads " : "")}
 						{((request.Players?.Any() ?? false) ? " AND P.Guid IN @Players " : "")}
 

@@ -7,11 +7,12 @@ function formatDate(date) {
         "Nov", "Dec"
     ];
 
-    var day = date.getDate();
-    var monthIndex = date.getMonth();
-    var year = date.getFullYear();
+    var d1 = parseDate(date);
+    var day = d1.getDate();
+    var monthIndex = d1.getMonth();
+    var year = d1.getFullYear();
 
-    return day + '-' + monthNames[monthIndex] + '-' + year;
+    return (day < 10 ? '0' + day : day) + '-' + monthNames[monthIndex] + '-' + year;
 }
 
 function parseDate(input) {
