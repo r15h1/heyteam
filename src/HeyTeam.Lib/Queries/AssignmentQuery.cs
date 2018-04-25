@@ -42,6 +42,7 @@ namespace HeyTeam.Lib.Queries
 						  ,T.Description
 						  ,T.Url
 						  ,T.ThumbnailUrl
+                            ,T.ContentType
 						FROM AssignmentTrainingMaterials ATM
 						INNER JOIN Assignments A ON A.AssignmentId = ATM.AssignmentId  
 						INNER JOIN TrainingMaterials T ON ATM.TrainingMaterialId = T.TrainingMaterialId
@@ -68,14 +69,14 @@ namespace HeyTeam.Lib.Queries
 							 Instructions = row.Instructions,
 							 Title = row.Title,
 							 DueDate = row.DueDate.ToString("dd-MMM-yyyy"),
-							 Squads = (row.Squads?.Trim().EndsWith(",") ? row.Squads.TrimEnd(new char[] { ',', ' ' }) : row.Squads)
+							 Squads = ((row.Squads?.Trim().EndsWith(",") ?? false) ? row.Squads.TrimEnd(new char[] { ',', ' ' }) : row.Squads)
 						 }).SingleOrDefault();
 				
 				if(assignment != null)
 				{
 					assignment.TrainingMaterials = reader.Read().Cast<IDictionary<string, dynamic>>().Select<dynamic, MiniTrainingMaterial>(
 						row => new MiniTrainingMaterial(row.TrainingMaterialGuid, row.Title){
-							Description = row.Description, ThumbnailUrl = row.ThumbnailUrl, Url = row.Url
+							Description = row.Description, ThumbnailUrl = row.ThumbnailUrl, Url = row.Url, ContentType = row.ContentType
 						}).ToList();
 
 					assignment.Players = reader.Read().Cast<IDictionary<string, dynamic>>().Select<dynamic, MiniModel>(
@@ -143,7 +144,7 @@ namespace HeyTeam.Lib.Queries
                             DueDate = row.DueDate.ToString("dd-MMM-yyyy"),
                             PlayerCount = row.PlayerCount,
                             TrainingMaterialCount = row.TrainingMaterialCount,
-							Squads = (row.Squads?.Trim().EndsWith(",") ? row.Squads.TrimEnd(new char[] { ',', ' ' }) : row.Squads)
+							Squads = ((row.Squads?.Trim().EndsWith(",") ?? false) ? row.Squads.TrimEnd(new char[] { ',', ' ' }) : row.Squads)
                         }).OrderBy(a => a.Title).ToList();
                    
                 return assignments;

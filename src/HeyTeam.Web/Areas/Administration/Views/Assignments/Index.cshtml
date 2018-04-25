@@ -50,8 +50,7 @@
                         <input type="date" id="assignmentDueDate" class="form-control" style="width:200px" value="null" required min="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")" />
                     </div>
                     <div class="form-group">
-                        <label for="assignmentTrainingMaterials" class="control-label" style="display:block;">Due Date</label>
-                        @*<input type="date" id="trainingMaterials" class="form-control" style="width:200px" value="null" required min="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")" />*@
+                        <label for="assignmentTrainingMaterials" class="control-label" style="display:block;">Training Materials</label>
                         <select id="assignmentTrainingMaterials" class="form-control" multiple style="width:100%"></select>
                     </div>
                 </div>
@@ -163,9 +162,23 @@
 
             $("#assignmentTitle").val(assignment.title);
             $("#assignmentInstructions").val(assignment.instructions);
-            $("#assignmentDueDate").val(formatDate(assignment.dueDate,'yyyyMMdd'));
-
+            $("#assignmentDueDate").val(formatDate(assignment.dueDate, 'yyyyMMdd'));
+            var trainingMaterials = formatTrainingMaterials(assignment.trainingMaterials);
+            setUpTrainingMaterials(trainingMaterials);
             $('#editAssignmentDialog').modal('show');
+        }
+
+        function formatTrainingMaterials(trainingMaterials) {
+            var formattedTrainingMaterials = new Array();
+            if (trainingMaterials != null && trainingMaterials.length > 0) {
+                for (var index in trainingMaterials) {
+                    var tm = trainingMaterials[index];
+                    formattedTrainingMaterials.push(
+                        { id: tm.guid, text: tm.title, description: tm.description, thumbnail: tm.thumbnailUrl, title: tm.title, guid: tm.guid, url: tm.url, contentType: tm.contentType }
+                    );
+                }
+            }
+            return formattedTrainingMaterials;
         }
 
 
@@ -238,10 +251,11 @@
             });
         }
 
-        function setUpTrainingMaterials() {
+        function setUpTrainingMaterials(trainingMaterials) {
             if (trainingMaterialsDropdown != null) {
+                $('#assignmentTrainingMaterials').empty();
                 $('#assignmentTrainingMaterials').select2("destroy");
-            }
+            }           
 
             trainingMaterialsDropdown = $('#assignmentTrainingMaterials').select2({
                 ajax: {
@@ -256,11 +270,17 @@
                     processResults: function (data) { return { results: data }; }
                 },
                 minimumInputLength: 1,
-                //data: selectedTrainingMaterialList,
+                data: trainingMaterials,
                 placeholder: 'select training materials...',
                 templateResult: resultStyles,
                 templateSelection: resultStyles
             });
+            
+            for (var i in trainingMaterials) {
+                $("#assignmentTrainingMaterials option[value='" + trainingMaterials[i].id + "']").prop("selected", true);
+            }
+            trainingMaterialsDropdown.trigger("change");
+            
         }
 
         function resultStyles(selection) {
