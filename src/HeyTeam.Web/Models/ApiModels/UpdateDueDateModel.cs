@@ -12,6 +12,14 @@ namespace HeyTeam.Web.Models.ApiModels
 		public Guid? AssignmentId { get; set; }
 
 		[Required]
-		public DateTime? DueDate { get; set; }
-	}
+		public string Title { get; set; }
+
+        [Required]
+        public string Instructions { get; set; }
+        
+        [Required]
+        public DateTime? DueDate { get; set; }
+
+        public Guid[] TrainingMaterials { get; set; }
+    }
 }

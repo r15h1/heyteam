@@ -30,13 +30,14 @@
 
 <div class="modal fade" id="editAssignmentDialog" role="dialog">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <form method="post" id="editAssignmentForm">
+        <div class="modal-content">            
+            <form id="editAssignmentForm">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                     <h4 class="modal-title">Edit Assignment</h4>
                 </div>
-                <div class="modal-body">                    
+                <div class="modal-body">   
+                    <div class="editAssignmentMessage"></div>
                     <div class="form-group">
                         <label for="assignmentTitle" class="control-label">Title</label>
                         <input type="text" id="assignmentTitle" class="form-control" required maxlength="250" />
@@ -153,35 +154,6 @@
             $(".assignmentTitle").tooltip({ placement: "auto right", trigger: 'hover' });
         }
 
-        function showEditAssignmentDialog(assignment) {
-            //console.log(data);
-            $('#editAssignmentForm').unbind();
-            $('#editAssignmentForm').submit(function (e) {
-
-            });
-
-            $("#assignmentTitle").val(assignment.title);
-            $("#assignmentInstructions").val(assignment.instructions);
-            $("#assignmentDueDate").val(formatDate(assignment.dueDate, 'yyyyMMdd'));
-            var trainingMaterials = formatTrainingMaterials(assignment.trainingMaterials);
-            setUpTrainingMaterials(trainingMaterials);
-            $('#editAssignmentDialog').modal('show');
-        }
-
-        function formatTrainingMaterials(trainingMaterials) {
-            var formattedTrainingMaterials = new Array();
-            if (trainingMaterials != null && trainingMaterials.length > 0) {
-                for (var index in trainingMaterials) {
-                    var tm = trainingMaterials[index];
-                    formattedTrainingMaterials.push(
-                        { id: tm.guid, text: tm.title, description: tm.description, thumbnail: tm.thumbnailUrl, title: tm.title, guid: tm.guid, url: tm.url, contentType: tm.contentType }
-                    );
-                }
-            }
-            return formattedTrainingMaterials;
-        }
-
-
         function addRows(data) {
             var table = $(tablehtml);
             var tableBody = table.find("tbody");
@@ -235,20 +207,70 @@
             });
         }
 
+        function showEditAssignmentDialog(assignment) {
+            //console.log(data);
+            $('#editAssignmentForm').unbind();
+            $('#editAssignmentForm').submit(function (e) {
+                e.preventDefault();
+                updateAssignment(assignment.assignmentId)
+            });
 
-        function editAssignment(assignmentId, newDate, dueDateColumn) {
+            $("#assignmentTitle").val(assignment.title);
+            $("#assignmentInstructions").val(assignment.instructions);
+            $("#assignmentDueDate").val(formatDate(assignment.dueDate, 'yyyyMMdd'));
+            var trainingMaterials = formatTrainingMaterials(assignment.trainingMaterials);
+            setUpTrainingMaterials(trainingMaterials);
+            resetEditDialogMessage();
+            $('#editAssignmentDialog').modal('show');
+        }
+
+        function formatTrainingMaterials(trainingMaterials) {
+            var formattedTrainingMaterials = new Array();
+            if (trainingMaterials != null && trainingMaterials.length > 0) {
+                for (var index in trainingMaterials) {
+                    var tm = trainingMaterials[index];
+                    formattedTrainingMaterials.push(
+                        { id: tm.guid, text: tm.title, description: tm.description, thumbnail: tm.thumbnailUrl, title: tm.title, guid: tm.guid, url: tm.url, contentType: tm.contentType }
+                    );
+                }
+            }
+            return formattedTrainingMaterials;
+        }
+        
+        function updateAssignment(assignmentId) {
+            var updatedAssignment = {
+                title: $("#assignmentTitle").val(),
+                instructions: $("#assignmentInstructions").val(),
+                dueDate: $("#assignmentDueDate").val(),
+                trainingMaterials: $(trainingMaterialsDropdown).val()
+            };
+
+            resetEditDialogMessage();
+            $(".editAssignmentMessage").text("Updating assignment, please wait..")
+                .addClass("alert alert-info alert-dismissible") 
+                .show();
+
             $.ajax({
                 method: "PUT",
                 url: "/api/assignments/" + assignmentId,
-                data: { "dueDate": newDate }
+                data: updatedAssignment
             }).done(function (data) {
-                dueDateColumn.text(formatDate(newDate, 'ddMMMyyyy'));
+                
             }).fail(function (jqXHR, textStatus, errorThrown) {
-                console.log("ajax failed...");
-            }).always(function () {
-                $('#dueDateForm').unbind();
-                $('#editAssignmentDialog').modal('hide');
+                var errors = jqXHR.responseJSON[""];
+                resetEditDialogMessage();
+                $.each(errors, function (index, error) {
+                    $(".editAssignmentMessage").append("<p>" + error + "</p>");
+                });
+                $(".editAssignmentMessage")
+                    .prepend("<strong>The following error(s) occurred while saving the assignment:</strong>")
+                    .addClass("alert alert-danger alert-dismissible")                    
+                    .show();
             });
+        }
+
+        function resetEditDialogMessage() {
+            $(".editAssignmentMessage").removeClass("alert alert-danger alert-info alert-dismissible").empty();
         }
 
         function setUpTrainingMaterials(trainingMaterials) {
