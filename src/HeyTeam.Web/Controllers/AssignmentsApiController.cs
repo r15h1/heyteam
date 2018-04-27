@@ -44,7 +44,24 @@ namespace HeyTeam.Web.Controllers {
 				return BadRequest(ModelState);
 			}
 
-			var response = assignmentService.UpdateDueDate(new AssignmentUpdateRequest { ClubId = club.Guid, AssignmentId = model.AssignmentId.Value, DueDate = model.DueDate.Value });
+			var response = assignmentService.UpdateAssignment(
+                new AssignmentUpdateRequest {
+                    ClubId = club.Guid,
+                    AssignmentId = model.AssignmentId.Value,
+                    DueDate = model.DueDate.Value,
+                    Instructions=model.Instructions,
+                    Title = model.Title,
+                    TrainingMaterials = model.TrainingMaterials
+                });
+
+            if (!response.RequestIsFulfilled)
+            {
+                foreach(var error in response.Errors)
+                    ModelState.AddModelError("", error);
+
+                return BadRequest(ModelState);
+            }
+
 			return Ok();
 		}
 

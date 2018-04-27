@@ -18,7 +18,8 @@ namespace HeyTeam.Core.Models
         public string Title { get; set; }
         public string CreatedBy { get; set; }
         public string CreatedOn { get; set; }
-        public string DueDate { get; set; }
+        public string FormattedDueDate { get; set; }
+        public DateTime DueDate { get; set; }
         public int PlayerCount { get; set; }
         public int TrainingMaterialCount { get; set; }
 		public string Squads { get; set; }

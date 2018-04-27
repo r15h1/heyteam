@@ -137,17 +137,39 @@ namespace HeyTeam.Lib.Repositories {
             }
         }
 
-		public void UpdateDueDate(AssignmentUpdateRequest request) {
-			var sql = @"UPDATE Assignments SET DueDate = @DueDate WHERE Guid = @AssignmentGuid 
-							AND ClubId = (SELECT ClubId FROM Clubs WHERE Guid = @ClubGuid)";
+		public void UpdateAssignment(AssignmentUpdateRequest request) {
+			var sql = @"UPDATE Assignments SET 
+                            DueDate = @DueDate, Instructions = @Instructions, Title = @Title
+                        WHERE Guid = @AssignmentGuid AND ClubId = (SELECT ClubId FROM Clubs WHERE Guid = @ClubGuid);
+                        
+                        DELETE AssignmentTrainingMaterials 
+                        WHERE AssignmentId = (SELECT AssignmentId FROM Assignments WHERE Guid = @AssignmentGuid);
+                    ";
 
 			var parameters = new DynamicParameters();	
 			parameters.Add("@AssignmentGuid", request.AssignmentId);
 			parameters.Add("@ClubGuid", request.ClubId);
-			parameters.Add("@DueDate", request.DueDate);
-			using (var connection = factory.Connect()) {
+			parameters.Add("@Instructions", request.Instructions);
+            parameters.Add("@Title", request.Title);
+            parameters.Add("@DueDate", request.DueDate);
+            parameters.Add("@DueDate", request.DueDate);
+
+            using (var connection = factory.Connect()) {
 				connection.Open();
-				connection.Execute(sql, parameters);
+                using(var transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+                        connection.Execute(sql, parameters, transaction);
+                        AddTrainingMaterials(request.AssignmentId, request.TrainingMaterials, connection, transaction);
+                        transaction.Commit();
+                    }catch(Exception ex)
+                    {
+                        transaction.Rollback();
+                        throw ex;
+                    }
+                }
+				
 			}
 		}
 	}

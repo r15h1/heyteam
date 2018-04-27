@@ -106,7 +106,7 @@ namespace HeyTeam.Lib.Services {
             }
         }
 
-		public Response UpdateDueDate(AssignmentUpdateRequest request) {
+		public Response UpdateAssignment(AssignmentUpdateRequest request) {
 			var club = clubQuery.GetClub(request.ClubId);
 			if (club == null)
 				return Response.CreateResponse(new EntityNotFoundException("The specified club does not exist"));
@@ -117,11 +117,11 @@ namespace HeyTeam.Lib.Services {
 			else if (assignment.ClubId != request.ClubId)
 				return Response.CreateResponse(new IllegalOperationException("The specified assignment does not belong to this club"));
 
-			if(request.DueDate < DateTime.Today)
-				return Response.CreateResponse(new IllegalOperationException("Due Date must be greater than today's date"));
+			//if(request.DueDate != assignment.DueDate)
+			//	return Response.CreateResponse(new IllegalOperationException("Due Date must be greater than today's date"));
 
 			try {
-				assignmentRepository.UpdateDueDate(request);
+				assignmentRepository.UpdateAssignment(request);
 				return Response.CreateSuccessResponse();
 			} catch (Exception ex) {
 				return Response.CreateResponse(ex);

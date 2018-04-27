@@ -48,7 +48,7 @@
                     </div>
                     <div class="form-group">
                         <label for="assignmentDueDate" class="control-label">Due Date</label>
-                        <input type="date" id="assignmentDueDate" class="form-control" style="width:200px" value="null" required min="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")" />
+                        <input type="date" id="assignmentDueDate" class="form-control" style="width:200px" required />
                     </div>
                     <div class="form-group">
                         <label for="assignmentTrainingMaterials" class="control-label" style="display:block;">Training Materials</label>
@@ -163,7 +163,7 @@
                     "<td>" + record.title + "</td>" +
                     "<td><a class='assignmentTitle' title='" + record.instructions + "'>" + (record.instructions != null && record.instructions.length > 100 ? (record.instructions.substring(0, 99) + "...") : record.instructions) + "</a></td>" +
                     "<td>" + record.squads + "</td>" +
-                    "<td class='text-center'>" + record.dueDate + "</td>" +
+                    "<td class='text-center'>" + record.formattedDueDate + "</td>" +
                     "<td class='text-center'>" + record.playerCount + "</td>" +
                     "<td class='text-center'>" + record.trainingMaterialCount + "</td>" +
                     "<td class='text-center'><div class='dropdown'>" +
@@ -217,7 +217,7 @@
 
             $("#assignmentTitle").val(assignment.title);
             $("#assignmentInstructions").val(assignment.instructions);
-            $("#assignmentDueDate").val(formatDate(assignment.dueDate, 'yyyyMMdd'));
+            $("#assignmentDueDate").val(formatDate(assignment.formattedDueDate, 'yyyyMMdd'));
             var trainingMaterials = formatTrainingMaterials(assignment.trainingMaterials);
             setUpTrainingMaterials(trainingMaterials);
             resetEditDialogMessage();
@@ -255,7 +255,8 @@
                 url: "/api/assignments/" + assignmentId,
                 data: updatedAssignment
             }).done(function (data) {
-                
+                $('#editAssignmentDialog').modal('hide');
+                updateTable();
             }).fail(function (jqXHR, textStatus, errorThrown) {
                 var errors = jqXHR.responseJSON[""];
                 resetEditDialogMessage();

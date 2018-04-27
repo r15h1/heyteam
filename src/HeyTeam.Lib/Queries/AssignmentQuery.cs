@@ -68,7 +68,8 @@ namespace HeyTeam.Lib.Queries
 							 CreatedOn = row.CreatedOn.ToString("dd-MMM-yyyy"),
 							 Instructions = row.Instructions,
 							 Title = row.Title,
-							 DueDate = row.DueDate.ToString("dd-MMM-yyyy"),
+                             DueDate = row.DueDate,
+							 FormattedDueDate = row.DueDate.ToString("dd-MMM-yyyy"),
 							 Squads = ((row.Squads?.Trim().EndsWith(",") ?? false) ? row.Squads.TrimEnd(new char[] { ',', ' ' }) : row.Squads)
 						 }).SingleOrDefault();
 				
@@ -141,7 +142,8 @@ namespace HeyTeam.Lib.Queries
                             CreatedOn = row.CreatedOn.ToString("dd-MMM-yyyy"),
                             Instructions = row.Instructions,
                             Title = row.Title,
-                            DueDate = row.DueDate.ToString("dd-MMM-yyyy"),
+                            DueDate = row.DueDate,
+                            FormattedDueDate = row.DueDate.ToString("dd-MMM-yyyy"),
                             PlayerCount = row.PlayerCount,
                             TrainingMaterialCount = row.TrainingMaterialCount,
 							Squads = ((row.Squads?.Trim().EndsWith(",") ?? false) ? row.Squads.TrimEnd(new char[] { ',', ' ' }) : row.Squads)
@@ -195,7 +197,8 @@ namespace HeyTeam.Lib.Queries
                             CreatedOn = row.CreatedOn.ToString("dd-MMM-yyyy"),
                             Instructions = row.Instructions,
                             Title = row.Title,
-                            DueDate = row.DueDate.ToString("dd-MMM-yyyy")
+                            DueDate = row.DueDate,
+                            FormattedDueDate = row.DueDate.ToString("dd-MMM-yyyy"),
                         }).GroupBy(a => a.AssignmentId).Select(g => g.First()).SingleOrDefault();
 
     //            assignment.Allocations = assignmentCursor.Select<dynamic, PlayerAssignment>(
