@@ -55,7 +55,8 @@ namespace HeyTeam.Lib.Queries
 						INNER JOIN Players P ON P.PlayerId = PA.PlayerId
                         INNER JOIN Squads S ON P.SquadId = S.SquadId
 						INNER JOIN Clubs C ON C.ClubId = A.ClubId AND S.ClubId = C.ClubId
-						WHERE A.Guid = @AssignmentGuid AND C.Guid = @ClubGuid;";
+						WHERE A.Guid = @AssignmentGuid AND C.Guid = @ClubGuid
+                        ORDER BY S.Name, PlayerName;";
 
 			DynamicParameters p = new DynamicParameters();
 			p.Add("@ClubGuid", clubId.ToString());
