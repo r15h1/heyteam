@@ -49,11 +49,12 @@ namespace HeyTeam.Lib.Queries
 						INNER JOIN Clubs C ON C.ClubId = A.ClubId
 						WHERE C.Guid = @ClubGuid AND A.Guid = @AssignmentGuid AND (T.Deleted IS NULL OR T.Deleted = 0);
 						
-						SELECT P.Guid AS PlayerGuid, P.FirstName + ' ' + P.LastName AS PlayerName
+						SELECT P.Guid AS PlayerGuid, P.FirstName + ' ' + P.LastName + ' (' + S.Name + ')' AS PlayerName
 						FROM PlayerAssignments PA
 						INNER JOIN Assignments A ON PA.AssignmentId = A.AssignmentId
 						INNER JOIN Players P ON P.PlayerId = PA.PlayerId
-						INNER JOIN Clubs C ON C.ClubId = A.ClubId
+                        INNER JOIN Squads S ON P.SquadId = S.SquadId
+						INNER JOIN Clubs C ON C.ClubId = A.ClubId AND S.ClubId = C.ClubId
 						WHERE A.Guid = @AssignmentGuid AND C.Guid = @ClubGuid;";
 
 			DynamicParameters p = new DynamicParameters();
@@ -81,7 +82,7 @@ namespace HeyTeam.Lib.Queries
 						}).ToList();
 
 					assignment.Players = reader.Read().Cast<IDictionary<string, dynamic>>().Select<dynamic, MiniModel>(
-						row => new MiniTrainingMaterial(row.PlayerGuid, row.PlayerName) {}).ToList();
+						row => new MiniModel(row.PlayerGuid, row.PlayerName) {}).ToList();
 				}
 				return assignment;
 			}
