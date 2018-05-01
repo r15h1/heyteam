@@ -8,7 +8,7 @@ namespace HeyTeam.Core.Queries
     public interface IAssignmentQuery
     {
         IEnumerable<AssignmentSummary> GetAssignments(AssignmentsRequest request);
-        AssignmentSummary GetPlayerAssignment(PlayerAssignmentRequest request);
+        AssignmentSummary GetPlayerAssignment(PlayerAssignmentQuery request);
 		AssignmentDetails GetAssignment(Guid clubId, Guid assignmentId);
 	}
 
@@ -20,7 +20,7 @@ namespace HeyTeam.Core.Queries
 		public int? Year { get; set; } //= DateTime.Today.Year;
 	}
 
-	public class PlayerAssignmentRequest{
+	public class PlayerAssignmentQuery{
 		public Guid ClubId { get; set; }
 		public Guid AssignmentId { get; set; }
         public Guid PlayerId { get; set; }

@@ -291,19 +291,7 @@
                 var player = players[index];
                 table.append($("<tr data-playerid='" + player.guid + "'><td>" + player.name + "</td><td class='text-center'><button type='button' class='btn btn-link removePlayerButton'><span class='glyphicon glyphicon-remove text-danger'></span></button></td></tr>"));
             }
-            $("button.removePlayerButton").click(function (e) {
-                var row = $(this).closest("tr");
-                var assignmentId = assignment.assignmentId;
-                var playerId = row.data("playerid");
-                $("#confirmRemovalForm").unbind();
-                $("#confirmRemovalForm").submit(function (e) {
-                    e.preventDefault();
-                    removePlayerAssignment(row, assignmentId, playerId);
-                });
-
-                $('#confirmRemovePlayerDialog').modal('show');
-            })
-
+            bindRemovePlayerButtons(assignment.assignmentId);
             $("button.addSelectedPlayer").hide();
             $('#selectPlayer').select2({
                 ajax: {
@@ -334,13 +322,54 @@
             $('#addRemovePlayersDialog').modal('show');
         }
 
+        function bindRemovePlayerButtons(assignmentId) {
+            $("button.removePlayerButton").unbind();
+            $("button.removePlayerButton").click(function (e) {
+                var row = $(this).closest("tr");                
+                var playerId = row.data("playerid");
+                $("#confirmRemovalForm").unbind();
+                $("#confirmRemovalForm").submit(function (e) {
+                    e.preventDefault();
+                    removePlayerAssignment(row, assignmentId, playerId);
+                });
+
+                $('#confirmRemovePlayerDialog').modal('show');
+            });
+        }
+
         function addSelectedPlayer(assignment) {
+            $("div.addRemovePlayersMessage").removeClass("alert alert-danger alert-info alert-dismissible").text("Assigning to selected player...").show();
             var selectedPlayer = $('#selectPlayer').val();
             $.ajax({
                 method: "POST",
                 url: "/api/assignments/" + assignment.assignmentId + "/players",
                 data: { playerId: selectedPlayer }
-            });
+            }).done(function (data) {
+                $("table.playerListTable")
+                    .find("tbody")
+                    .append("<tr data-playerid='" + selectedPlayer + "'><td>" + $('#selectPlayer').text() + "</td><td class='text-center'><button type='button' class='btn btn-link removePlayerButton'><span class='glyphicon glyphicon-remove text-danger'></span></button></td></tr>");
+                bindRemovePlayerButtons(assignment.assignmentId);
+                $('#selectPlayer').empty();
+                $("button.addSelectedPlayer").hide();
+                $("div.addRemovePlayersMessage")
+                    .text("Assigned to player successfullly...")
+                    .addClass("alert alert-success alert-dismissible")
+                    .show()
+                    .delay(6000).fadeOut();                
+            }).fail(function (jqXHR, textStatus, errorThrown) {   
+                $('#selectPlayer').empty();
+                $("button.addSelectedPlayer").hide();
+                $("div.addRemovePlayersMessage").empty();
+                var errors = jqXHR.responseJSON[""];
+                $.each(errors, function (index, error) {
+                    $("div.addRemovePlayersMessage").append("<p>" + error + "</p>");
+                });
+                $("div.addRemovePlayersMessage")
+                    .prepend("<strong>The following error(s) occurred while saving the assignment:</strong>")
+                    .addClass("alert alert-danger alert-dismissible")
+                    .show()
+                    .delay(6000).fadeOut();
+            });;
         }
 
         function formatTrainingMaterials(trainingMaterials) {

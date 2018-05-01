@@ -23,7 +23,7 @@ namespace HeyTeam.Lib.Services {
 			IMemberQuery memberQuery,
 			ILibraryQuery libraryQuery,
             IAssignmentRepository assignmentRepository,
-            IAssignmentQuery assignmentQuery
+            IAssignmentQuery assignmentQuery			
 		){
 			this.assignementRequestValidator = assignementRequestValidator;
 			this.clubQuery = clubQuery;
@@ -33,6 +33,37 @@ namespace HeyTeam.Lib.Services {
             this.assignmentRepository = assignmentRepository;
             this.assignmentQuery = assignmentQuery;
         }
+
+		public Response AddPlayerToAssignment(PlayerAssignmentRequest request) {
+			var club = clubQuery.GetClub(request.ClubId);
+			if (club == null)
+				return Response.CreateResponse(new EntityNotFoundException("The specified club does not exist"));
+			else if (request.PlayerId.IsEmpty())
+				return Response.CreateResponse(new IllegalOperationException("PlayerId is required"));
+			else if (request.CoachId.IsEmpty())
+				return Response.CreateResponse(new IllegalOperationException("CoachId is required"));
+
+			var playerAssignment = assignmentQuery.GetPlayerAssignment(new Core.Queries.PlayerAssignmentQuery { ClubId = request.ClubId, AssignmentId = request.AssignmentId, PlayerId = request.PlayerId });
+			if (playerAssignment != null)
+				return Response.CreateResponse(new IllegalOperationException("This assignment has already been allocated to the specified player"));
+
+			var assignment = assignmentQuery.GetAssignment(request.ClubId, request.AssignmentId);
+			if (assignment.ClubId != request.ClubId)
+				return Response.CreateResponse(new IllegalOperationException("The specified assignment does not belong to this club"));
+
+			var coach = memberQuery.GetCoach(request.CoachId.Value);
+			if(coach == null)
+				return Response.CreateResponse(new EntityNotFoundException("The specified coach does not exist"));
+			else if (coach.ClubId != club.Guid)
+				return Response.CreateResponse(new IllegalOperationException("The specified coach does not belong to this club"));
+
+			try {
+				assignmentRepository.AddPlayerToAssignment(request);
+				return Response.CreateSuccessResponse();
+			} catch (Exception ex) {
+				return Response.CreateResponse(ex);
+			}
+		}
 
 		public Response CreateAssignment(AssignmentRequest request) {
 			var result = assignementRequestValidator.Validate(request);
@@ -84,13 +115,13 @@ namespace HeyTeam.Lib.Services {
             }
 		}
 
-        public Response RemovePlayerFromAssignment(UnAssignPlayerRequest request)
+        public Response RemovePlayerFromAssignment(PlayerAssignmentRequest request)
         {
             var club = clubQuery.GetClub(request.ClubId);
             if (club == null)
                 return Response.CreateResponse(new EntityNotFoundException("The specified club does not exist"));
 
-            var assignment = assignmentQuery.GetPlayerAssignment(new PlayerAssignmentRequest { ClubId = request.ClubId, AssignmentId = request.AssignmentId, PlayerId = request.PlayerId });
+            var assignment = assignmentQuery.GetPlayerAssignment(new Core.Queries.PlayerAssignmentQuery { ClubId = request.ClubId, AssignmentId = request.AssignmentId, PlayerId = request.PlayerId });
             if(assignment == null)
                 return Response.CreateResponse(new EntityNotFoundException("The specified assignment does not exist"));
             else if (assignment.ClubId != request.ClubId)

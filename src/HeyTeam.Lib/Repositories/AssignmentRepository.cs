@@ -118,7 +118,7 @@ namespace HeyTeam.Lib.Repositories {
 			connection.Execute(sql, parameters, transaction);            
         }
 
-        public void DeletePlayerAssignment(UnAssignPlayerRequest request)
+        public void DeletePlayerAssignment(PlayerAssignmentRequest request)
         {
             var sql = $@"DELETE PA FROM PlayerAssignments PA
                             INNER JOIN Players P ON PA.PlayerId = P.PlayerId
@@ -170,6 +170,27 @@ namespace HeyTeam.Lib.Repositories {
                     }
                 }
 				
+			}
+		}
+
+		public void AddPlayerToAssignment(PlayerAssignmentRequest request) {
+			var parameters = new DynamicParameters();
+			parameters.Add("@AssignmentGuid", request.AssignmentId);
+			parameters.Add("@PlayerGuid", request.PlayerId);
+			parameters.Add("@CoachGuid", request.CoachId);
+			parameters.Add("@ClubGuid", request.ClubId.ToString());
+			var sql = $@"INSERT INTO PlayerAssignments (PlayerId, AssignmentId, AssignedOn, CoachId)
+                        SELECT P.PlayerId,
+                            (SELECT AssignmentId FROM Assignments WHERE Guid = @AssignmentGuid),
+                            GetDate(),
+                            (Select CoachId FROM Coaches WHERE Guid = @CoachGuid)
+                        FROM Players P
+                        WHERE P.Guid = @PlayerGuid;";
+
+			using (var connection = factory.Connect()) 
+			{
+				connection.Open(); 
+				connection.Execute(sql, parameters);
 			}
 		}
 	}

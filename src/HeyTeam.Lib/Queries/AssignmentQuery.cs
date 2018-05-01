@@ -155,7 +155,7 @@ namespace HeyTeam.Lib.Queries
 			}
 		}
 
-        public AssignmentSummary GetPlayerAssignment(PlayerAssignmentRequest request)
+        public AssignmentSummary GetPlayerAssignment(PlayerAssignmentQuery request)
         {
             var sql = $@"SELECT	P.FirstName + ' ' + P.LastName + '(' + S.Name + ')' AS PlayerName,  
                                 P.Guid AS PlayerGuid,		                                

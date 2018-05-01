@@ -6,15 +6,16 @@ namespace HeyTeam.Core.Services
     public interface IAssignmentService
     {
         Response CreateAssignment(AssignmentRequest request);
-        Response RemovePlayerFromAssignment(UnAssignPlayerRequest request);
-		Response UpdateAssignment(AssignmentUpdateRequest assignmentUpdateRequest);
+        Response RemovePlayerFromAssignment(PlayerAssignmentRequest request);
+		Response UpdateAssignment(AssignmentUpdateRequest request);
+		Response AddPlayerToAssignment(PlayerAssignmentRequest request);
 	}
 
-    public class UnAssignPlayerRequest
-    {
+    public class PlayerAssignmentRequest {
         public Guid ClubId { get; set; }
         public Guid PlayerId { get; set; }
 		public Guid AssignmentId { get; set; }
+		public Guid? CoachId { get; set; }
 	}
 
     public class AssignmentRequest
@@ -30,7 +31,7 @@ namespace HeyTeam.Core.Services
         public IEnumerable<Guid> Players { get; set; }
         public string Title { get; set; }
 		public AssignedTo AssignedTo{ get; set; }
-    }
+    }	
 
 	public class AssignmentUpdateRequest{
 		public Guid ClubId { get; set; }
