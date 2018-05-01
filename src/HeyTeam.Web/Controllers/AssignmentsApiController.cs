@@ -65,6 +65,18 @@ namespace HeyTeam.Web.Controllers {
 			return Ok();
 		}
 
+        [HttpPost("{assignmentId:guid}/players")]
+        public IActionResult AddPlayer(Guid assignmentId, Guid playerId)
+        {
+
+            if (playerId.IsEmpty() || assignmentId.IsEmpty())
+            {
+                ModelState.AddModelError("", "Assignment Id is required");
+                return BadRequest(ModelState);
+            }
+            return Ok();
+        }
+
 		[HttpPost("remove-player")]
         public IActionResult RemovePlayerFromAssignment(Guid assignmentId, Guid playerId)
         {
