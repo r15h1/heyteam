@@ -2,6 +2,7 @@
 @using HeyTeam.Web.Models
 @using HeyTeam.Identity
 @using Microsoft.AspNetCore.Authorization
+@inject HeyTeam.Core.Club Club
 
 @inject IAuthorizationService AuthorizationService
 @inject SignInManager<ApplicationUser> SignInManager
@@ -20,19 +21,18 @@
 
     <environment include="Development">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
-        <link rel="stylesheet" href="~/css/site.css" />        
+        <link rel="stylesheet" href="~/css/site.css" />
     </environment>
     <environment exclude="Development">
         <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/css/bootstrap.min.css"
               asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
-              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />     
+              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
         <link rel="stylesheet" href="~/css/site.css" />
     </environment>
     @RenderSection("CSS", required: false)
 </head>
 <body>
-    @if (SignInManager.IsSignedIn(User))
-    {
+    @if (SignInManager.IsSignedIn(User)) {
         <nav class="navbar navbar-default navbar-fixed-top">
             <div class="container">
                 <div class="navbar-header">
@@ -43,6 +43,7 @@
                         <span class="icon-bar"></span>
                     </button>
                     @*<a asp-area="" asp-controller="Dashboard" asp-action="Index" class="navbar-brand">HeyTeam</a>*@
+                    <a class="navbar-brand" href="/"><img src="@Club.LogoUrl" class="img-responsive"></a>
                 </div>
                 <div class="navbar-collapse collapse">
                     <ul class="nav navbar-nav">
@@ -67,7 +68,7 @@
                     <ul class="nav navbar-nav navbar-right">
                         <li><a asp-controller="Accounts" asp-action="Index">Accounts</a></li>
                     </ul>
-                </div> 
+                </div>
             </div>
         </nav>
     }

@@ -69,6 +69,33 @@ h4 {
     animation: glyphicon-spin-r 1s infinite linear;
 }
 
+.navbar-default {
+    background-color: rgb(8, 89, 176);
+    border-color: #e7e7e7;
+}
+
+.navbar-default .navbar-nav > li > a {
+    color: #f2f2f2;
+    font-size: 14px;
+    transition: 0.4s;
+    text-decoration: none;
+}
+
+.navbar-default .navbar-nav > li > a:hover {
+    color: #f2f2f2;
+    text-decoration: underline;
+    transition: 0.1s;
+}
+
+.navbar-brand > img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    max-height: 40px;
+    position: relative;
+    top: -10px;
+}
+
 .score-board {
     font-weight: 700;
     font-size: 2em;

@@ -1,16 +1,15 @@
-﻿@using System.Collections.Generic
-@using System.Linq
-@using Microsoft.AspNetCore.Http
-@using Microsoft.AspNetCore.Http.Authentication
+﻿@using System.Linq
 @using HeyTeam.Identity
 @model LoginViewModel
 @inject SignInManager<ApplicationUser> SignInManager
-<div class="row">    
+@inject HeyTeam.Core.Club Club
+<div class="row">
     <div class="col-md-offset-4 col-md-4">
         <section>
-            <h2>Log In</h2>
+            <div class="text-center">
+                <img src="@Club.LogoUrl" />
+            </div>
             <form asp-route-returnurl="@ViewData["ReturnUrl"]" method="post">
-                <hr />
                 <div asp-validation-summary="All" class="text-danger"></div>
                 <div class="form-group">
                     <label asp-for="Email"></label>
@@ -36,10 +35,10 @@
                 <div class="form-group">
                     <p>
                         <a asp-action="ForgotPassword">Forgot your password?</a>
-                    <!-- </p>
-                    <p>
-                        <a asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]">Register as a new user?</a>
-                    </p> -->
+                        <!-- </p>
+                        <p>
+                            <a asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]">Register as a new user?</a>
+                        </p> -->
                 </div>
             </form>
         </section>

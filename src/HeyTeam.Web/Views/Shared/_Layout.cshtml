@@ -6,6 +6,7 @@
 @inject IAuthorizationService AuthorizationService
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
+@inject HeyTeam.Core.Club Club
 
 @{
     bool isAdmin = (await AuthorizationService.AuthorizeAsync(User, "Administrator")).Succeeded;
@@ -20,7 +21,7 @@
 
     <environment include="Development">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
-        <link rel="stylesheet" href="~/css/site.css" />        
+        <link rel="stylesheet" href="~/css/site.css" />
     </environment>
     <environment exclude="Development">
         <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/css/bootstrap.min.css"
@@ -31,8 +32,7 @@
     @RenderSection("CSS", required: false)
 </head>
 <body>
-    @if (SignInManager.IsSignedIn(User))
-    {
+    @if (SignInManager.IsSignedIn(User)) {
         <nav class="navbar navbar-default navbar-fixed-top">
             <div class="container">
                 <div class="navbar-header">
@@ -43,24 +43,25 @@
                         <span class="icon-bar"></span>
                     </button>
                     @*<a asp-area="" asp-controller="Dashboard" asp-action="Index" class="navbar-brand">HeyTeam</a>*@
+                    <a class="navbar-brand" href="/"><img src="@Club.LogoUrl" class="img-responsive"></a>
                 </div>
-                 <div class="navbar-collapse collapse">
-                    <ul class="nav navbar-nav">                        
-                       @if (isAdmin) { 
-                            <li><a asp-area="Administration" asp-controller="Home" asp-action="Index">Dashboard</a></li>    
+                <div class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        @if (isAdmin) {
+                            <li><a asp-area="Administration" asp-controller="Home" asp-action="Index">Dashboard</a></li>
                             <li><a asp-area="Administration" asp-controller="Coaches" asp-action="Index">Coaches</a></li>
                             <li><a asp-area="Administration" asp-controller="Events" asp-action="Index">Events</a></li>
                             <li><a asp-area="Administration" asp-controller="Library" asp-action="Index">Library</a></li>
                         }
                     </ul>
-                     
+
                     @await Html.PartialAsync("_LoginPartial")
                     @if (isAdmin) {
-                         <ul class="nav navbar-nav navbar-right">
-                             <li><a asp-area="Administration" asp-controller="Accounts" asp-action="Index">Users</a></li>
-                         </ul>
-                     }
-                </div> 
+                        <ul class="nav navbar-nav navbar-right">
+                            <li><a asp-area="Administration" asp-controller="Accounts" asp-action="Index">Users</a></li>
+                        </ul>
+                    }
+                </div>
             </div>
         </nav>
     }

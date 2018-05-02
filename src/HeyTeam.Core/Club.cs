@@ -8,5 +8,6 @@ namespace HeyTeam.Core {
         public Guid Guid { get; }        
         public string Name { get; set; }
         public string Url { get; set; }
-    }
+		public string LogoUrl { get; set; }
+	}
 }

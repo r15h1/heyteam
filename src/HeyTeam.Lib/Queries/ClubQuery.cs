@@ -18,7 +18,7 @@ namespace HeyTeam.Lib.Queries {
 		}
 		public Club GetClub(Guid clubId) {
 			using (var connection = connectionFactory.Connect()) {
-				string sql = @"SELECT Guid, Name, Url FROM Clubs WHERE Guid = @Guid; ";
+				string sql = @"SELECT Guid, Name, Url, logoUrl FROM Clubs WHERE Guid = @Guid; ";
 				//SELECT S.Guid, S.Name FROM Squads S 
 				//    INNER JOIN Clubs C ON S.ClubId = C.ClubId 
 				//    WHERE C.Guid = @Guid;";  
@@ -31,7 +31,8 @@ namespace HeyTeam.Lib.Queries {
 					var club = multi.Read().Cast<IDictionary<string, object>>().Select(row =>
 						new Club(Guid.Parse(row["Guid"].ToString())) {
 							Name = (string)row["Name"],
-							Url = (string)row["Url"]
+							Url = (string)row["Url"],
+							LogoUrl = (string)row["LogoUrl"]
 						}
 						).FirstOrDefault();
 
@@ -65,13 +66,14 @@ namespace HeyTeam.Lib.Queries {
 
 		public IEnumerable<Club> GetClubs() {
 			using (var connection = connectionFactory.Connect()) {
-				string sql = @"SELECT Guid, Name, Url FROM Clubs";
+				string sql = @"SELECT Guid, Name, Url, LogoUrl FROM Clubs";
 				connection.Open();
 				var reader = connection.Query(sql).Cast<IDictionary<string, object>>();
 				var clubs = reader.Select(row =>
 						new Club(Guid.Parse(row["Guid"].ToString())) {
 							Name = (string)row["Name"],
-							Url = (string)row["Url"]
+							Url = (string)row["Url"],
+							LogoUrl = (string)row["LogoUrl"]
 						}
 						).ToList();
 

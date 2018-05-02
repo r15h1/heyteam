@@ -3,102 +3,104 @@
 @using HeyTeam.Core.Models
 @{Layout = null;}
 @model HeyTeam.Core.Models.PlayerEvaluation
+@inject HeyTeam.Core.Club Club
 <html>
 <head>
     <style type="text/css">
-    @@media print, screen {
-        @@page
-        {
-            size: letter portrait;
-            margin: 1.0cm;
-        }
-
-        body{
-            width:8.5in;
-            height:11in;
-            margin:0 auto;
-            font-family:Verdana, Geneva, Tahoma, sans-serif;
-        }
-
-        table {
-            width: 100%;
-            /*border: solid thin rgb(200,200,200);*/
-            border-collapse: collapse;
-        }
-
-        thead {
-            display: table-header-group;
-        }
-
-        thead > tr > th {
-            text-align:left;
-        }
-
-        tbody > tr {
-            border: solid thin rgb(200,200,200);
-            border-collapse: collapse;
-            -webkit-print-color-adjust: exact;
-        }
-        tbody > tr > td {
-            padding: 2px 2px 2px 2px;
-            border: solid thin rgb(200,200,200);
-            font-size:9pt;
-        }
-
-        tbody > tr > td:nth-child(n+3) {
-                text-align: center;
-                font-weight: 700;
-                width: 0.75cm;
+        @@media print, screen {
+            @@page {
+                size: letter portrait;
+                margin: 1.0cm;
             }
 
-        h2 {
-            margin-top: 0;
-            margin-bottom: 0;
-            font-size: 14pt;
-        }
+            body {
+                width: 8.5in;
+                height: 11in;
+                margin: 0 auto;
+                font-family: Verdana, Geneva, Tahoma, sans-serif;
+            }
 
-        p {
-            margin-bottom: 0.5em;
-            margin-top: 0.5em;
-            font-size: 10pt;
-        }
+            table {
+                width: 100%;
+                /*border: solid thin rgb(200,200,200);*/
+                border-collapse: collapse;
+            }
 
-        img{
-            height:2.2cm; width:2.2cm;
-        }
+            thead {
+                display: table-header-group;
+            }
 
-        .identification {
-            float: right;
-            border: solid thin rgb(200,200,200);
-            height: 2.2cm;
-            width: 7cm;
-            padding-left:3pt;
-            text-align:left;
-        }
+                thead > tr > th {
+                    text-align: left;
+                }
 
-        .bold{
-            font-weight:600;
-        }
+            tbody > tr {
+                border: solid thin rgb(200,200,200);
+                border-collapse: collapse;
+                -webkit-print-color-adjust: exact;
+            }
 
-        .active-grade{
-            background-color:rgb(230,230,230);
-        }
+                tbody > tr > td {
+                    padding: 2px 2px 2px 2px;
+                    border: solid thin rgb(200,200,200);
+                    font-size: 9pt;
+                }
 
-        .red {
-            color: rgb(196, 14, 14);
-        }
+                    tbody > tr > td:nth-child(n+3) {
+                        text-align: center;
+                        font-weight: 700;
+                        width: 0.75cm;
+                    }
 
-        .blue {
-            color:rgb(26, 26, 126);
+            h2 {
+                margin-top: 0;
+                margin-bottom: 0;
+                font-size: 14pt;
+            }
+
+            p {
+                margin-bottom: 0.5em;
+                margin-top: 0.5em;
+                font-size: 10pt;
+            }
+
+            img {
+                height: 2.2cm;
+                width: 2.2cm;
+            }
+
+            .identification {
+                float: right;
+                border: solid thin rgb(200,200,200);
+                height: 2.2cm;
+                width: 7cm;
+                padding-left: 3pt;
+                text-align: left;
+            }
+
+            .bold {
+                font-weight: 600;
+            }
+
+            .active-grade {
+                background-color: rgb(230,230,230);
+            }
+
+            .red {
+                color: rgb(196, 14, 14);
+            }
+
+            .blue {
+                color: rgb(26, 26, 126);
+            }
         }
-    }
     </style>
-    </head>
-<body>    
+</head>
+<body>
     <table>
         <thead>
             <tr>
-                <th><img src="~/images/mapola-logo.png" /></th>
+                <th><img src="@Club.LogoUrl" /></th>
                 <th colspan="6">
                     <div class="identification">
                         <p> <span class="bold blue">Name:  </span>@Model.Player.Name</p>
@@ -109,7 +111,7 @@
             </tr>
             <tr>
                 <th colspan="7">
-                    <h2 class="red">Mapola FC Academy Players Evaluation</h2>                    
+                    <h2 class="red">Mapola FC Academy Players Evaluation</h2>
                 </th>
             </tr>
             <tr>
@@ -153,10 +155,10 @@
                     }
                 }
             }
-                        <tr style="border:none !important;">
-                            <td colspan="2" style="border:none !important;text-align:right;font-weight:700;color: rgb(196, 14, 14);">Overall Grade</td>
-                            <td colspan="5" style="text-align:center;" class="bold red">@Model.ReportCard.Facets.SingleOrDefault(f => f.Key == ReportCardFacetKeys.OverallGrade)?.Value</td>
-                        </tr>
+            <tr style="border:none !important;">
+                <td colspan="2" style="border:none !important;text-align:right;font-weight:700;color: rgb(196, 14, 14);">Overall Grade</td>
+                <td colspan="5" style="text-align:center;" class="bold red">@Model.ReportCard.Facets.SingleOrDefault(f => f.Key == ReportCardFacetKeys.OverallGrade)?.Value</td>
+            </tr>
         </tbody>
     </table>
     <div>

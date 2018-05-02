@@ -3,6 +3,7 @@
 @using HeyTeam.Core.Models
 @{Layout = null;}
 @model HeyTeam.Core.Models.PlayerEvaluation
+@inject HeyTeam.Core.Club  Club
 <html>
 <head>
     <style type="text/css">
@@ -98,7 +99,7 @@
     <table>
         <thead>
             <tr>
-                <th><img src="~/images/mapola-logo.png" /></th>
+                <th><img src="@Club.LogoUrl" /></th>
                 <th colspan="6">
                     <div class="identification">
                         <p> <span class="bold blue">Name:  </span>@Model.Player.Name</p>
