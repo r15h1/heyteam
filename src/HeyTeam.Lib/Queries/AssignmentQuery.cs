@@ -112,8 +112,7 @@ namespace HeyTeam.Lib.Queries
                         LEFT JOIN Players P ON PA.PlayerId = P.PlayerId 
                         {((request.Squads?.Any() ?? false) ? " INNER JOIN Squads S ON S.ClubId = Cl.ClubId AND P.SquadId = S.SquadId " : "")}
                         WHERE Cl.Guid = @ClubGuid 
-						{(request.Month.HasValue ? " AND MONTH(A.DueDate) = @Month " : "")}
-						{(request.Year.HasValue ? " AND YEAR(A.DueDate) = @Year  " : "")}						
+						{(request.Date.HasValue ? " AND A.DueDate >= @Date " : "")}						
 						{((request.Squads?.Any() ?? false) ? " AND S.Guid IN @Squads " : "")}
 						{((request.Players?.Any() ?? false) ? " AND P.Guid IN @Players " : "")}
 
@@ -122,11 +121,8 @@ namespace HeyTeam.Lib.Queries
 			DynamicParameters p = new DynamicParameters();
 			p.Add("@ClubGuid", request.ClubId.ToString());
 
-			if(request.Month.HasValue)
-				p.Add("@Month", request.Month);
-
-			if (request.Year.HasValue)
-				p.Add("@Year", request.Year);			
+			if(request.Date.HasValue)
+				p.Add("@Date", request.Date);		
 
 			if (request.Squads?.Any() ?? false)
 				p.Add("@Squads", request.Squads);
@@ -149,7 +145,7 @@ namespace HeyTeam.Lib.Queries
                             PlayerCount = row.PlayerCount,
                             TrainingMaterialCount = row.TrainingMaterialCount,
 							Squads = ((row.Squads?.Trim().EndsWith(",") ?? false) ? row.Squads.TrimEnd(new char[] { ',', ' ' }) : row.Squads)
-                        }).OrderBy(a => a.Title).ToList();
+                        }).OrderBy(a => a.DueDate).ThenBy(a => a.Title).ToList();
                    
                 return assignments;
 			}

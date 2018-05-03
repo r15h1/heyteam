@@ -29,7 +29,10 @@ namespace HeyTeam.Web.Controllers {
 
 		[HttpGet("")]
 		public IActionResult GetAssignments(AssignmentSearchModel model) {
-			var assignments = assignmentQuery.GetAssignments(new AssignmentsRequest { ClubId = club.Guid, Month = model.Month, Year = model.Year, Squads = model.Squads, Players = model.Players });
+			var assignments = assignmentQuery.GetAssignments(
+				new AssignmentsRequest { 
+					ClubId = club.Guid, Date = model.Date , Squads = model.Squads, 
+					Players = model.Players });
 			return new JsonResult(assignments);
 		}
 

@@ -141,13 +141,12 @@
         $("#month").change(updateTable);
 
         function updateTable() {
-            var date = $('#month').val().split('-');
             $(".assignments").empty();
             $("#message").text("Fetching data, please wait...");
             $("#message").show();
 
-            var date = $('#month').val().split('-');
-            var apiUrl = "/api/assignments?month=" + date[1] + "&year=" + date[0];
+            var date = $('#month').val() + "-01";
+            var apiUrl = "/api/assignments?date=" + date;
             if ($('#squads').val().length > 0) {
                 apiUrl = apiUrl + "&squads=" + $('#squads').val();
             }

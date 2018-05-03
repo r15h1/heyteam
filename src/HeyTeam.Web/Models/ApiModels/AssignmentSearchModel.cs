@@ -9,7 +9,6 @@ namespace HeyTeam.Web.Models.ApiModels
     {
 		public IEnumerable<Guid> Players { get; set; }
 		public IEnumerable<Guid> Squads { get; set; }
-		public int? Month { get; set; }
-		public int? Year { get; set; } 
+		public DateTime? Date{ get; set; }
 	}
 }
