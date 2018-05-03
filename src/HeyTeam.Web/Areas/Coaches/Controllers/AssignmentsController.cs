@@ -13,10 +13,10 @@ using System.Linq;
 
 namespace HeyTeam.Web.Areas.Coaches.Controllers
 {
-    [Authorize(Policy = "Coach")]
-    [Area("Coaches")]
+	[Authorize(Policy = "Coach")]
+	[Area("Coaches")]
 	[Route("[area]/{memberid:guid}/[controller]")]
-    public class AssignmentsController : Controller
+	public class AssignmentsController : Controller
     {
         private readonly Club club;
         private readonly ISquadQuery squadQuery;

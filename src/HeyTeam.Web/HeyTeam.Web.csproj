@@ -5,6 +5,9 @@
 	<MvcRazorCompileOnPublish>false</MvcRazorCompileOnPublish>
   </PropertyGroup>
   <ItemGroup>
+    <_ContentIncludedByDefault Remove="Areas\Coaches\Views\Assignments\Details.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
     <None Update="app.db" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>
@@ -29,6 +32,12 @@
   <ItemGroup>
     <Content Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Areas\Coaches\Views\Assignments\Create.cshtml">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="Areas\Coaches\Views\Assignments\Index.cshtml">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
     <Content Update="Areas\Coaches\Views\Events\Attendance.cshtml">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
