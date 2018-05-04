@@ -38,7 +38,7 @@ namespace HeyTeam.Web.Controllers.Players
             return View("ResourceNotFound");
         }
 
-        [HttpGet("asssignments/{eventId:guid}/library/{trainingMaterialId:guid}")]
+        [HttpGet("assignments/{eventId:guid}/library/{trainingMaterialId:guid}")]
         public IActionResult AssignmentTrainingMaterialView(LibraryTrackingViewModel model)
         {
             var response = tracker.Track(new EventTrainingMaterialViewRequest { ClubId = club.Guid, EventId = model.EventId, MemberId = model.MemberId, TrainingMaterialId = model.TrainingMaterialId, Membership = Core.Membership.Player });

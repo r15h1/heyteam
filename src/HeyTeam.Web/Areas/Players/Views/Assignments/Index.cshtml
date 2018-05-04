@@ -1,11 +1,12 @@
 ﻿@model HeyTeam.Web.Models.Assignments.IndexViewModel
+
 <h2>Assignments</h2>
 <h3>List</h3>
 <div class="row">
     <div class="col-md-12" style="margin-bottom:15px;">
         <div class="form-inline">
             <div class="form-group">
-                <label for="month">Month Assigned:</label>
+                <label for="month">Due on or after:</label>
                 <input id="month" type="month" class="form-control" value=@($"{DateTime.Now.Year}-{(DateTime.Now.Month < 10 ? "0" : "")}{DateTime.Now.Month}")>
             </div>
         </div>
@@ -15,61 +16,77 @@
 <div id="message" style="display:none"></div>
 <div class="assignments"></div>
 
-<div class="modal fade" id="assignmentDialog" role="dialog">
+<div class="modal fade" id="assignmentDetailsDialog" role="dialog">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <input type="hidden" id="eventId" name="eventId" />
+        <div class="modal-content">            
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title">Assignment Details</h4>
             </div>
-            <div class="modal-body">
-                <p class="message">Fetching views, please wait...</p>
-                <div class="content"></div>
+            <div class="modal-body">                
+                <div class="form-group">
+                    <label for="assignmentTitle" class="control-label">Title</label>
+                    <input type="text" id="assignmentTitle" class="form-control" readonly maxlength="250" />
+                </div>
+                <div class="form-group">
+                    <label for="assignmentInstructions" class="control-label">Instructions</label>
+                    <textarea id="assignmentInstructions" class="form-control" readonly rows="5"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="assignmentDueDate" class="control-label">Due Date</label>
+                    <input id="assignmentDueDate" class="form-control" style="width:200px" readonly />
+                </div>
+                <div class="form-group">
+                    <label for="assignmentTrainingMaterials" class="control-label" style="display:block;">Training Materials</label>
+                    <div id="assignmentTrainingMaterials"></div>
+                </div>
             </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>            
         </div>
     </div>
 </div>
+
 @section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script src="~/lib/select2/dist/js/select2.min.js"></script>
     <script>
-
-        var tablehtml = '<div class="table-responsive">' +
-                            '<table class="table table-bordered table-hover">' +
-                                '<thead>' +
-                                    '<tr>' +
-                                        '<th class="col-md-4">Assignment</th>' +
-                                        '<th class="col-md-2">Assigned By</th>' +
-                                        '<th class="col-md-2">Assigned On</th>' +
-                                        '<th class="col-md-2">Due Date</th>' +
-                                        '<th class="col-md-2">Viewed</th>' +
-                                    '</tr>' +
-                                '</thead>' +
-                            '<tbody></tbody>' +
-                        '</table>' +
+        var playerId = "@Model.PlayerId";
+        var trainingMaterialsDropdown = null;
+        var tablehtml =
+            '<div class="table-responsive">' +
+            '<table class="table table-bordered table-hover">' +
+            '<thead>' +
+            '<tr>' +
+            '<th class="col-md-3">Title</th>' +
+            '<th class="col-md-4">Instructions</th>' +
+            '<th class="col-md-2 text-center">Due Date</th>' +
+            '<th class="col-md-1 text-center">#Training Materials</th>' +
+            '<th class="col-md-2 text-center">Last Viewed On</th>' +
+            '</tr>' +
+            '</thead>' +
+            '<tbody></tbody>' +
+            '</table>' +
             '</div>';
-
 
         $("#month").change(updateTable);
 
         function updateTable() {
-            var date = $('#month').val().split('-');
             $(".assignments").empty();
             $("#message").text("Fetching data, please wait...");
             $("#message").show();
 
-            var date = $('#month').val().split('-');
-            var apiUrl = "/api/assignments?month=" + date[1] + "&year=" + date[0] + "&players=@Model.PlayerId";
+            var date = $('#month').val() + "-01";
+            var apiUrl = "/api/assignments?date=" + date + "&players=" + playerId;
 
-
-            console.log("calling ajax...");
             $.ajax({
                 method: "GET",
                 url: apiUrl
             }).done(function (data) {
                 console.log("ajax done...");
                 if (data.length > 0) {
-                    addRowsToAssignmentList(data);
+                    addRows(data);
                     $(".assignments").show();
                     $("#message").hide();
                 } else {
@@ -77,12 +94,12 @@
                     $("#message").show();
                     $("#message").text("No records found");
                 }
-                }).fail(function (jqXHR, textStatus, errorThrown) {
-                    console.log("ajax failed...");
-                }).always(function () {
-                    console.log("ajax completed...");
-                    bindEvents();
-                });
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.log("ajax failed...");
+            }).always(function () {
+                console.log("ajax completed...");
+                bindEvents();
+            });
         }
 
         function bindEvents() {
@@ -93,73 +110,60 @@
 
             $('.table-responsive').on('hide.bs.dropdown', function () {
                 $('.table-responsive').css("overflow", "auto");
-            })
+            });
 
-            $(".assignmentTitle").tooltip("destroy");
-            $(".assignmentTitle").tooltip({ placement: "auto right", trigger: 'hover' });
-            $("a.assignmentTitle").click(function (e) {
-                e.preventDefault();
-                var assignmentId = $(this).closest("tr").data("assignmentid");
-                var playerAssignmentId = $(this).closest("tr").data("playerassignmentid");                           
-                var apiUrl = "/api/assignments/" + assignmentId + "/player/" + playerAssignmentId;
-                $.ajax({
-                    method: "GET",
-                    url: apiUrl
-                }).done(function (data) {
-                    displayAssignmentDetails(data);
-                }).fail(function (jqXHR, textStatus, errorThrown) {
-                    console.log("ajax failed...");
-                });
+            $("button.viewAssignmentDetails").click(function () {
+                var row = $(this).closest("tr");
+                var assignmentId = row.data("assignmentid");
+                getAssignment(assignmentId, showAssignmentDetailsDialog);
             });
         }
 
-        function addRowsToAssignmentList(data) {
+        function addRows(data) {
+            var table = $(tablehtml);
+            var tableBody = table.find("tbody");
             for (var index in data) {
                 var record = data[index];
-                var table = $(tablehtml);
-                var tableBody = table.find("tbody");
-                var allocations = record.allocations;
-                if (allocations != null && allocations.length > 0) {
-                    for (var j in allocations) {
-                        var allocation = allocations[j];
-                        var row = "<tr data-playerassignmentid='" + allocation.playerAssignmentId + "' data-assignmentid='" + record.assignmentId + "'>" +
-                            "<td><a href='#' class='assignmentTitle' title='" + record.instructions + "'>" + record.title + "</a></td>" +
-                            "<td>" + allocation.assignedBy + "</td>" +
-                            "<td>" + allocation.assignedOn + "</td>" +
-                            "<td>" + (allocation.dueDate == null ? "" : allocation.dueDate) + "</td>" +
-                            "<td></td>" +
-                            "</tr>";
-                        tableBody.append(row);
-                    }
-                    $(".assignments").append(table)
-                }
+                var row = "<tr data-assignmentid='" + record.assignmentId + "'>" +
+                    "<td><button class='btn btn-link viewAssignmentDetails' type='button'>" + record.title + "</button></td>" +
+                    "<td>" + (record.instructions != null && record.instructions.length > 100 ? (record.instructions.substring(0, 99) + "...") : record.instructions)+ "</td>" +
+                    "<td class='text-center'>" + record.formattedDueDate + "</td>" +
+                    "<td class='text-center'>" + record.trainingMaterialCount + "</td>" +
+                    "<td></td>" +
+                    "</tr>";
+                tableBody.append(row);
             }
+            $(".assignments").append(table);
         }
 
-        function displayAssignmentDetails(data) {
-            var assignmentDialog = $("#assignmentDialog");
-            var contentArea = assignmentDialog.find("div.content");
-            contentArea.empty();
-            contentArea.append("<div class='form-group'>" +
-                "<label for='title' class='control-label'>Title</label>" +
-                "<input class='form-control' readonly value='" + data.title + "'/></div>");
-            contentArea.append("<div class='form-group'>" +
-                "<label for='instructions' class='control-label'>Instructions</label>" +
-                "<textarea name='instructions' rows='10' class='form-control' readonly>" + data.instructions + "</textarea></div>");
+        function getAssignment(assignmentId, callback) {
+            $.ajax({
+                method: "GET",
+                url: "/api/assignments/" + assignmentId
+            }).done(function (data) {
+                callback(data);
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.log("ajax failed...");
+            });
+        }
 
-            contentArea.append("<div class='form-group training-materials'><label for='TrainingMaterials' class='control-label'></label></div>");
-            if (data.trainingMaterials != null && data.trainingMaterials.length > 0) {
-                var trainingMaterialList = contentArea.find("div.training-materials");
-                for (var index in data.trainingMaterials) {
-                    var tm = data.trainingMaterials[index];
-                    trainingMaterialList.append("<div class='media' style='margin-top:10px; padding-bottom:10px'>" +
-                    "<div class='media-left'><a href='" + tm.url + "' target='_blank'><img class='media-object' style='max-height:40px;' src='" + tm.thumbnailUrl + "'></a></div>" +
-                        "<div class='media-body'><div class='img-changer-text'><a target='_blank' href='" + tm.url + "'>" + tm.title + "</a></div></div></div>");
-                }
+        function showAssignmentDetailsDialog(assignment) {
+            $("#assignmentTitle").val(assignment.title);
+            $("#assignmentInstructions").val(assignment.instructions);
+            $("#assignmentDueDate").val(assignment.formattedDueDate);
+            $("#assignmentTrainingMaterials").empty();
+
+            for (var index in assignment.trainingMaterials) {
+                var tm = assignment.trainingMaterials[index];
+                var trackingUrl = "/players/" + playerId + "/tracking/assignments/" + assignment.assignmentId + "/library/" + tm.guid;
+                var tmHtml = "<div class='media' style='margin-top:10px; padding-bottom:10px'>" +
+                    "<div class='media-left'><a href='" + trackingUrl + "' target='_blank'><img class='media-object' style='max-height:40px;' src='" + tm.thumbnailUrl + "'></a></div>" +
+                    "<div class='media-body'><div class='img-changer-text'><a href='" + trackingUrl + "' target='_blank'>" + tm.title + "</a></div>(" + tm.shortContentType + ")</div>" +
+                "</div>";
+                $("#assignmentTrainingMaterials").append(tmHtml)
             }
 
-            assignmentDialog.find("p.message").hide();
-            assignmentDialog.modal("show");
+            $('#assignmentDetailsDialog').modal('show');
         }
 
         updateTable();
@@ -169,8 +173,8 @@
 @section CSS {
     <link href="~/lib/select2/dist/css/select2.min.css" rel="stylesheet" />
     <style>
-        .assignmentTitle {
-            display: inline;
+        .select2-container--default .select2-search--inline .select2-search__field {
+            width: 100% !important;
         }
     </style>
 }

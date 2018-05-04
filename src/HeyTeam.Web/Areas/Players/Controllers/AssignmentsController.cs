@@ -46,10 +46,14 @@ namespace HeyTeam.Web.Areas.Players.Controllers
 			return View(model);
         }
 
-		[HttpGet("{assignmentId:guid}")]
-		public IActionResult Details(Guid assignmentId) {
-			//var assignment = assignmentQuery.GetPlayerAssignment();
-			return View();
-		}
-	}
+        
+        private List<SelectListItem> GetSquadList()
+        {
+            var clubSquads = squadQuery.GetSquads(club.Guid);
+            var squadList = clubSquads.Select(s => new SelectListItem { Text = $"{s.Name}", Value = s.Guid.ToString() })
+                                    .OrderBy(s => s.Text)
+                                    .ToList();
+            return squadList;
+        }       		
+    }
 }
