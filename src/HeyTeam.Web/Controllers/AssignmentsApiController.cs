@@ -8,6 +8,7 @@ using System;
 using HeyTeam.Util;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace HeyTeam.Web.Controllers {
 	[Authorize]
@@ -31,14 +32,21 @@ namespace HeyTeam.Web.Controllers {
 		public IActionResult GetAssignments(AssignmentSearchModel model) {
 			var assignments = assignmentQuery.GetAssignments(
 				new AssignmentsRequest { 
-					ClubId = club.Guid, Date = model.Date , Squads = model.Squads, 
-					Players = model.Players });
+					ClubId = club.Guid, Date = model.Date , SquadId = model.SquadId, 
+					PlayerId = model.PlayerId });
 			return new JsonResult(assignments);
 		}
 
 		[HttpGet("{assignmentId:guid}")]
-		public IActionResult GetAssignment(Guid assignmentId) {
+		public IActionResult GetAssignment(Guid assignmentId, Guid? playerId) {
 			var assignment = assignmentQuery.GetAssignment(club.Guid, assignmentId );
+
+			if (!playerId.IsEmpty() && assignment != null) {
+				Task.Run(() => assignmentService.TrackAssignmentView(
+					new AssignmentViewTrackingRequest { ClubId = club.Guid, AssignmentId = assignmentId, PlayerId = playerId.Value }
+				));
+			}
+
 			return new JsonResult(assignment);
 		}
 

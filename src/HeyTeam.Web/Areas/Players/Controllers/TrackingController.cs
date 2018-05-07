@@ -26,10 +26,10 @@ namespace HeyTeam.Web.Controllers.Players
             this.libraryQuery= libraryQuery;
 		}
 
-        [HttpGet("events/{eventId:guid}/library/{trainingMaterialId:guid}")]
+        [HttpGet("events/{sourceid:guid}/library/{trainingMaterialId:guid}")]
 		public IActionResult EventTrainingMaterialView(LibraryTrackingViewModel model)
         {
-            var response = tracker.Track(new EventTrainingMaterialViewRequest{ClubId = club.Guid, EventId = model.EventId, MemberId=model.MemberId, TrainingMaterialId= model.TrainingMaterialId, Membership = Core.Membership.Player });
+            var response = tracker.Track(new EventTrainingMaterialViewRequest{ClubId = club.Guid, EventId = model.SourceId, MemberId=model.MemberId, TrainingMaterialId= model.TrainingMaterialId, Membership = Core.Membership.Player });
             if (response.RequestIsFulfilled)
             {
                 var trainingMaterial = libraryQuery.GetTrainingMaterial(model.TrainingMaterialId);
@@ -38,10 +38,10 @@ namespace HeyTeam.Web.Controllers.Players
             return View("ResourceNotFound");
         }
 
-        [HttpGet("assignments/{eventId:guid}/library/{trainingMaterialId:guid}")]
+        [HttpGet("assignments/{sourceid:guid}/library/{trainingMaterialId:guid}")]
         public IActionResult AssignmentTrainingMaterialView(LibraryTrackingViewModel model)
         {
-            var response = tracker.Track(new EventTrainingMaterialViewRequest { ClubId = club.Guid, EventId = model.EventId, MemberId = model.MemberId, TrainingMaterialId = model.TrainingMaterialId, Membership = Core.Membership.Player });
+            var response = tracker.Track(new AssignmentTrainingMaterialViewRequest { ClubId = club.Guid, AssignmentId = model.SourceId, MemberId = model.MemberId, TrainingMaterialId = model.TrainingMaterialId, Membership = Core.Membership.Player });
             if (response.RequestIsFulfilled)
             {
                 var trainingMaterial = libraryQuery.GetTrainingMaterial(model.TrainingMaterialId);

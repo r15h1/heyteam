@@ -29,7 +29,7 @@ namespace HeyTeam.Web.Controllers.Coaches
         [HttpGet("events/{eventId:guid}/library/{trainingMaterialId:guid}")]
 		public IActionResult EventTrainingMaterialView(LibraryTrackingViewModel model)
         {
-            var response = tracker.Track(new EventTrainingMaterialViewRequest{ClubId = club.Guid, EventId = model.EventId, MemberId=model.MemberId, TrainingMaterialId= model.TrainingMaterialId, Membership = Core.Membership.Coach });
+            var response = tracker.Track(new EventTrainingMaterialViewRequest{ClubId = club.Guid, EventId = model.SourceId, MemberId=model.MemberId, TrainingMaterialId= model.TrainingMaterialId, Membership = Core.Membership.Coach });
             if (response.RequestIsFulfilled)
             {
                 var trainingMaterial = libraryQuery.GetTrainingMaterial(model.TrainingMaterialId);
@@ -41,7 +41,7 @@ namespace HeyTeam.Web.Controllers.Coaches
         [HttpGet("asssignments/{eventId:guid}/library/{trainingMaterialId:guid}")]
         public IActionResult AssignmentTrainingMaterialView(LibraryTrackingViewModel model)
         {
-            var response = tracker.Track(new EventTrainingMaterialViewRequest { ClubId = club.Guid, EventId = model.EventId, MemberId = model.MemberId, TrainingMaterialId = model.TrainingMaterialId, Membership = Core.Membership.Player });
+            var response = tracker.Track(new EventTrainingMaterialViewRequest { ClubId = club.Guid, EventId = model.SourceId, MemberId = model.MemberId, TrainingMaterialId = model.TrainingMaterialId, Membership = Core.Membership.Player });
             if (response.RequestIsFulfilled)
             {
                 var trainingMaterial = libraryQuery.GetTrainingMaterial(model.TrainingMaterialId);

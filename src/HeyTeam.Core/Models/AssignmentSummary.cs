@@ -23,5 +23,6 @@ namespace HeyTeam.Core.Models
         public int PlayerCount { get; set; }
         public int TrainingMaterialCount { get; set; }
 		public string Squads { get; set; }
+		public string ViewedOn { get; set; }
 	}
 }

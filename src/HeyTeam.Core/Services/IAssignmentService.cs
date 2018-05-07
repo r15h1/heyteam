@@ -9,6 +9,7 @@ namespace HeyTeam.Core.Services
         Response RemovePlayerFromAssignment(PlayerAssignmentRequest request);
 		Response UpdateAssignment(AssignmentUpdateRequest request);
 		Response AddPlayerToAssignment(PlayerAssignmentRequest request);
+		Response TrackAssignmentView(AssignmentViewTrackingRequest request);
 	}
 
     public class PlayerAssignmentRequest {
@@ -41,6 +42,12 @@ namespace HeyTeam.Core.Services
         public string Title { get; set; }
         public IEnumerable<Guid> TrainingMaterials { get; set; }
     }
+
+	public class AssignmentViewTrackingRequest{
+		public Guid ClubId { get; set; }
+		public Guid AssignmentId { get; set; }
+		public Guid PlayerId { get; set; }
+	}
 
 	public enum AssignedTo {
 		All = 0,

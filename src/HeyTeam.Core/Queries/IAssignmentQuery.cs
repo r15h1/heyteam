@@ -14,8 +14,8 @@ namespace HeyTeam.Core.Queries
 
 	public class AssignmentsRequest {
 		public Guid ClubId { get; set; }
-		public IEnumerable<Guid> Squads { get; set; }
-		public IEnumerable<Guid> Players { get; set; }
+		public Guid? SquadId { get; set; }
+		public Guid? PlayerId { get; set; }
 		public DateTime? Date{ get; set; }
 	}
 

@@ -2,6 +2,7 @@
 using HeyTeam.Core.Models;
 using HeyTeam.Core.Models.Mini;
 using HeyTeam.Core.Queries;
+using HeyTeam.Util;
 using HeyTeam.Lib.Data;
 using System;
 using System.Collections.Generic;
@@ -104,19 +105,21 @@ namespace HeyTeam.Lib.Queries
 								INNER JOIN Squads S1 ON P1.SquadId = S1.SquadId
 								WHERE A.AssignmentId = PA1.AssignmentId 
 								FOR XML PATH(''),TYPE ).value('.','VARCHAR(50)') 
-									 ,1, 0, '') AS Squads
+									 ,1, 0, '') AS Squads,
+						{(!request.PlayerId.IsEmpty() ? " PA.ViewedOn " : "")} AS ViewedOn
                         FROM Assignments A                                                 
                         INNER JOIN Clubs Cl ON A.ClubId = Cl.ClubId
                         INNER JOIN Coaches Co ON Cl.ClubId = Co.ClubId AND Co.CoachId = A.CoachId
                         LEFT JOIN PlayerAssignments PA ON A.AssignmentId = PA.AssignmentId  
                         LEFT JOIN Players P ON PA.PlayerId = P.PlayerId 
-                        {((request.Squads?.Any() ?? false) ? " INNER JOIN Squads S ON S.ClubId = Cl.ClubId AND P.SquadId = S.SquadId " : "")}
+                        {(!request.SquadId.IsEmpty() ? " INNER JOIN Squads S ON S.ClubId = Cl.ClubId AND P.SquadId = S.SquadId " : "")}
                         WHERE Cl.Guid = @ClubGuid 
 						{(request.Date.HasValue ? " AND A.DueDate >= @Date " : "")}						
-						{((request.Squads?.Any() ?? false) ? " AND S.Guid IN @Squads " : "")}
-						{((request.Players?.Any() ?? false) ? " AND P.Guid IN @Players " : "")}
+						{(!request.SquadId.IsEmpty() ? " AND S.Guid = @SquadGuid " : "")}
+						{(!request.PlayerId.IsEmpty() ? " AND P.Guid = @PlayerGuid " : "")}
 
-                        GROUP BY A.AssignmentId, A.DueDate, A.Guid, A.CreatedOn, A.Instructions, A.Title, Cl.Guid, Co.FirstName, Co.LastName;";
+                        GROUP BY A.AssignmentId, A.DueDate, A.Guid, A.CreatedOn, A.Instructions, A.Title, Cl.Guid, Co.FirstName, Co.LastName
+						{(!request.PlayerId.IsEmpty() ? ", PA.ViewedOn" : "")};";
 
 			DynamicParameters p = new DynamicParameters();
 			p.Add("@ClubGuid", request.ClubId.ToString());
@@ -124,11 +127,11 @@ namespace HeyTeam.Lib.Queries
 			if(request.Date.HasValue)
 				p.Add("@Date", request.Date);		
 
-			if (request.Squads?.Any() ?? false)
-				p.Add("@Squads", request.Squads);
+			if (!request.SquadId.IsEmpty())
+				p.Add("@SquadGuid", request.SquadId);
 
-			if (request.Players?.Any() ?? false)
-				p.Add("@Players", request.Players);
+			if (!request.PlayerId.IsEmpty())
+				p.Add("@PlayerGuid", request.PlayerId);
 
 			using (var connection = connectionFactory.Connect()) {
 				connection.Open();
@@ -144,7 +147,8 @@ namespace HeyTeam.Lib.Queries
                             FormattedDueDate = row.DueDate.ToString("dd-MMM-yyyy"),
                             PlayerCount = row.PlayerCount,
                             TrainingMaterialCount = row.TrainingMaterialCount,
-							Squads = ((row.Squads?.Trim().EndsWith(",") ?? false) ? row.Squads.TrimEnd(new char[] { ',', ' ' }) : row.Squads)
+							Squads = ((row.Squads?.Trim().EndsWith(",") ?? false) ? row.Squads.TrimEnd(new char[] { ',', ' ' }) : row.Squads),
+							ViewedOn = row.ViewedOn?.ToString("dd-MMM-yyyy") ?? ""
                         }).OrderBy(a => a.DueDate).ThenBy(a => a.Title).ToList();
                    
                 return assignments;

@@ -5,14 +5,11 @@ using HeyTeam.Web.Models.Assignments;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace HeyTeam.Web.Areas.Players.Controllers
-{
+namespace HeyTeam.Web.Areas.Players.Controllers {
 	[Authorize(Policy = "Player")]
 	[Area("Players")]
 	[Route("[area]/{memberid:guid}/[controller]")]

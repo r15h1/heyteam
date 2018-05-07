@@ -137,6 +137,25 @@ namespace HeyTeam.Lib.Services {
             }
         }
 
+		public Response TrackAssignmentView(AssignmentViewTrackingRequest request) {
+			var club = clubQuery.GetClub(request.ClubId);
+			if (club == null)
+				return Response.CreateResponse(new EntityNotFoundException("The specified club does not exist"));
+
+			var assignment = assignmentQuery.GetPlayerAssignment(new Core.Queries.PlayerAssignmentQuery { ClubId = request.ClubId, AssignmentId = request.AssignmentId, PlayerId = request.PlayerId });
+			if (assignment == null)
+				return Response.CreateResponse(new EntityNotFoundException("The specified assignment does not exist"));
+			else if (assignment.ClubId != request.ClubId)
+				return Response.CreateResponse(new IllegalOperationException("The specified assignment does not belong to this club"));
+
+			try {
+				assignmentRepository.TrackAssignmentView(request);
+				return Response.CreateSuccessResponse();
+			} catch (Exception ex) {
+				return Response.CreateResponse(ex);
+			}
+		}
+
 		public Response UpdateAssignment(AssignmentUpdateRequest request) {
 			var club = clubQuery.GetClub(request.ClubId);
 			if (club == null)

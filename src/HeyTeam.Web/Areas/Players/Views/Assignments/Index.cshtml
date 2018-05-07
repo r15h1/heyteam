@@ -78,7 +78,7 @@
             $("#message").show();
 
             var date = $('#month').val() + "-01";
-            var apiUrl = "/api/assignments?date=" + date + "&players=" + playerId;
+            var apiUrl = "/api/assignments?date=" + date + "&playerid=" + playerId;
 
             $.ajax({
                 method: "GET",
@@ -129,7 +129,7 @@
                     "<td>" + (record.instructions != null && record.instructions.length > 100 ? (record.instructions.substring(0, 99) + "...") : record.instructions)+ "</td>" +
                     "<td class='text-center'>" + record.formattedDueDate + "</td>" +
                     "<td class='text-center'>" + record.trainingMaterialCount + "</td>" +
-                    "<td></td>" +
+                    "<td class='text-center'>" + record.viewedOn + "</td>" +
                     "</tr>";
                 tableBody.append(row);
             }
@@ -139,7 +139,7 @@
         function getAssignment(assignmentId, callback) {
             $.ajax({
                 method: "GET",
-                url: "/api/assignments/" + assignmentId
+                url: "/api/assignments/" + assignmentId + "?playerid=" + playerId
             }).done(function (data) {
                 callback(data);
             }).fail(function (jqXHR, textStatus, errorThrown) {

@@ -193,5 +193,23 @@ namespace HeyTeam.Lib.Repositories {
 				connection.Execute(sql, parameters);
 			}
 		}
+
+		public void TrackAssignmentView(AssignmentViewTrackingRequest request) {
+			var parameters = new DynamicParameters();
+			parameters.Add("@AssignmentGuid", request.AssignmentId);
+			parameters.Add("@PlayerGuid", request.PlayerId);
+			parameters.Add("@ClubGuid", request.ClubId.ToString());
+			var sql = $@"UPDATE PlayerAssignments SET ViewedOn = GetDate()                        
+						FROM PlayerAssignments PA
+						INNER JOIN Players P ON PA.PlayerId = P.PlayerId
+						INNER JOIN Assignments A ON PA.AssignmentId = A.AssignmentId
+						INNER JOIN Clubs C ON C.ClubId = A.ClubId
+                        WHERE P.Guid = @PlayerGuid AND A.Guid = @AssignmentGuid AND C.Guid = @ClubGuid;";
+
+			using (var connection = factory.Connect()) {
+				connection.Open();
+				connection.Execute(sql, parameters);
+			}
+		}
 	}
 }

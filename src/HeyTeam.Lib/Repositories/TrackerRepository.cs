@@ -40,5 +40,25 @@ namespace HeyTeam.Lib.Repositories
                 connection.Execute(sql, parameters);
             }
         }
-    }
+
+		public void Track(AssignmentTrainingMaterialViewRequest request) {
+			string sql = @" INSERT INTO AssignmentTrainingMaterialViews (AssignmentId, TrainingMaterialId, PlayerId, ViewedOn)
+                            VALUES(
+                                (SELECT AssignmentId FROM Assignments WHERE Guid = @AssignmentGuid),
+                                (SELECT TrainingMaterialId FROM TrainingMaterials WHERE Guid = @TrainingMaterialGuid),
+                                (SELECT PlayerId FROM Players WHERE Guid = @PlayerGuid),
+                                GetDate()
+                        )";
+
+			var parameters = new DynamicParameters();
+			parameters.Add("@AssignmentGuid", request.AssignmentId.ToString());
+			parameters.Add("@TrainingMaterialGuid", request.TrainingMaterialId.ToString());
+			parameters.Add("@PlayerGuid", request.Membership == Core.Membership.Player ? request.MemberId.ToString() : null);
+
+			using (var connection = connectionFactory.Connect()) {
+				connection.Open();
+				connection.Execute(sql, parameters);
+			}
+		}
+	}
 }

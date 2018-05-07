@@ -8,5 +8,6 @@ namespace HeyTeam.Core.Repositories {
         void DeletePlayerAssignment(PlayerAssignmentRequest request);
 		void UpdateAssignment(AssignmentUpdateRequest request);
 		void AddPlayerToAssignment(PlayerAssignmentRequest request);
+		void TrackAssignmentView(AssignmentViewTrackingRequest request);
 	}
 }

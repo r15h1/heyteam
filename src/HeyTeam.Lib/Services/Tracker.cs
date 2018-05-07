@@ -19,10 +19,11 @@ namespace HeyTeam.Lib.Services
         private readonly ILibraryQuery libraryQuery;
         private readonly IMemberQuery memberQuery;
         private readonly ISquadQuery squadQuery;
-        private readonly ITrackerRepository trackerRepository;
+		private readonly IAssignmentQuery assignmentQuery;
+		private readonly ITrackerRepository trackerRepository;
 
         public Tracker(IValidator<EventTrainingMaterialViewRequest> eventTrainingMaterialViewValidator, IClubQuery clubQuery, IEventQuery eventQuery, 
-            ILibraryQuery libraryQuery, IMemberQuery memberQuery, ISquadQuery squadQuery, ITrackerRepository trackerRepository)
+            ILibraryQuery libraryQuery, IMemberQuery memberQuery, ISquadQuery squadQuery, IAssignmentQuery assignmentQuery, ITrackerRepository trackerRepository)
         {
             this.eventTrainingMaterialViewValidator = eventTrainingMaterialViewValidator;
             this.clubQuery = clubQuery;
@@ -30,7 +31,8 @@ namespace HeyTeam.Lib.Services
             this.libraryQuery = libraryQuery;
             this.memberQuery = memberQuery;
             this.squadQuery = squadQuery;
-            this.trackerRepository = trackerRepository;
+			this.assignmentQuery = assignmentQuery;
+			this.trackerRepository = trackerRepository;
         }
 
         public Response Track(EventTrainingMaterialViewRequest request)
@@ -82,7 +84,39 @@ namespace HeyTeam.Lib.Services
 
         public Response Track(AssignmentTrainingMaterialViewRequest request)
         {
-            throw new NotImplementedException();
-        }
+			var club = clubQuery.GetClub(request.ClubId);
+			if (club == null)
+				return Response.CreateResponse(new EntityNotFoundException("The specified club doesn not exist"));
+
+			var assignment = assignmentQuery.GetAssignment(club.Guid, request.AssignmentId);
+			if (assignment == null)
+				return Response.CreateResponse(new EntityNotFoundException("The specified assignment was not found"));
+			else if (assignment.ClubId != request.ClubId)
+				return Response.CreateResponse(new IllegalOperationException("The specified assignment does not belong to this club"));
+
+			var trainingMaterial = libraryQuery.GetTrainingMaterial(request.TrainingMaterialId);
+			if (trainingMaterial == null)
+				return Response.CreateResponse(new EntityNotFoundException("The specified training material does not exist"));
+			else if (!assignment.TrainingMaterials.Any(t => t.Guid == request.TrainingMaterialId))
+				return Response.CreateResponse(new IllegalOperationException("The specified training material does not belong to this assignment"));
+
+			var clubSquads = squadQuery.GetSquads(request.ClubId);
+			Member member = request.Membership == Core.Membership.Coach ? memberQuery.GetCoach(request.MemberId) as Member : memberQuery.GetPlayer(request.MemberId) as Member;
+			var l1 = member.Squads.Intersect(clubSquads.Select(s => s.Guid)).ToList();
+			var l2 = clubSquads.Select(s => s.Guid).Intersect(member.Squads).ToList();
+
+			if (member == null)
+				return Response.CreateResponse(new EntityNotFoundException("The specified member does not exist"));
+			else if (clubSquads == null || !member.Squads.Intersect(clubSquads.Select(s => s.Guid)).Any())
+				return Response.CreateResponse(new IllegalOperationException("The specified member does not belong to any squad"));
+			
+
+			try {
+				trackerRepository.Track(request);
+				return Response.CreateSuccessResponse();
+			} catch (Exception ex) {
+				return Response.CreateResponse(ex);
+			}
+		}
     }
 }
