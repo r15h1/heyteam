@@ -54,7 +54,11 @@ namespace HeyTeam.Lib.Queries {
 				string sql = @"SELECT S.Name,
                                 S.Guid,
                                 (SELECT COUNT(1) FROM Players P WHERE P.SquadId = S.SquadId AND (P.Deleted IS NULL OR P.Deleted = 0)) AS NumberOfPlayers,
-								(SELECT CO.FirstName + ' ' + CO.LastName FROM SquadCoaches SC INNER JOIN Coaches CO ON SC.SquadId = S.SquadId AND CO.CoachId = SC.CoachId) AS Coach
+								(SELECT CO.FirstName + ' ' + CO.LastName 
+									FROM SquadCoaches SC 
+									INNER JOIN Coaches CO ON SC.SquadId = S.SquadId AND CO.CoachId = SC.CoachId 
+									WHERE CO.Deleted IS NULL OR Co.Deleted = 0
+								) AS Coach
                             FROM Clubs C
                             INNER JOIN Squads S ON S.ClubId = C.ClubId
                             WHERE C.Guid = @ClubGuid

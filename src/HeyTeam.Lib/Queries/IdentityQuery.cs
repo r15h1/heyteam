@@ -36,7 +36,7 @@ namespace HeyTeam.Lib.Queries
 							SELECT CO.Guid, CO.FirstName, CO.LastName, CO.Email, CO.DateOfBirth, 'Coach' AS Membership
 							FROM Coaches CO
 							INNER JOIN Clubs CL ON CO.ClubId = CL.ClubId
-							WHERE CL.Guid = @ClubGuid) M
+							WHERE CL.Guid = @ClubGuid AND (CO.Deleted IS NULL OR CO.Deleted = 0)) M
 							LEFT JOIN AspNetUsers U ON M.Email = U.Email
 							LEFT JOIN AspNetUserRoles UR ON U.Id = UR.UserId
 							LEFT JOIN AspNetRoles R ON UR.RoleId = R.Id

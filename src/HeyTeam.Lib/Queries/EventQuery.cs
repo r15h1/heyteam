@@ -375,7 +375,8 @@ namespace HeyTeam.Lib.Queries {
 						FROM EventTrainingMaterialViews V
 						INNER JOIN Events E ON E.EventId = V.EventId AND E.Guid = @EventGuid 
 						INNER JOIN Coaches C ON C.CoachId = V.CoachId
-						INNER JOIN TrainingMaterials T ON V.TrainingMaterialId = T.TrainingMaterialId";
+						INNER JOIN TrainingMaterials T ON V.TrainingMaterialId = T.TrainingMaterialId
+						WHERE (C.Deleted IS NULL OR C.Deleted = 0)";
 
 			DynamicParameters p = new DynamicParameters();
 			p.Add("@EventGuid", eventId.ToString());

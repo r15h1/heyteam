@@ -87,12 +87,13 @@ namespace HeyTeam.Lib.Queries {
                                     CO.Email, CO.Qualifications, CO.Phone
                                 FROM Coaches CO
                                 INNER JOIN Clubs CB ON CO.ClubId = CB.ClubId
-                                WHERE CO.Guid = @Guid;
+                                WHERE CO.Guid = @Guid AND  CO.Deleted IS NULL OR CO.Deleted = 0;
 
                                 SELECT S.Guid AS SquadGuid
                                 FROM SquadCoaches SC
                                 INNER JOIN Coaches C ON SC.CoachId = C.CoachId AND C.Guid = @Guid
-                                INNER JOIN Squads S ON SC.SquadId = S.SquadId;";
+                                INNER JOIN Squads S ON SC.SquadId = S.SquadId
+								WHERE C.Deleted IS NULL OR C.Deleted = 0;";
 				DynamicParameters p = new DynamicParameters();
 				p.Add("@Guid", coachId.ToString());
 				connection.Open();
@@ -103,7 +104,8 @@ namespace HeyTeam.Lib.Queries {
 							Phone = row.Phone, Qualifications = row.Qualifications
 						}).SingleOrDefault();
 
-                coach.Squads = reader.Read().Select<dynamic, Guid>(row => Guid.Parse(row.SquadGuid.ToString())).ToList();
+				if (coach != null)
+					coach.Squads = reader.Read().Select<dynamic, Guid>(row => Guid.Parse(row.SquadGuid.ToString())).ToList();
 
                 return coach;
 			}
@@ -116,7 +118,7 @@ namespace HeyTeam.Lib.Queries {
                                     CO.Email, CO.Qualifications, CO.Phone
                                 FROM Coaches CO
                                 INNER JOIN Clubs CB ON CO.ClubId = CB.ClubId
-                                WHERE CB.Guid = @ClubGuid
+                                WHERE CB.Guid = @ClubGuid AND (CO.Deleted IS NULL OR CO.Deleted = 0)
 								ORDER BY CO.FirstName, CO.LastName";
 				DynamicParameters p = new DynamicParameters();
 				p.Add("@ClubGuid", clubId.ToString());
@@ -143,7 +145,8 @@ namespace HeyTeam.Lib.Queries {
                                 FROM Coaches CO
                                 INNER JOIN Clubs CB ON CO.ClubId = CB.ClubId
 								INNER JOIN Squads SQ ON SQ.ClubId = CB.ClubId AND SQ.Guid = @SquadGuid
-								INNER JOIN SquadCoaches SC ON SC.CoachId = CO.CoachId AND SC.SquadId = SQ.SquadId";
+								INNER JOIN SquadCoaches SC ON SC.CoachId = CO.CoachId AND SC.SquadId = SQ.SquadId
+								WHERE CO.Deleted IS NULL OR CO.Deleted = 0";
 				DynamicParameters p = new DynamicParameters();
 				p.Add("@SquadGuid", squadId.ToString());
 				connection.Open();
@@ -167,7 +170,7 @@ namespace HeyTeam.Lib.Queries {
 								NULL AS SquadGuid
 								FROM Coaches CO
 								INNER JOIN Clubs CL ON CO.ClubId = CL.ClubId
-								WHERE CL.Guid = @Guid AND CO.Email = @Email";
+								WHERE CL.Guid = @Guid AND CO.Email = @Email AND (CO.Deleted IS NULL OR CO.Deleted = 0)";
 				var p = new DynamicParameters();
 				p.Add("@Guid", clubId.ToString());
 				p.Add("@Email", email);
@@ -253,7 +256,7 @@ namespace HeyTeam.Lib.Queries {
                                 FROM Coaches C
 								INNER JOIN SquadCoaches SC ON SC.CoachId = C.CoachId
                                 INNER JOIN Squads S ON SC.SquadId = S.SquadId
-                                WHERE S.Guid IN @Squads) T
+                                WHERE S.Guid IN @Squads AND (CO.Deleted IS NULL OR CO.Deleted = 0)) T
 								ORDER BY MemberName;
 								";
 				DynamicParameters p = new DynamicParameters();
