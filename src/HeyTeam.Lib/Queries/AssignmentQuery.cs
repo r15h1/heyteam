@@ -27,7 +27,7 @@ namespace HeyTeam.Lib.Queries
 		                        A.Title, Cl.Guid AS ClubGuid,                                
                                 Co.FirstName + ' ' + Co.LastName AS CreatedBy,                                                                
 								STUFF ((SELECT DISTINCT COALESCE(S1.Name + ', ', '') FROM PlayerAssignments PA1 
-								INNER JOIN Players P1 ON PA1.PlayerId = P1.PlayerId
+								INNER JOIN Players P1 ON PA1.PlayerId = P1.PlayerId AND (P1.Deleted IS NULL OR P1.Deleted = 0)
 								INNER JOIN Squads S1 ON P1.SquadId = S1.SquadId
 								WHERE A.AssignmentId = PA1.AssignmentId 
 								FOR XML PATH(''),TYPE ).value('.','VARCHAR(50)') 
@@ -53,10 +53,10 @@ namespace HeyTeam.Lib.Queries
 						SELECT P.Guid AS PlayerGuid, P.FirstName + ' ' + P.LastName + ' (' + S.Name + ')' AS PlayerName
 						FROM PlayerAssignments PA
 						INNER JOIN Assignments A ON PA.AssignmentId = A.AssignmentId
-						INNER JOIN Players P ON P.PlayerId = PA.PlayerId
+						INNER JOIN Players P ON P.PlayerId = PA.PlayerId AND (P.Deleted IS NULL OR P.Deleted = 0)
                         INNER JOIN Squads S ON P.SquadId = S.SquadId
 						INNER JOIN Clubs C ON C.ClubId = A.ClubId AND S.ClubId = C.ClubId
-						WHERE A.Guid = @AssignmentGuid AND C.Guid = @ClubGuid
+						WHERE A.Guid = @AssignmentGuid AND C.Guid = @ClubGuid AND (P.Deleted IS NULL OR P.Deleted = 0)
                         ORDER BY S.Name, PlayerName;";
 
 			DynamicParameters p = new DynamicParameters();
@@ -101,19 +101,19 @@ namespace HeyTeam.Lib.Queries
                                 (SELECT COUNT(1) FROM AssignmentTrainingMaterials ATM WHERE ATM.AssignmentId = A.AssignmentId) AS TrainingMaterialCount,
                                 COUNT(PA.AssignmentId) AS PlayerCount,
 								STUFF ((SELECT DISTINCT COALESCE(S1.Name + ', ', '') FROM PlayerAssignments PA1 
-								INNER JOIN Players P1 ON PA1.PlayerId = P1.PlayerId
+								INNER JOIN Players P1 ON PA1.PlayerId = P1.PlayerId AND (P1.Deleted IS NULL OR P1.Deleted = 0)
 								INNER JOIN Squads S1 ON P1.SquadId = S1.SquadId
 								WHERE A.AssignmentId = PA1.AssignmentId 
 								FOR XML PATH(''),TYPE ).value('.','VARCHAR(50)') 
 									 ,1, 0, '') AS Squads,
-						{(!request.PlayerId.IsEmpty() ? " PA.ViewedOn " : "")} AS ViewedOn
+						{(!request.PlayerId.IsEmpty() ? " PA.ViewedOn " : " Null ")} AS ViewedOn
                         FROM Assignments A                                                 
                         INNER JOIN Clubs Cl ON A.ClubId = Cl.ClubId
                         INNER JOIN Coaches Co ON Cl.ClubId = Co.ClubId AND Co.CoachId = A.CoachId
                         LEFT JOIN PlayerAssignments PA ON A.AssignmentId = PA.AssignmentId  
                         LEFT JOIN Players P ON PA.PlayerId = P.PlayerId 
                         {(!request.SquadId.IsEmpty() ? " INNER JOIN Squads S ON S.ClubId = Cl.ClubId AND P.SquadId = S.SquadId " : "")}
-                        WHERE Cl.Guid = @ClubGuid 
+                        WHERE Cl.Guid = @ClubGuid AND (P.Deleted IS NULL OR P.Deleted = 0)
 						{(request.Date.HasValue ? " AND A.DueDate >= @Date " : "")}						
 						{(!request.SquadId.IsEmpty() ? " AND S.Guid = @SquadGuid " : "")}
 						{(!request.PlayerId.IsEmpty() ? " AND P.Guid = @PlayerGuid " : "")}
@@ -174,7 +174,8 @@ namespace HeyTeam.Lib.Queries
                         INNER JOIN Squads S ON S.ClubId = Cl.ClubId AND P.SquadId = S.SquadId
                         INNER JOIN Coaches Co1 ON Cl.ClubId = Co1.ClubId AND Co1.CoachId = PA.CoachId
                         INNER JOIN Coaches Co2 ON Cl.ClubId = Co2.ClubId AND Co2.CoachId = A.CoachId
-                        WHERE P.Guid = @PlayerGuid AND A.Guid = @AssignmentGuid AND Cl.Guid = @ClubGuid;						
+                        WHERE P.Guid = @PlayerGuid AND A.Guid = @AssignmentGuid AND Cl.Guid = @ClubGuid
+						AND (P.Deleted IS NULL OR P.Deleted = 0);						
 						
 						SELECT T.Guid AS AssignmentGuid, T.Title, T.Description, T.ContentType, T.Url, T.ThumbnailUrl
 						FROM AssignmentTrainingMaterials ATM

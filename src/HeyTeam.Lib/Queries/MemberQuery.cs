@@ -34,7 +34,7 @@ namespace HeyTeam.Lib.Queries {
                                     P.Email, P.Nationality, P.SquadNumber
                                 FROM Players P
                                 INNER JOIN Squads S ON P.SquadId = S.SquadId
-                                WHERE P.Guid = @Guid";
+                                WHERE P.Guid = @Guid AND (P.Deleted IS NULL OR P.Deleted = 0)";
                 DynamicParameters p = new DynamicParameters();
                 p.Add("@Guid", playerId.ToString());
                 connection.Open();
@@ -61,7 +61,7 @@ namespace HeyTeam.Lib.Queries {
                                     P.Email, P.Nationality, P.SquadNumber
                                 FROM Players P
                                 INNER JOIN Squads S ON P.SquadId = S.SquadId
-                                WHERE S.Guid = @Guid
+                                WHERE S.Guid = @Guid AND (P.Deleted IS NULL OR P.Deleted = 0)
 								ORDER BY P.FirstName, P.LastName";
                 DynamicParameters p = new DynamicParameters();
                 p.Add("@Guid", squadId.ToString());
@@ -161,7 +161,7 @@ namespace HeyTeam.Lib.Queries {
 								FROM Players P
 								INNER JOIN Squads S ON P.SquadId = S.SquadId
 								INNER JOIN Clubs C ON C.ClubId = S.ClubId
-								WHERE C.Guid = @Guid AND P.Email = @Email
+								WHERE C.Guid = @Guid AND P.Email = @Email AND (P.Deleted IS NULL OR P.Deleted = 0)
 									UNION ALL
 								SELECT CO.Guid, CO.FirstName, CO.LastName, CO.Email, CO.DateOfBirth, 'Coach' AS Membership,
 								NULL AS SquadGuid
@@ -214,7 +214,7 @@ namespace HeyTeam.Lib.Queries {
 				string sql = "SELECT P.Guid AS \"PlayerGuid\", P.FirstName + ' ' + P.LastName AS \"PlayerName\", " +
 									"P.SquadNumber AS \"SquadNumber\", S.Name AS \"SquadName\" " +
 								"FROM Players P " +
-								"INNER JOIN Squads S ON S.SquadId = P.SquadId " +
+								"INNER JOIN Squads S ON S.SquadId = P.SquadId WHERE (P.Deleted IS NULL OR P.Deleted = 0) " +
 								"ORDER BY PlayerName ";
 				DynamicParameters p = new DynamicParameters();
 				connection.Open();
@@ -244,7 +244,7 @@ namespace HeyTeam.Lib.Queries {
 									P.Guid AS MemberGuid, P.FirstName + ' ' + P.LastName + ' (' + S.Name + ')'  AS MemberName                                    
                                 FROM Players P
                                 INNER JOIN Squads S ON P.SquadId = S.SquadId
-                                WHERE S.Guid IN @Squads
+                                WHERE S.Guid IN @Squads  AND (P.Deleted IS NULL OR P.Deleted = 0)
 								
 								UNION
 

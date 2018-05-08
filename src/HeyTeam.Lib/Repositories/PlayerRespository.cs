@@ -78,7 +78,7 @@ namespace HeyTeam.Lib.Repositories {
 						Email = @Email, 
 						Nationality = @Nationality, 
 						SquadNumber = @SquadNumber                 
-            WHERE Guid = @PlayerGuid";
+            WHERE Guid = @PlayerGuid  AND (Deleted IS NULL OR Deleted = 0)";
 		}
 
 		private DynamicParameters SetupUpdateParameters(Player player)

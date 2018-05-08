@@ -20,7 +20,7 @@ namespace HeyTeam.Lib.Repositories {
 							   FROM Players P
 							   INNER JOIN Squads S ON P.SquadId = S.SquadId
 							   INNER JOIN Clubs C ON S.ClubId = C.ClubId
-							   WHERE P.Guid = @PlayerGuid AND C.Guid = @ClubGuid";
+							   WHERE P.Guid = @PlayerGuid AND C.Guid = @ClubGuid  AND (P.Deleted IS NULL OR P.Deleted = 0)";
 
 				var p = new DynamicParameters();
 				p.Add("@ClubGuid", request.ClubId.ToString());

@@ -35,7 +35,7 @@ namespace HeyTeam.Lib.Repositories {
                                 INNER JOIN Clubs C ON C.ClubId = S.ClubId 
                                 { (membership == Membership.Coach 
                                                     ?"INNER JOIN SquadCoaches SC ON SC.SquadId = S.SquadId AND SC.CoachId = (SELECT CoachId FROM Coaches WHERE Guid = @MemberGuid)"
-                                                    : "INNER JOIN Players P ON P.SquadId = S.SquadId AND P.Playerid = (SELECT PlayerId FROM Players WHERE Guid = @MemberGuid)")
+                                                    : "INNER JOIN Players P ON P.SquadId = S.SquadId AND P.Playerid = (SELECT PlayerId FROM Players WHERE Guid = @MemberGuid  AND (Deleted IS NULL OR Deleted = 0))")
                                 }";
 
                 var p = new DynamicParameters();

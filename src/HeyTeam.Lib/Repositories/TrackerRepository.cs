@@ -23,7 +23,7 @@ namespace HeyTeam.Lib.Repositories
                             VALUES(
                                 (SELECT EventId FROM Events WHERE Guid = @EventGuid),
                                 (SELECT TrainingMaterialId FROM TrainingMaterials WHERE Guid = @TrainingMaterialGuid),
-                                (SELECT PlayerId FROM Players WHERE Guid = @PlayerGuid),
+                                (SELECT PlayerId FROM Players WHERE Guid = @PlayerGuid AND (Deleted IS NULL OR Deleted = 0)),
                                 (SELECT CoachId FROM Coaches WHERE Guid = @CoachGuid),
                                 GetDate()
                         )";
@@ -46,7 +46,7 @@ namespace HeyTeam.Lib.Repositories
                             VALUES(
                                 (SELECT AssignmentId FROM Assignments WHERE Guid = @AssignmentGuid),
                                 (SELECT TrainingMaterialId FROM TrainingMaterials WHERE Guid = @TrainingMaterialGuid),
-                                (SELECT PlayerId FROM Players WHERE Guid = @PlayerGuid),
+                                (SELECT PlayerId FROM Players WHERE Guid = @PlayerGuid AND (Deleted IS NULL OR Deleted = 0)),
                                 GetDate()
                         )";
 

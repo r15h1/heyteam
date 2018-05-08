@@ -135,7 +135,7 @@ namespace HeyTeam.Lib.Repositories {
 							USING (
 								VALUES((SELECT SquadId FROM Squads WHERE Guid = @SquadGuid),
 										(SELECT EventId FROM Events WHERE Guid = @EventGuid),
-										(SELECT PlayerId FROM Players WHERE GUID = @PlayerGuid)
+										(SELECT PlayerId FROM Players WHERE GUID = @PlayerGuid AND (Deleted IS NULL OR Deleted = 0))
 								)
 							)
 							AS Source (SquadId, EventId, PlayerId)
@@ -237,7 +237,7 @@ namespace HeyTeam.Lib.Repositories {
 							USING(
 								VALUES((SELECT SquadId FROM Squads WHERE Guid = @SquadGuid),
 										(SELECT EventId FROM Events WHERE Guid = @EventGuid),
-										(SELECT PlayerId FROM Players WHERE GUID = @PlayerGuid)
+										(SELECT PlayerId FROM Players WHERE GUID = @PlayerGuid AND (Deleted IS NULL OR Deleted = 0))
 								)
 							)
 							AS Source(SquadId, EventId, PlayerId)
@@ -273,7 +273,7 @@ namespace HeyTeam.Lib.Repositories {
 							USING(
 								VALUES((SELECT SquadId FROM Squads WHERE Guid = @SquadGuid),
 										(SELECT EventId FROM Events WHERE Guid = @EventGuid),
-										(SELECT PlayerId FROM Players WHERE GUID = @PlayerGuid)
+										(SELECT PlayerId FROM Players WHERE GUID = @PlayerGuid AND (Deleted IS NULL OR Deleted = 0))
 								)
 							)
 							AS Source(SquadId, EventId, PlayerId)
@@ -308,7 +308,7 @@ namespace HeyTeam.Lib.Repositories {
 			string sql = @"DELETE EventAttendance WHERE 
 							SquadId = (SELECT SquadId FROM Squads WHERE Guid = @SquadGuid) AND
 							EventId = (SELECT EventId FROM Events WHERE Guid = @EventGuid) AND 
-							PlayerId = (SELECT PlayerId FROM Players WHERE GUID = @PlayerGuid) AND
+							PlayerId = (SELECT PlayerId FROM Players WHERE GUID = @PlayerGuid AND (Deleted IS NULL OR Deleted = 0)) AND
 							(AttendanceId IS NULL OR AttendanceId = 0) AND 
 							(TimeLogged IS NULL OR TimeLogged = 0) AND 
 							(Feedback IS NULL OR LEN(LTRIM(RTRIM(ISNULL(Feedback, '')))) = 0)";

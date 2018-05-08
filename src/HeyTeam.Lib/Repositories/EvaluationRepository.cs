@@ -48,7 +48,7 @@ namespace HeyTeam.Lib.Repositories {
 							VALUES(	
 								(SELECT TermId FROM EvaluationTerms WHERE Guid = @TermGuid),
 								(SELECT ReportCardDesignId FROM ReportCardDesigns WHERE Guid = @ReportCardDesignGuid),
-								(SELECT PlayerId FROM Players WHERE Guid = @PlayerGuid),
+								(SELECT PlayerId FROM Players P WHERE Guid = @PlayerGuid AND (P.Deleted IS NULL OR P.Deleted = 0)),
 								@ReportCardGuid, GetDate(), GetDate()
 							);";
 

@@ -88,7 +88,7 @@ namespace HeyTeam.Lib.Repositories {
                             (Select CoachId FROM Coaches WHERE Guid = @CoachGuid)
                         FROM Players P
                         INNER JOIN Squads S ON P.SquadId = S.SquadId
-                        WHERE S.Guid IN @Squads;";
+                        WHERE S.Guid IN @Squads AND (P.Deleted IS NULL OR P.Deleted = 0);";
             var parameters = new DynamicParameters();
             parameters.Add("@AssignmentGuid", assignmentGuid);
             parameters.Add("@Squads", request.Squads);
@@ -105,8 +105,8 @@ namespace HeyTeam.Lib.Repositories {
                             GetDate(),
                             (Select CoachId FROM Coaches WHERE Guid = @CoachGuid)
                         FROM Players P
-                        {(request.AssignedTo == AssignedTo.IndividualPlayers ? 
-							"WHERE P.Guid IN @Players" 
+                        {(request.AssignedTo == AssignedTo.IndividualPlayers ?
+							"WHERE P.Guid IN @Players  AND (P.Deleted IS NULL OR P.Deleted = 0) "
 							: $@"INNER JOIN Squads S ON P.SquadId = S.SquadId 
 								 INNER JOIN Clubs C ON S.ClubId = C.ClubId AND C.Guid = @ClubGuid"			
 						)};";
@@ -185,7 +185,7 @@ namespace HeyTeam.Lib.Repositories {
                             GetDate(),
                             (Select CoachId FROM Coaches WHERE Guid = @CoachGuid)
                         FROM Players P
-                        WHERE P.Guid = @PlayerGuid;";
+                        WHERE P.Guid = @PlayerGuid  AND (P.Deleted IS NULL OR P.Deleted = 0);";
 
 			using (var connection = factory.Connect()) 
 			{
@@ -204,7 +204,7 @@ namespace HeyTeam.Lib.Repositories {
 						INNER JOIN Players P ON PA.PlayerId = P.PlayerId
 						INNER JOIN Assignments A ON PA.AssignmentId = A.AssignmentId
 						INNER JOIN Clubs C ON C.ClubId = A.ClubId
-                        WHERE P.Guid = @PlayerGuid AND A.Guid = @AssignmentGuid AND C.Guid = @ClubGuid;";
+                        WHERE P.Guid = @PlayerGuid AND A.Guid = @AssignmentGuid AND C.Guid = @ClubGuid  AND (P.Deleted IS NULL OR P.Deleted = 0);";
 
 			using (var connection = factory.Connect()) {
 				connection.Open();

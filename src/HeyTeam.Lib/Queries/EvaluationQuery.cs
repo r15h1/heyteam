@@ -27,7 +27,7 @@ namespace HeyTeam.Lib.Queries {
 						INNER JOIN Squads S ON P.SquadId = S.SquadId
 						INNER JOIN Clubs C ON C.ClubId = S.ClubId						
 						LEFT JOIN[PlayerReportCards] PRC ON P.PlayerId = PRC.PlayerId
-						WHERE C.Guid = @ClubGuid AND PRC.Guid = @ReportCardId";
+						WHERE C.Guid = @ClubGuid AND PRC.Guid = @ReportCardId AND (P.Deleted IS NULL OR P.Deleted = 0)";
 
             DynamicParameters p = new DynamicParameters();
             p.Add("@ClubGuid", clubId.ToString());
@@ -57,7 +57,7 @@ namespace HeyTeam.Lib.Queries {
 						INNER JOIN Clubs C ON C.ClubId = S.ClubId
 						INNER JOIN EvaluationTerms ET ON ET.ClubId = C.ClubId AND (ET.Deleted IS NULL OR ET.Deleted = 0) AND ET.Guid = @TermGuid
 						LEFT JOIN[PlayerReportCards] PRC ON P.PlayerId = PRC.PlayerId AND PRC.TermId = ET.TermId
-						WHERE C.Guid = @ClubGuid AND S.Guid = @SquadGuid AND P.Guid = @PlayerGuid";
+						WHERE C.Guid = @ClubGuid AND S.Guid = @SquadGuid AND P.Guid = @PlayerGuid AND (P.Deleted IS NULL OR P.Deleted = 0)";
 
 			DynamicParameters p = new DynamicParameters();
 			p.Add("@ClubGuid", clubId.ToString());
@@ -118,7 +118,7 @@ namespace HeyTeam.Lib.Queries {
                             INNER JOIN Squads S ON P.SquadId = S.SquadId
                             INNER JOIN EvaluationTerms ET ON ET.TermId = PR.TermId AND (ET.Deleted IS NULL OR ET.Deleted = 0)                            
                             INNER JOIN Clubs C ON C.ClubId = ET.ClubId                            
-                            WHERE C.Guid = @ClubGuid AND PR.Guid = @PlayerReportCardGuid";
+                            WHERE C.Guid = @ClubGuid AND PR.Guid = @PlayerReportCardGuid AND (P.Deleted IS NULL OR P.Deleted = 0)";
 
             var reader = connection.Query(sql, p).Cast<IDictionary<string, object>>();
             var evaluation = reader.Select<dynamic, PlayerEvaluation>(
@@ -228,7 +228,7 @@ namespace HeyTeam.Lib.Queries {
 						INNER JOIN Clubs C ON C.ClubId = S.ClubId
 						INNER JOIN EvaluationTerms ET ON ET.ClubId = C.ClubId AND (ET.Deleted IS NULL OR ET.Deleted = 0) AND ET.Guid = @TermGuid
 						LEFT JOIN[PlayerReportCards] PRC ON P.PlayerId = PRC.PlayerId AND PRC.TermId = ET.TermId
-						WHERE C.Guid = @ClubGuid AND S.Guid = @SquadGuid";
+						WHERE C.Guid = @ClubGuid AND S.Guid = @SquadGuid AND (P.Deleted IS NULL OR P.Deleted = 0)";
 
 			DynamicParameters p = new DynamicParameters();
 			p.Add("@ClubGuid", clubId.ToString());

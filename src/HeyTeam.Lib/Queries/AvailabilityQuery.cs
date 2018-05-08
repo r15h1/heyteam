@@ -80,7 +80,7 @@ namespace HeyTeam.Lib.Queries {
 					"INNER JOIN Players P ON P.PlayerId = PA.PlayerId " +
 					"INNER JOIN Squads S ON S.SquadId = P.SquadId " +
 					"INNER JOIN Clubs C ON C.ClubId= S.ClubId " +
-					"WHERE C.Guid = @ClubGuid " +
+					"WHERE C.Guid = @ClubGuid AND (P.Deleted IS NULL OR P.Deleted = 0) " +
 					(year.HasValue ? "AND (YEAR(PA.DateFrom) = @Year OR YEAR(PA.DateTo) = @Year) " : "AND PA.DateTo IS NULL OR PA.DateTo >= GetDate() ") +
 					(includeSquadId ? "AND S.Guid = @SquadGuid " : string.Empty) +
 					(includePlayerId ? "AND P.Guid = @PlayerGuid " : string.Empty) +
@@ -97,7 +97,7 @@ namespace HeyTeam.Lib.Queries {
                     "INNER JOIN Players P ON P.PlayerId = PA.PlayerId " +
                     "INNER JOIN Squads S ON S.SquadId = P.SquadId " +
                     "INNER JOIN Clubs C ON C.ClubId= S.ClubId " +
-                    "WHERE C.Guid = @ClubGuid AND PA.Guid = @AvailabilityGuid " +
+					"WHERE C.Guid = @ClubGuid AND PA.Guid = @AvailabilityGuid AND (P.Deleted IS NULL OR P.Deleted = 0) " +
 					"ORDER BY PA.DateFrom";
         }
 

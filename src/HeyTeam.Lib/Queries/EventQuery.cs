@@ -189,7 +189,7 @@ namespace HeyTeam.Lib.Queries {
 										(SELECT TOP 1 AttendanceId 
 											FROM EventAttendance EA 
 											INNER JOIN Players P ON EA.PlayerId = P.PlayerId AND P.Guid = @PlayerId
-											WHERE EA.EventId = E.EventId 
+											WHERE EA.EventId = E.EventId AND (P.Deleted IS NULL OR P.Deleted = 0)
 										) AS AttendanceId
 								FROM Events E
 								INNER JOIN Clubs C ON E.ClubId = C.ClubId AND C.Guid = @ClubGuid
@@ -243,7 +243,7 @@ namespace HeyTeam.Lib.Queries {
 								INNER JOIN SquadEvents SE ON S.SquadId = SE.SquadId
 								INNER JOIN Events E ON E.EventId = SE.EventId
 								LEFT JOIN EventAttendance EA ON SE.SquadId = EA.SquadId AND EA.EventId = SE.EventId AND EA.PlayerId = P.PlayerId AND EA.EventId = E.EventId						
-								WHERE E.Guid = @Guid
+								WHERE E.Guid = @Guid AND (P.Deleted IS NULL OR P.Deleted = 0)
 								ORDER BY S.Name, P.FirstName, P.LastName";
 				DynamicParameters p = new DynamicParameters();
 				p.Add("@Guid", eventId.ToString());
@@ -368,6 +368,7 @@ namespace HeyTeam.Lib.Queries {
 						INNER JOIN Events E ON E.EventId = V.EventId AND E.Guid = @EventGuid 
 						INNER JOIN Players P ON P.PlayerId = V.PlayerId
 						INNER JOIN TrainingMaterials T ON V.TrainingMaterialId = T.TrainingMaterialId
+						WHERE (P.Deleted IS NULL OR P.Deleted = 0)
 						UNION ALL
 						SELECT DISTINCT C.Guid AS MemberGuid, C.FirstName + ' ' + C.LastName AS Name, 1 AS Membership,
 							T.Guid AS TrainingMaterialGuid

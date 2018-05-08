@@ -31,7 +31,7 @@ namespace HeyTeam.Lib.Queries
 							FROM Players P
 							INNER JOIN Squads S ON P.SquadId = S.SquadId
 							INNER JOIN Clubs C ON C.ClubId = S.ClubId
-							WHERE C.Guid = @ClubGuid
+							WHERE C.Guid = @ClubGuid AND (P.Deleted IS NULL OR P.Deleted = 0)
 								UNION ALL
 							SELECT CO.Guid, CO.FirstName, CO.LastName, CO.Email, CO.DateOfBirth, 'Coach' AS Membership
 							FROM Coaches CO
