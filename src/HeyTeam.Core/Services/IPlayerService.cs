@@ -6,6 +6,7 @@ namespace HeyTeam.Core.Services {
     {
 		Response RegisterPlayer(PlayerRequest request);
 		Response UpdatePlayerProfile(PlayerRequest request);
+		Response DeletePlayer(DeletePlayerRequest request);
 	}
 
 	public class PlayerRequest {
@@ -19,5 +20,11 @@ namespace HeyTeam.Core.Services {
 		public DateTime? DateOfBirth { get; set; }
 		public string Email { get; set; }
 		public Guid? PlayerId { get; set; }
+	}
+
+	public class DeletePlayerRequest{
+		public Guid ClubId{ get; set; }
+		public Guid SquadId{ get; set; }
+		public Guid PlayerId{ get; set; }
 	}
 }

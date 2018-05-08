@@ -1,17 +1,20 @@
 using HeyTeam.Core;
 using HeyTeam.Core.Queries;
 using HeyTeam.Core.Services;
+using HeyTeam.Util;
 using HeyTeam.Web.Models.CoachViewModels;
 using HeyTeam.Web.Models.SquadViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
+
 namespace HeyTeam.Web.Areas.Administration.Controllers {
 
-    [Authorize(Policy = "Administrator")]
+	[Authorize(Policy = "Administrator")]
     [Area("Administration")]
     [Route("[area]/[controller]")]
     public class SquadsController : Controller {
@@ -19,17 +22,20 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
         private readonly ISquadService squadService;
 		private readonly ISquadQuery squadQuery;
 		private readonly IMemberQuery memberQuery;
+		private readonly IPlayerService playerService;
 
 		public SquadsController(
                 Club club,
 				ISquadService squadService,
 				ISquadQuery squadQuery,
-				IMemberQuery memberQuery
+				IMemberQuery memberQuery,
+				IPlayerService playerService
 		) {
             this.club = club;
             this.squadService = squadService;
 			this.squadQuery = squadQuery;
 			this.memberQuery = memberQuery;
+			this.playerService = playerService;
 		}
 
         [HttpGet("{squadId:guid}")]
@@ -130,6 +136,20 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 		private void AddModelErrors(IEnumerable<string> errors) {
 			foreach (var error in errors)
 				ModelState.AddModelError("", error);
+		}
+
+		[HttpPost("{squadId:guid}/player")]
+		public IActionResult DeletePlayer(Guid squadId, Guid playerId) 
+		{
+			if(!squadId.IsEmpty() && !playerId.IsEmpty())
+			{
+				var response = playerService.DeletePlayer(new DeletePlayerRequest { 
+					ClubId = club.Guid,
+					SquadId = squadId,
+					PlayerId = playerId
+				});
+			}
+			return RedirectToAction("Index");
 		}
 	}
 }

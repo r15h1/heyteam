@@ -80,5 +80,30 @@ namespace HeyTeam.Identity {
 
 			return result;
 		}
+
+		public async Task<IdentityOperationResult> RemoveUser(string email) {
+			var user = await userManager.FindByEmailAsync(email);
+			if (user == null)
+				return GetResult(false, new string[] { "The specified user does not exist" });
+			try {
+				var removal = userManager.RemoveFromRolesAsync(user, new List<string> { "PLAYER", "COACH" }).Result;
+				if (removal.Succeeded) {
+					removal = userManager.DeleteAsync(user).Result;
+					return new IdentityOperationResult(true);
+				}
+			}catch(Exception ex){
+
+			}
+			return new IdentityOperationResult(false);
+		}
+
+		public async Task<IdentityOperationResult> RemoveUserRole(string email, Membership membership) {
+			var user = await userManager.FindByEmailAsync(email);
+			if (user == null)
+				return GetResult(false, new string[] { "The specified user does not exist" });
+
+			await userManager.RemoveFromRoleAsync(user, membership.ToString().ToUpperInvariant());
+			return new IdentityOperationResult(true);
+		}
 	}
 }

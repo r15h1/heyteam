@@ -94,5 +94,17 @@ namespace HeyTeam.Lib.Repositories {
 			p.Add("@SquadNumber", player.SquadNumber);
 			return p;
 		}
+
+		public void DeletePlayer(Player player) {
+			ThrowIf.ArgumentIsNull(player);
+			using (var connection = connectionFactory.Connect()) {
+				string sql = "UPDATE PLAYERS SET Deleted=1, DeletedOn=GetDate() WHERE Guid = @PlayerGuid";
+				var p = new DynamicParameters();
+				p.Add("@PlayerGuid", player.Guid.ToString());
+				connection.Open();
+				connection.Execute(sql, p);
+			}
+			memberQuery.UpdateCache();
+		}
 	}
 }

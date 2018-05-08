@@ -4,84 +4,113 @@
 }
 <h1>@ViewData["Title"]</h1>
 <h3>Coach</h3>
-    @if (Model.Coach == null) {
-        <div class="btn-group" role="group" aria-label="...">
-            <a class="btn btn-primary" asp-controller="Squads" asp-action="Coach" asp-route-squadid="@Model.SquadId">Assign Coach</a>
+@if (Model.Coach == null) {
+    <div class="btn-group" role="group" aria-label="...">
+        <a class="btn btn-primary" asp-controller="Squads" asp-action="Coach" asp-route-squadid="@Model.SquadId">Assign Coach</a>
+    </div>
+} else {
+    <div class="input-group col-md-3 col-lg-3">
+        <Label class="form-control ">@($"{Model.Coach.FirstName} {Model.Coach.LastName}")</Label>
+        <div class="input-group-btn">
+            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action<span class="caret"></span></button>
+            <ul class="dropdown-menu">
+                <li><a asp-controller="Squads" asp-action="Coach" asp-route-squadid="@Model.SquadId"> Change </a></li>
+                <li><a href="#" data-toggle="modal" data-target="#myModal">Remove</a></li>
+            </ul>
         </div>
-    } else {
-        <div class="input-group col-md-3 col-lg-3">
-            <Label class="form-control ">@($"{Model.Coach.FirstName} {Model.Coach.LastName}")</Label>
-            <div class="input-group-btn">
-                <button type = "button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action<span class="caret"></span></button>
-                <ul class="dropdown-menu">
-                    <li><a asp-controller="Squads" asp-action="Coach" asp-route-squadid="@Model.SquadId"> Change </a></li>
-                    <li><a href="#" data-toggle="modal" data-target="#myModal">Remove</a></li>
-                </ul>
-            </div>
-        </div>
+    </div>
 
-        <div class="modal fade" id="myModal" role="dialog">
-            <div class="modal-dialog">
-                <!-- Modal content-->
-                <div class="modal-content">
-                    <form method="post">
-                        <input type="hidden" asp-for="SquadId" name="squadid"/>
-                        <input type="hidden" asp-for="Coach.Guid" name="coachid" />
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title">Confirm Coach Removal</h4>
-                        </div>
-                        <div class="modal-body">
-                            <p>Do you really want to un-assign the coach from this squad?</p>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                            <input type="submit" class="btn btn-danger" value="Confirm"/>
-                        </div>
-                    </form>
-                </div>
+    <div class="modal fade" id="myModal" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <form method="post">
+                    <input type="hidden" asp-for="SquadId" name="squadid" />
+                    <input type="hidden" asp-for="Coach.Guid" name="coachid" />
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Confirm Coach Removal</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>Do you really want to un-assign the coach from this squad?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <input type="submit" class="btn btn-danger" value="Confirm" />
+                    </div>
+                </form>
             </div>
         </div>
-            }
-            <h3>Players</h3>
-            <div class="btn-group" role="group" aria-label="...">
-                @*<a type="button" class="btn btn-default" href='/'>Dashboard</a>*@
-                <a class="btn btn-primary" id="AddPlayerButton" data-toggle="modal" -area="Administration" asp-controller="Players" asp-action="New" asp-route-squadid="@Model.SquadId">Add New Player</a>
-            </div>
+    </div>
 
-            @if (Model.Players != null && Model.Players.Count() > 0) {
-<div class="table-responsive">
-    <table class="table table-bordered table-hover">
-        <thead>
-            <tr>
-                <th>Squad#</th>
-                <th>Name</th>
-                <th>DoB</th>
-                <th>Dominant Foot</th>
-                <th>Email</th>
-                <th>Nationality</th>
-                <th>#Sessions Missed</th>
-                <th>Last Login</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var player in Model.Players) {
-                <tr>
-                    <td>@player.SquadNumber</td>
-                    <td>
-                        @*<a href='/squads/@player.SquadId/players/@player.Guid'>@player.FirstName @player.LastName</a>*@
-                        <a asp-area="Administration" asp-controller="Players" asp-action="Edit" asp-route-squadid="@player.SquadId" asp-route-playerid="@player.Guid">@player.FirstName @player.LastName</a>
-                                    </td>
-                    <td>@player.DateOfBirth.ToString("dd-MMM-yyyy")</td>
-                    <td>@player.DominantFoot</td>
-                    <td>@player.Email</td>
-                    <td>@player.Nationality</td>
-                    <td></td>
-                    <td></td>
-                </tr>
+    <div class="modal fade" id="playerDeleteModal" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" asp-area="Administration" asp-controller="Squads" asp-action="DeletePlayer" asp-route-squadId="@Model.SquadId">
+                    <input type="hidden" asp-for="SquadId" name="squadid" />
+                    <input type="hidden" name="playerid" id="deletedPlayerId"/>
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Delete Player?</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>Do you really want to delete this player?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <input type="submit" class="btn btn-danger" value="Confirm" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 }
-        </tbody>
-    </table>
+<h3>Players</h3>
+<div class="btn-group" role="group" aria-label="...">
+    @*<a type="button" class="btn btn-default" href='/'>Dashboard</a>*@
+    <a class="btn btn-primary" id="AddPlayerButton" data-toggle="modal" -area="Administration" asp-controller="Players" asp-action="New" asp-route-squadid="@Model.SquadId">Add New Player</a>
 </div>
-            } else {
-            <div>No players registered yet</div>}
+
+@if (Model.Players != null && Model.Players.Count() > 0) {
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Squad#</th>
+                    <th>Name</th>
+                    <th>DoB</th>
+                    <th>Dominant Foot</th>
+                    <th>Email</th>
+                    <th>Nationality</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var player in Model.Players) {
+                    <tr data-playerid="@player.Guid">
+                        <td>@player.SquadNumber</td>
+                        <td>
+                            @*<a href='/squads/@player.SquadId/players/@player.Guid'>@player.FirstName @player.LastName</a>*@
+                            <a asp-area="Administration" asp-controller="Players" asp-action="Edit" asp-route-squadid="@player.SquadId" asp-route-playerid="@player.Guid">@player.FirstName @player.LastName</a>
+                        </td>
+                        <td>@player.DateOfBirth.ToString("dd-MMM-yyyy")</td>
+                        <td>@player.DominantFoot</td>
+                        <td>@player.Email</td>
+                        <td>@player.Nationality</td>
+                        <td><button class="btn btn-link deleteButton" type="button"><span class="glyphicon glyphicon-remove text-danger" alt="Delete"></span></button></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+} else {
+    <div>No players registered yet</div>}
+@section Scripts{
+    <script>
+        $("button.deleteButton").click(function (e) {
+            var playerid = $(this).closest("tr").data('playerid');
+            $("#deletedPlayerId").val(playerid);
+            $("#playerDeleteModal").modal("show");
+        });
+    </script>
+}
