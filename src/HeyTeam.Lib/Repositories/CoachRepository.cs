@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using HeyTeam.Core;
+using HeyTeam.Core.Queries;
 using HeyTeam.Core.Repositories;
 using HeyTeam.Lib.Data;
 using HeyTeam.Util;
@@ -7,10 +8,12 @@ using HeyTeam.Util;
 namespace HeyTeam.Lib.Repositories {
 	public class CoachRepository : ICoachRepository {
 		private readonly IDbConnectionFactory connectionFactory;
+		private readonly IMemberQuery memberQuery;
 
-		public CoachRepository(IDbConnectionFactory factory) {
+		public CoachRepository(IDbConnectionFactory factory, IMemberQuery memberQuery) {
 			ThrowIf.ArgumentIsNull(factory);
 			this.connectionFactory = factory;
+			this.memberQuery = memberQuery;
 		}
 
 		public void AddCoach(Coach coach) {
@@ -21,6 +24,18 @@ namespace HeyTeam.Lib.Repositories {
 				connection.Open();
 				connection.Execute(sql, p);
 			}
+		}
+
+		public void DeleteCoach(Coach coach) {
+			ThrowIf.ArgumentIsNull(coach);
+			using (var connection = connectionFactory.Connect()) {
+				string sql = "UPDATE Coaches SET Deleted=1, DeletedOn=GetDate() WHERE Guid = @CoachGuid";
+				var p = new DynamicParameters();
+				p.Add("@CoachGuid", coach.Guid.ToString());
+				connection.Open();
+				connection.Execute(sql, p);
+			}
+			memberQuery.UpdateCache();
 		}
 
 		public void UpdateCoach(Coach coach) {

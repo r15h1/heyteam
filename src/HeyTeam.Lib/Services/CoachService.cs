@@ -1,11 +1,13 @@
 ﻿using HeyTeam.Core;
 using HeyTeam.Core.Exceptions;
+using HeyTeam.Core.Identity;
 using HeyTeam.Core.Queries;
 using HeyTeam.Core.Repositories;
 using HeyTeam.Core.Services;
 using HeyTeam.Core.Validation;
 using HeyTeam.Util;
 using System;
+using System.Linq;
 
 namespace HeyTeam.Lib.Services {
 	public class CoachService : ICoachService {
@@ -13,8 +15,9 @@ namespace HeyTeam.Lib.Services {
 		private readonly IMemberQuery memberQuery;
 		private readonly ICoachRepository coachRepository;
 		private readonly IValidator<CoachRequest> validator;
+		private readonly IIdentityManager identityManager;
 
-		public CoachService(IClubQuery clubQuery,  IMemberQuery memberQuery, ICoachRepository coachRepository, IValidator<CoachRequest> validator) {
+		public CoachService(IClubQuery clubQuery,  IMemberQuery memberQuery, ICoachRepository coachRepository, IValidator<CoachRequest> validator, IIdentityManager identityManager) {
 			ThrowIf.ArgumentIsNull(clubQuery);
 			ThrowIf.ArgumentIsNull(coachRepository);
 			ThrowIf.ArgumentIsNull(validator);
@@ -23,6 +26,31 @@ namespace HeyTeam.Lib.Services {
 			this.memberQuery = memberQuery;
 			this.coachRepository = coachRepository;
 			this.validator = validator;
+			this.identityManager = identityManager;
+		}
+
+		public Response DeleteCoach(DeleteCoachRequest request) {
+			var coach = memberQuery.GetCoach(request.CoachId);
+
+			if (coach == null)
+				return Response.CreateResponse(new EntityNotFoundException("The specified coach does not exist"));
+
+			if (coach.ClubId != request.ClubId)
+				return Response.CreateResponse(new IllegalOperationException("The specified coach does not belong to this club"));
+
+			try {
+				coachRepository.DeleteCoach(coach);
+				var members = memberQuery.GetMembersByEmail(request.ClubId, coach.Email);
+				if (members.Count() == 0) {
+					var result = identityManager.RemoveUser(coach.Email).Result;
+				} else if (!members.Any(m => m.Membership == Membership.Coach)) {
+					var result = identityManager.RemoveUserRole(coach.Email, Membership.Coach).Result;
+				}
+
+				return Response.CreateSuccessResponse();
+			} catch (Exception ex) {
+				return Response.CreateResponse(ex);
+			}
 		}
 
 		public Response RegisterCoach(CoachRequest request) {

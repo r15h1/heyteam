@@ -5,6 +5,7 @@ using HeyTeam.Util;
 using HeyTeam.Web.Models.CoachViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -113,6 +114,17 @@ namespace HeyTeam.Web.Areas.Administration.Controllers
 				Phone = model.Phone,
 				Qualifications = model.Qualifications
 			};
-	
+
+		[HttpPost("remove-coach")]
+		public IActionResult DeleteCoach(Guid coachId) {
+			if (!coachId.IsEmpty()) {
+				var response = coachService.DeleteCoach(new DeleteCoachRequest {
+					ClubId = club.Guid,
+					CoachId = coachId
+				});
+			}
+			return ActionResultOnSuccess();
+		}
+
 	}
 }

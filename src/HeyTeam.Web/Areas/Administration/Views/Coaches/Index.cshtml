@@ -18,25 +18,58 @@
                 <th>
                     @Html.DisplayNameFor(model => model.Phone)
                 </th>
+                <th>Delete</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var item in Model) {
-<tr>
-    <td>
-        <a asp-action="Edit" asp-route-coachid="@item.CoachId">@($"{item.FirstName} {item.LastName}")</a>
-</td>
-    <td>
-        @(item.DateOfBirth.ToString("dd MMM yyyy"))
-    </td>
-    <td>
-        @item.Email
-    </td>
-    <td>
-        @item.Phone
-    </td>
-</tr>
+                <tr data-coachid="@item.CoachId">
+                    <td>
+                        <a asp-action="Edit" asp-route-coachid="@item.CoachId">@($"{item.FirstName} {item.LastName}")</a>
+                    </td>
+                    <td>
+                        @(item.DateOfBirth.ToString("dd MMM yyyy"))
+                    </td>
+                    <td>
+                        @item.Email
+                    </td>
+                    <td>
+                        @item.Phone
+                    </td>
+                    <td><button class="btn btn-link deleteButton" type="button"><span class="glyphicon glyphicon-remove text-danger" alt="Delete"></span></button></td>
+                </tr>
             }
         </tbody>
     </table>
 </div>
+
+<div class="modal fade" id="coachDeleteModal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" asp-area="Administration" asp-controller="Coaches" asp-action="DeleteCoach">                
+                <input type="hidden" name="coachid" id="deletedCoachId" />
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Delete Coach?</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Do you really want to delete this coach?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <input type="submit" class="btn btn-danger" value="Confirm" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        $("button.deleteButton").click(function (e) {
+            var coachid = $(this).closest("tr").data('coachid');
+            $("#deletedCoachId").val(coachid);
+            $("#coachDeleteModal").modal("show");
+        });
+    </script>
+}
