@@ -87,7 +87,7 @@ namespace HeyTeam.Lib.Queries {
                                     CO.Email, CO.Qualifications, CO.Phone
                                 FROM Coaches CO
                                 INNER JOIN Clubs CB ON CO.ClubId = CB.ClubId
-                                WHERE CO.Guid = @Guid AND  CO.Deleted IS NULL OR CO.Deleted = 0;
+                                WHERE CO.Guid = @Guid AND (CO.Deleted IS NULL OR CO.Deleted = 0);
 
                                 SELECT S.Guid AS SquadGuid
                                 FROM SquadCoaches SC
