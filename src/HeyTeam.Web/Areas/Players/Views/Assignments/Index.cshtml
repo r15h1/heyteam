@@ -163,6 +163,10 @@
                 $("#assignmentTrainingMaterials").append(tmHtml)
             }
 
+            $('#assignmentDetailsDialog').on('hidden.bs.modal', function () {
+                updateTable();                
+            })
+
             $('#assignmentDetailsDialog').modal('show');
         }
 

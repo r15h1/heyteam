@@ -39,20 +39,20 @@ namespace HeyTeam.Web.Controllers
 			if (!members.Any()) {
 				ModelState.AddModelError("", "Invalid login");
 				await signInManager.SignOutAsync();
-				return RedirectToAction("Login", "Accounts");
+				return RedirectToActionPreserveMethod("Login", "Accounts");
 			} else if (isAdmin) {
 				return RedirectToAction("Index", "Home", new { Area = "Administration" });
 			} else if (members.Count() > 1) {
 				return View(members);
-			}
-
-			if (members.Any(m => m.Membership == Membership.Coach)) {
+			} else if (members.Any(m => m.Membership == Membership.Coach)) {
 				bool isCoach = await userManager.IsInRoleAsync(user, "Coach");
 				if (isCoach)
-					return RedirectToAction("Index", "Home", new { Area = "Coaches" });
+					return RedirectToAction("Index", "Home", new { Area = "Coaches", memberid = members.FirstOrDefault().Guid });
+			} else if (members.Any(m => m.Membership == Membership.Player)) {
+				return RedirectToAction("Index", "Home", new { Area = "Players", memberid = members.FirstOrDefault().Guid });
 			}
 
-			return RedirectToAction("Index", "Home", new { Area = "Players", memberid = members.FirstOrDefault().Guid});            
-        }
+			return RedirectToAction("Lockout", "Accounts");
+		}
     }
 }
