@@ -113,7 +113,7 @@
                     row += "<td>" + (record.weeklyNotes == null ? "" : record.weeklyNotes) + "</td>";
                     row += "<td>" + (record.latestComment == null ? "" : record.latestComment) + "</td>";
                     row += "<td>" + record.formmattedPublishedDate + "</td>";
-                    row += "<td class='text-center'>" + (record.guid == null ? "<a href='#' class='publishButton'>publish</a>" : "<a href='feedback/" + record.guid + "' class='followUpButton'>follow up</a>") + "</td>";
+                    row += "<td class='text-center'>" + (record.guid == null ? "<a href='#' class='publishButton'>publish</a>" : "<a href='feedback/" + record.guid + "' class='followUpButton' target='__blank'>follow up</a>") + "</td>";
                     row += "</tr>";
                     tableBody.append(row);
                 }
