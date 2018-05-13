@@ -8,6 +8,7 @@ namespace HeyTeam.Core.Repositories
     public interface IFeedbackRepository
     {
         Response PublishFeedback(FeedbackPublishRequest request);
+        Response AddComment(AddCommentRequest request);
     }
 
     public class FeedbackPublishRequest
@@ -18,5 +19,14 @@ namespace HeyTeam.Core.Repositories
         public int Week { get; set; }
         public Guid CoachId { get; set; }
         public string Comments { get; set; }
+    }
+
+    public class AddCommentRequest
+    {
+        public Guid ClubId { get; set; }       
+        public string Comment { get; set; }
+        public Guid FeedbackId { get; set; }
+        public string PostedBy { get; set; }
+        public Guid PosterId { get; set; }
     }
 }

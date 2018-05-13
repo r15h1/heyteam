@@ -18,6 +18,32 @@ namespace HeyTeam.Lib.Repositories
             ThrowIf.ArgumentIsNull(factory);
             this.connectionFactory = factory;
         }
+
+        public Response AddComment(AddCommentRequest request)
+        {
+            var sql = @"INSERT INTO FeedbackComments(FeedbackId, CreatedOn, PostedBy, PosterId, Comments)
+                        VALUES(
+                            (SELECT FeedbackId FROM Feedback WHERE Guid = @FeedbackGuid), 
+                            GetDate(),
+                            @PostedBy,
+                            (SELECT CoachId FROM Coaches WHERE Guid = @PosterGuid),
+                            @Comments
+                        );";
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@FeedbackGuid", request.FeedbackId);
+            parameters.Add("@PostedBy", request.PostedBy);
+            parameters.Add("@PosterGuid", request.PosterId);
+            parameters.Add("@Comments", request.Comment);
+
+            using (var connection = connectionFactory.Connect())
+            {
+                connection.Open();
+                connection.Execute(sql, parameters);
+            }
+            return Response.CreateSuccessResponse();
+        }
+
         public Response PublishFeedback(FeedbackPublishRequest request)
         {
             var sql = @"DECLARE @FeedbackId BIGINT;

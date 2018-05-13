@@ -29,8 +29,8 @@ namespace HeyTeam.Web.Controllers
         [HttpGet("")]
         public IActionResult GetFeedbacks(FeedbackSearchModel model)
         {
-            var feeback = feedbackQuery.GetFeedback(
-                new FeedbackRequest {
+            var feeback = feedbackQuery.GetFeedbackList(
+                new FeedbackListRequest {
                     ClubId = club.Guid,
                     SquadId = model.SquadId,
                     Week = model.Week, 

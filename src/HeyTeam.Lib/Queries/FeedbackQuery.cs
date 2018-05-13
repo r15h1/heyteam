@@ -20,7 +20,7 @@ namespace HeyTeam.Lib.Queries
             this.connectionFactory = factory;
         }
 
-        public IEnumerable<MiniFeedback> GetFeedback(FeedbackRequest request)
+        public IEnumerable<MiniFeedback> GetFeedbackList(FeedbackListRequest request)
         {
             DynamicParameters p = new DynamicParameters();
             p.Add("@ClubGuid", request.ClubId.ToString());
@@ -58,5 +58,53 @@ namespace HeyTeam.Lib.Queries
                 return feedback;
             }
         }
+
+        public MiniFeedbackChain GetFeedbackChain(FeedbackChainRequest request)
+        {
+            DynamicParameters p = new DynamicParameters();
+            p.Add("@ClubGuid", request.ClubId.ToString());
+            p.Add("@FeedbackGuid", request.FeedbackId.ToString());
+
+            var sql = @"SELECT F.Guid AS FeedbackGuid, P.Guid AS PlayerGuid, P.FirstName + ' ' + P.LastName AS PlayerName, F.PublishedOn,
+	                        (SELECT TOP 1 CAST(CreatedOn AS VARCHAR(20)) + ': ' + PostedBy + ' wrote <br/>' +  Comments FROM FeedbackComments FC WHERE FC.FeedbackId = F.FeedbackId ORDER BY CreatedOn DESC) AS LatestComment,
+	                        '' AS WeeklyNotes,
+                            F.Year, F.Week
+                        FROM Players P                        
+                        INNER JOIN Feedback F ON P.PlayerId = F.PlayerId 
+                        WHERE (P.Deleted IS NULL OR P.Deleted = 0) AND F.Guid = @FeedbackGuid;
+            
+                        SELECT CAST(CreatedOn AS VARCHAR(20)) + ': ' + PostedBy + ' wrote <br/>' +  Comments AS Comments
+                        FROM FeedbackComments FC 
+                        INNER JOIN Feedback F ON F.FeedbackId = FC.FeedbackId
+                        WHERE F.Guid = @FeedbackGuid
+                        ORDER BY CreatedOn DESC;
+                    ";
+
+            using (var connection = connectionFactory.Connect())
+            {
+                connection.Open();
+                var reader = connection.QueryMultiple(sql, p);
+                var feedback = reader.Read().Cast<IDictionary<string, object>>().Select<dynamic, MiniFeedbackChain>(
+                        row => new MiniFeedbackChain{
+                            Feedback = new MiniFeedback((row.FeedbackGuid == null ? Guid.Empty : Guid.Parse(row.FeedbackGuid?.ToString())))
+                            {
+                                LatestComment = row.LatestComment,
+                                Player = new MiniModel(Guid.Parse(row.PlayerGuid.ToString()), row.PlayerName),
+                                PublishedOn = row.PublishedOn,
+                                WeeklyNotes = row.WeeklyNotes
+                            },
+                            Year = row.Year,
+                            Week = row.Week
+                        }).SingleOrDefault();
+
+                feedback.Comments = reader.Read().Cast<IDictionary<string, object>>().Select<dynamic, string>(
+                    row => row.Comments
+                ).ToList();
+
+                return feedback;
+            }
+        }
+
+
     }
 }
