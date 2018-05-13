@@ -176,7 +176,10 @@ namespace HeyTeam.Web {
 			services.AddScoped<IValidator<AssignmentRequest>, AssignmentRequestValidator>();
             services.AddScoped<IAssignmentRepository, AssignmentRepository>();
             services.AddScoped<IAssignmentQuery, AssignmentQuery>();
-		}
+
+            services.AddScoped<IFeedbackQuery, FeedbackQuery>();
+            services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+        }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public  void Configure(IApplicationBuilder app, IHostingEnvironment env)

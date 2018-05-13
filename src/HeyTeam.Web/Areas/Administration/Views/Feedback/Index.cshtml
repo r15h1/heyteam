@@ -1,0 +1,156 @@
+﻿@model HeyTeam.Web.Models.FeedbackViewModels.FeedbackViewModel
+
+<h1>Feedback</h1>
+<h3>List</h3>
+<div class="row">
+    <div class="col-md-12" style="margin-bottom:15px;">
+        <div class="form-inline">
+            <div class="form-group">
+                <label for="month">Week of:</label>
+                <input id="datePicker" type="date" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")">
+                <input type="text" readonly class="form-control text-center" id="week" />
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12" style="margin-bottom:15px;">
+        <div class="form-inline">
+            <div class="form-group">
+                <label for="squads" class="control-label">Squads:</label>
+                <select id="squads" name="Month" asp-items="Model.Squads" class="form-control"></select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="message" style="display:none"></div>
+<div class="table-responsive">
+    <table id="feedbackTable" class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th class="col-md-2">Player</th>
+                <th class="col-md-3">Attendance Notes</th>
+                <th class="col-md-4">Latest Comment</th>
+                <th class="col-md-2 text-center">Published On</th>
+                <th class="col-md-1 text-center">Action</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+
+@section Scripts 
+{
+    <script>
+        function initialize() {            
+            $("#datePicker").change(function (e) {
+                updateWeek();
+                getFeedback();
+            });
+
+            $("#squads").change(function (e) {
+                getFeedback();
+            });
+
+            updateWeek();
+            displayMessage("Select a date and squad to start");
+        }
+
+        function displayMessage(message) {
+            $("#message").text(message);
+            $("#message").show();
+            $("div.table-responsive").hide();
+        }
+
+        function hideMessage() {
+            $("#message").empty();
+            $("#message").hide();            
+        }
+
+        function updateWeek() {
+            $("#week").val("");
+            var selectedDate = $("#datePicker").val();
+            if (selectedDate != null && selectedDate != "") {               
+                var date = new Date(selectedDate);
+                var week = date.getFullYear() + "-W" + date.getWeek();
+                $("#week").val(week);
+            }
+        }
+
+        function getFeedback() {            
+            var date = $("#datePicker").val();            
+            var selectedSquad = $("#squads").val();
+
+            if (date != null && date != "" && selectedSquad != null) {
+                displayMessage("Fetching data, please wait...");
+                var selectedDate = new Date(date);
+                $.ajax({
+                    method: "GET",
+                    url: "/api/feedback?week=" + selectedDate.getWeek() + "&year=" + selectedDate.getFullYear() + "&squadid=" + selectedSquad
+                }).done(function (data) {
+                    updateTable(data);
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    displayMessage("There was an error fetching the data from the server. (" + jqXHR.responseText + " " + errorThrown + " )");
+                });
+            } else {
+                displayMessage("Select a date and squad to start");
+            }  
+        }
+
+        function updateTable(data) {
+            if (data == null || data.length == 0) {
+                displayMessage("No record found");
+            } else {
+                hideMessage();
+                var table = $("#feedbackTable");
+                var tableBody = table.find("tbody");
+                tableBody.empty();
+
+                for (var index in data) {
+                    var record = data[index];
+                    var row = "<tr data-feedbackid='" + (record.guid == null ? "" : record.guid) + "' data-playerid='" + record.player.guid + "'>";
+                    row += "<td>" + record.player.name + "</td>";
+                    row += "<td>" + (record.weeklyNotes == null ? "" : record.weeklyNotes) + "</td>";
+                    row += "<td>" + (record.latestComment == null ? "" : record.latestComment) + "</td>";
+                    row += "<td>" + record.formmattedPublishedDate + "</td>";
+                    row += "<td class='text-center'>" + (record.guid == null ? "<a href='#' class='publishButton'>publish</a>" : "<a href='feedback/" + record.guid + "' class='followUpButton'>follow up</a>") + "</td>";
+                    row += "</tr>";
+                    tableBody.append(row);
+                }
+                bindPublishEvent();
+                $("div.table-responsive").show();
+            }
+        }
+
+        function bindPublishEvent() {
+            $("a.publishButton").unbind();
+            $("a.publishButton").click(function (e) {
+                e.preventDefault();
+                var row = $(this).closest("tr");
+                var playerid = row.data("playerid");
+                var selectedDate = $("#datePicker").val();
+                var selectedSquad = $("#squads").val();
+                var date = new Date(selectedDate);
+                var week = date.getFullYear() + "-W" + date.getWeek();
+                var comments = row.find("td:nth-child(2)").html();
+
+                publishFeedback(playerid, date.getFullYear(), date.getWeek(), comments);
+            });
+        }
+
+        function publishFeedback(playerid, year, week, comments) {
+            $.ajax({
+                method: "PUT",
+                url: "/api/feedback/publish",
+                data: { playerId: playerid, year: year, week:week, comments: comments}
+            }).done(function (data) {
+                getFeedback();
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                displayMessage("There was an error fetching the data from the server. (" + jqXHR.responseText + " " + errorThrown + " )");
+            });
+        }
+
+
+        initialize();
+    </script>
+}

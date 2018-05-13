@@ -42,3 +42,10 @@ function parseDate(input) {
     // new Date(year, month [, date [, hours[, minutes[, seconds[, ms]]]]])
     return new Date(parts[0], parts[1] - 1, parts[2]); // months are 0-based
 }
+
+Date.prototype.getWeek = function () {
+    var onejan = new Date(this.getFullYear(), 0, 1);
+    var today = new Date(this.getFullYear(), this.getMonth(), this.getDate());
+    var dayOfYear = ((today - onejan + 1) / 86400000);
+    return Math.ceil(dayOfYear / 7)
+};
