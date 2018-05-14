@@ -7,8 +7,14 @@
             <div asp-validation-summary="All" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="SquadName">Squad Name</label>
-                <input asp-for="SquadName" class="form-control" placeholder="enter squad name" autofocus maxlength="100"/>
-                <!-- <span asp-validation-for="SquadName" class="text-danger"></span> -->                
+                <input asp-for="SquadName" class="form-control" placeholder="enter squad name" autofocus maxlength="100" />
+                <!-- <span asp-validation-for="SquadName" class="text-danger"></span> -->
+            </div>
+
+            <div class="form-group">
+                <label asp-for="YearBorn">Year Born</label>
+                <input asp-for="YearBorn" type="number" class="form-control" placeholder="year born" min="1990" max="@DateTime.Today.AddYears(-3).Year"/>
+                <!-- <span asp-validation-for="SquadName" class="text-danger"></span> -->
             </div>
             <div class="modal-footer">
                 <a class="btn btn-default" href='@ViewData["ReturnUrl"]'>Cancel</a>

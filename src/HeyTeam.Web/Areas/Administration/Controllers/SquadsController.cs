@@ -64,6 +64,7 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 
             var response = squadService.RegisterSquad(new SquadRequest{
                 SquadName = squad.SquadName,
+                YearBorn = squad.YearBorn,
                 ClubId = club.Guid
             });
             

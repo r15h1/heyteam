@@ -60,7 +60,7 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 				return View("Create", player);
 			}
 
-			return Redirect($"/squads/{player.SquadId}");
+			return RedirectToAction("Index", "Squads", new { SquadId = player.SquadId });
 		}
 
 		private PlayerRequest MapPlayerRequest(PlayerViewModel player) {
@@ -126,7 +126,7 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 				return View("Edit", player);
 			}
 
-			return Redirect($"/squads/{player.SquadId}");
-		}
+            return RedirectToAction("Index", "Squads", new { SquadId = player.SquadId });
+        }
 	}
 }

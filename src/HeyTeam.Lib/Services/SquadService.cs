@@ -59,7 +59,7 @@ namespace HeyTeam.Lib.Services {
 				return Response.CreateResponse(new EntityNotFoundException("The specified club does not exist"));
 
 			try {				
-				squadRepository.AddSquad(new Squad(club.Guid) { Name = request.SquadName });				
+				squadRepository.AddSquad(new Squad(club.Guid) { Name = request.SquadName, YearBorn = request.YearBorn });				
 			} catch (Exception ex) {
 				return Response.CreateResponse(ex);
 			}

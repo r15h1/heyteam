@@ -11,5 +11,6 @@ namespace HeyTeam.Core {
         public Guid ClubId { get; }
         public Guid Guid { get; }
         public string Name { get; set; }
+        public short YearBorn { get; set; }
     }
 }

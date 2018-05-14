@@ -19,14 +19,15 @@ namespace HeyTeam.Lib.Repositories {
 
         public void AddSquad(Squad squad) {
             using(var connection = connectionFactory.Connect()) {
-				string sql = @"INSERT INTO SQUADS(ClubId, Guid, Name) 
-                                SELECT C.ClubId, @SquadGuid, @Name FROM CLUBS C  
+				string sql = @"INSERT INTO SQUADS(ClubId, Guid, Name, YearBorn) 
+                                SELECT C.ClubId, @SquadGuid, @Name, @YearBorn FROM CLUBS C  
                                     WHERE C.Guid = @ClubGuid";  
                                 
                 var p = new DynamicParameters();
                 p.Add("@SquadGuid", squad.Guid.ToString());
                 p.Add("@Name", squad.Name);
                 p.Add("@ClubGuid", squad.ClubId.ToString());
+                p.Add("@YearBorn", squad.YearBorn);
                 connection.Open();
                 connection.Execute(sql, p);
             }

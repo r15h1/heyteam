@@ -32,16 +32,14 @@ namespace HeyTeam.Web.Controllers
         {
             var user = userManager.GetUserAsync(User).Result;
             bool isAdmin = await userManager.IsInRoleAsync(user, "Administrator");
-            
-
             var members = memberQuery.GetMembersByEmail(club.Guid, user.Email);
 
-			if (!members.Any()) {
+            if (isAdmin) {
+                return RedirectToAction("Index", "Home", new { Area = "Administration" });
+            }else if (!members.Any()) {
 				ModelState.AddModelError("", "Invalid login");
 				await signInManager.SignOutAsync();
-				return RedirectToActionPreserveMethod("Login", "Accounts");
-			} else if (isAdmin) {
-				return RedirectToAction("Index", "Home", new { Area = "Administration" });
+				return RedirectToActionPreserveMethod("Login", "Accounts"); 
 			} else if (members.Count() > 1) {
 				return View(members);
 			} else if (members.Any(m => m.Membership == Membership.Coach)) {

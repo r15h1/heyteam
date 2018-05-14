@@ -8,8 +8,7 @@
     <h3>List</h3>
     <div>
     <div class="btn-group" role="group" aria-label="...">
-        <a class="btn btn-primary" id="AddSquadButton" href="~/squads/new?@returnUrl">Add New Squad</a>
-        
+        <a class="btn btn-primary" id="AddSquadButton" asp-area="Administration" asp-controller="Squads" asp-action="New" asp-route-returnUrl="@returnUrl">Add New Squad</a>        
     </div>
     </div>
     <div class="table-responsive">
