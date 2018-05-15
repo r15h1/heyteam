@@ -9,7 +9,8 @@ namespace HeyTeam.Core.Services {
 		Response UpdateTerm(TermSetupRequest request);
 		Response DeleteTerm(TermDeleteRequest request);
 		Response UpdateStatus(TermStatusUpdateRequest request);
-		(Guid? Guid, Response Response) GeneratePlayerReportCard(GenerateReportCardRequest request);
+        Response DeleteReportCard(DeleteReportCardRequest request);
+        (Guid? Guid, Response Response) GeneratePlayerReportCard(GenerateReportCardRequest request);
         Response UpdatePlayerReportCard(UpdateReportCardRequest request);
     }
 
@@ -51,5 +52,14 @@ namespace HeyTeam.Core.Services {
 		public string Title { get; set; }
 		public DateTime	StartDate { get; set; }
 		public DateTime EndDate { get; set; }
-	}    
+	}
+
+    public class DeleteReportCardRequest
+    {
+        public Guid ClubId { get; set; }
+        public Guid SquadId { get; set; }
+        public Guid PlayerId { get; set; }
+        public Guid ReportCardId { get; set; }
+        public Guid TermId { get; set; }
+    }
 }

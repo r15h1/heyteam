@@ -187,5 +187,28 @@ namespace HeyTeam.Lib.Services {
 
             return Response.CreateSuccessResponse();
         }
+
+        public Response DeleteReportCard(DeleteReportCardRequest request)
+        {
+            var response = CheckReportCardRequestIntegrity(request.ClubId, request.SquadId, request.TermId, request.PlayerId);
+            if (response.Errors.Any())
+                return response;
+
+            var reportCard = evaluationQuery.GetPlayerReportCard(request.ClubId, request.ReportCardId);
+            if (reportCard == null || !reportCard.ReportCardExists)
+                return Response.CreateResponse(new EntityNotFoundException("The specified report card does not exist"));
+            else if (reportCard.PlayerId != request.PlayerId)
+                return Response.CreateResponse(new IllegalOperationException("The specified report card does not belong to this player"));
+
+            try
+            {
+                evaluationRepository.DeletePlayerReportCard(request);
+                return Response.CreateSuccessResponse();
+            }
+            catch (Exception ex)
+            {
+                return Response.CreateResponse(ex);
+            }
+        }
     }
 }

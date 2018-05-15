@@ -124,5 +124,46 @@ namespace HeyTeam.Lib.Repositories {
 		public void UpdateTerm(TermSetupRequest request) {
 			throw new System.NotImplementedException();
 		}
-	}
+
+        public void DeletePlayerReportCard(DeleteReportCardRequest request)
+        {
+            var sql = @"DECLARE @PlayerReportCardId BIGINT, @PlayerId BIGINT;
+                        
+                        SELECT @PlayerId = PlayerId 
+                        FROM Players P
+                        INNER JOIN Squads S ON S.SquadId = P.SquadId
+                        INNER JOIN Clubs C ON S.ClubId = C.ClubId
+                        WHERE P.Guid = @PlayerGuid AND C.Guid = @ClubGuid AND S.Guid = @SquadGuid;
+                        
+                        SELECT @PlayerReportCardId = PlayerReportCardId FROM PlayerReportCards WHERE Guid = @PlayerReportCardGuid AND PlayerId = @PlayerId;
+
+                        DELETE PlayerReportCardFacets WHERE PlayerReportCardId = @PlayerReportCardId;
+                        DELETE PlayerReportCardGrades WHERE PlayerReportCardId = @PlayerReportCardId;
+                        DELETE PlayerReportCards WHERE PlayerReportCardId = @PlayerReportCardId;";
+
+            DynamicParameters parameters = new DynamicParameters();
+            parameters.Add("@ClubGuid", request.ClubId.ToString());
+            parameters.Add("@SquadGuid", request.SquadId.ToString());
+            parameters.Add("@PlayerGuid", request.PlayerId.ToString());
+            parameters.Add("@PlayerReportCardGuid", request.ReportCardId.ToString());
+
+            using (var connection = connectionFactory.Connect())
+            {
+                connection.Open();
+                using (var transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+                        connection.Execute(sql, parameters, transaction);
+                        transaction.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        throw ex;
+                    }
+                }
+            }
+        }
+    }
 }

@@ -9,5 +9,6 @@ namespace HeyTeam.Core.Repositories {
 		void DeleteTerm(TermDeleteRequest request);
 		Guid GeneratePlayerReportCard(GenerateReportCardRequest request);
         void UpdatePlayerReportCard(UpdateReportCardRequest request);
+        void DeletePlayerReportCard(DeleteReportCardRequest request);
     }
 }

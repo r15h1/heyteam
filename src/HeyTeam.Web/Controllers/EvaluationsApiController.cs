@@ -133,5 +133,27 @@ namespace HeyTeam.Web.Controllers
 
             return Ok();
         }
+
+        [HttpPost("report-cards/delete")]
+        public IActionResult DeleteReportCard(DeleteReportCardModel model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState.Values.SelectMany(e => e.Errors).Select(e => e.ErrorMessage).ToList());
+
+            var response = evaluationService.DeleteReportCard(
+                new DeleteReportCardRequest
+                {
+                    ClubId = club.Guid,
+                    SquadId = model.SquadId,
+                    PlayerId = model.PlayerId,
+                    ReportCardId = model.ReportCardId,
+                    TermId = model.TermId
+                });
+
+            if (!response.RequestIsFulfilled)
+                return BadRequest(response.Errors);
+
+            return Ok();
+        }
     }
 }

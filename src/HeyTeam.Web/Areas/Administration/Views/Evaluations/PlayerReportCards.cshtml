@@ -46,7 +46,25 @@
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div>
+    </div>
+</div>
 
+<div class="modal fade" id="deletionConfirmationDialog" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Confirm Report Deletion</h4>
+            </div>
+            <div class="modal-body">
+                Do you really want to delete this report?
+                <p id="deletionProgress"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button id="confirmDeleteReportButton" type="button" class="btn btn-danger">Delete</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -178,6 +196,11 @@
                 promptTemplateSelection(context);
             });
 
+            $('button.deleteReport').on('click', function (e) {
+                var context = getReportCardContext($(this.closest("tr")));
+                promptForDeleteConfirmation(context);
+            });
+
             $('button.printReport').on('click', function (e) {
                 var context = getReportCardContext($(this.closest("tr")));
                 console.log('printing ' + context.reportCardId);
@@ -196,6 +219,32 @@
 
         function getReportCardContext(record) {
             return { playerId: record.data('playerid'), reportCardId: record.data('reportcardid'), tableRow: record };
+        }
+
+        function promptForDeleteConfirmation(context) {
+            $("deletionProgress").empty().removeClass("text-danger, text-success");
+            $("#confirmDeleteReportButton").unbind();
+            $("#confirmDeleteReportButton").click(function () { 
+                $("#deletionProgress").text("Deleting report, pelase wait...");
+
+                $.ajax({
+                    method: "POST",
+                    url: "/api/evaluations/report-cards/delete",
+                    data: { squadId: squadDropdown.val(), playerId: context.playerId, reportCardId: context.reportCardId, termId: termDropdown.val()}
+                })
+                .done(function (data) {
+                    $("#deletionProgress").addClass("text-success").text("Report card deleted successfully").fadeOut(function () {
+                        $("#deletionConfirmationDialog").modal("hide");
+                        refreshReportCardTable();
+                    });                    
+                })
+                .fail(function (jqXHR, textStatus, errorThrown) {
+                    $("#deletionProgress").addClass("text-danger");
+                    $("#deletionProgress").text("There was an error deleting the report. Please contact your administrator.");
+                });
+            });
+
+            $("#deletionConfirmationDialog").modal("show");
         }
 
         function promptTemplateSelection(context) {
