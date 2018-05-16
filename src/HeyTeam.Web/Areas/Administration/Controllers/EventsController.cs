@@ -53,6 +53,7 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 		public ActionResult Create(EventViewModel model) {
 			if (!ModelState.IsValid) {
 				model.SquadList = GetSquadList();
+				model.EventTypes = GetEventTypeList();
 				return View(model);
 			}
 			
@@ -70,7 +71,9 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 
 				return RedirectToAction(nameof(Index));
 			} catch {
-				return View();
+				model.SquadList = GetSquadList();
+				model.EventTypes = GetEventTypeList();
+				return View(model);
 			}
 		}
 

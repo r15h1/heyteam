@@ -5,6 +5,7 @@ using HeyTeam.Web.Models.ApiModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
+using HeyTeam.Util;
 
 namespace HeyTeam.Web.Controllers
 {
@@ -46,15 +47,21 @@ namespace HeyTeam.Web.Controllers
             var email = User.Identity.Name;
             var members = memberQuery.GetMembersByEmail(club.Guid, email);
             var coach = members?.FirstOrDefault(m => m.Membership == Membership.Coach);
-            var response = feedbackRepository.PublishFeedback(
-                new FeedbackPublishRequest
-                {
-                    ClubId = club.Guid,
-                    PlayerId = model.PlayerId,
-                    Week = model.Week,
-                    Year = model.Year,
-                    Comments = model.Comments ?? "No feedback to provide",
-                    CoachId = coach.Guid
+
+			if(coach == null){
+				return BadRequest("Only a registered coach can provide feedback");
+			} else if (model.Comments.IsEmpty()) {
+				return BadRequest("Comments cannot be empty");
+			}
+
+			var response = feedbackRepository.PublishFeedback(
+				new FeedbackPublishRequest {
+					ClubId = club.Guid,
+					PlayerId = model.PlayerId,
+					Week = model.Week,
+					Year = model.Year,
+					Comments = model.Comments ?? "No feedback to provide",
+					CoachId = coach.Guid
                 }
             );
             return new JsonResult(response);

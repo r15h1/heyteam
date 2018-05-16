@@ -77,7 +77,7 @@ namespace HeyTeam.Lib.Queries
                         FROM FeedbackComments FC 
                         INNER JOIN Feedback F ON F.FeedbackId = FC.FeedbackId
                         WHERE F.Guid = @FeedbackGuid
-                        ORDER BY CreatedOn DESC;
+                        ORDER BY CreatedOn;
                     ";
 
             using (var connection = connectionFactory.Connect())

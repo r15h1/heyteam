@@ -49,3 +49,8 @@ Date.prototype.getWeek = function () {
     var dayOfYear = ((today - onejan + 1) / 86400000);
     return Math.ceil(dayOfYear / 7)
 };
+
+String.prototype.replaceAll = function (search, replacement) {
+    var target = this;
+    return target.replace(new RegExp(search, 'g'), replacement).replace(/^ +| +$/gm, ""); //replace leading spaces while preserving line breaks
+};

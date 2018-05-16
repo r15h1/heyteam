@@ -54,7 +54,8 @@ namespace HeyTeam.Web.Areas.Administration.Controllers
             var feedbackChain = feedbackQuery.GetFeedbackChain(
                 new FeedbackChainRequest { ClubId = club.Guid, FeedbackId = feedbackId }    
             );
-            return View(feedbackChain);
+			var viewModel = new FeedbackChainModel { FeedbackChain = feedbackChain, IsCoach = GetCoach() != null };
+            return View(viewModel);
         }
 
         [HttpPost("{feedbackId:guid}")]
@@ -62,9 +63,7 @@ namespace HeyTeam.Web.Areas.Administration.Controllers
         {
             if(ModelState.IsValid)
             {
-                var email = User.Identity.Name;
-                var members = memberQuery.GetMembersByEmail(club.Guid, email);
-                var coach = members?.FirstOrDefault(m => m.Membership == Membership.Coach);
+				var coach = GetCoach();
 
                 var request = new AddCommentRequest {
                     ClubId = club.Guid,
@@ -79,7 +78,14 @@ namespace HeyTeam.Web.Areas.Administration.Controllers
             var feedbackChain = feedbackQuery.GetFeedbackChain(
                 new FeedbackChainRequest { ClubId = club.Guid, FeedbackId = model.FeedbackId }
             );
-            return View("FeedbackChain", feedbackChain);
+			var viewModel= new FeedbackChainModel { FeedbackChain = feedbackChain, IsCoach = GetCoach() != null };
+			return View("FeedbackChain", viewModel);
         }
-    }
+
+		private Member GetCoach() {
+			var email = User.Identity.Name;
+			var members = memberQuery.GetMembersByEmail(club.Guid, email);
+			return members?.FirstOrDefault(m => m.Membership == Membership.Coach);
+		}
+	}
 }
