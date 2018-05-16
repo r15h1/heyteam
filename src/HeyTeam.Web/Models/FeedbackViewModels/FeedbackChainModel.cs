@@ -9,6 +9,6 @@ namespace HeyTeam.Web.Models.FeedbackViewModels
     public class FeedbackChainModel
     {
 		public MiniFeedbackChain FeedbackChain { get; set; }
-		public bool IsCoach { get; set; } = false;
+		public bool IsMember { get; set; } = false;
 	}
 }

@@ -54,7 +54,7 @@ namespace HeyTeam.Web.Areas.Administration.Controllers
             var feedbackChain = feedbackQuery.GetFeedbackChain(
                 new FeedbackChainRequest { ClubId = club.Guid, FeedbackId = feedbackId }    
             );
-			var viewModel = new FeedbackChainModel { FeedbackChain = feedbackChain, IsCoach = GetCoach() != null };
+			var viewModel = new FeedbackChainModel { FeedbackChain = feedbackChain, IsMember = GetCoach() != null };
             return View(viewModel);
         }
 
@@ -78,7 +78,7 @@ namespace HeyTeam.Web.Areas.Administration.Controllers
             var feedbackChain = feedbackQuery.GetFeedbackChain(
                 new FeedbackChainRequest { ClubId = club.Guid, FeedbackId = model.FeedbackId }
             );
-			var viewModel= new FeedbackChainModel { FeedbackChain = feedbackChain, IsCoach = GetCoach() != null };
+			var viewModel= new FeedbackChainModel { FeedbackChain = feedbackChain, IsMember = GetCoach() != null };
 			return View("FeedbackChain", viewModel);
         }
 

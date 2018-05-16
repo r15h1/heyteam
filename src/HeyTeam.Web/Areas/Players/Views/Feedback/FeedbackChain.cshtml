@@ -1,0 +1,57 @@
+﻿@model HeyTeam.Web.Models.FeedbackViewModels.FeedbackChainModel
+<h1>Feedback</h1>
+<h3>Chain</h3>
+<div class="row">
+    <div class="col-md-12" style="margin-bottom:15px;">
+        <div class="form-inline">
+            <div class="form-group">
+                <label for="month">Week :</label>
+                <input type="text" readonly class="form-control text-center" id="week" value="@($"{Model.FeedbackChain.Year}-W{Model.FeedbackChain.Week}")" />
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12" style="margin-bottom:15px;">
+        <div class="form-inline">
+            <div class="form-group">
+                <label for="month">Player:</label>
+                <input type="text" readonly class="form-control text-center" id="week" value="@($"{Model.FeedbackChain.Feedback.Player.Name}")" />
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row comments">
+    @if (Model.FeedbackChain.Comments != null && Model.FeedbackChain.Comments.Count > 0) {
+        foreach (var comment in Model.FeedbackChain.Comments) {
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <p>@Html.Raw(comment)</p>
+                </div>
+            </div>
+        }
+    } else {
+        <p>There are no comments</p>
+    }
+</div>
+@if (Model.IsCoach) {
+    <hr />
+    <form id="commentForm" method="post">
+        <input type="hidden" value="@Model.FeedbackChain.Feedback.Guid" />
+        <div class="form-group">
+            <textarea id="Comment" name="Comment" rows="4" class="form-control" placeholder="Add a comment..." required onKeyUp="if(this.textLength != 0) {submit.disabled = false} else {submit.disabled = true}"></textarea>
+            <p class="submit">
+                <input type="submit" value="Submit" class="btn btn-primary" id="submit" name="submit" disabled>
+            </p>
+        </div>
+    </form>
+}
+
+@section Scripts {
+    <script>
+        $("#commentForm").submit(function (e) {
+            var comment = $("#Comment").val();
+            if (comment == null || $.trim(comment).length == 0) {
+                e.preventDefault();
+            }
+        });
+    </script>
+}
