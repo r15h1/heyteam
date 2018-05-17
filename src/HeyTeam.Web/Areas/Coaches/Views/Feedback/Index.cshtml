@@ -164,7 +164,7 @@
                 $("#publishForm").submit(function (e) {
                     e.preventDefault();
                     $("p.feedbackPublishMessage").removeClass("text-danger").empty();
-                    publishFeedback(playerid, date.getFullYear(), date.getWeek(), comments);
+                    publishFeedback(playerid, date.getFullYear(), date.getWeek(), $("#feedbackText").val());
                 });
                 $("#publishDialog").modal("show");                
             });

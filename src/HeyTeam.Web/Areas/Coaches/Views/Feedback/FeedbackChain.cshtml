@@ -20,19 +20,17 @@
     </div>
 </div>
 <div class="row comments">
+    <div class="col-md-12">
     @if (Model.FeedbackChain.Comments != null && Model.FeedbackChain.Comments.Count > 0) {
         foreach (var comment in Model.FeedbackChain.Comments) {
-            <div class="panel panel-default">
-                <div class="panel-body">
-                    <p>@Html.Raw(comment)</p>
-                </div>
-            </div>
+            <hr /><p>@Html.Raw(comment)</p>
         }
     } else {
         <p>There are no comments</p>
     }
+    </div>
 </div>
-@if (Model.IsCoach) {
+@if (Model.IsMember) {
     <hr />
     <form id="commentForm" method="post">
         <input type="hidden" value="@Model.FeedbackChain.Feedback.Guid" />

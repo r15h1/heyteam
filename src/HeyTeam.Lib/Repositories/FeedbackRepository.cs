@@ -21,13 +21,14 @@ namespace HeyTeam.Lib.Repositories
 
         public Response AddComment(AddCommentRequest request)
         {
-            var sql = @"INSERT INTO FeedbackComments(FeedbackId, CreatedOn, PostedBy, PosterId, Comments)
+            var sql = $@"INSERT INTO FeedbackComments(FeedbackId, CreatedOn, PostedBy, PosterId, Comments, MembershipId)
                         VALUES(
                             (SELECT FeedbackId FROM Feedback WHERE Guid = @FeedbackGuid), 
                             GetDate(),
                             @PostedBy,
-                            (SELECT CoachId FROM Coaches WHERE Guid = @PosterGuid),
-                            @Comments
+                            {(request.Membership == Core.Membership.Coach ? "(SELECT CoachId FROM Coaches WHERE Guid = @PosterGuid)" : "(SELECT PlayerId FROM Players WHERE Guid = @PosterGuid)")},
+                            @Comments,
+							@MembershipId
                         );";
 
             var parameters = new DynamicParameters();
@@ -35,8 +36,9 @@ namespace HeyTeam.Lib.Repositories
             parameters.Add("@PostedBy", request.PostedBy);
             parameters.Add("@PosterGuid", request.PosterId);
             parameters.Add("@Comments", request.Comment);
+			parameters.Add("@MembershipId", request.Membership);
 
-            using (var connection = connectionFactory.Connect())
+			using (var connection = connectionFactory.Connect())
             {
                 connection.Open();
                 connection.Execute(sql, parameters);

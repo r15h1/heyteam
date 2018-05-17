@@ -19,16 +19,26 @@ namespace HeyTeam.Web.Controllers
     {
 		private readonly Club club;
 		private readonly IMemberQuery memberQuery;
+		private readonly IFeedbackQuery feedbackQuery;
 
-		public PlayersApiController(Club club, IMemberQuery memberQuery) {
+		public PlayersApiController(Club club, IMemberQuery memberQuery, IFeedbackQuery feedbackQuery) {
 			this.club = club;
 			this.memberQuery = memberQuery;
+			this.feedbackQuery = feedbackQuery;
 		}
 
 		[HttpGet]
 		public IActionResult Get(GenericSearchModel model) {
 			var results = memberQuery.SearchPlayers(model.Query, model.Page, model.Limit) ?? new List<PlayerSearchResult>(); ;
 			return new JsonResult(results?.Select(t => new { id = t.PlayerId, text = $"{t.PlayerName} {t.SquadName}"}));
+		}
+
+		[HttpGet("{playerId:guid}/feedback")]
+		public IActionResult GetFeedback(Guid playerId, int month, int year) {
+			var feedbackList = feedbackQuery.GetFeedbackList(new PlayerFeedbackListRequest { 
+				ClubId = club.Guid, PlayerId = playerId, Year = year, Month = month
+			});
+			return new JsonResult(feedbackList);
 		}
 	}
 }

@@ -30,9 +30,8 @@ namespace HeyTeam.Web.Areas.Players.Controllers
 		}
 
 		[HttpGet("")]
-		public IActionResult Index() {
-			var squads = GetSquadList().OrderBy(s => s.Text).Prepend(new SelectListItem { Text = "Select", Value = "", Disabled = true, Selected = true }).ToList();
-			var model = new FeedbackViewModel { Squads = squads };
+		public IActionResult Index(Guid memberId) {
+			var model = new PlayerFeedbackViewModel { PlayerId = memberId };
 			return View(model);
 		}
 
@@ -63,7 +62,8 @@ namespace HeyTeam.Web.Areas.Players.Controllers
 					Comment = model.Comment,
 					FeedbackId = model.FeedbackId,
 					PostedBy = $"{player.FirstName} {player.LastName}",
-					PosterId = player.Guid
+					PosterId = player.Guid,
+					Membership = Membership.Player
 				};
 
 				feedbackRepository.AddComment(request);

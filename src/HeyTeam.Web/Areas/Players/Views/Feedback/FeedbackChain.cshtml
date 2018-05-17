@@ -20,38 +20,36 @@
     </div>
 </div>
 <div class="row comments">
-    @if (Model.FeedbackChain.Comments != null && Model.FeedbackChain.Comments.Count > 0) {
-        foreach (var comment in Model.FeedbackChain.Comments) {
-            <div class="panel panel-default">
-                <div class="panel-body">
-                    <p>@Html.Raw(comment)</p>
-                </div>
-            </div>
-        }
-    } else {
-        <p>There are no comments</p>
-    }
-</div>
-@if (Model.IsCoach) {
-    <hr />
-    <form id="commentForm" method="post">
-        <input type="hidden" value="@Model.FeedbackChain.Feedback.Guid" />
-        <div class="form-group">
-            <textarea id="Comment" name="Comment" rows="4" class="form-control" placeholder="Add a comment..." required onKeyUp="if(this.textLength != 0) {submit.disabled = false} else {submit.disabled = true}"></textarea>
-            <p class="submit">
-                <input type="submit" value="Submit" class="btn btn-primary" id="submit" name="submit" disabled>
-            </p>
-        </div>
-    </form>
-}
-
-@section Scripts {
-    <script>
-        $("#commentForm").submit(function (e) {
-            var comment = $("#Comment").val();
-            if (comment == null || $.trim(comment).length == 0) {
-                e.preventDefault();
+    <div class="col-md-12">
+        @if (Model.FeedbackChain.Comments != null && Model.FeedbackChain.Comments.Count > 0) {
+            foreach (var comment in Model.FeedbackChain.Comments) {
+                <hr /><p>@Html.Raw(comment)</p>
             }
-        });
-    </script>
-}
+        } else {
+            <p>There are no comments</p>
+        }
+    </div>
+</div>
+    @if (Model.IsMember) {
+        <hr />
+        <form id="commentForm" method="post">
+            <input type="hidden" value="@Model.FeedbackChain.Feedback.Guid" />
+            <div class="form-group">
+                <textarea id="Comment" name="Comment" rows="4" class="form-control" placeholder="Add a comment..." required onKeyUp="if(this.textLength != 0) {submit.disabled = false} else {submit.disabled = true}"></textarea>
+                <p class="submit">
+                    <input type="submit" value="Submit" class="btn btn-primary" id="submit" name="submit" disabled>
+                </p>
+            </div>
+        </form>
+    }
+
+    @section Scripts {
+        <script>
+            $("#commentForm").submit(function (e) {
+                var comment = $("#Comment").val();
+                if (comment == null || $.trim(comment).length == 0) {
+                    e.preventDefault();
+                }
+            });
+        </script>
+    }

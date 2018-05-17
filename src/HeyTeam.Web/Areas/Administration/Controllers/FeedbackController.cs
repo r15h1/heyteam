@@ -70,7 +70,8 @@ namespace HeyTeam.Web.Areas.Administration.Controllers
                     Comment = model.Comment,
                     FeedbackId = model.FeedbackId,
                     PostedBy = $"{coach.FirstName} {coach.LastName}",
-                    PosterId = coach.Guid
+                    PosterId = coach.Guid,
+					Membership = Membership.Coach
                 };
 
                 feedbackRepository.AddComment(request);

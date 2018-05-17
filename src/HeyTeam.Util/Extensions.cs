@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -49,6 +50,11 @@ namespace HeyTeam.Util {
 
 		public static bool In<T>(this T val, params T[] values) where T : struct {
 			return values.Contains(val);
+		}
+
+		public static int GetWeekOfYear(this DateTime date) {
+			GregorianCalendar gc = new GregorianCalendar();
+			return gc.GetWeekOfYear(date, CalendarWeekRule.FirstDay, DayOfWeek.Sunday);
 		}
 	}
 }

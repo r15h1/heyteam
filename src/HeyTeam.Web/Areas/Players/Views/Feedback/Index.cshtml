@@ -1,4 +1,4 @@
-﻿@model HeyTeam.Web.Models.FeedbackViewModels.FeedbackViewModel
+﻿@model HeyTeam.Web.Models.FeedbackViewModels.PlayerFeedbackViewModel
 
 <h1>Feedback</h1>
 <h3>List</h3>
@@ -18,10 +18,8 @@
     <table id="feedbackTable" class="table table-bordered table-hover">
         <thead>
             <tr>
-                <th class="col-md-2">Week</th>
-                <th class="col-md-3">Attendance Notes</th>
-                <th class="col-md-4">Latest Comment</th>
-                <th class="col-md-2 text-center">Published On</th>
+                <th class="col-md-2">Published On</th>
+                <th class="col-md-9">Latest Comment</th>                
                 <th class="col-md-1 text-center">Action</th>
             </tr>
         </thead>
@@ -59,15 +57,10 @@
     <script>
         function initialize() {
             $("#datePicker").change(function (e) {
-                updateMonth();
                 getFeedback();
-            });
+            });            
 
-            $("#squads").change(function (e) {
-                getFeedback();
-            });
-
-            updateMonth();           
+            getFeedback();
         }
 
         function displayMessage(message) {
@@ -81,33 +74,22 @@
             $("#message").hide();
         }
 
-        function updateMonth() {
-            $("#week").val("");
-            var selectedDate = $("#datePicker").val();
-            if (selectedDate != null && selectedDate != "") {
-                var date = new Date(selectedDate);
-                var week = date.getFullYear() + "-W" + date.getWeek();
-                $("#week").val(week);
-            }
-        }
-
         function getFeedback() {
             var date = $("#datePicker").val();
-            var selectedSquad = $("#squads").val();
 
-            if (date != null && date != "" && selectedSquad != null) {
+            if (date != null && date != "") {
                 displayMessage("Fetching data, please wait...");
-                var selectedDate = new Date(date);
+                var selectedDate = date.split("-");
                 $.ajax({
                     method: "GET",
-                    url: "/api/feedback?week=" + selectedDate.getWeek() + "&year=" + selectedDate.getFullYear() + "&squadid=" + selectedSquad
+                    url: "/api/players/" + "@Model.PlayerId" + "/feedback?month=" + selectedDate[1] + "&year=" + selectedDate[0]
                 }).done(function (data) {
                     updateTable(data);
                 }).fail(function (jqXHR, textStatus, errorThrown) {
                     displayMessage("There was an error fetching the data from the server. (" + jqXHR.responseText + " " + errorThrown + " )");
                 });
             } else {
-                displayMessage("Select a date and squad to start");
+                displayMessage("Select a date to start");
             }
         }
 
@@ -122,66 +104,16 @@
 
                 for (var index in data) {
                     var record = data[index];
-                    var row = "<tr data-feedbackid='" + (record.guid == null ? "" : record.guid) + "' data-playerid='" + record.player.guid + "'>";
-                    row += "<td>" + record.player.name + "</td>";
-                    row += "<td>" + (record.weeklyNotes == null ? "" : record.weeklyNotes) + "</td>";
-                    row += "<td>" + (record.latestComment == null ? "" : record.latestComment) + "</td>";
+                    var row = "<tr data-feedbackid='" + (record.guid == null ? "" : record.guid) + "' data-playerid='" + record.player.guid + "'>";                                                  
                     row += "<td>" + record.formmattedPublishedDate + "</td>";
+                    row += "<td>" + (record.latestComment == null ? "" : record.latestComment) + "</td>";
                     row += "<td class='text-center'>" + (record.guid == null ? "<a href='#' class='publishButton'>publish</a>" : "<a href='feedback/" + record.guid + "' class='followUpButton' target='__blank'>follow up</a>") + "</td>";
                     row += "</tr>";
                     tableBody.append(row);
                 }
-                bindPublishEvent();
                 $("div.table-responsive").show();
             }
         }
-
-        function bindPublishEvent() {
-            $("a.publishButton").unbind();
-            $("a.publishButton").click(function (e) {
-                e.preventDefault();
-                $("p.feedbackPublishMessage").removeClass("text-danger").empty();
-                var row = $(this).closest("tr");
-                var playerid = row.data("playerid");
-                var selectedDate = $("#datePicker").val();
-                var selectedSquad = $("#squads").val();
-                var date = new Date(selectedDate);
-                var week = date.getFullYear() + "-W" + date.getWeek();
-                var comments = row.find("td:nth-child(2)").html();
-                enablePublishButton(comments);
-
-                $("#publishForm").unbind();
-                $("#publishForm").submit(function (e) {
-                    e.preventDefault();
-                    $("p.feedbackPublishMessage").removeClass("text-danger").empty();
-                    publishFeedback(playerid, date.getFullYear(), date.getWeek(), comments);
-                });
-                $("#publishDialog").modal("show");                
-            });
-        }
-
-        function enablePublishButton(comments) {
-            $("#feedbackText").val(new String(comments).trim().replaceAll("<br>", "\n").replaceAll("<br/>", "\n"));
-            if (comments.length > 0) {
-                $("#confirmPublishButton").removeAttr("disabled");
-            } else {
-                $("#confirmPublishButton").attr("disabled", "disabled");
-            }
-        }
-
-        function publishFeedback(playerid, year, week, comments) {
-            $.ajax({
-                method: "PUT",
-                url: "/api/feedback/publish",
-                data: { playerId: playerid, year: year, week: week, comments: comments }
-            }).done(function (data) {
-                getFeedback();
-                $("#publishDialog").modal("hide");    
-                }).fail(function (jqXHR, textStatus, errorThrown) {
-                    $("p.feedbackPublishMessage").addClass("text-danger").html("There was an error fetching the data from the server.<br/>" + jqXHR.responseText).show();
-            });
-        }
-
 
         initialize();
     </script>

@@ -28,5 +28,6 @@ namespace HeyTeam.Core.Repositories
         public Guid FeedbackId { get; set; }
         public string PostedBy { get; set; }
         public Guid PosterId { get; set; }
+		public Membership Membership{ get; set; }
     }
 }

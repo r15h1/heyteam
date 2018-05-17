@@ -20,7 +20,7 @@ namespace HeyTeam.Lib.Queries
             this.connectionFactory = factory;
         }
 
-        public IEnumerable<MiniFeedback> GetFeedbackList(FeedbackListRequest request)
+        public IEnumerable<MiniFeedback> GetFeedbackList(SquadFeedbackListRequest request)
         {
             DynamicParameters p = new DynamicParameters();
             p.Add("@ClubGuid", request.ClubId.ToString());
@@ -29,7 +29,7 @@ namespace HeyTeam.Lib.Queries
             p.Add("@Week", request.Week);
 
             var sql = @"SELECT F.Guid AS FeedbackGuid, P.Guid AS PlayerGuid, P.FirstName + ' ' + P.LastName AS PlayerName, F.PublishedOn,
-	                        (SELECT TOP 1 CAST(CreatedOn AS VARCHAR(20)) + ': ' + PostedBy + ' wrote <br/>' +  Comments FROM FeedbackComments FC WHERE FC.FeedbackId = F.FeedbackId ORDER BY CreatedOn DESC) AS LatestComment,
+	                        (SELECT TOP 1 '<strong>' + CAST(CreatedOn AS VARCHAR(20)) + ': ' + PostedBy + ' wrote</strong><br/>' +  Comments FROM FeedbackComments FC WHERE FC.FeedbackId = F.FeedbackId ORDER BY CreatedOn DESC) AS LatestComment,
 	                        STUFF ((SELECT COALESCE(EA.Feedback + '<br/> ', '') 
 			                        FROM EventAttendance EA 
 			                        INNER JOIN Players P1 ON EA.PlayerId = P1.PlayerId
@@ -66,14 +66,14 @@ namespace HeyTeam.Lib.Queries
             p.Add("@FeedbackGuid", request.FeedbackId.ToString());
 
             var sql = @"SELECT F.Guid AS FeedbackGuid, P.Guid AS PlayerGuid, P.FirstName + ' ' + P.LastName AS PlayerName, F.PublishedOn,
-	                        (SELECT TOP 1 CAST(CreatedOn AS VARCHAR(20)) + ': ' + PostedBy + ' wrote <br/>' +  Comments FROM FeedbackComments FC WHERE FC.FeedbackId = F.FeedbackId ORDER BY CreatedOn DESC) AS LatestComment,
+	                        (SELECT TOP 1 '<strong>' + CAST(CreatedOn AS VARCHAR(20)) + ': ' + PostedBy + ' wrote</strong><br/>' +  Comments FROM FeedbackComments FC WHERE FC.FeedbackId = F.FeedbackId ORDER BY CreatedOn DESC) AS LatestComment,
 	                        '' AS WeeklyNotes,
                             F.Year, F.Week
                         FROM Players P                        
                         INNER JOIN Feedback F ON P.PlayerId = F.PlayerId 
                         WHERE (P.Deleted IS NULL OR P.Deleted = 0) AND F.Guid = @FeedbackGuid;
             
-                        SELECT CAST(CreatedOn AS VARCHAR(20)) + ': ' + PostedBy + ' wrote <br/>' +  Comments AS Comments
+                        SELECT '<strong>' + CAST(CreatedOn AS VARCHAR(20)) + ': ' + PostedBy + ' wrote</strong><br/>' +  Comments AS Comments
                         FROM FeedbackComments FC 
                         INNER JOIN Feedback F ON F.FeedbackId = FC.FeedbackId
                         WHERE F.Guid = @FeedbackGuid
@@ -105,6 +105,42 @@ namespace HeyTeam.Lib.Queries
             }
         }
 
+		public IEnumerable<MiniFeedback> GetFeedbackList(PlayerFeedbackListRequest request) {
+			var weekRange = GetWeekRange(request.Year, request.Month);
 
-    }
+			DynamicParameters p = new DynamicParameters();
+			p.Add("@ClubGuid", request.ClubId.ToString());
+			p.Add("@PlayerGuid", request.PlayerId.ToString());
+			p.Add("@Year", request.Year);
+			p.Add("@MinWeek", weekRange.MinWeek);
+			p.Add("@MaxWeek", weekRange.MaxWeek);
+
+			var sql = @"SELECT F.Guid AS FeedbackGuid, P.Guid AS PlayerGuid, P.FirstName + ' ' + P.LastName AS PlayerName, F.PublishedOn,
+	                        (SELECT TOP 1 '<strong>' + CAST(CreatedOn AS VARCHAR(20)) + ': ' + PostedBy + ' wrote</strong><br/>' +  Comments 
+								FROM FeedbackComments FC WHERE FC.FeedbackId = F.FeedbackId ORDER BY CreatedOn DESC) AS LatestComment	                    
+                        FROM Players P
+                        INNER JOIN Squads S ON S.SquadId = P.SquadId
+						INNER JOIN Clubs C ON C.ClubId = S.ClubId
+                        INNER JOIN Feedback F ON P.PlayerId = F.PlayerId AND F.Year = @Year AND F.Week BETWEEN @MinWeek AND @MaxWeek
+                        WHERE (P.Deleted IS NULL OR P.Deleted = 0) AND P.Guid = @PlayerGuid AND C.Guid = @ClubGuid;";
+
+			using (var connection = connectionFactory.Connect()) {
+				connection.Open();
+				var reader = connection.Query(sql, p).Cast<IDictionary<string, object>>();
+				var feedback = reader.Select<dynamic, MiniFeedback>(
+						row => new MiniFeedback((row.FeedbackGuid == null ? Guid.Empty : Guid.Parse(row.FeedbackGuid?.ToString()))) {
+							LatestComment = row.LatestComment,
+							Player = new MiniModel(Guid.Parse(row.PlayerGuid.ToString()), row.PlayerName),
+							PublishedOn = row.PublishedOn
+						}).ToList();
+
+				return feedback;
+			}
+		}
+
+		private (int MinWeek, int MaxWeek) GetWeekRange(int year, int month) {
+			DateTime min = new DateTime(year, month, 1), max = new DateTime(year, month, DateTime.DaysInMonth(year, month));
+			return (min.GetWeekOfYear(), max.GetWeekOfYear());		
+		}
+	}
 }

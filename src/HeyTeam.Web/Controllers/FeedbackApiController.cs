@@ -31,7 +31,7 @@ namespace HeyTeam.Web.Controllers
         public IActionResult GetFeedbacks(FeedbackSearchModel model)
         {
             var feeback = feedbackQuery.GetFeedbackList(
-                new FeedbackListRequest {
+                new SquadFeedbackListRequest {
                     ClubId = club.Guid,
                     SquadId = model.SquadId,
                     Week = model.Week, 
