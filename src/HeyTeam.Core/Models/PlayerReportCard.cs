@@ -12,7 +12,7 @@ namespace HeyTeam.Core.Models {
 
         public Guid PlayerId { get; }
 		public string PlayerName { get; set; }
-		public short SquadNumber { get; set; }		
+		public short? SquadNumber { get; set; }		
         public Guid? PlayerReportCardId { get; } 
 		public bool ReportCardExists{ get => !PlayerReportCardId.IsEmpty(); }
     }	

@@ -179,7 +179,7 @@
                 var row = "<tr data-playerid='" + reportCard.playerId + "' data-reportcardid = '" + reportCard.playerReportCardId + "'>";
 
                 row = row + "<td>" + reportCard.playerName + "</td>";
-                row = row + "<td class='text-center'>" + reportCard.squadNumber + "</td>";
+                row = row + "<td class='text-center'>" + (reportCard.squadNumber == null ? "" : reportCard.squadNumber) + "</td>";
                 row = row + "<td class='text-center'>" + (reportCard.reportCardExists ? "<button class='btn btn-link showReportCard'><span class='glyphicon glyphicon glyphicon-file'></span></button>" : "") + "</td>";
                 row = row + "<td class='text-center'>" + actionDropdown + "</td></tr>";
                 $("#reportCardsTable > tbody").append(row);
