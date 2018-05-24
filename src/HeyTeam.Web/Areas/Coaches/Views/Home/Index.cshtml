@@ -1,3 +1,67 @@
-﻿
+﻿@model HeyTeam.Web.Models.DashboardModel
 <h1>Dashboard</h1>
-<h3>My Squads</h3>
+<h3>Upcoming Events</h3>
+<div id="eventsMessage"></div>
+<div class="table-responsive" id="eventsTable">
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Squads</th>
+                <th>Starts</th>
+                <th>Ends</th>
+                <th>Location</th>
+                <th>Docs</th>
+            </tr>
+        </thead>
+        <tbody id="eventsTableBody"></tbody>
+    </table>
+</div>
+
+@section Scripts{ 
+    <script type="text/javascript">
+        var eventsMessageProgress = $("#eventsMessage");
+        var eventsTable = $("#eventsTable");
+        var eventsTableBody = $("#eventsTableBody");
+        var apiRoot = "/api/@Model.MembershipArea/@Model.MemberId" + "/";
+
+        function getUpcomingEvents() {
+            eventsMessageProgress.text("Loading events, please wait...").show();
+            eventsTable.hide();
+            eventsTableBody.empty();
+
+            $.ajax({
+                method: "GET",
+                url: apiRoot + "upcoming-events"
+            }).done(function (data) {
+                eventsMessageProgress.empty().hide();
+                displayEvents(data);
+            }).fail(function (xhr, textStatus, error) { 
+                eventsMessageProgress.text("Error - Could not retrieve upcoming events")
+
+            })
+        }
+
+        function displayEvents(events) {
+            if (events != null && events.length > 0) {
+                for (var index in events) {
+                    var entry = events[index];
+                    //console.log(entry);
+                    var row = "<tr data-id='" + entry.eventId + "'>";
+                    row = row + "<td><a href='events/" + entry.eventId + "' target='__blank'><span class='label label-default'>" + entry.eventTypeDescription + "</span><br/>" + entry.title + "</a></td>";
+                    row = row + "<td>" + entry.squads + "</td>";
+                    row = row + "<td>" + entry.formattedStartDate + "</td>";
+                    row = row + "<td>" + entry.formattedEndDate + "</td>";
+                    row = row + "<td>" + entry.location + "</td>";
+                    row = row + "<td class='text-center'>" + entry.trainingMaterialsCount + "</td></tr>";
+                    eventsTableBody.append(row);
+                }
+                eventsTable.show();
+            } else {
+                eventsMessageProgress.text("No events found").show();
+            }
+        }
+
+        getUpcomingEvents();
+    </script>
+}

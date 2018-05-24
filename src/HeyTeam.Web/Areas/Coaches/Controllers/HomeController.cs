@@ -1,12 +1,11 @@
 ﻿using HeyTeam.Core;
 using HeyTeam.Core.Queries;
 using HeyTeam.Identity;
+using HeyTeam.Web.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace HeyTeam.Web.Areas.Coaches.Controllers {
 	[Authorize(Policy = "Coach")]
@@ -29,14 +28,13 @@ namespace HeyTeam.Web.Areas.Coaches.Controllers {
         [HttpGet]
         public IActionResult Index(Guid memberid)
         {
-            var user = userManager.GetUserAsync(User).Result;
-            var request = new DashboardRequest
+            var model = new DashboardModel
             {
-                UserEmail = user.Email,
-                ClubId = club.Guid
+                MemberId = memberid,
+				Membership = Membership.Coach
             };
             
-            return View("Index");
+            return View(model);
         }
     }
 }

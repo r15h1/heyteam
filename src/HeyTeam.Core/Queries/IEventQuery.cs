@@ -7,6 +7,7 @@ namespace HeyTeam.Core.Queries {
     {
 		Event GetEvent(Guid eventId);
 		IEnumerable<Event> GetEvents(Guid clubId, Guid? squadId = null);
+		IEnumerable<EventSummary> GetUpcomingEvents(UpcomingEventsRequest request);
 		IEnumerable<EventSummary> GetEventsSummary(Guid clubId);
 		IEnumerable<EventSummary> GetEventsSummary(EventsRequest request);
 		IEnumerable<EventPlayer> GetPlayersByEvent(Guid eventId);
@@ -22,5 +23,12 @@ namespace HeyTeam.Core.Queries {
 		public Guid? PlayerId { get; set; }
 		public int Month { get; set; } = DateTime.Today.Month;
 		public int Year { get; set; } = DateTime.Today.Year;
+	}
+
+	public class UpcomingEventsRequest {
+		public Guid ClubId { get; set; }		
+		public Guid MemberId{ get; set; }
+		public Membership Membership{ get; set; }
+		public int Limit { get; set; } = 5;
 	}
 }

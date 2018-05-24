@@ -400,5 +400,49 @@ namespace HeyTeam.Lib.Queries {
 				return trainingMaterialViews;
 			}
 		}
+
+		public IEnumerable<EventSummary> GetUpcomingEvents(UpcomingEventsRequest request) {
+			if (request == null)
+				return null;
+
+			using (var connection = connectionFactory.Connect()) {
+				string sql = @"SELECT DISTINCT TOP(@Limit) C.Guid AS ClubGuid, E.Guid AS EventGuid, E.Title, 
+										E.StartDate, E.EndDate, E.Location, E.EventTypeId,
+										(SELECT COUNT(1) FROM EventTrainingMaterials ETM 
+											INNER JOIN TrainingMaterials T ON ETM.TrainingMaterialId = T.TrainingMaterialId
+											WHERE ETM.EventId = E.EventId AND (T.Deleted IS NULL OR T.Deleted = 0)
+										) AS TrainingMaterialCount,
+
+										(SELECT STUFF(
+												(SELECT ', ' + Name FROM (SELECT S.Name AS Name FROM Squads S
+												INNER JOIN SquadEvents SE ON SE.SquadId = S.SquadId
+												WHERE SE.EventId = E.EventId)SQ ORDER BY Name FOR XML PATH (''))
+											,1,1,'')
+										) AS Squads
+								FROM Events E
+								INNER JOIN Clubs C ON E.ClubId = C.ClubId AND C.Guid = @ClubGuid
+								INNER JOIN SquadEvents SE ON SE.EventId = E.EventId
+								INNER JOIN Squads S ON S.SquadId = SE.SquadId AND S.ClubId = C.ClubId
+								INNER JOIN SquadCoaches SC ON SC.SquadId = S.SquadId
+								INNER JOIN Coaches CO ON CO.CoachId = SC.CoachId AND CO.Guid = @MemberId
+								WHERE (E.Deleted IS NULL OR E.Deleted = 0) AND E.StartDate >= CAST(GetDate() AS DATE);";
+
+				DynamicParameters p = new DynamicParameters();
+				p.Add("@ClubGuid", request.ClubId.ToString());
+				p.Add("@MemberId", request.MemberId.ToString());
+				p.Add("@Limit", request.Limit);
+
+				connection.Open();
+				var reader = connection.Query(sql, p).Cast<IDictionary<string, object>>();
+				var events = reader.Select<dynamic, EventSummary>(
+						row => new EventSummary(Guid.Parse(row.ClubGuid.ToString()), Guid.Parse(row.EventGuid.ToString())) {
+							EndDate = row.EndDate, Location = row.Location, StartDate = row.StartDate,
+							Title = row.Title, Squads = row.Squads, TrainingMaterialsCount = row.TrainingMaterialCount,
+							Attendance = (Attendance?)row.AttendanceId, EventType = (EventType)row.EventTypeId
+						}).ToList();
+
+				return events;
+			}
+		}
 	}
 }
