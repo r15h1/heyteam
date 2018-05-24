@@ -18,7 +18,25 @@
     </table>
 </div>
 
-@section Scripts{ 
+<h3>Latest Feedback</h3>
+<div id="feedbackMessage"></div>
+<div class="table-responsive" id="feedbackTable">
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Squads</th>
+                <th>Starts</th>
+                <th>Ends</th>
+                <th>Location</th>
+                <th>Docs</th>
+            </tr>
+        </thead>
+        <tbody id="feedbackTableBody"></tbody>
+    </table>
+</div>
+
+@section Scripts{
     <script type="text/javascript">
         var eventsMessageProgress = $("#eventsMessage");
         var eventsTable = $("#eventsTable");
@@ -36,7 +54,7 @@
             }).done(function (data) {
                 eventsMessageProgress.empty().hide();
                 displayEvents(data);
-            }).fail(function (xhr, textStatus, error) { 
+            }).fail(function (xhr, textStatus, error) {
                 eventsMessageProgress.text("Error - Could not retrieve upcoming events")
 
             })
@@ -56,6 +74,7 @@
                     row = row + "<td class='text-center'>" + entry.trainingMaterialsCount + "</td></tr>";
                     eventsTableBody.append(row);
                 }
+                eventsTable.append("<p><a href='events'>View more events</a></p>");
                 eventsTable.show();
             } else {
                 eventsMessageProgress.text("No events found").show();

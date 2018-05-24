@@ -9,6 +9,7 @@ namespace HeyTeam.Core.Queries
     {
         IEnumerable<MiniFeedback> GetFeedbackList(SquadFeedbackListRequest request);
 		IEnumerable<MiniFeedback> GetFeedbackList(PlayerFeedbackListRequest request);
+		IEnumerable<MiniFeedback> GetLatestFeedback(LatestFeedbackRequest request);
 		MiniFeedbackChain GetFeedbackChain(FeedbackChainRequest request);
     }
 
@@ -32,4 +33,10 @@ namespace HeyTeam.Core.Queries
         public Guid ClubId { get; set; }
         public Guid FeedbackId { get; set; }
     }
+
+	public class LatestFeedbackRequest{
+		public Guid ClubId{ get; set; }
+		public Guid MemberId{ get; set; }
+		public Membership Membership{ get; set; }
+	}
 }
