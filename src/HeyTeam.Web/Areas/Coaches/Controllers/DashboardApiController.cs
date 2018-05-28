@@ -40,8 +40,8 @@ namespace HeyTeam.Web.Areas.Coaches.Controllers {
 
 		[HttpGet("latest-feedback")]
 		public IActionResult GetLatestFeedback(DashboardModel model) {
-			//var response = feedbackQuery.GetLatestFeedback();
-			return new JsonResult(null);
+			var response = feedbackQuery.GetLatestFeedback(new LatestFeedbackRequest { ClubId = club.Guid, MemberId = model.MemberId, Membership = Membership.Coach });
+			return new JsonResult(response);
 		}
 	}
 }

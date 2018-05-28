@@ -19,7 +19,7 @@ namespace HeyTeam.Core.Models {
 		public Guid PlayerGuid { get; }
 		public string SquadName { get; set; }
 		public string PlayerName { get; set; }
-		public short SquadNumber { get; set; }
+		public short? SquadNumber { get; set; }
 		public Attendance? Attendance { get; set; }
 		public short? TimeLogged{ get; set; }
 		public string Feedback { get; set; }

@@ -24,12 +24,9 @@
     <table class="table table-bordered table-hover">
         <thead>
             <tr>
-                <th>Title</th>
-                <th>Squads</th>
-                <th>Starts</th>
-                <th>Ends</th>
-                <th>Location</th>
-                <th>Docs</th>
+                <th class="col-md-3">Player</th>
+                <th>Latest Comments</th>
+                <th class="col-md-2 text-center">Date</th>
             </tr>
         </thead>
         <tbody id="feedbackTableBody"></tbody>
@@ -41,6 +38,11 @@
         var eventsMessageProgress = $("#eventsMessage");
         var eventsTable = $("#eventsTable");
         var eventsTableBody = $("#eventsTableBody");
+
+        var feedbackMessageProgress = $("#feedbackMessage");
+        var feedbackTable = $("#feedbackTable");
+        var feedbackTableBody = $("#feedbackTableBody");
+
         var apiRoot = "/api/@Model.MembershipArea/@Model.MemberId" + "/";
 
         function getUpcomingEvents() {
@@ -55,8 +57,7 @@
                 eventsMessageProgress.empty().hide();
                 displayEvents(data);
             }).fail(function (xhr, textStatus, error) {
-                eventsMessageProgress.text("Error - Could not retrieve upcoming events")
-
+                eventsMessageProgress.text("Error - Could not retrieve upcoming events");
             })
         }
 
@@ -81,6 +82,39 @@
             }
         }
 
+        function getlatestFeedback() {
+            feedbackMessageProgress.text("Loading feedback, please wait...").show();
+            feedbackTable.hide();
+            feedbackTableBody.empty();
+
+            $.ajax({
+                method: "GET",
+                url: apiRoot + "latest-feedback"
+            }).done(function (data) {
+                feedbackMessageProgress.empty().hide();
+                displayFeedback(data);
+            }).fail(function (xhr, textStatus, error) {
+                feedbackMessageProgress.text("Error - Could not retrieve latest feedback");
+            })
+        }
+
+        function displayFeedback(feedback) {            
+            if (feedback != null && feedback.length > 0) {
+                for (var index in feedback) {
+                    var record = feedback[index];
+                    var row = "<tr data-feedbackid='" + (record.guid == null ? "" : record.guid) + "' data-playerid='" + record.player.guid + "'>";
+                    row += "<td><a href='feedback/" + record.guid + "' target='__blank'>" + record.player.name + "</a></td>";                   
+                    row += "<td>" + (record.latestComment == null ? "" : record.latestComment) + "</td>";
+                    row += "<td class='text-center'>" + record.formmattedPublishedDate + "</td>";                    
+                    row += "</tr>";
+                    feedbackTableBody.append(row);
+                }
+                feedbackTable.append("<p><a href='feedback'>View more feedback</a></p>");
+                feedbackTable.show();
+            }            
+        }
+
         getUpcomingEvents();
+        getlatestFeedback()
     </script>
 }

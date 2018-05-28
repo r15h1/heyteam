@@ -148,26 +148,24 @@ namespace HeyTeam.Lib.Queries
 			p.Add("@ClubGuid", request.ClubId.ToString());
 			p.Add("@MemberGuid", request.MemberId.ToString());
 
-			var sql = @"DECLARE @Squads(SquadId BIGINT);
-						INSERT INTO @Squads(SquadId) 
-						SELECT S.SquadId 
-						FROM SquadCoaches S 
-						INNER JOIN Coaches CO ON CO.CoachId = S.CoachId 
-						WHERE (CO.Deleted IS NULL OR CO.Deleted = 0) AND CO.Guid = @MemberGuid;			
+			var sql = @"DECLARE @Squads TABLE(SquadId BIGINT);
+                        INSERT INTO @Squads(SquadId) 
+                        SELECT S.SquadId 
+                        FROM SquadCoaches S 
+                        INNER JOIN Coaches CO ON CO.CoachId = S.CoachId 
+                        WHERE (CO.Deleted IS NULL OR CO.Deleted = 0) AND CO.Guid = @MemberGuid;		
 			
-						SELECT F.Guid AS FeedbackGuid, P.Guid AS PlayerGuid, P.FirstName + ' ' + P.LastName AS PlayerName, F.PublishedOn,
-	                        (SELECT TOP 1 '<strong>' + CAST(CreatedOn AS VARCHAR(20)) + ': ' + PostedBy + ' wrote</strong><br/>' +  Comments FROM FeedbackComments FC WHERE FC.FeedbackId = F.FeedbackId ORDER BY CreatedOn DESC) AS LatestComment,
-	                        STUFF ((SELECT COALESCE(EA.Feedback + '<br/> ', '') 
-			                        FROM EventAttendance EA 
-			                        INNER JOIN Players P1 ON EA.PlayerId = P1.PlayerId
-			                        INNER JOIN Events E ON EA.EventId = E.EventId
-			                        WHERE YEAR(E.StartDate) = @Year AND DATEPART(wk, E.StartDate) = @Week AND P1.PlayerId = P.PlayerId
-			                        FOR XML PATH(''),TYPE ).value('.','VARCHAR(2000)') 
-					                        ,1, 0, '') AS WeeklyNotes
+                        SELECT TOP 10 F.Guid AS FeedbackGuid, P.Guid AS PlayerGuid, P.FirstName + ' ' + P.LastName AS PlayerName, F.PublishedOn,
+	                        (SELECT TOP 1 '<strong>' + CAST(CreatedOn AS VARCHAR(20)) + ': ' + PostedBy + ' wrote</strong><br/>' +  Comments 
+		                        FROM FeedbackComments FC WHERE FC.FeedbackId = F.FeedbackId ORDER BY CreatedOn DESC) AS LatestComment,
+		                        (SELECT TOP 1 CreatedOn 
+		                        FROM FeedbackComments FC WHERE FC.FeedbackId = F.FeedbackId ORDER BY CreatedOn DESC) AS CreatedOn
+	
                         FROM Players P
                         INNER JOIN @Squads S ON S.SquadId = P.SquadId
-                        LEFT JOIN Feedback F ON P.PlayerId = F.PlayerId 
-                        WHERE (P.Deleted IS NULL OR P.Deleted = 0) AND S.SquadId ;";
+                        INNER JOIN Feedback F ON P.PlayerId = F.PlayerId 
+                        WHERE (P.Deleted IS NULL OR P.Deleted = 0) 
+                        ORDER BY CreatedOn DESC, F.PublishedOn DESC;";
 
 			using (var connection = connectionFactory.Connect()) {
 				connection.Open();

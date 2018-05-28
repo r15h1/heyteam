@@ -256,7 +256,7 @@ namespace HeyTeam.Lib.Queries {
                                 FROM Coaches C
 								INNER JOIN SquadCoaches SC ON SC.CoachId = C.CoachId
                                 INNER JOIN Squads S ON SC.SquadId = S.SquadId
-                                WHERE S.Guid IN @Squads AND (CO.Deleted IS NULL OR CO.Deleted = 0)) T
+                                WHERE S.Guid IN @Squads AND (C.Deleted IS NULL OR C.Deleted = 0)) T
 								ORDER BY MemberName;
 								";
 				DynamicParameters p = new DynamicParameters();
