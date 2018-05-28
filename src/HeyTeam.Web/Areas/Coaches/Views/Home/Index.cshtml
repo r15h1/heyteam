@@ -1,5 +1,7 @@
 ﻿@model HeyTeam.Web.Models.DashboardModel
 <h1>Dashboard</h1>
+<h3>My Squads</h3>
+
 <h3>Upcoming Events</h3>
 <div id="eventsMessage"></div>
 <div class="table-responsive" id="eventsTable">
@@ -38,31 +40,21 @@
         var eventsMessageProgress = $("#eventsMessage");
         var eventsTable = $("#eventsTable");
         var eventsTableBody = $("#eventsTableBody");
-
         var feedbackMessageProgress = $("#feedbackMessage");
         var feedbackTable = $("#feedbackTable");
         var feedbackTableBody = $("#feedbackTableBody");
-
         var apiRoot = "/api/@Model.MembershipArea/@Model.MemberId" + "/";
 
         function getUpcomingEvents() {
             eventsMessageProgress.text("Loading events, please wait...").show();
             eventsTable.hide();
             eventsTableBody.empty();
-
-            $.ajax({
-                method: "GET",
-                url: apiRoot + "upcoming-events"
-            }).done(function (data) {
-                eventsMessageProgress.empty().hide();
-                displayEvents(data);
-            }).fail(function (xhr, textStatus, error) {
-                eventsMessageProgress.text("Error - Could not retrieve upcoming events");
-            })
+            ajax(apiRoot + "upcoming-events", "GET", null, displayEvents, function () { eventsMessageProgress.text("Error - Could not retrieve upcoming events"); });            
         }
 
         function displayEvents(events) {
             if (events != null && events.length > 0) {
+                eventsMessageProgress.empty().hide();
                 for (var index in events) {
                     var entry = events[index];
                     //console.log(entry);
@@ -86,20 +78,12 @@
             feedbackMessageProgress.text("Loading feedback, please wait...").show();
             feedbackTable.hide();
             feedbackTableBody.empty();
-
-            $.ajax({
-                method: "GET",
-                url: apiRoot + "latest-feedback"
-            }).done(function (data) {
-                feedbackMessageProgress.empty().hide();
-                displayFeedback(data);
-            }).fail(function (xhr, textStatus, error) {
-                feedbackMessageProgress.text("Error - Could not retrieve latest feedback");
-            })
+            ajax(apiRoot + "latest-feedback", "GET", null, displayFeedback, function () { feedbackMessageProgress.text("Error - Could not retrieve latest feedback"); });                
         }
 
         function displayFeedback(feedback) {            
             if (feedback != null && feedback.length > 0) {
+                feedbackMessageProgress.empty().hide();
                 for (var index in feedback) {
                     var record = feedback[index];
                     var row = "<tr data-feedbackid='" + (record.guid == null ? "" : record.guid) + "' data-playerid='" + record.player.guid + "'>";
@@ -114,7 +98,11 @@
             }            
         }
 
-        getUpcomingEvents();
-        getlatestFeedback()
+        function initialize() {
+            getUpcomingEvents();
+            getlatestFeedback()
+        }
+
+        initialize();
     </script>
 }

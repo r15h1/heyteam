@@ -54,3 +54,15 @@ String.prototype.replaceAll = function (search, replacement) {
     var target = this;
     return target.replace(new RegExp(search, 'g'), replacement).replace(/^ +| +$/gm, ""); //replace leading spaces while preserving line breaks
 };
+
+function ajax(url, method, data, successCallback, failureCallback) {
+    $.ajax({
+        method: method,
+        url: url,
+        data: data
+    }).done(function (data) {        
+        successCallback(data);
+    }).fail(function (xhr, textStatus, error) {
+        failureCallback();
+    })
+}
