@@ -12,5 +12,6 @@ namespace HeyTeam.Core {
         public Guid Guid { get; }
         public string Name { get; set; }
         public short YearBorn { get; set; }
+        public int? NumberOfPlayers { get; set; }
     }
 }

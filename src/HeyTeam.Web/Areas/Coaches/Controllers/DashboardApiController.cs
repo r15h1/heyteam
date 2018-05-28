@@ -15,12 +15,14 @@ namespace HeyTeam.Web.Areas.Coaches.Controllers {
 		private readonly Club club;
 		private readonly IEventQuery eventQuery;
 		private readonly IFeedbackQuery feedbackQuery;
+        private readonly ISquadQuery squadQuery;
 
-		public DashboardApiController(Club club, IEventQuery eventQuery, IFeedbackQuery feedbackQuery){
+        public DashboardApiController(Club club, IEventQuery eventQuery, IFeedbackQuery feedbackQuery, ISquadQuery squadQuery){
 			this.club = club;
 			this.eventQuery = eventQuery;
 			this.feedbackQuery = feedbackQuery;
-		}
+            this.squadQuery = squadQuery;
+        }
 		
 		[HttpGet("upcoming-events")]
 		public IActionResult GetUpcomingEvents(DashboardModel model)
@@ -43,5 +45,12 @@ namespace HeyTeam.Web.Areas.Coaches.Controllers {
 			var response = feedbackQuery.GetLatestFeedback(new LatestFeedbackRequest { ClubId = club.Guid, MemberId = model.MemberId, Membership = Membership.Coach });
 			return new JsonResult(response);
 		}
-	}
+
+        [HttpGet("my-squads")]
+        public IActionResult GetMySquads(DashboardModel model)
+        {
+            var squads = squadQuery.GetMemberSquads(model.MemberId, Membership.Coach);            
+            return new JsonResult(squads);
+        }
+    }
 }

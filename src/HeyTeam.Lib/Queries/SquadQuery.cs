@@ -30,7 +30,9 @@ namespace HeyTeam.Lib.Repositories {
         {
             using (var connection = connectionFactory.Connect())
             {
-                string sql = $@"SELECT C.Guid AS ClubGuid, S.Guid AS SquadGuid, S.Name 
+                string sql = $@"SELECT C.Guid AS ClubGuid, S.Guid AS SquadGuid, S.Name,
+                                    (SELECT COUNT(1) FROM Players PLA WHERE PLA.SquadId = S.SquadId AND (PLA.Deleted IS NULL OR PLA.Deleted = 0)) AS NumberOfPlayers,
+                                    S.YearBorn
                                 FROM Squads S 
                                 INNER JOIN Clubs C ON C.ClubId = S.ClubId 
                                 { (membership == Membership.Coach 
@@ -46,7 +48,9 @@ namespace HeyTeam.Lib.Repositories {
                 var squads = reader.Select<dynamic, Squad>(
                         row => new Squad(Guid.Parse(row.ClubGuid.ToString()), Guid.Parse(row.SquadGuid.ToString()))
                         {
-                            Name = row.Name
+                            Name = row.Name,
+                            NumberOfPlayers = row.NumberOfPlayers,
+                            YearBorn = row.YearBorn
                         }).ToList();
 
                 return squads;

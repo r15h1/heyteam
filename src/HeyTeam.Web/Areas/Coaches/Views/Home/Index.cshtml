@@ -1,6 +1,19 @@
 ﻿@model HeyTeam.Web.Models.DashboardModel
 <h1>Dashboard</h1>
 <h3>My Squads</h3>
+<div id="squadsMessage"></div>
+<div id="squadTable" class="table-responsive">
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>Squad Name</th>
+                <th>Year Born</th>
+                <th>#Players</th>
+            </tr>
+        </thead>
+        <tbody id="squadTableBody"></tbody>
+    </table>
+</div>
 
 <h3>Upcoming Events</h3>
 <div id="eventsMessage"></div>
@@ -43,7 +56,31 @@
         var feedbackMessageProgress = $("#feedbackMessage");
         var feedbackTable = $("#feedbackTable");
         var feedbackTableBody = $("#feedbackTableBody");
+        var squadMessageProgress = $("#squadMessage");
+        var squadTable = $("#squadTable");
+        var squadTableBody = $("#squadTableBody");
+
         var apiRoot = "/api/@Model.MembershipArea/@Model.MemberId" + "/";
+
+        function getSquads() {
+            ajax(apiRoot + "my-squads", "GET", null, displaySquads, function () { squadMessageProgress.text("Error - Could not retrieve upcoming events"); });     
+        }
+
+        function displaySquads(squads) {
+            if (squads != null && squads.length > 0) {
+                squadMessageProgress.empty().hide();
+                for (var index in squads) {
+                    var record = squads[index];
+                    var row = "<tr data-squadId='" + (record.guid == null ? "" : record.guid) + "'>";
+                    row += "<td><a href='squads/" + record.guid + "' target='__blank'>" + record.name + "</a></td>";
+                    row += "<td>" + record.yearBorn + "</td>";      
+                    row += "<td>" + record.numberOfPlayers + "</td>";                   
+                    row += "</tr>";
+                    squadTableBody.append(row);
+                }
+                squadTable.show();
+            }            
+        }
 
         function getUpcomingEvents() {
             eventsMessageProgress.text("Loading events, please wait...").show();
@@ -99,6 +136,7 @@
         }
 
         function initialize() {
+            getSquads();
             getUpcomingEvents();
             getlatestFeedback()
         }
