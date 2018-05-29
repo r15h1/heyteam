@@ -1,7 +1,7 @@
 ﻿@model HeyTeam.Web.Models.DashboardModel
 <h1>Dashboard</h1>
 <h3>My Squads</h3>
-<div id="squadsMessage"></div>
+<div id="squadMessage"></div>
 <div id="squadTable" class="table-responsive">
     <table class="table table-bordered table-hover">
         <thead>
@@ -41,7 +41,6 @@
             <tr>
                 <th class="col-md-3">Player</th>
                 <th>Latest Comments</th>
-                <th class="col-md-2 text-center">Date</th>
             </tr>
         </thead>
         <tbody id="feedbackTableBody"></tbody>
@@ -63,6 +62,9 @@
         var apiRoot = "/api/@Model.MembershipArea/@Model.MemberId" + "/";
 
         function getSquads() {
+            squadMessageProgress.text("Loading squads, please wait...");
+            squadTable.hide();
+            squadTableBody.empty();
             ajax(apiRoot + "my-squads", "GET", null, displaySquads, function () { squadMessageProgress.text("Error - Could not retrieve upcoming events"); });     
         }
 
@@ -125,14 +127,15 @@
                     var record = feedback[index];
                     var row = "<tr data-feedbackid='" + (record.guid == null ? "" : record.guid) + "' data-playerid='" + record.player.guid + "'>";
                     row += "<td><a href='feedback/" + record.guid + "' target='__blank'>" + record.player.name + "</a></td>";                   
-                    row += "<td>" + (record.latestComment == null ? "" : record.latestComment) + "</td>";
-                    row += "<td class='text-center'>" + record.formmattedPublishedDate + "</td>";                    
+                    row += "<td>" + (record.latestComment == null ? "" : record.latestComment) + "</td>";       
                     row += "</tr>";
                     feedbackTableBody.append(row);
                 }
                 feedbackTable.append("<p><a href='feedback'>View more feedback</a></p>");
                 feedbackTable.show();
-            }            
+            } else {
+                feedbackMessageProgress.text("No feedback found").show();
+            }           
         }
 
         function initialize() {

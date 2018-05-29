@@ -44,18 +44,18 @@ namespace HeyTeam.Web.Areas.Players.Controllers
 		}
 
 		[HttpGet("{feedbackId:guid}")]
-		public IActionResult FeedbackChain(Guid feedbackId) {
+		public IActionResult FeedbackChain(Guid feedbackId, Guid memberId) {
 			var feedbackChain = feedbackQuery.GetFeedbackChain(
 				new FeedbackChainRequest { ClubId = club.Guid, FeedbackId = feedbackId }
 			);
-			var viewModel = new FeedbackChainModel { FeedbackChain = feedbackChain, IsMember = GetPlayer() != null };
+			var viewModel = new FeedbackChainModel { FeedbackChain = feedbackChain, IsMember = GetPlayer(memberId) != null };
 			return View(viewModel);
 		}
 
 		[HttpPost("{feedbackId:guid}")]
-		public IActionResult AddComment(NewCommentModel model) {
+		public IActionResult AddComment(NewCommentModel model, Guid memberId) {
 			if (ModelState.IsValid) {
-				var player = GetPlayer();
+				var player = GetPlayer(memberId);
 
 				var request = new AddCommentRequest {
 					ClubId = club.Guid,
@@ -71,14 +71,16 @@ namespace HeyTeam.Web.Areas.Players.Controllers
 			var feedbackChain = feedbackQuery.GetFeedbackChain(
 				new FeedbackChainRequest { ClubId = club.Guid, FeedbackId = model.FeedbackId }
 			);
-			var viewModel = new FeedbackChainModel { FeedbackChain = feedbackChain, IsMember = GetPlayer() != null };
+			var viewModel = new FeedbackChainModel { FeedbackChain = feedbackChain, IsMember = GetPlayer(memberId) != null };
 			return View("FeedbackChain", viewModel);
 		}
 
-		private Member GetPlayer() {
-			var email = User.Identity.Name;
-			var members = memberQuery.GetMembersByEmail(club.Guid, email);
-			return members?.FirstOrDefault(m => m.Membership == Membership.Player);
+		private Member GetPlayer(Guid memberId) {
+			//var email = User.Identity.Name;
+			//var members = memberQuery.GetMembersByEmail(club.Guid, email);
+			//return members?.FirstOrDefault(m => m.Membership == Membership.Player);
+			var member = memberQuery.GetPlayer(memberId);
+			return member;
 		}
 	}
 }
