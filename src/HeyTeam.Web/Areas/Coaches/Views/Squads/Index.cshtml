@@ -4,9 +4,9 @@
 }
 <h1>@ViewData["Title"]</h1>
 <h3>Coach</h3>
+@if (Model.Coach != null) {
 <Label>@($"{Model.Coach.FirstName} {Model.Coach.LastName}")</Label>
-
-
+}
 <h3>Players</h3>
 @if (Model.Players != null && Model.Players.Count() > 0) {
     <div class="table-responsive">
@@ -15,13 +15,21 @@
                 <tr>
                     <th>Squad#</th>
                     <th>Name</th>
+                    <th>DoB</th>
+                    <th>Dominant Foot</th>
+                    <th>Email</th>
+                    <th>Nationality</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var player in Model.Players) {
                     <tr data-playerid="@player.Guid">
                         <td>@player.SquadNumber</td>
-                        <td>@player.FirstName @player.LastName</td>                 
+                        <td>@player.FirstName @player.LastName</td>
+                        <td>@player.DateOfBirth.ToString("dd-MMM-yyyy")</td>
+                        <td>@player.DominantFoot</td>
+                        <td>@player.Email</td>
+                        <td>@player.Nationality</td>
                     </tr>
                 }
             </tbody>

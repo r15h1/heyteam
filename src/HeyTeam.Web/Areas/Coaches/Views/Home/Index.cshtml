@@ -74,7 +74,7 @@
                 for (var index in squads) {
                     var record = squads[index];
                     var row = "<tr data-squadId='" + (record.guid == null ? "" : record.guid) + "'>";
-                    row += "<td><a href='squads/" + record.guid + "' target='__blank'>" + record.name + "</a></td>";
+                    row += "<td><a href='squads/" + record.guid + "'>" + record.name + "</a></td>";
                     row += "<td>" + record.yearBorn + "</td>";      
                     row += "<td>" + record.numberOfPlayers + "</td>";                   
                     row += "</tr>";
