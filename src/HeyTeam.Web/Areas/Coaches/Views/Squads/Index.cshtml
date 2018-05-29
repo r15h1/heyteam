@@ -1,0 +1,31 @@
+@model HeyTeam.Web.Models.SquadViewModels.SquadDetailsViewModel
+@{
+    ViewData["Title"] = $"{Model.SquadName} Squad";
+}
+<h1>@ViewData["Title"]</h1>
+<h3>Coach</h3>
+<Label>@($"{Model.Coach.FirstName} {Model.Coach.LastName}")</Label>
+
+
+<h3>Players</h3>
+@if (Model.Players != null && Model.Players.Count() > 0) {
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Squad#</th>
+                    <th>Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var player in Model.Players) {
+                    <tr data-playerid="@player.Guid">
+                        <td>@player.SquadNumber</td>
+                        <td>@player.FirstName @player.LastName</td>                 
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+} else {
+    <div>No players registered yet</div>}
