@@ -65,7 +65,7 @@
             squadMessageProgress.text("Loading squads, please wait...");
             squadTable.hide();
             squadTableBody.empty();
-            ajax(apiRoot + "my-squads", "GET", null, displaySquads, function () { squadMessageProgress.text("Error - Could not retrieve upcoming events"); });     
+            ajax(apiRoot + "my-squads", "GET", null, displaySquads, function () { squadMessageProgress.text("Error - Could not retrieve squads"); });     
         }
 
         function displaySquads(squads) {

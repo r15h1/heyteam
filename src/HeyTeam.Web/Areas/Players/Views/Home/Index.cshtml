@@ -1,3 +1,149 @@
-﻿
+﻿@model HeyTeam.Web.Models.DashboardModel
 <h1>Dashboard</h1>
-<h3>Member</h3>
+<h3>My Squads</h3>
+<div id="squadMessage"></div>
+<div id="squadTable" class="table-responsive">
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>Squad Name</th>
+                <th>Year Born</th>
+                <th>#Players</th>
+            </tr>
+        </thead>
+        <tbody id="squadTableBody"></tbody>
+    </table>
+</div>
+
+<h3>Upcoming Events</h3>
+<div id="eventsMessage"></div>
+<div class="table-responsive" id="eventsTable">
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Squads</th>
+                <th>Starts</th>
+                <th>Ends</th>
+                <th>Location</th>
+                <th>Docs</th>
+            </tr>
+        </thead>
+        <tbody id="eventsTableBody"></tbody>
+    </table>
+</div>
+
+<h3>Latest Feedback</h3>
+<div id="feedbackMessage"></div>
+<div class="table-responsive" id="feedbackTable">
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>Latest Comments</th>
+                <th class="col-md-2">Follow Up</th>
+            </tr>
+        </thead>
+        <tbody id="feedbackTableBody"></tbody>
+    </table>
+</div>
+
+@section Scripts{
+    <script type="text/javascript">
+        var eventsMessageProgress = $("#eventsMessage");
+        var eventsTable = $("#eventsTable");
+        var eventsTableBody = $("#eventsTableBody");
+        var feedbackMessageProgress = $("#feedbackMessage");
+        var feedbackTable = $("#feedbackTable");
+        var feedbackTableBody = $("#feedbackTableBody");
+        var squadMessageProgress = $("#squadMessage");
+        var squadTable = $("#squadTable");
+        var squadTableBody = $("#squadTableBody");
+
+        var apiRoot = "/api/@Model.MembershipArea/@Model.MemberId" + "/";
+
+        function getSquads() {
+            squadMessageProgress.text("Loading squads, please wait...");
+            squadTable.hide();
+            squadTableBody.empty();
+            ajax(apiRoot + "my-squads", "GET", null, displaySquads, function () { squadMessageProgress.text("Error - Could not retrieve squads"); });     
+        }
+
+        function displaySquads(squads) {
+            if (squads != null && squads.length > 0) {
+                squadMessageProgress.empty().hide();
+                for (var index in squads) {
+                    var record = squads[index];
+                    var row = "<tr data-squadId='" + (record.guid == null ? "" : record.guid) + "'>";
+                    row += "<td><a href='squads/" + record.guid + "'>" + record.name + "</a></td>";
+                    row += "<td>" + record.yearBorn + "</td>";      
+                    row += "<td>" + record.numberOfPlayers + "</td>";                   
+                    row += "</tr>";
+                    squadTableBody.append(row);
+                }
+                squadTable.show();
+            }            
+        }
+
+        function getUpcomingEvents() {
+            eventsMessageProgress.text("Loading events, please wait...").show();
+            eventsTable.hide();
+            eventsTableBody.empty();
+            ajax(apiRoot + "upcoming-events", "GET", null, displayEvents, function () { eventsMessageProgress.text("Error - Could not retrieve upcoming events"); });            
+        }
+
+        function displayEvents(events) {
+            if (events != null && events.length > 0) {
+                eventsMessageProgress.empty().hide();
+                for (var index in events) {
+                    var entry = events[index];
+                    //console.log(entry);
+                    var row = "<tr data-id='" + entry.eventId + "'>";
+                    row = row + "<td><a href='events/" + entry.eventId + "' target='__blank'><span class='label label-default'>" + entry.eventTypeDescription + "</span><br/>" + entry.title + "</a></td>";
+                    row = row + "<td>" + entry.squads + "</td>";
+                    row = row + "<td>" + entry.formattedStartDate + "</td>";
+                    row = row + "<td>" + entry.formattedEndDate + "</td>";
+                    row = row + "<td>" + entry.location + "</td>";
+                    row = row + "<td class='text-center'>" + entry.trainingMaterialsCount + "</td></tr>";
+                    eventsTableBody.append(row);
+                }
+                eventsTable.append("<p><a href='events'>View more events</a></p>");
+                eventsTable.show();
+            } else {
+                eventsMessageProgress.text("No events found").show();
+            }
+        }
+
+        function getlatestFeedback() {
+            feedbackMessageProgress.text("Loading feedback, please wait...").show();
+            feedbackTable.hide();
+            feedbackTableBody.empty();
+            ajax(apiRoot + "latest-feedback", "GET", null, displayFeedback, function () { feedbackMessageProgress.text("Error - Could not retrieve latest feedback"); });                
+        }
+
+        function displayFeedback(feedback) {            
+            if (feedback != null && feedback.length > 0) {
+                feedbackMessageProgress.empty().hide();
+                for (var index in feedback) {
+                    var record = feedback[index];
+                    var row = "<tr data-feedbackid='" + (record.guid == null ? "" : record.guid) + "' data-playerid='" + record.player.guid + "'>";                                
+                    row += "<td>" + (record.latestComment == null ? "" : record.latestComment) + "</td>";       
+                    row += "<td><a href='feedback/" + record.guid + "' target='__blank'>follow up</a></td>";       
+                    row += "</tr>";
+                    feedbackTableBody.append(row);
+                }
+                feedbackTable.append("<p><a href='feedback'>View more feedback</a></p>");
+                feedbackTable.show();
+            } else {
+                feedbackMessageProgress.text("No feedback found").show();
+            }           
+        }
+
+        function initialize() {
+            getSquads();
+            getUpcomingEvents();
+            getlatestFeedback()
+        }
+
+        initialize();
+    </script>
+}

@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using HeyTeam.Core;
 using HeyTeam.Core.Models.Mini;
 using HeyTeam.Core.Queries;
 using HeyTeam.Lib.Data;
@@ -147,8 +148,26 @@ namespace HeyTeam.Lib.Queries
 			DynamicParameters p = new DynamicParameters();
 			p.Add("@ClubGuid", request.ClubId.ToString());
 			p.Add("@MemberGuid", request.MemberId.ToString());
+			string sql = GetLatestFeedbackSql(request.Membership);
 
-			var sql = @"DECLARE @Squads TABLE(SquadId BIGINT);
+			using (var connection = connectionFactory.Connect()) {
+				connection.Open();
+				var reader = connection.Query(sql, p).Cast<IDictionary<string, object>>();
+				var feedback = reader.Select<dynamic, MiniFeedback>(
+						row => new MiniFeedback((row.FeedbackGuid == null ? Guid.Empty : Guid.Parse(row.FeedbackGuid?.ToString()))) {
+							LatestComment = row.LatestComment,
+							Player = new MiniModel(Guid.Parse(row.PlayerGuid.ToString()), row.PlayerName),
+							PublishedOn = row.PublishedOn,
+							WeeklyNotes = row.WeeklyNotes
+						}).ToList();
+
+				return feedback;
+			}
+		}
+
+		private static string GetLatestFeedbackSql(Membership membership) {
+			if (membership == Membership.Coach) {
+				return @"DECLARE @Squads TABLE(SquadId BIGINT);
                         INSERT INTO @Squads(SquadId) 
                         SELECT S.SquadId 
                         FROM SquadCoaches S 
@@ -166,19 +185,18 @@ namespace HeyTeam.Lib.Queries
                         INNER JOIN Feedback F ON P.PlayerId = F.PlayerId 
                         WHERE (P.Deleted IS NULL OR P.Deleted = 0) 
                         ORDER BY CreatedOn DESC, F.PublishedOn DESC;";
-
-			using (var connection = connectionFactory.Connect()) {
-				connection.Open();
-				var reader = connection.Query(sql, p).Cast<IDictionary<string, object>>();
-				var feedback = reader.Select<dynamic, MiniFeedback>(
-						row => new MiniFeedback((row.FeedbackGuid == null ? Guid.Empty : Guid.Parse(row.FeedbackGuid?.ToString()))) {
-							LatestComment = row.LatestComment,
-							Player = new MiniModel(Guid.Parse(row.PlayerGuid.ToString()), row.PlayerName),
-							PublishedOn = row.PublishedOn,
-							WeeklyNotes = row.WeeklyNotes
-						}).ToList();
-
-				return feedback;
+			} else {
+				return @"SELECT TOP 10 F.Guid AS FeedbackGuid, P.Guid AS PlayerGuid, P.FirstName + ' ' + P.LastName AS PlayerName, F.PublishedOn,
+	                        (SELECT TOP 1 '<strong>' + CAST(CreatedOn AS VARCHAR(20)) + ': ' + PostedBy + ' wrote</strong><br/>' +  Comments 
+		                        FROM FeedbackComments FC WHERE FC.FeedbackId = F.FeedbackId ORDER BY CreatedOn DESC) AS LatestComment,
+		                        (SELECT TOP 1 CreatedOn 
+		                        FROM FeedbackComments FC WHERE FC.FeedbackId = F.FeedbackId ORDER BY CreatedOn DESC) AS CreatedOn
+	
+                        FROM Players P
+                        INNER JOIN Squads S ON S.SquadId = P.SquadId
+                        INNER JOIN Feedback F ON P.PlayerId = F.PlayerId 
+                        WHERE (P.Deleted IS NULL OR P.Deleted = 0) AND P.Guid = @MemberGuid
+                        ORDER BY CreatedOn DESC, F.PublishedOn DESC;";
 			}
 		}
 	}
