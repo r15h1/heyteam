@@ -3,6 +3,7 @@ using HeyTeam.Core.Queries;
 using HeyTeam.Web.Models.ApiModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Linq;
 
 namespace HeyTeam.Web.Areas.Players.Controllers {
@@ -16,13 +17,15 @@ namespace HeyTeam.Web.Areas.Players.Controllers {
 		private readonly IEventQuery eventQuery;
 		private readonly IFeedbackQuery feedbackQuery;
         private readonly ISquadQuery squadQuery;
+		private readonly IAssignmentQuery assignmentQuery;
 
-        public DashboardApiController(Club club, IEventQuery eventQuery, IFeedbackQuery feedbackQuery, ISquadQuery squadQuery){
+		public DashboardApiController(Club club, IEventQuery eventQuery, IFeedbackQuery feedbackQuery, ISquadQuery squadQuery, IAssignmentQuery assignmentQuery) {
 			this.club = club;
 			this.eventQuery = eventQuery;
 			this.feedbackQuery = feedbackQuery;
             this.squadQuery = squadQuery;
-        }
+			this.assignmentQuery = assignmentQuery;
+		}
 		
 		[HttpGet("upcoming-events")]
 		public IActionResult GetUpcomingEvents(DashboardModel model)
@@ -52,5 +55,11 @@ namespace HeyTeam.Web.Areas.Players.Controllers {
             var squads = squadQuery.GetMemberSquads(model.MemberId, Membership.Player);            
             return new JsonResult(squads);
         }
-    }
+
+		[HttpGet("upcoming-assignments")]
+		public IActionResult GetUpcomingAssignments(DashboardModel model) {
+			var assignments = assignmentQuery.GetAssignments(new AssignmentsRequest { ClubId = club.Guid, PlayerId = model.MemberId, Date = DateTime.Today });
+			return new JsonResult(assignments);
+		}
+	}
 }
