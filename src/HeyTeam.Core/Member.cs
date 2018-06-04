@@ -22,6 +22,7 @@ namespace HeyTeam.Core
 
 	public enum Membership {
 		Player,
-		Coach
+		Coach,
+		Administrator
 	}
 }

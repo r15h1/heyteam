@@ -426,7 +426,7 @@ namespace HeyTeam.Lib.Queries {
 			}
 		}
 
-		private string GetUpcomingEventsSql(Membership membership) {
+		private string GetUpcomingEventsSql(Membership? membership) {
 			string sql = null;
 			if (membership == Membership.Coach) {
 				sql = @"SELECT DISTINCT TOP(@Limit) C.Guid AS ClubGuid, E.Guid AS EventGuid, E.Title, 

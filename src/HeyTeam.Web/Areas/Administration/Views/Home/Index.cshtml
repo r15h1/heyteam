@@ -1,37 +1,162 @@
-﻿@model HeyTeam.Web.Models.DashboardViewModels.IndexViewModel
-@{
-    string @returnUrl = "returnurl=/";
-}
-<h1>Squads</h1>
-@if(Model.Squads != null && Model.Squads.Count > 0)
-{    
-    <h3>List</h3>
-    <div>
-    <div class="btn-group" role="group" aria-label="...">
-        <a class="btn btn-primary" id="AddSquadButton" asp-area="Administration" asp-controller="Squads" asp-action="New" asp-route-returnUrl="@returnUrl">Add New Squad</a>        
-    </div>
-    </div>
-    <div class="table-responsive">
-        <table class="table table-bordered table-hover">
-            <thead>
-                <tr>
-                    <th>Squad Name</th>
-                    <th>Coach</th>
-                    <th>#Players</th>
-                    <th>Next Session</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach(var squad in Model.Squads)
-                {
-                    <tr>
-                        <td><a asp-area="Administration" asp-controller="Squads" asp-action="Index" asp-route-squadId="@squad.Cells["squadid"]">@squad.Cells["squadname"]</a></td>
-                        <td>@squad.Cells["coach"]</td>
-                        <td>@squad.Cells["numberofplayers"]</td>
-                        <td></td>
-                    </tr>
+﻿@model HeyTeam.Web.Models.DashboardModel
+<h1>Dashboard</h1>
+<h3>My Squads</h3>
+<div id="squadMessage"></div>
+<div id="squadTable" class="table-responsive">
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th class="col-md-3">Squad Name</th>
+                <th class="col-md-2 text-center">Year Born</th>
+                <th class="col-md-1 text-center">#Players</th>
+                <th class="col-md-6 text-center">Next Event</th>
+            </tr>
+        </thead>
+        <tbody id="squadTableBody"></tbody>
+    </table>
+</div>
+
+<h3>Upcoming Events</h3>
+<div id="eventsMessage"></div>
+<div class="table-responsive" id="eventsTable">
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Squads</th>
+                <th>Starts</th>
+                <th>Ends</th>
+                <th>Location</th>
+                <th>Docs</th>
+            </tr>
+        </thead>
+        <tbody id="eventsTableBody"></tbody>
+    </table>
+</div>
+
+<h3>Latest Feedback</h3>
+<div id="feedbackMessage"></div>
+<div class="table-responsive" id="feedbackTable">
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th class="col-md-3">Player</th>
+                <th>Latest Comments</th>
+            </tr>
+        </thead>
+        <tbody id="feedbackTableBody"></tbody>
+    </table>
+</div>
+
+@section Scripts{
+    <script type="text/javascript">
+        var eventsMessageProgress = $("#eventsMessage");
+        var eventsTable = $("#eventsTable");
+        var eventsTableBody = $("#eventsTableBody");
+        var feedbackMessageProgress = $("#feedbackMessage");
+        var feedbackTable = $("#feedbackTable");
+        var feedbackTableBody = $("#feedbackTableBody");
+        var squadMessageProgress = $("#squadMessage");
+        var squadTable = $("#squadTable");
+        var squadTableBody = $("#squadTableBody");
+
+        var apiRoot = "/api/administration/@Model.MemberId" + "/";
+
+        function getSquads() {
+            squadMessageProgress.text("Loading squads, please wait...");
+            squadTable.hide();
+            squadTableBody.empty();
+            ajax(apiRoot + "my-squads", "GET", null, displaySquads, function () { squadMessageProgress.text("Error - Could not retrieve squads"); });
+        }
+
+        function displaySquads(squads) {
+            if (squads != null && squads.length > 0) {
+                squadMessageProgress.empty().hide();
+                for (var index in squads) {
+                    var record = squads[index];
+                    var row = "<tr data-squadId='" + (record.guid == null ? "" : record.guid) + "'>";
+                    row += "<td><a href='squads/" + record.guid + "'>" + record.name + "</a></td>";
+                    row += "<td class='text-center'>" + record.yearBorn + "</td>";
+                    row += "<td class='text-center'>" + record.numberOfPlayers + "</td>";
+                    row += "<td>" + getNextEvent(record.nextEvent) + "</td>";
+                    row += "</tr>";
+                    squadTableBody.append(row);
                 }
-            </tbody>
-        </table>
-    </div>
+                squadTable.show();
+            } else {
+                squadMessageProgress.text("No squad found").show();
+            }
+        }
+
+        
+        function getNextEvent(event) {
+            if (event == null) return "";
+
+            return "<span class='label label-default'>" + event.eventTypeDescription + "</span> <a href='events/" + event.guid + "'>" + event.name + "</a><br/>" + event.startDate + ", " + event.location;
+        }
+
+        
+
+        function getUpcomingEvents() {
+            eventsMessageProgress.text("Loading events, please wait...").show();
+            eventsTable.hide();
+            eventsTableBody.empty();
+            ajax(apiRoot + "upcoming-events", "GET", null, displayEvents, function () { eventsMessageProgress.text("Error - Could not retrieve upcoming events"); });
+        }
+
+        function displayEvents(events) {
+            if (events != null && events.length > 0) {
+                eventsMessageProgress.empty().hide();
+                for (var index in events) {
+                    var entry = events[index];
+                    //console.log(entry);
+                    var row = "<tr data-id='" + entry.eventId + "'>";
+                    row = row + "<td><a href='events/" + entry.eventId + "' target='__blank'><span class='label label-default'>" + entry.eventTypeDescription + "</span><br/>" + entry.title + "</a></td>";
+                    row = row + "<td>" + entry.squads + "</td>";
+                    row = row + "<td>" + entry.formattedStartDate + "</td>";
+                    row = row + "<td>" + entry.formattedEndDate + "</td>";
+                    row = row + "<td>" + entry.location + "</td>";
+                    row = row + "<td class='text-center'>" + entry.trainingMaterialsCount + "</td></tr>";
+                    eventsTableBody.append(row);
+                }
+                eventsTable.append("<p><a href='events'>View more events</a></p>");
+                eventsTable.show();
+            } else {
+                eventsMessageProgress.text("No events found").show();
+            }
+        }
+
+        function getlatestFeedback() {
+            feedbackMessageProgress.text("Loading feedback, please wait...").show();
+            feedbackTable.hide();
+            feedbackTableBody.empty();
+            ajax(apiRoot + "latest-feedback", "GET", null, displayFeedback, function () { feedbackMessageProgress.text("Error - Could not retrieve latest feedback"); });
+        }
+
+        function displayFeedback(feedback) {
+            if (feedback != null && feedback.length > 0) {
+                feedbackMessageProgress.empty().hide();
+                for (var index in feedback) {
+                    var record = feedback[index];
+                    var row = "<tr data-feedbackid='" + (record.guid == null ? "" : record.guid) + "' data-playerid='" + record.player.guid + "'>";
+                    row += "<td><a href='feedback/" + record.guid + "' target='__blank'>" + record.player.name + "</a></td>";
+                    row += "<td>" + (record.latestComment == null ? "" : record.latestComment) + "</td>";
+                    row += "</tr>";
+                    feedbackTableBody.append(row);
+                }
+                feedbackTable.append("<p><a href='feedback'>View more feedback</a></p>");
+                feedbackTable.show();
+            } else {
+                feedbackMessageProgress.text("No feedback found").show();
+            }
+        }
+
+        function initialize() {
+            getSquads();
+            getUpcomingEvents();
+            getlatestFeedback()
+        }
+
+        initialize();
+    </script>
 }
