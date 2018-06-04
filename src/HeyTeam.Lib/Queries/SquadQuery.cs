@@ -132,7 +132,7 @@ namespace HeyTeam.Lib.Repositories {
 							YearBorn = row.YearBorn,
 							NumberOfPlayers = row.NumberOfPlayers,
 							NextEvent = (row.EventGuid == null ? null : new MiniEvent(Guid.Parse(row.EventGuid.ToString()), row.Title){
-								EventType = (EventType?)row.EventTypeId , Location = row.Location, StartDate = row.StartDate?.ToString("dd-MMM-yyyy"),
+								EventType = (EventType?)row.EventTypeId , Location = row.Location, StartDate = row.StartDate?.ToString("dd MMM yyyy h:mm tt"),
 								EventTypeDescription = row.EventTypeDescription
 							})
 						}).ToList();

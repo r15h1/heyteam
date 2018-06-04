@@ -449,7 +449,8 @@ namespace HeyTeam.Lib.Queries {
 								INNER JOIN SquadCoaches SC ON SC.SquadId = S.SquadId
 								INNER JOIN Coaches CO ON CO.CoachId = SC.CoachId AND CO.Guid = @MemberId
 								WHERE (E.Deleted IS NULL OR E.Deleted = 0) AND E.StartDate >= CAST(GetDate() AS DATE);";
-			} else {
+
+			} else if (membership == Membership.Player) {
 				sql = @"SELECT DISTINCT TOP(@Limit) C.Guid AS ClubGuid, E.Guid AS EventGuid, E.Title, 
 										E.StartDate, E.EndDate, E.Location, E.EventTypeId,
 										(SELECT COUNT(1) FROM EventTrainingMaterials ETM 
@@ -468,6 +469,25 @@ namespace HeyTeam.Lib.Queries {
 								INNER JOIN SquadEvents SE ON SE.EventId = E.EventId
 								INNER JOIN Squads S ON S.SquadId = SE.SquadId AND S.ClubId = C.ClubId								
 								INNER JOIN Players P ON P.SquadId = S.SquadId AND P.Guid = @MemberId
+								WHERE (E.Deleted IS NULL OR E.Deleted = 0) AND E.StartDate >= CAST(GetDate() AS DATE);";
+			} else {
+				sql = @"SELECT DISTINCT TOP(@Limit) C.Guid AS ClubGuid, E.Guid AS EventGuid, E.Title, 
+										E.StartDate, E.EndDate, E.Location, E.EventTypeId,
+										(SELECT COUNT(1) FROM EventTrainingMaterials ETM 
+											INNER JOIN TrainingMaterials T ON ETM.TrainingMaterialId = T.TrainingMaterialId
+											WHERE ETM.EventId = E.EventId AND (T.Deleted IS NULL OR T.Deleted = 0)
+										) AS TrainingMaterialCount,
+
+										(SELECT STUFF(
+												(SELECT ', ' + Name FROM (SELECT S.Name AS Name FROM Squads S
+												INNER JOIN SquadEvents SE ON SE.SquadId = S.SquadId
+												WHERE SE.EventId = E.EventId)SQ ORDER BY Name FOR XML PATH (''))
+											,1,1,'')
+										) AS Squads
+								FROM Events E
+								INNER JOIN Clubs C ON E.ClubId = C.ClubId AND C.Guid = @ClubGuid
+								INNER JOIN SquadEvents SE ON SE.EventId = E.EventId
+								INNER JOIN Squads S ON S.SquadId = SE.SquadId AND S.ClubId = C.ClubId	
 								WHERE (E.Deleted IS NULL OR E.Deleted = 0) AND E.StartDate >= CAST(GetDate() AS DATE);";
 			}
 
