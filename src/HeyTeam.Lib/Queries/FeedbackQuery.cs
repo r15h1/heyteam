@@ -148,6 +148,7 @@ namespace HeyTeam.Lib.Queries
 			DynamicParameters p = new DynamicParameters();
 			p.Add("@ClubGuid", request.ClubId.ToString());
 			p.Add("@MemberGuid", request.MemberId.ToString());
+			p.Add("@Limit", 5);
 			string sql = GetLatestFeedbackSql(request.Membership);
 
 			using (var connection = connectionFactory.Connect()) {
@@ -174,7 +175,7 @@ namespace HeyTeam.Lib.Queries
                         INNER JOIN Coaches CO ON CO.CoachId = S.CoachId 
                         WHERE (CO.Deleted IS NULL OR CO.Deleted = 0) AND CO.Guid = @MemberGuid;		
 			
-                        SELECT TOP 10 F.Guid AS FeedbackGuid, P.Guid AS PlayerGuid, P.FirstName + ' ' + P.LastName AS PlayerName, F.PublishedOn,
+                        SELECT TOP(@Limit) F.Guid AS FeedbackGuid, P.Guid AS PlayerGuid, P.FirstName + ' ' + P.LastName AS PlayerName, F.PublishedOn,
 	                        (SELECT TOP 1 '<strong>' + CAST(CreatedOn AS VARCHAR(20)) + ': ' + PostedBy + ' wrote</strong><br/>' +  Comments 
 		                        FROM FeedbackComments FC WHERE FC.FeedbackId = F.FeedbackId ORDER BY CreatedOn DESC) AS LatestComment,
 		                        (SELECT TOP 1 CreatedOn 
@@ -185,8 +186,8 @@ namespace HeyTeam.Lib.Queries
                         INNER JOIN Feedback F ON P.PlayerId = F.PlayerId 
                         WHERE (P.Deleted IS NULL OR P.Deleted = 0) 
                         ORDER BY CreatedOn DESC, F.PublishedOn DESC;";
-			} else {
-				return @"SELECT TOP 10 F.Guid AS FeedbackGuid, P.Guid AS PlayerGuid, P.FirstName + ' ' + P.LastName AS PlayerName, F.PublishedOn,
+			} else if (membership == Membership.Player){
+				return @"SELECT TOP(@Limit) F.Guid AS FeedbackGuid, P.Guid AS PlayerGuid, P.FirstName + ' ' + P.LastName AS PlayerName, F.PublishedOn,
 	                        (SELECT TOP 1 '<strong>' + CAST(CreatedOn AS VARCHAR(20)) + ': ' + PostedBy + ' wrote</strong><br/>' +  Comments 
 		                        FROM FeedbackComments FC WHERE FC.FeedbackId = F.FeedbackId ORDER BY CreatedOn DESC) AS LatestComment,
 		                        (SELECT TOP 1 CreatedOn 
@@ -196,6 +197,18 @@ namespace HeyTeam.Lib.Queries
                         INNER JOIN Squads S ON S.SquadId = P.SquadId
                         INNER JOIN Feedback F ON P.PlayerId = F.PlayerId 
                         WHERE (P.Deleted IS NULL OR P.Deleted = 0) AND P.Guid = @MemberGuid
+                        ORDER BY CreatedOn DESC, F.PublishedOn DESC;";
+			} else {
+				return @"SELECT TOP(@Limit) F.Guid AS FeedbackGuid, P.Guid AS PlayerGuid, P.FirstName + ' ' + P.LastName AS PlayerName, F.PublishedOn,
+	                        (SELECT TOP 1 '<strong>' + CAST(CreatedOn AS VARCHAR(20)) + ': ' + PostedBy + ' wrote</strong><br/>' +  Comments 
+		                        FROM FeedbackComments FC WHERE FC.FeedbackId = F.FeedbackId ORDER BY CreatedOn DESC) AS LatestComment,
+		                        (SELECT TOP 1 CreatedOn 
+		                        FROM FeedbackComments FC WHERE FC.FeedbackId = F.FeedbackId ORDER BY CreatedOn DESC) AS CreatedOn
+	
+                        FROM Players P
+                        INNER JOIN Squads S ON S.SquadId = P.SquadId
+                        INNER JOIN Feedback F ON P.PlayerId = F.PlayerId 
+                        WHERE (P.Deleted IS NULL OR P.Deleted = 0)
                         ORDER BY CreatedOn DESC, F.PublishedOn DESC;";
 			}
 		}
