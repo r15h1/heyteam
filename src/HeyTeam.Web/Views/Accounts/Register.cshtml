@@ -1,11 +1,13 @@
-﻿@model RegisterViewModel
+﻿@{Layout = "_RegistrationLayout";}
+
+@model RegisterViewModel
 @{
     ViewData["Title"] = "Register";
 }
 <div class="row">
     <div class="col-md-offset-4 col-md-4">
         <form asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
-            <input type="hidden" asp-for="Token" value="@ViewData["Token"]"/>
+            <input type="hidden" asp-for="Token" value="@ViewData["Token"]" />
             <h2>@ViewData["Title"]</h2>
             <h4>Create a new account.</h4>
             <hr />

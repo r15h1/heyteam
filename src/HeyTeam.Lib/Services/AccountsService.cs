@@ -119,10 +119,9 @@ namespace HeyTeam.Lib.Services
 				if (invite == null || invite.ClubId.IsEmpty() || invite.Email.IsEmpty() || invite.Expiry.IsEmpty())
 					return (Response.CreateResponse(new ArgumentNullException("token", "The token is invalid")), null);
 
-				if (invite.Expiry.Value < DateTime.Today)
-					return (Response.CreateResponse(new IllegalOperationException("The token is expired")), null);
+				//if (invite.Expiry.Value < DateTime.Today)
+				//	return (Response.CreateResponse(new IllegalOperationException("The token is expired")), null);
 
-				//var club = clubQuery.GetClub(invite.ClubId.Value);
 				if (club == null || club.Guid != request.ClubId)
 					return (Response.CreateResponse(new EntityNotFoundException("The token does not correspond to this club")), null);
 

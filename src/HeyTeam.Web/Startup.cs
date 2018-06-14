@@ -9,6 +9,7 @@ using HeyTeam.Core.Validation;
 using HeyTeam.Identity;
 using HeyTeam.Identity.Data;
 using HeyTeam.Identity.Seeding;
+using HeyTeam.Lib;
 using HeyTeam.Lib.Data;
 using HeyTeam.Lib.Queries;
 using HeyTeam.Lib.Repositories;
@@ -25,6 +26,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 
@@ -79,8 +81,13 @@ namespace HeyTeam.Web {
 			 }); 
 
 			services.AddMemoryCache();
-			// Add application services.
-			services.AddTransient<IEmailSender, EmailSender>();
+            services.AddLogging((loggingBuilder) =>
+            {
+                var loggingSection = Configuration.GetSection("Logging");
+                loggingBuilder.AddFile(loggingSection);
+            });
+            // Add application services.
+            services.AddTransient<IEmailSender, EmailSender>();
             services.AddMultitenancy<Club, TenantResolver>();			
 
 			services.AddRouting(options => options.LowercaseUrls = true);

@@ -272,8 +272,10 @@ namespace HeyTeam.Web.Controllers {
 				var (messages, invitation) = await VerifyToken(model.Token);
 				if (messages.Any())
 					return View("RegistrationDenied", messages);
-				else if (invitation == null || invitation.Email.IsEmpty() || !invitation.Email.ToLowerInvariant().Equals(model.Email.ToLowerInvariant()))
-					return View("RegistrationDenied", new string[] { "The specified email does not match our records" });
+				else if (invitation == null || invitation.Email.IsEmpty())
+                    return View("RegistrationDenied", new string[] { "The specified email cannot be empty" });
+                else if(!invitation.Email.Trim().ToLowerInvariant().Equals(model.Email.Trim().ToLowerInvariant()))
+					return View("RegistrationDenied", new string[] { $"The specified email ({invitation.Email}) does not match any player's or coach's email in our records" });
 
 				var result = await identityManager.SetupUser(new Credential { Email = model.Email, Password = model.Password });
 

@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<string>
 @using HeyTeam.Util
-<h2>Invalid Link</h2>
-<p>This link is not valid or has expired. Please contact your administrator.</p>
+<h2>Error Registering User</h2>
+<p>There was an error creating your user account. Please contact your administrator.</p>
 @if(Model.Any()) {
     @foreach (var error in Model) {
         @Html.Raw($"<p>{error}</p>") 

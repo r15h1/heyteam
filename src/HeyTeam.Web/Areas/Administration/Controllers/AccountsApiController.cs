@@ -24,7 +24,7 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 		public IActionResult Invitation(string email) {
 			var response = accountService.SendInvitation(new AccountRequest {
 				ClubId = club.Guid,
-				Email = email,
+				Email = email
 			});
 
 			return response.RequestIsFulfilled ? Ok() : BadRequest(response.Errors) as IActionResult;
@@ -35,7 +35,7 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 		public IActionResult ToggleLock(string email) {
 			var response = accountService.ToggleLock(new AccountRequest {
 				ClubId = club.Guid,
-				Email = email,
+				Email = email
 			});
 
 			return response.RequestIsFulfilled ? Ok() : BadRequest(response.Errors) as IActionResult;
