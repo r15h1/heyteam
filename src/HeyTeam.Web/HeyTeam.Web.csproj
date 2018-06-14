@@ -5,6 +5,9 @@
 	<MvcRazorCompileOnPublish>false</MvcRazorCompileOnPublish>
   </PropertyGroup>
   <ItemGroup>
+    <Content Remove="log4net.config" />
+  </ItemGroup>
+  <ItemGroup>
     <_ContentIncludedByDefault Remove="Areas\Coaches\Views\Assignments\Details.cshtml" />
   </ItemGroup>
   <ItemGroup>
@@ -14,8 +17,8 @@
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.0.1" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Log4Net.AspNetCore" Version="2.1.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.1" PrivateAssets="All" />
-    <PackageReference Include="NReco.Logging.File" Version="1.0.4" />
     <PackageReference Include="SaasKit.Multitenancy" Version="1.1.4" />
   </ItemGroup>
   <ItemGroup>
@@ -88,5 +91,8 @@
     <Folder Include="Areas\Players\Models\" />
     <Folder Include="wwwroot\docs\" />
     <Folder Include="wwwroot\library\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="log4net.config" />
   </ItemGroup>
 </Project>

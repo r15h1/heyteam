@@ -9,7 +9,6 @@ using HeyTeam.Core.Validation;
 using HeyTeam.Identity;
 using HeyTeam.Identity.Data;
 using HeyTeam.Identity.Seeding;
-using HeyTeam.Lib;
 using HeyTeam.Lib.Data;
 using HeyTeam.Lib.Queries;
 using HeyTeam.Lib.Repositories;
@@ -81,12 +80,8 @@ namespace HeyTeam.Web {
 			 }); 
 
 			services.AddMemoryCache();
-            services.AddLogging((loggingBuilder) =>
-            {
-                var loggingSection = Configuration.GetSection("Logging");
-                loggingBuilder.AddFile(loggingSection);
-            });
-            // Add application services.
+            
+
             services.AddTransient<IEmailSender, EmailSender>();
             services.AddMultitenancy<Club, TenantResolver>();			
 
@@ -189,19 +184,19 @@ namespace HeyTeam.Web {
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public  void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public  void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             //if (env.IsDevelopment())
             //{
                 app.UseDeveloperExceptionPage();
                 app.UseDatabaseErrorPage();
-            //}
-            //else
-            //{
-            //    app.UseExceptionHandler("/Home/Error");
-            //}
-
-            app.UseStaticFiles();
+			//}
+			//else
+			//{
+			//    app.UseExceptionHandler("/Home/Error");
+			//}
+			loggerFactory.AddLog4Net();	
+			app.UseStaticFiles();
             app.UseAuthentication();            
             app.UseMultitenancy<Club>();			
 
