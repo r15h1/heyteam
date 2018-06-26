@@ -10,5 +10,6 @@ namespace HeyTeam.Core.Identity {
 		Task<IdentityOperationResult> RemoveUser(string email);
 		IEnumerable<string> GetRoles(string email);
 		Task<IdentityOperationResult> RemoveUserRole(string email, Membership membership);
+		bool UserExists(string email);
 	}
 }

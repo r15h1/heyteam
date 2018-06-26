@@ -281,12 +281,12 @@ namespace HeyTeam.Web.Controllers {
 
 				if (result.Succeeded) {
 					logger.LogInformation("User created a new account with password.");
-					var user = await userManager.FindByEmailAsync(model.Email);
-					var code = await userManager.GenerateEmailConfirmationTokenAsync(user);
-					var callbackUrl = Url.EmailConfirmationLink(user.Id, code, Request.Scheme);
-					await emailSender.SendEmailConfirmationAsync(model.Email, callbackUrl);
+					//var user = await userManager.FindByEmailAsync(model.Email);
+					//var code = await userManager.GenerateEmailConfirmationTokenAsync(user);
+					//var callbackUrl = Url.EmailConfirmationLink(user.Id, code, Request.Scheme);
+					//await emailSender.SendEmailConfirmationAsync(model.Email, callbackUrl);
 
-					await signInManager.SignInAsync(user, isPersistent: false);
+					//await signInManager.SignInAsync(user, isPersistent: false);
 					logger.LogInformation("User created a new account with password.");
 					return View("RegistrationCompleted");
 				} else {

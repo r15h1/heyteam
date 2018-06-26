@@ -40,5 +40,17 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 
 			return response.RequestIsFulfilled ? Ok() : BadRequest(response.Errors) as IActionResult;
 		}
+
+		[HttpPost("generateuser")]
+		[ValidateAntiForgeryToken]
+		public IActionResult GenerateUser(string email, string password) {
+			var response = accountService.CreateMemberAccount(new MembershipRequest {
+				ClubId = club.Guid,
+				Email = email,
+				Password = password
+			});
+
+			return response.RequestIsFulfilled ? Ok() : BadRequest(response.Errors) as IActionResult;
+		}
 	}
 }

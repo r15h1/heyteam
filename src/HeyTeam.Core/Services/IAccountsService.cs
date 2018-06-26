@@ -18,7 +18,7 @@ namespace HeyTeam.Core.Services
 	}
 
 	public class MembershipRequest {
-		public string Token { get; set; }
+		public Guid ClubId { get; set; }
 		public string Email { get; set; }
 		public string Password { get; set; }
 	}

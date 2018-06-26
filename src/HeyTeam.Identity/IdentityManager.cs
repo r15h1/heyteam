@@ -25,25 +25,24 @@ namespace HeyTeam.Identity {
 			var newUser = new ApplicationUser { UserName = credential.Email, Email = credential.Email };
 			
 			try {
-				var result = await userManager.CreateAsync(newUser, credential.Password);
+				var result = await userManager.CreateAsync(newUser, credential.Password);				
 				if (result.Succeeded) {
 					foreach (var role in roles) {
 						var roleResult = await userManager.AddToRoleAsync(newUser, role.ToString().ToLowerInvariant());
 						if (!roleResult.Succeeded) {
-							var operationResult = new IdentityOperationResult(false);
-							foreach (var e in result.Errors) 
-								operationResult.AddError(e.Description);
-
-							return operationResult;
+							return GeneraturFailureResult(roleResult);
 						}							
-					}			
-					return new IdentityOperationResult(true);
-				} else {
-					var operationResult = new IdentityOperationResult(false);
-					foreach (var e in result.Errors) 
-						operationResult.AddError(e.Description);
+					}
+					var code = await userManager.GenerateEmailConfirmationTokenAsync(newUser);
+					var confirmationResult = await userManager.ConfirmEmailAsync(newUser, code);
+					if (confirmationResult.Succeeded) {
+						return new IdentityOperationResult(true);
+					} else {
+						return GeneraturFailureResult(confirmationResult);
+					}
 
-					return operationResult;
+				} else {
+					return GeneraturFailureResult(result);
 				}
 			}catch(Exception ex) {
 				var operationResult = new IdentityOperationResult(false);
@@ -52,7 +51,15 @@ namespace HeyTeam.Identity {
 			}			
         }
 
-        public IdentityOperationResult AddUserToRole(string email, string role) {
+		private static IdentityOperationResult GeneraturFailureResult(IdentityResult confimrationResult) {
+			var operationResult = new IdentityOperationResult(false);
+			foreach (var e in confimrationResult.Errors)
+				operationResult.AddError(e.Description);
+
+			return operationResult;
+		}
+
+		public IdentityOperationResult AddUserToRole(string email, string role) {
             throw new System.NotImplementedException();
         }
 
@@ -104,6 +111,11 @@ namespace HeyTeam.Identity {
 
 			await userManager.RemoveFromRoleAsync(user, membership.ToString().ToUpperInvariant());
 			return new IdentityOperationResult(true);
+		}
+
+		public bool UserExists(string email) {
+			var user = userManager.FindByEmailAsync(email).Result;
+			return user != null;				
 		}
 	}
 }

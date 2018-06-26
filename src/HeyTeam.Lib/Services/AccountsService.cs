@@ -27,6 +27,7 @@ namespace HeyTeam.Lib.Services
 		private readonly IMemberQuery memberQuery;
 		private readonly IIdentityManager identityManager;
 		private readonly Club club;
+		private readonly IValidator<MembershipRequest> membershipRequestValidator;
 
 		public AccountsService(IDataProtectionProvider dataProtectionProvider, 
 								IOptions<CryptographicConfiguration> cryptographicConfiguration, 
@@ -35,7 +36,8 @@ namespace HeyTeam.Lib.Services
                                 //IClubQuery clubQuery,
 								IMemberQuery memberQuery,
 								IIdentityManager identityManager,
-								Club club) {
+								Club club,
+								IValidator<MembershipRequest> membershipRequestValidator) {
 			this.dataProtectionProvider = dataProtectionProvider;
 			this.cryptographicSettings = cryptographicConfiguration.Value.CryptographicSettings;
 			this.emailSender = emailSender;
@@ -44,10 +46,32 @@ namespace HeyTeam.Lib.Services
 			this.memberQuery = memberQuery;
 			this.identityManager = identityManager;
 			this.club = club;
+			this.membershipRequestValidator = membershipRequestValidator;
 		}
 
 		public Response CreateMemberAccount(MembershipRequest request) {
-			throw new NotImplementedException();
+			var validationResult = membershipRequestValidator.Validate(request);
+			if (!validationResult.IsValid)
+				return Response.CreateResponse(validationResult.Messages);
+
+			if (club == null)
+				return Response.CreateResponse(new EntityNotFoundException("The specified club does not exist"));
+
+			IEnumerable<Member> members = memberQuery.GetMembersByEmail(club.Guid, request.Email);
+			if (!members.Any())
+				return Response.CreateResponse(new EntityNotFoundException("The specified member (email) does not exist in the specified club"));
+
+			bool userExists = identityManager.UserExists(request.Email);
+			if (userExists)
+				return Response.CreateResponse(new List<string>{"This user is already registered" });
+
+			var result = identityManager.SetupUser(new Credential { Email = request.Email, Password = request.Password }).Result;
+
+			if (!result.Succeeded)
+				Response.CreateResponse(result.Errors);
+
+			return Response.CreateSuccessResponse();
+
 		}
 
 		public Response SendInvitation(AccountRequest request) {
