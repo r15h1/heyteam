@@ -307,6 +307,32 @@ namespace HeyTeam.Lib.Queries {
 				return terms;
 			}
 		}
-         
-    }
+
+		public IEnumerable<MiniReportCard> GetPlayerReportCards(Guid clubId, Guid playerId) {
+			string sql = @"SELECT T.StartDate, T.EndDate, T.Title, PRC.Guid AS ReportCardGuid
+						  FROM PlayerReportCards PRC
+						  INNER JOIN Players P ON PRC.PlayerId = P.PlayerId AND P.Guid = @PlayerGuid
+						  INNER JOIN Squads S ON S.SquadId = P.SquadId
+						  INNER JOIN Clubs C ON C.ClubId = S.ClubId AND C.Guid = @ClubGuid
+						  INNER JOIN EvaluationTerms T ON PRC.TermId = T.TermId
+						  WHERE T.Deleted IS NULL OR T.Deleted = 0
+						ORDER BY T.StartDate DESC";
+
+			DynamicParameters p = new DynamicParameters();
+			p.Add("@ClubGuid", clubId.ToString());
+			p.Add("@PlayerGuid", playerId.ToString());
+
+			using (var connection = factory.Connect()) {
+				connection.Open();
+				var reportCards = connection.Query(sql, p).Cast<IDictionary<string, object>>().Select<dynamic, MiniReportCard>(
+						row => new MiniReportCard(Guid.Parse(row.ReportCardGuid.ToString())) {
+							EndDate = row.EndDate,
+							StartDate = row.StartDate,
+							Title = row.Title
+						}).ToList();
+
+				return reportCards;
+			}
+		}
+	}
 }

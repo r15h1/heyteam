@@ -1,0 +1,28 @@
+﻿@model IEnumerable<HeyTeam.Core.Models.Mini.MiniReportCard>
+<h1>Evaluations</h1>
+<h3>Report Cards</h3>
+
+@if (Model == null || Model.Count() == 0){ 
+<div id="message">No records found</div>
+} else {
+<div class="table-responsive">
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>Term</th>
+                <th>Start Date</th>
+                <th>End Date</th>                
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model) {
+                <tr>
+                    <td><a asp-action="PlayerReportCardDetails" asp-route-playerReportCardId="@item.Guid" target="_blank">@item.Title</a></td>
+                    <td>@(item.StartDate != null ? item.StartDate.ToString("dd-MMM-yyyy") : "")</td>
+                    <td>@(item.EndDate != null ? item.EndDate.ToString("dd-MMM-yyyy") : "")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+}
