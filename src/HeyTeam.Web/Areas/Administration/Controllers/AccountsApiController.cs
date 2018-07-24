@@ -46,7 +46,7 @@ namespace HeyTeam.Web.Areas.Administration.Controllers {
 		public IActionResult GenerateUser(string email, string password) {
 			var response = accountService.CreateMemberAccount(new MembershipRequest {
 				ClubId = club.Guid,
-				Email = email,
+				Email = email?.Trim(),
 				Password = password
 			});
 
