@@ -21,8 +21,8 @@ namespace HeyTeam.Lib.Validation {
 
 			if (request.StartDate.IsEmpty())
 				result.AddMessage("Start Date & Time cannot be empty");
-			else if(request.StartDate.Value <= DateTime.Now)
-				result.AddMessage("Start Date & Time must be in the future");
+			//else if(request.StartDate.Value <= DateTime.Now)
+			//	result.AddMessage("Start Date & Time must be in the future");
 
 			if (request.EndDate.IsEmpty())
 				result.AddMessage("End Date & Time cannot be empty");

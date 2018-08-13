@@ -20,12 +20,12 @@ namespace HeyTeam.Web.Models.EventsViewModels {
 		public IEnumerable<Guid> Squads { get; set; }
 
 		[Required]
-		[FutureDate(ErrorMessage = "Start Date must be in the future")]
+		//[FutureDate(ErrorMessage = "Start Date must be in the future")]
 		[Display(Name = "Start Date and Time")]
 		public DateTime? StartDate { get; set; } 
 		
 		[Required]
-		[FutureDate(ErrorMessage = "End Date and Time must be greater than Start Date and be in the future")]
+		//[FutureDate(ErrorMessage = "End Date and Time must be greater than Start Date and be in the future")]
 		[Display(Name = "End Date and Time")]
 		public DateTime? EndDate { get; set; }
 

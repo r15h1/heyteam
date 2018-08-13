@@ -145,9 +145,9 @@
                             var endDate = new Date(entry.formattedEndDate);
                             var startDate = new Date(entry.formattedStartDate);
                             var now = new Date();
-                            var lastReviewDate = new Date(now.getTime() - (1000 * 60 * 60 * 24 * 30)); //close review 30 days after event
+                            var lastReviewDate = new Date(now.getTime() - (1000 * 60 * 60 * 24 * 100)); //close review 100 days after event
                             var attendanceStartDate = new Date(startDate.getTime() - (1000 * 60 * 60 * 3)); //display attendance  option 3 hours before game
-                            var attendanceEndDate = new Date(startDate.getTime() + (1000 * 60 * 60 * 24 * 15)); //hide attendance  option 15 days after game
+                            var attendanceEndDate = new Date(startDate.getTime() + (1000 * 60 * 60 * 24 * 100)); //hide attendance  option 100 days after game
 
                             row = row + "<td class='text-center'><div class='dropdown'>" +
                                 "<button class='btn btn-default dropdown-toggle btn-sm' type='button' id='dropdownMenu1' data-toggle='dropdown' aria- haspopup='true' aria-expanded='true' >" +
